@@ -1,5 +1,7 @@
 <template>
   <h1>Cumulonimbus, the funny cloud platform.</h1>
+
+  <p>lol</p>
 </template>
 
 <script lang="ts">

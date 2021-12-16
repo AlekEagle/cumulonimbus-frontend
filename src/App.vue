@@ -8,18 +8,18 @@
     </router-link>
     <ThemeToggle />
     <nav class="navbar">
-      <ul class="nav-menu">
-        <li class="nav-item">
+      <ul ref="navMenu" class="nav-menu">
+        <li class="nav-item" @click="mobileMenu">
           <router-link to="/">Home</router-link>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" @click="mobileMenu">
           <router-link to="/dashboard/">Dashboard</router-link>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" @click="mobileMenu">
           <a href="https://docs.alekeagle.me" target="_blank">Documentation</a>
         </li>
       </ul>
-      <div class="hamburger"
+      <div ref="hamburger" class="hamburger" @click="mobileMenu"
         ><span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -40,7 +40,16 @@
       ThemeToggle
     }
   })
-  export default class Home extends Vue {}
+  export default class Home extends Vue {
+    declare $refs: {
+      navMenu: HTMLUListElement;
+      hamburger: HTMLDivElement;
+    };
+    mobileMenu() {
+      this.$refs.navMenu.classList.toggle('active');
+      this.$refs.hamburger.classList.toggle('active');
+    }
+  }
 </script>
 
 <style>
@@ -85,31 +94,6 @@
     display: none;
   }
 
-  @media only screen and (max-width: 768px) {
-    .nav-menu {
-      position: fixed;
-      left: -100%;
-      top: 5rem;
-      flex-direction: column;
-      background-color: #fff;
-      width: 100%;
-      border-radius: 10px;
-      text-align: center;
-      transition: 0.3s;
-      box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
-    }
-
-    .nav-menu.active {
-      left: 0;
-    }
-
-    .hamburger {
-      display: block;
-      cursor: pointer;
-      margin-right: 10px;
-    }
-  }
-
   .nav-menu {
     display: flex;
     justify-content: space-between;
@@ -124,8 +108,8 @@
     width: 25px;
     height: 3px;
     margin: 5px auto;
-    -webkit-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
     background-color: #101010;
   }
 
@@ -141,6 +125,20 @@
     margin-left: auto;
   }
 
+  h5,
+  h6,
+  p {
+    font-size: 20px;
+    color: black;
+    font-family: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  html.dark-theme h5,
+  html.dark-theme h6,
+  html.dark-theme p {
+    color: white;
+  }
+
   .nav-item a {
     height: fit-content;
     font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', Arial,
@@ -148,7 +146,7 @@
     margin: 0 5px;
     font-size: 19px;
     font-weight: 600;
-    color: #005670;
+    color: #000000;
     border-bottom: transparent solid 2px;
     transition: border 0.25s, color 0.25s;
   }
@@ -159,7 +157,7 @@
   }
 
   .nav-item a.router-link-active {
-    border-bottom: #005670 solid 2px;
+    border-bottom: #000000 solid 2px;
   }
 
   html.dark-theme .nav-item a.router-link-active {
@@ -193,5 +191,53 @@
 
   .content {
     text-align: center;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .nav-menu {
+      padding: 10px 0;
+      position: fixed;
+      left: -100%;
+      top: 5rem;
+      flex-direction: column;
+      background-color: rgba(255, 255, 255, 0.75);
+      margin: 0 30px;
+      width: calc(100% - (30px * 2));
+      border-radius: 10px;
+      text-align: center;
+      transition: 0.4s;
+      box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+    }
+
+    html.dark-theme .nav-menu {
+      background-color: rgba(0, 0, 0, 0.75);
+    }
+
+    .nav-menu.active {
+      left: 0;
+    }
+
+    .hamburger {
+      display: block;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .hamburger.active .bar:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active .bar:nth-child(1) {
+      transform: translateY(8px) rotate(45deg);
+    }
+
+    .hamburger.active .bar:nth-child(3) {
+      transform: translateY(-8px) rotate(-45deg);
+    }
+
+    .nav-item a {
+      font-size: 36px;
+      margin: 10px 0;
+    }
   }
 </style>
