@@ -6,9 +6,11 @@
         <p>Cumulonimbus</p>
       </div>
     </router-link>
-    <ThemeToggle />
     <nav class="navbar">
       <ul ref="navMenu" class="nav-menu">
+        <li class="nav-item">
+          <ThemeToggle />
+        </li>
         <li class="nav-item" @click="mobileMenu">
           <router-link to="/">Home</router-link>
         </li>
@@ -17,6 +19,9 @@
         </li>
         <li class="nav-item" @click="mobileMenu">
           <a href="https://docs.alekeagle.me" target="_blank">Documentation</a>
+        </li>
+        <li class="nav-item" @click="mobileMenu">
+          <a href="https://alekeagle.com/d" target="_blank">Discord</a>
         </li>
       </ul>
       <div ref="hamburger" class="hamburger" @click="mobileMenu"
@@ -29,25 +34,45 @@
   <div class="content">
     <router-view />
   </div>
+  <Toast ref="toast" />
 </template>
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
   import ThemeToggle from '@/components/ThemeToggle.vue';
+  import Toast from '@/components/Toast.vue';
 
   @Options({
     components: {
-      ThemeToggle
+      ThemeToggle,
+      Toast
     }
   })
   export default class Home extends Vue {
     declare $refs: {
       navMenu: HTMLUListElement;
       hamburger: HTMLDivElement;
+      toast: Toast;
     };
     mobileMenu() {
       this.$refs.navMenu.classList.toggle('active');
       this.$refs.hamburger.classList.toggle('active');
+    }
+
+    showToast(time?: number | boolean) {
+      this.$refs.toast.show(time);
+    }
+
+    hideToast() {
+      this.$refs.toast.hide();
+    }
+
+    temporaryToast(text: string, time?: number) {
+      this.$refs.toast.toastTemporary(text, time);
+    }
+
+    permanentToast(text: string) {
+      this.$refs.toast.toastPermanent(text);
     }
   }
 </script>
@@ -70,7 +95,7 @@
     font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', Arial,
       sans-serif;
 
-    transition: background-color 0.25s, color 0.25s;
+    transition: background-color 0.25s;
   }
 
   li {
@@ -79,7 +104,7 @@
 
   .header {
     display: flex;
-    width: calc(100vw - 10px);
+    width: calc(100vw - (10px * 2));
     justify-content: space-between;
     margin: 10px 10px 0;
     align-items: center;
@@ -119,6 +144,12 @@
 
   a {
     text-decoration: none;
+    color: #005f77;
+    transition: background-color 0.25s, color 0.25s;
+  }
+
+  html.dark-theme a {
+    color: #00f7ff;
   }
 
   .dark-mode-widget {
@@ -131,6 +162,7 @@
     font-size: 20px;
     color: black;
     font-family: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.25s, color 0.25s;
   }
 
   html.dark-theme h5,
@@ -160,6 +192,14 @@
     border-bottom: #000000 solid 2px;
   }
 
+  .nav-item a:hover:not(.router-link-active) {
+    border-bottom: #019ac0 solid 2px;
+  }
+
+  html.dark-theme .nav-item a:hover:not(.router-link-active) {
+    border-bottom: #019ac0 solid 2px;
+  }
+
   html.dark-theme .nav-item a.router-link-active {
     border-bottom: #ffffff solid 2px;
   }
@@ -187,13 +227,19 @@
   .nav-logo img {
     height: 50px;
     border-radius: 50%;
+    box-shadow: 4px 4px 4px #818181;
+    transition: box-shadow 0.25s;
+  }
+
+  html.dark-theme .nav-logo img {
+    box-shadow: 4px 4px 4px #000000;
   }
 
   .content {
     text-align: center;
   }
 
-  @media only screen and (max-width: 768px) {
+  @media only screen and (max-width: 820px) {
     .nav-menu {
       padding: 10px 0;
       position: fixed;
@@ -239,5 +285,146 @@
       font-size: 36px;
       margin: 10px 0;
     }
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+  }
+
+  html:not(.dark-theme) ::-webkit-scrollbar-thumb {
+    background-color: #18222c;
+  }
+  html.dark-theme ::-webkit-scrollbar-thumb {
+    background-color: #3eaf7c;
+  }
+
+  button {
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    margin: 5px 0;
+    font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', Arial,
+      sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #aaaaaa;
+    background-color: #f3f3f3;
+    transition: border 0.25s, background-color 0.25s, color 0.25s;
+  }
+
+  button:hover {
+    background-color: #909090;
+  }
+
+  html.dark-theme button {
+    background-color: #101010;
+    color: white;
+    border: 1px solid #aaaaaa;
+  }
+
+  html.dark-theme button:hover {
+    background-color: #202020;
+  }
+
+  button:focus {
+    outline: none;
+  }
+
+  input {
+    padding: 10px;
+    border-radius: 10px;
+    font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', Arial,
+      sans-serif;
+    font-weight: 600;
+    margin: 5px 0;
+    background-color: #f3f3f3;
+    transition: border 0.25s, background-color 0.25s, color 0.25s;
+    border: 1px solid #9a9a9a;
+    outline: none;
+  }
+
+  input:hover,
+  input:focus {
+    background-color: #d6d6d6;
+  }
+
+  html.dark-theme input {
+    background-color: #101010;
+    color: white;
+  }
+
+  html.dark-theme input:hover,
+  html.dark-theme input:focus {
+    background-color: #202020;
+  }
+
+  .checkbox-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .checkbox-container p.label-left {
+    margin: 0 10px 0 0;
+  }
+
+  .checkbox-container p.label-right {
+    margin: 0 0 0 10px;
+  }
+
+  input[type='checkbox'] {
+    display: none;
+  }
+
+  input[type='checkbox'] + label {
+    font-size: 1rem;
+    display: flex;
+    width: 4em;
+    border-radius: 2em;
+    background-color: #000000;
+    transition: 0.2s;
+    border: 0.125em solid #292929;
+    overflow: hidden;
+  }
+
+  html.dark-theme input[type='checkbox'] + label {
+    border: 0.125em solid #eef3f6;
+  }
+
+  input[type='checkbox'] + label span {
+    background: #fffad8;
+    border-radius: 50%;
+    height: 2em;
+    width: 2em;
+    transform: translateX(0) scale(0.65);
+    transition: 0.2s;
+    cursor: pointer;
+    margin-top: 0;
+  }
+
+  input[type='checkbox']:checked {
+    font-size: 10rem;
+  }
+
+  input[type='checkbox']:checked + label {
+    border-color: #292929;
+    background-color: #009fbb;
+  }
+
+  html.dark-theme input[type='checkbox']:checked + label {
+    border-color: #eef3f6;
+  }
+
+  input[type='checkbox']:checked + label span {
+    transform: translateX(calc(100%)) scale(0.65);
   }
 </style>
