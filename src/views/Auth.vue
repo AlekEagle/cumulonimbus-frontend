@@ -95,6 +95,7 @@
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
+  import { Client } from '../../../cumulonimbus-wrapper';
 
   @Options({
     components: {},
@@ -114,32 +115,66 @@
     };
     async submitSignIn() {
       let a = new FormData(this.$refs.signInForm);
-      (this.$parent?.$parent as any).permanentToast(
-        Array.from(a.entries()).toString()
+
+      let res = await Client.login(
+        a.get('user') as string,
+        a.get('pass') as string,
+        !!(a.get('rememberMe') as string)
       );
 
-      let res = await fetch('http://localhost:8000/api/user/session', {
-        method: 'POST',
-        body: a
-      });
-      console.log(res);
+      localStorage.setItem('token', (res as any).token);
+
+      this.$store.commit('setClient', res);
     }
 
     async submitRegister() {
       let a = new FormData(this.$refs.registerForm);
-      (this.$parent?.$parent as any).permanentToast(
-        Array.from(a.entries()).toString()
-      );
 
-      let res = await fetch('http://localhost:8000/api/user', {
-        method: 'POST',
-        body: a
-      });
-      console.log(res);
+      if (a.get('password') !== a.get('repeatPassword')) {
+        (this.$parent?.$parent as any).temporaryToast(
+          'These passwords do not match!',
+          5000
+        );
+      } else {
+        let res = await Client.createAccount(
+          a.get('username') as string,
+          a.get('password') as string,
+          a.get('email') as string,
+          !!(a.get('rememberMe') as string)
+        );
+
+        localStorage.setItem('token', (res as any).token);
+
+        this.$store.commit('setClient', res);
+      }
     }
 
     signInOrRegister(e: InputEvent) {
       this.$data.signIn = (e.target as HTMLInputElement).checked;
+    }
+
+    isSignedIn() {
+      return !!this.$store.state.client;
+    }
+
+    mounted() {
+      if (this.isSignedIn()) {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        this.$router.push(
+          urlSearchParams.has('redirect')
+            ? (urlSearchParams.get('redirect') as string)
+            : '/dashboard/'
+        );
+      }
+    }
+
+    success() {
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      this.$router.push(
+        urlSearchParams.has('redirect')
+          ? (urlSearchParams.get('redirect') as string)
+          : '/dashboard/'
+      );
     }
   }
 </script>

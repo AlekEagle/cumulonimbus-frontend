@@ -11,20 +11,27 @@
         <li class="nav-item">
           <ThemeToggle />
         </li>
-        <li class="nav-item" @click="mobileMenu">
+        <li class="nav-item" @click="hideMobileMenu">
           <router-link to="/">Home</router-link>
         </li>
-        <li class="nav-item" @click="mobileMenu">
-          <router-link to="/dashboard/">Dashboard</router-link>
+        <li class="nav-item" @click="hideMobileMenu">
+          <router-link
+            :to="
+              quickIsLoggedIn()
+                ? '/dashboard/'
+                : '/auth/?redirect=%2Fdashboard%2F'
+            "
+            >Dashboard</router-link
+          >
         </li>
-        <li class="nav-item" @click="mobileMenu">
+        <li class="nav-item" @click="hideMobileMenu">
           <a href="https://docs.alekeagle.me" target="_blank">Documentation</a>
         </li>
-        <li class="nav-item" @click="mobileMenu">
+        <li class="nav-item" @click="hideMobileMenu">
           <a href="https://alekeagle.com/d" target="_blank">Discord</a>
         </li>
       </ul>
-      <div ref="hamburger" class="hamburger" @click="mobileMenu"
+      <div ref="hamburger" class="hamburger" @click="hideMobileMenu"
         ><span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -41,11 +48,17 @@
   import { Options, Vue } from 'vue-class-component';
   import ThemeToggle from '@/components/ThemeToggle.vue';
   import Toast from '@/components/Toast.vue';
+  import { Client } from '../../cumulonimbus-wrapper';
 
   @Options({
     components: {
       ThemeToggle,
       Toast
+    },
+    data() {
+      return {
+        checkLoggedInInterval: -1
+      };
     }
   })
   export default class Home extends Vue {
@@ -54,9 +67,36 @@
       hamburger: HTMLDivElement;
       toast: Toast;
     };
+    declare $data: {
+      checkLoggedInInterval: number;
+    };
+
+    quickIsLoggedIn() {
+      return !!this.$store.state.client;
+    }
+
+    async isLoggedIn() {
+      if (!!this.$store.state.client) {
+        await this.$store.dispatch('checkClientAuth');
+        return !!this.$store.state.client;
+      }
+    }
+
+    async redirectIfNotLoggedIn(path: string) {
+      if (!(await this.isLoggedIn())) {
+        if (path.startsWith('/auth/')) return;
+        this.$router.push(`/auth/?redirect=${encodeURIComponent(path)}`);
+      }
+    }
+
     mobileMenu() {
       this.$refs.navMenu.classList.toggle('active');
       this.$refs.hamburger.classList.toggle('active');
+    }
+
+    hideMobileMenu() {
+      this.$refs.navMenu.classList.remove('active');
+      this.$refs.hamburger.classList.remove('active');
     }
 
     showToast(time?: number | boolean) {
@@ -73,6 +113,19 @@
 
     permanentToast(text: string) {
       this.$refs.toast.toastPermanent(text);
+    }
+
+    async beforeMount() {
+      if (localStorage.getItem('token')) {
+        this.$store.commit(
+          'setClient',
+          new Client(localStorage.getItem('token') as string)
+        );
+      }
+
+      this.$data.checkLoggedInInterval = setInterval(async () => {
+        await this.redirectIfNotLoggedIn(window.location.pathname);
+      }, 60000);
     }
   }
 </script>
