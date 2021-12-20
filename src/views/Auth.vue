@@ -125,6 +125,7 @@
       localStorage.setItem('token', (res as any).token);
 
       this.$store.commit('setClient', res);
+      this.authedRedir();
     }
 
     async submitRegister() {
@@ -146,6 +147,7 @@
         localStorage.setItem('token', (res as any).token);
 
         this.$store.commit('setClient', res);
+        this.authedRedir();
       }
     }
 
@@ -157,14 +159,18 @@
       return !!this.$store.state.client;
     }
 
+    authedRedir() {
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      this.$router.push(
+        urlSearchParams.has('redirect')
+          ? (urlSearchParams.get('redirect') as string)
+          : '/dashboard/'
+      );
+    }
+
     mounted() {
       if (this.isSignedIn()) {
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        this.$router.push(
-          urlSearchParams.has('redirect')
-            ? (urlSearchParams.get('redirect') as string)
-            : '/dashboard/'
-        );
+        this.authedRedir();
       }
     }
 

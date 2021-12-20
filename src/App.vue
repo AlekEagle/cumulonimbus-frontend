@@ -31,7 +31,7 @@
           <a href="https://alekeagle.com/d" target="_blank">Discord</a>
         </li>
       </ul>
-      <div ref="hamburger" class="hamburger" @click="hideMobileMenu"
+      <div ref="hamburger" class="hamburger" @click="mobileMenu"
         ><span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
