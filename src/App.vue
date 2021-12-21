@@ -17,7 +17,7 @@
         <li class="nav-item" @click="hideMobileMenu">
           <router-link
             :to="
-              quickIsLoggedIn()
+              !!this.$store.state.client
                 ? '/dashboard/'
                 : '/auth/?redirect=%2Fdashboard%2F'
             "
@@ -54,37 +54,26 @@
     components: {
       ThemeToggle,
       Toast
-    },
-    data() {
-      return {
-        checkLoggedInInterval: -1
-      };
     }
   })
-  export default class Home extends Vue {
+  export default class App extends Vue {
     declare $refs: {
       navMenu: HTMLUListElement;
       hamburger: HTMLDivElement;
       toast: Toast;
     };
-    declare $data: {
-      checkLoggedInInterval: number;
-    };
-
-    quickIsLoggedIn() {
-      return !!this.$store.state.client;
-    }
 
     async isLoggedIn() {
       if (!!this.$store.state.client) {
-        await this.$store.dispatch('checkClientAuth');
-        return !!this.$store.state.client;
-      }
+        let authCheck = await this.$store.dispatch('checkClientAuth');
+        if (typeof authCheck === 'boolean') return authCheck;
+        else return false;
+      } else return false;
     }
 
     async redirectIfNotLoggedIn(path: string) {
       if (!(await this.isLoggedIn())) {
-        if (path.startsWith('/auth/')) return;
+        if (!path.startsWith('/dashboard')) return;
         this.$router.push(`/auth/?redirect=${encodeURIComponent(path)}`);
       }
     }
@@ -115,17 +104,33 @@
       this.$refs.toast.toastPermanent(text);
     }
 
+    ratelimitToast(reset: number) {
+      let timeLeftMills = reset * 1000 - Date.now();
+      let hours = Math.floor(timeLeftMills / (1000 * 60 * 60));
+      timeLeftMills = timeLeftMills % (1000 * 60 * 60);
+      let minutes = Math.floor(timeLeftMills / (1000 * 60));
+      timeLeftMills = timeLeftMills % (1000 * 60);
+      let seconds = Math.round(timeLeftMills / 1000);
+      this.temporaryToast(
+        `Woah, slow down! Please wait ${hours > 0 ? `${hours} hour(s) ` : ''}${
+          minutes > 0 ? `${minutes} minute(s) ` : ''
+        }${
+          hours > 0 || minutes > 0 ? 'and ' : ''
+        }${seconds} second(s) before trying again.`
+      );
+    }
+
     async beforeMount() {
       if (localStorage.getItem('token')) {
         this.$store.commit(
           'setClient',
           new Client(localStorage.getItem('token') as string)
         );
+        let s = await (this.$store.state.client as Client).getSelfSessionByID();
+        this.$store.commit('setSession', s);
+        let u = await (this.$store.state.client as Client).getSelfUser();
+        this.$store.commit('setUser', u);
       }
-
-      this.$data.checkLoggedInInterval = setInterval(async () => {
-        await this.redirectIfNotLoggedIn(window.location.pathname);
-      }, 60000);
     }
   }
 </script>
@@ -375,7 +380,7 @@
   }
 
   button:hover {
-    background-color: #909090;
+    background-color: #bebebe;
   }
 
   html.dark-theme button {

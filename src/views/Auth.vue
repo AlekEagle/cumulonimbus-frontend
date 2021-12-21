@@ -95,7 +95,8 @@
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
-  import { Client } from '../../../cumulonimbus-wrapper';
+  import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
+  import App from '@/App.vue';
 
   @Options({
     components: {},
@@ -114,49 +115,99 @@
       signIn: boolean;
     };
     async submitSignIn() {
-      let a = new FormData(this.$refs.signInForm);
+      try {
+        let a = new FormData(this.$refs.signInForm);
 
-      let res = await Client.login(
-        a.get('user') as string,
-        a.get('pass') as string,
-        !!(a.get('rememberMe') as string)
-      );
-
-      localStorage.setItem('token', (res as any).token);
-
-      this.$store.commit('setClient', res);
-      this.authedRedir();
+        let loginRes = await this.$store.dispatch('login', {
+          user: a.get('user'),
+          pass: a.get('pass'),
+          rememberMe: a.has('rememberMe')
+        });
+        if (loginRes === true) this.authedRedir();
+      } catch (error) {
+        switch ((error as Cumulonimbus.ResponseError).code) {
+          case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
+              10000
+            );
+            break;
+          case 'RATELIMITED_ERROR':
+            (this.$parent?.$parent as App).ratelimitToast(
+              (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
+            );
+            break;
+          case 'INVALID_USER_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              "Hmm, I can't seem to find anyone with that username or email!",
+              10000
+            );
+            break;
+          case 'INVALID_PASSWORD_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              'No, that is not the password.',
+              10000
+            );
+            break;
+          default:
+            (this.$parent?.$parent as App).temporaryToast(
+              'I did a bad.',
+              10000
+            );
+            console.error(error);
+        }
+      }
     }
 
     async submitRegister() {
-      let a = new FormData(this.$refs.registerForm);
+      try {
+        let a = new FormData(this.$refs.registerForm);
 
-      if (a.get('password') !== a.get('repeatPassword')) {
-        (this.$parent?.$parent as any).temporaryToast(
-          'These passwords do not match!',
-          5000
-        );
-      } else {
-        let res = await Client.createAccount(
-          a.get('username') as string,
-          a.get('password') as string,
-          a.get('email') as string,
-          !!(a.get('rememberMe') as string)
-        );
-
-        localStorage.setItem('token', (res as any).token);
-
-        this.$store.commit('setClient', res);
-        this.authedRedir();
+        if (a.get('password') !== a.get('repeatPassword')) {
+          (this.$parent?.$parent as any).temporaryToast(
+            'These passwords do not match!',
+            5000
+          );
+        } else {
+          let createAccRes = await this.$store.dispatch('createAccount', {
+            username: a.get('username') as string,
+            password: a.get('password') as string,
+            email: a.get('email') as string,
+            rememberMe: a.has('rememberMe')
+          });
+          this.authedRedir();
+        }
+      } catch (error) {
+        switch ((error as Cumulonimbus.ResponseError).code) {
+          case 'MISSING_FIELDS_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              'You need to fill everything out.',
+              10000
+            );
+            break;
+          case 'RATELIMITED_ERROR':
+            (this.$parent?.$parent as App).ratelimitToast(
+              (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
+            );
+            break;
+          case 'USER_EXISTS_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              'Someone already has that username or email!',
+              10000
+            );
+            break;
+          default:
+            (this.$parent?.$parent as App).temporaryToast(
+              'I did a bad.',
+              10000
+            );
+            console.error(error);
+        }
       }
     }
 
     signInOrRegister(e: InputEvent) {
       this.$data.signIn = (e.target as HTMLInputElement).checked;
-    }
-
-    isSignedIn() {
-      return !!this.$store.state.client;
     }
 
     authedRedir() {
@@ -168,8 +219,8 @@
       );
     }
 
-    mounted() {
-      if (this.isSignedIn()) {
+    async mounted() {
+      if (await (this.$parent?.$parent as App).isLoggedIn()) {
         this.authedRedir();
       }
     }

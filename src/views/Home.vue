@@ -36,7 +36,7 @@
     <div class="hero-point">
       <h2>Lets get started!</h2>
       <p
-        >Click <router-link to="/dashboard">me</router-link> to open the
+        >Click <router-link to="/dashboard/">me</router-link> to open the
         dashboard!</p
       >
     </div>
