@@ -9,11 +9,28 @@
   <div class="quick-action-buttons-container">
     <button @click="signOut" title="This button will sign you out, who knew!?"
       >Sign Out</button
+    ><button
+      @click="disable = !disable"
+      title="This button will sign you out, who knew!?"
+      >Toggle ContentBox Disabled</button
     >
   </div>
   <div class="content-box-group-container">
-    <ContentBox contentTitle="joe">
-      <p> loollllsdlfeoloedfldfosdyfiasdjfgsl</p>
+    <ContentBox
+      class="svg-icon"
+      title="Profile"
+      src="/assets/images/profile.svg"
+      :disabled="disable"
+    >
+      <p>View and manage your profile.</p>
+    </ContentBox>
+    <ContentBox
+      class="svg-icon"
+      title="Files"
+      src="/assets/images/file.svg"
+      :disabled="disable"
+    >
+      <p>View and manage your files.</p>
     </ContentBox>
   </div>
 </template>
@@ -25,7 +42,12 @@
   import ContentBox from '@/components/ContentBox.vue';
 
   @Options({
-    components: { ContentBox }
+    components: { ContentBox },
+    data() {
+      return {
+        disable: false
+      };
+    }
   })
   export default class Dashboard extends Vue {
     async mounted() {
@@ -55,6 +77,10 @@
           console.error(error);
         }
       }
+    }
+
+    lol() {
+      (this.$parent?.$parent as App).temporaryToast('You smell', 15000);
     }
 
     async signOut() {
@@ -100,4 +126,12 @@
   }
 </script>
 
-<style></style>
+<style>
+  .content-box.svg-icon .content-box-icon {
+    transition: filter 0.25s;
+  }
+
+  html.dark-theme .content-box.svg-icon .content-box-icon {
+    filter: invert(1);
+  }
+</style>
