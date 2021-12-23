@@ -11,7 +11,7 @@
       >Sign Out</button
     ><button
       @click="disable = !disable"
-      title="This button will sign you out, who knew!?"
+      title="Toggle the disabled state of the content boxes below."
       >Toggle ContentBox Disabled</button
     >
   </div>
@@ -36,6 +36,7 @@
       title="Quick Set Up"
       src="/assets/images/info.svg"
       :disabled="disable"
+      @click="lol"
       theme-safe
     >
       <p
@@ -103,7 +104,8 @@
       }
     }
 
-    lol() {
+    lol(e: MouseEvent) {
+      if ((e.target as HTMLDivElement).classList.contains('disabled')) return;
       (this.$parent?.$parent as App).temporaryToast('You smell', 15000);
     }
 
