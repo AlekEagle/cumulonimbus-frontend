@@ -5,7 +5,7 @@
     }`"
   >
     <img
-      class="content-box-icon"
+      :class="`content-box-icon${iconThemeSafe ? ' theme-safe' : ''}`"
       v-if="iconSrc !== undefined"
       :src="iconSrc"
       alt="icon"
@@ -36,7 +36,8 @@
       src: String,
       to: String,
       disabled: Boolean,
-      selectable: Boolean
+      selectable: Boolean,
+      themeSafe: Boolean
     },
     computed: {
       contentTitle() {
@@ -58,6 +59,9 @@
         return this.selectable === undefined
           ? !this.contentSpan
           : this.selectable;
+      },
+      iconThemeSafe() {
+        return this.themeSafe;
       }
     }
   })
@@ -67,6 +71,7 @@
     declare iconSrc?: string;
     declare contentTo?: string;
     declare contentDisabled: boolean;
+    declare iconThemeSafe: boolean | null;
     handleContentTo() {
       if (this.contentTo !== undefined && !this.contentDisabled) {
         this.$router.push(this.contentTo);
@@ -107,7 +112,16 @@
   }
 
   .content-box-icon {
+    min-width: 85px;
     width: 85px;
+  }
+
+  .content-box-icon.theme-safe {
+    transition: filter 0.25s;
+  }
+
+  html.dark-theme .content-box-icon.theme-safe {
+    filter: invert(1);
   }
 
   .content-box {
@@ -119,8 +133,9 @@
     padding: 15px 20px;
     transition: border 0.25s, background-color 0.25s, box-shadow 0.25s;
     margin: 10px 20px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
+
   .content-box.no-select {
     user-select: none;
   }

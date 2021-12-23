@@ -17,20 +17,44 @@
   </div>
   <div class="content-box-group-container">
     <ContentBox
-      class="svg-icon"
       title="Profile"
       src="/assets/images/profile.svg"
       :disabled="disable"
+      theme-safe
     >
       <p>View and manage your profile.</p>
     </ContentBox>
     <ContentBox
-      class="svg-icon"
       title="Files"
       src="/assets/images/file.svg"
       :disabled="disable"
+      theme-safe
     >
       <p>View and manage your files.</p>
+    </ContentBox>
+    <ContentBox
+      title="Quick Set Up"
+      src="/assets/images/info.svg"
+      :disabled="disable"
+      theme-safe
+    >
+      <p
+        >Instructions on how to quickly get setup with your favorite file
+        sharing application!</p
+      >
+    </ContentBox>
+    <ContentBox
+      title="Upload From Browser"
+      src="/assets/images/upload.svg"
+      :disabled="disable"
+      to="upload/"
+      theme-safe
+    >
+      <p
+        >Upload directly from your browser, no external software required!
+        (installing the dashboard as an app on Android will allow you to use the
+        share menu to upload files!)</p
+      >
     </ContentBox>
   </div>
 </template>
@@ -125,13 +149,3 @@
     }
   }
 </script>
-
-<style>
-  .content-box.svg-icon .content-box-icon {
-    transition: filter 0.25s;
-  }
-
-  html.dark-theme .content-box.svg-icon .content-box-icon {
-    filter: invert(1);
-  }
-</style>

@@ -302,7 +302,7 @@
     text-align: center;
   }
 
-  @media only screen and (max-width: 820px) {
+  @media only screen and (max-width: 840px) {
     .nav-menu {
       padding: 10px 0;
       position: fixed;
@@ -365,11 +365,16 @@
     border-radius: 10px;
   }
 
+  ::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+
   html:not(.dark-theme) ::-webkit-scrollbar-thumb {
     background-color: #18222c;
   }
+
   html.dark-theme ::-webkit-scrollbar-thumb {
-    background-color: #3eaf7c;
+    background-color: #c2c2c2;
   }
 
   button {
