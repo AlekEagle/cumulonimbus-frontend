@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Linus Likes the Headphones!</title>
+    <meta property="og:title" content="Linus Testing Headphones!" />
+    <meta
+      property="og:description"
+      content="I think he likes the sound quality!"
+    />
+    <meta
+      property="og:image"
+      content="https://linus-tech.tips/VA16rfPsX5.png"
+    />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:site" content="@snavEkelA" />
+    <meta property="twitter:title" content="Linus Testing Headphones!" />
+    <meta
+      property="twitter:description"
+      content="I think he likes the sound quality!"
+    />
+    <meta
+      property="twitter:image"
+      content="https://linus-tech.tips/VA16rfPsX5.png"
+    />
+    <style>
+      body {
+        overflow: hidden;
+      }
+      .content {
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        text-align: center;
+        flex-wrap: wrap;
+        width: fit-content;
+        height: 100vh;
+        flex-direction: row;
+        margin: auto;
+      }
+
+      video {
+        width: 100vw;
+      }
+
+      .wrongplacetext {
+        font-size: 30px;
+        font-family: 'Lato', sans-serif;
+        color: gray;
+        font-weight: bold;
+      }
+
+      a {
+        text-decoration: none;
+        color: #0078a7;
+      }
+
+      @-moz-keyframes scroll-left {
+        0% {
+          -moz-transform: translateX(100%);
+        }
+        100% {
+          -moz-transform: translateX(-100%);
+        }
+      }
+
+      @-webkit-keyframes scroll-left {
+        0% {
+          -webkit-transform: translateX(100%);
+        }
+        100% {
+          -webkit-transform: translateX(-100%);
+        }
+      }
+
+      @keyframes scroll-left {
+        0% {
+          -moz-transform: translateX(100%);
+          -webkit-transform: translateX(100%);
+          transform: translateX(100%);
+        }
+        100% {
+          -moz-transform: translateX(-100%);
+          -webkit-transform: translateX(-100%);
+          transform: translateX(-100%);
+        }
+      }
+
+      .marquee {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        line-height: 50px;
+        text-align: center;
+        -moz-transform: translateX(100%);
+        -webkit-transform: translateX(100%);
+        transform: translateX(100%);
+        -moz-animation: scroll-left 2s linear infinite;
+        -webkit-animation: scroll-left 2s linear infinite;
+        animation: scroll-left 20s linear infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content"
+      ><video controls loop src="https://linus-tech.tips/9b7TByViPr.mp4"></video
+    ></div>
+  </body>
+</html>

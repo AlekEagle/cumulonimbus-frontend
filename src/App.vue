@@ -25,7 +25,9 @@
           >
         </li>
         <li class="nav-item" @click="hideMobileMenu">
-          <a href="https://docs.alekeagle.me" target="_blank">Documentation</a>
+          <a :href="`https://docs.${hostname}`" target="_blank"
+            >Documentation</a
+          >
         </li>
         <li class="nav-item" @click="hideMobileMenu">
           <a href="https://alekeagle.com/d" target="_blank">Discord</a>
@@ -54,6 +56,11 @@
     components: {
       ThemeToggle,
       Toast
+    },
+    data() {
+      return {
+        hostname: undefined
+      };
     }
   })
   export default class App extends Vue {
@@ -61,6 +68,10 @@
       navMenu: HTMLUListElement;
       hamburger: HTMLDivElement;
       toast: Toast;
+    };
+
+    declare $data: {
+      hostname?: string;
     };
 
     async isLoggedIn() {
@@ -132,6 +143,11 @@
         this.$store.commit('setUser', u);
       }
     }
+
+    mounted() {
+      this.$data.hostname = window.location.hostname;
+      (window as any).cumClient = this.$store.state.client;
+    }
   }
 </script>
 
@@ -191,8 +207,8 @@
     width: 25px;
     height: 3px;
     margin: 5px auto;
-    -webkit-transition: all 0.4s ease-in-out;
-    transition: all 0.4s ease-in-out;
+    transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out,
+      background-color 0.25s;
     background-color: #101010;
   }
 
@@ -392,6 +408,12 @@
     user-select: none;
   }
 
+  button:disabled {
+    cursor: not-allowed;
+    border: 1px solid #aaaaaa;
+    background-color: #b8b8b8;
+  }
+
   .quick-action-buttons-container {
     display: flex;
     justify-content: space-around;
@@ -400,17 +422,22 @@
     flex-wrap: wrap;
   }
 
-  button:hover {
+  button:hover:not(:disabled) {
     background-color: #bebebe;
   }
 
   html.dark-theme button {
-    background-color: #101010;
+    background-color: #272727;
     color: white;
-    border: 1px solid #aaaaaa;
+    border: 1px solid #000000;
   }
 
-  html.dark-theme button:hover {
+  html.dark-theme button:disabled {
+    background-color: #141414;
+    color: #8e8e8e;
+  }
+
+  html.dark-theme button:hover:not(:disabled) {
     background-color: #202020;
   }
 

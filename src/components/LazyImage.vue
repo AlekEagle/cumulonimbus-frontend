@@ -1,0 +1,100 @@
+<template>
+  <img
+    class="lazy"
+    v-if="done"
+    ref="lazyImg"
+    :alt="altText"
+    :src="$data.lazyBlobURL"
+  />
+  <Loading v-else />
+</template>
+
+<script lang="ts">
+  import { Options, Vue } from 'vue-class-component';
+  import Loading from '@/components/Loading.vue';
+
+  @Options({
+    components: { Loading },
+    props: {
+      src: String,
+      alt: String,
+      failedSrc: String,
+      tries: Number,
+      wait: Number
+    },
+    computed: {
+      lazySrc() {
+        return this.src;
+      },
+      altText() {
+        return this.alt || 'A lazily loaded image.';
+      },
+      failedLazySrc() {
+        return this.failedSrc || '/assets/images/exclamation-mark.svg';
+      },
+      maxTries() {
+        return this.tries || 5;
+      },
+      waitPeriod() {
+        return this.wait || 5000;
+      }
+    },
+    data() {
+      return {
+        done: false,
+        lazyBlobURL: undefined,
+        currentTries: 0
+      };
+    }
+  })
+  export default class LazyImage extends Vue {
+    declare lazySrc: string;
+    declare altText: string;
+    declare failedLazySrc: string;
+    declare maxTries: number;
+    declare waitPeriod: number;
+    declare $data: {
+      done: boolean;
+      lazyBlobURL?: string;
+      currentTries: number;
+    };
+
+    async loadIcon() {
+      try {
+        let res = await fetch(this.lazySrc);
+        if (res.ok) {
+          let slimySlime = await res.blob();
+          this.$data.lazyBlobURL = URL.createObjectURL(slimySlime);
+          this.$data.done = true;
+        } else {
+          this.handleFail();
+        }
+      } catch (error) {
+        console.error(error);
+        this.handleFail();
+      }
+    }
+
+    handleFail() {
+      if (++this.$data.currentTries <= this.maxTries) {
+        setTimeout(this.loadIcon, this.waitPeriod);
+      } else {
+        this.$data.lazyBlobURL = this.failedLazySrc;
+        this.$data.done = true;
+      }
+    }
+
+    mounted() {
+      this.loadIcon();
+    }
+
+    retry() {
+      this.$data.done = false;
+      this.$data.lazyBlobURL = undefined;
+      this.$data.currentTries = 0;
+      this.loadIcon();
+    }
+  }
+</script>
+
+<style></style>

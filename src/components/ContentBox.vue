@@ -4,12 +4,15 @@
       contentSelectable ? '' : ' no-select'
     }`"
   >
-    <img
-      :class="`content-box-icon${iconThemeSafe ? ' theme-safe' : ''}`"
-      v-if="iconSrc !== undefined"
-      :src="iconSrc"
-      alt="icon"
-    />
+    <template v-if="iconSrc !== undefined">
+      <img
+        :class="`content-box-icon${iconThemeSafe ? ' theme-safe' : ''}`"
+        v-if="!shouldLazyLoad"
+        :src="iconSrc"
+        alt="Content icon"
+      />
+      <LazyImage v-else :src="iconSrc" class="content-box-icon" />
+    </template>
     <div class="content-box-text-content">
       <h2 class="content-box-title" v-text="contentTitle" />
       <div class="content-box-content">
@@ -28,8 +31,10 @@
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
+  import LazyImage from '@/components/LazyImage.vue';
 
   @Options({
+    components: { LazyImage },
     props: {
       title: String,
       span: Boolean,
@@ -37,14 +42,15 @@
       to: String,
       disabled: Boolean,
       selectable: Boolean,
-      themeSafe: Boolean
+      themeSafe: Boolean,
+      lazyLoad: Boolean
     },
     computed: {
       contentTitle() {
         return this.title || 'Content Box Title';
       },
       contentSpan() {
-        return this.span || true;
+        return this.span;
       },
       iconSrc() {
         return this.src || undefined;
@@ -53,15 +59,16 @@
         return this.to || undefined;
       },
       contentDisabled() {
-        return this.disabled || false;
+        return this.disabled;
       },
       contentSelectable() {
-        return this.selectable === undefined
-          ? !this.contentSpan
-          : this.selectable;
+        return this.selectable;
       },
       iconThemeSafe() {
         return this.themeSafe;
+      },
+      shouldLazyLoad() {
+        return this.lazyLoad;
       }
     }
   })
@@ -148,15 +155,12 @@
     box-shadow: 0px 0px 8px 0px inset #0d0d0d, 0px 0px 8px 0px #0d0d0d;
   }
 
-  html.dark-theme .content-box {
-    border: 1px solid #dedede;
-  }
-
   html.dark-theme .content-box.disabled {
     border: 1px solid #353535;
   }
 
   html.dark-theme .content-box:hover:not(.disabled) {
+    border: 1px solid #dedede;
     box-shadow: 0px 0px 8px 0px inset #dedede, 0px 0px 8px 0px #dedede;
   }
 

@@ -20,6 +20,7 @@
       title="Profile"
       src="/assets/images/profile.svg"
       :disabled="disable"
+      span
       theme-safe
     >
       <p>View and manage your profile.</p>
@@ -28,6 +29,8 @@
       title="Files"
       src="/assets/images/file.svg"
       :disabled="disable"
+      span
+      to="files/"
       theme-safe
     >
       <p>View and manage your files.</p>
@@ -36,7 +39,7 @@
       title="Quick Set Up"
       src="/assets/images/info.svg"
       :disabled="disable"
-      @click="lol"
+      span
       theme-safe
     >
       <p
@@ -48,6 +51,7 @@
       title="Upload From Browser"
       src="/assets/images/upload.svg"
       :disabled="disable"
+      span
       to="upload/"
       theme-safe
     >
@@ -72,7 +76,8 @@
       return {
         disable: false
       };
-    }
+    },
+    title: 'Dashboard'
   })
   export default class Dashboard extends Vue {
     async mounted() {
@@ -95,18 +100,10 @@
             window.location.pathname
           );
         } else {
-          (this.$parent?.$parent as App).temporaryToast(
-            'Whoops, something went wrong! Please try again later!',
-            15000
-          );
+          (this.$parent?.$parent as App).temporaryToast('I did a bad.', 15000);
           console.error(error);
         }
       }
-    }
-
-    lol(e: MouseEvent) {
-      if ((e.target as HTMLDivElement).classList.contains('disabled')) return;
-      (this.$parent?.$parent as App).temporaryToast('You smell', 15000);
     }
 
     async signOut() {
@@ -142,7 +139,7 @@
             break;
           default:
             (this.$parent?.$parent as App).temporaryToast(
-              'Whoops, something went wrong! Please try again later!',
+              'I did a bad.',
               15000
             );
             console.log(error);

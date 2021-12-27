@@ -47,7 +47,8 @@
   import { Options, Vue } from 'vue-class-component';
 
   @Options({
-    components: {}
+    components: {},
+    title: ''
   })
   export default class Home extends Vue {}
 </script>

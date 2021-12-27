@@ -1,6 +1,6 @@
 function getTitle(vm: any) {
   const { title } = vm.$options;
-  if (title) {
+  if (title !== null && title !== undefined) {
     return typeof title === 'function' ? title.call(vm) : title;
   }
 }
@@ -8,8 +8,9 @@ function getTitle(vm: any) {
 export default {
   created() {
     const title = getTitle(this);
-    if (title) {
-      document.title = title;
+    if (typeof title === 'string') {
+      if (title !== '') document.title = 'Cumulonimbus | ' + title;
+      else document.title = 'Cumulonimbus';
     }
   }
 };

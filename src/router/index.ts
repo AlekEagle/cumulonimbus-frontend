@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import Home from '../views/Home.vue';
+import Home from '@/views/Home.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -11,17 +11,23 @@ const routes: Array<RouteRecordRaw> = [
     path: '/auth',
     name: 'Auth',
 
-    component: () => import('../views/Auth.vue')
+    component: () => import('@/views/Auth.vue')
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('../views/Dashboard.vue')
+    component: () => import('@/views/Dashboard.vue')
+  },
+  {
+    path: '/dashboard/files',
+    name: 'SelfFiles',
+
+    component: () => import('@/views/SelfFiles.vue')
   },
   {
     path: '/dashboard/upload',
     name: 'Upload',
-    component: () => import('../views/Upload.vue')
+    component: () => import('@/views/Upload.vue')
   }
 ];
 

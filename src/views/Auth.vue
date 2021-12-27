@@ -104,7 +104,8 @@
       return {
         signIn: true
       };
-    }
+    },
+    title: 'Cumulonimbus | Sign-in/Register'
   })
   export default class Auth extends Vue {
     declare $refs: {
@@ -175,7 +176,7 @@
             email: a.get('email') as string,
             rememberMe: a.has('rememberMe')
           });
-          this.authedRedir();
+          if (createAccRes === true) this.authedRedir();
         }
       } catch (error) {
         switch ((error as Cumulonimbus.ResponseError).code) {

@@ -12,7 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": ["webpack-env", "@/vuex.d.ts"],
+    "types": ["webpack-env", "vuex.d.ts"],
     "paths": {
       "@/*": ["src/*"]
     },
@@ -23,8 +23,7 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx",
-    "vuex.d.ts"
+    "tests/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }

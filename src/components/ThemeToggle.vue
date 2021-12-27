@@ -14,6 +14,7 @@
       };
     },
     mounted() {
+      setTimeout(() => html.classList.remove('no-theme'), 500);
       this.initThemePreference();
     },
     methods: {
@@ -51,7 +52,6 @@
         if (!this.checkUserPreference()) return;
         html.classList.add('dark-theme');
         document.getElementById('theme-toggle').checked = true;
-        setTimeout(() => html.classList.remove('no-theme'), 500);
       },
       toggleUserPreference() {
         localStorage.setItem(
