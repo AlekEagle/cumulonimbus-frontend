@@ -1,0 +1,125 @@
+<template>
+  <h1>File Details</h1>
+  <h2>See the specifics of a file.</h2>
+  <div class="quick-action-buttons-container">
+    <button @click="$router.back()" title="Go back!">Back</button>
+    <button @click="$refs.deleteFileModal.showModal()" title="Delete this file!"
+      >Delete</button
+    >
+  </div>
+  <div v-if="loaded" class="content-box-group-container">
+    <ContentBox
+      title="Information"
+      span
+      lazy-load
+      :src="`https://previews.${hostname}/${file.filename}`"
+    >
+      <p>Filename: {{ file.filename }}</p>
+      <br />
+      <br />
+      <p>Uploaded at: {{ new Date(file.createdAt).toTimeString() }}</p>
+      <br />
+      <br />
+      <p>Size: {{ hFileSize }}</p>
+    </ContentBox>
+  </div>
+  <Loading v-else />
+  <Modal title="Delete file" ref="deleteFileModal" cancelable>
+    <template v-slot:default>
+      <p
+        >Are you sure you want to delete <code>{{ file.filename }}</code
+        >? Unless you have it saved somewhere you will never see it again!</p
+      >
+    </template>
+    <template v-slot:buttons>
+      <button @click="deleteFile" title="Bye bye file!">I'm sure</button>
+      <button
+        @click="$refs.deleteFileModal.hideModal()"
+        title="That's what I thought."
+        >On second thought...</button
+      >
+    </template>
+  </Modal>
+</template>
+
+<script lang="ts">
+  import { Options, Vue } from 'vue-class-component';
+  import ContentBox from '@/components/ContentBox.vue';
+  import { Cumulonimbus } from '../../../cumulonimbus-wrapper';
+  import Modal from '@/components/Modal.vue';
+  import Loading from '@/components/Loading.vue';
+  import App from '@/App.vue';
+
+  function formatBytes(bytes: number, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  @Options({
+    components: { ContentBox, Modal, Loading },
+    data() {
+      return {
+        file: null,
+        hostname: null,
+        loaded: false,
+        hFileSize: null
+      };
+    }
+  })
+  export default class VueComponent extends Vue {
+    declare $data: {
+      file: Cumulonimbus.Data.File | null;
+      hostname: string | null;
+      loaded: boolean;
+      hFileSize: string | null;
+    };
+    async mounted() {
+      this.$data.hostname = window.location.hostname;
+      if (this.$store.state.client === null) {
+        (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+          window.location.pathname + window.location.search
+        );
+        return;
+      }
+      try {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        if (!this.$store.state.user) {
+          let u = await this.$store.state.client.getSelfUser();
+          this.$store.commit('setUser', u);
+        }
+        if (!urlSearchParams.has('id')) this.$router.push('/dashboard/files/');
+        this.$data.file = await this.$store.state.client.getSelfFileByID(
+          urlSearchParams.get('id')
+        );
+        this.$data.hFileSize = formatBytes(this.$data.file?.size as number);
+        this.$data.loaded = true;
+      } catch (error) {
+        switch ((error as Cumulonimbus.ResponseError).code) {
+          case 'INVALID_SESSION_ERROR':
+            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+              window.location.pathname
+            );
+            break;
+          case 'INVALID_FILE_ERROR':
+            this.$router.push('/dashboard/files/');
+            break;
+          default:
+            (this.$parent?.$parent as App).temporaryToast(
+              'I did a bad.',
+              15000
+            );
+            console.error(error);
+        }
+      }
+    }
+  }
+</script>
+
+<style></style>

@@ -25,6 +25,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/SelfFiles.vue')
   },
   {
+    path: '/dashboard/file',
+    name: 'SelfFile',
+
+    component: () => import('@/views/SelfFile.vue')
+  },
+  {
     path: '/dashboard/upload',
     name: 'Upload',
     component: () => import('@/views/Upload.vue')

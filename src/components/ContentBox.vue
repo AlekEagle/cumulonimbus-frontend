@@ -104,7 +104,6 @@
   }
 
   .content-box-content {
-    display: flex;
     width: 100%;
   }
 
@@ -121,6 +120,7 @@
   .content-box-icon {
     min-width: 85px;
     width: 85px;
+    max-height: 85px;
   }
 
   .content-box-icon.theme-safe {

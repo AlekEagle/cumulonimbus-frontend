@@ -21,7 +21,7 @@
       span
       lazy-load
       :src="`https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`"
-      :to="`/dashboard/file/?file=${file.filename}`"
+      :to="`/dashboard/file/?id=${file.filename}`"
       ><p>Take a closer look at this file.</p></ContentBox
     >
   </div>
