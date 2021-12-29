@@ -13,7 +13,10 @@
         : 's'
     }}.</h2
   >
-  <div class="content-box-group-container">
+  <div class="quick-action-buttons-container">
+    <button title="Go Back!" @click="$router.push('/dashboard/')">Back</button>
+  </div>
+  <div v-if="loaded" class="content-box-group-container">
     <ContentBox
       v-for="file in $data.files"
       :key="file.filename"
@@ -25,6 +28,7 @@
       ><p>Take a closer look at this file.</p></ContentBox
     >
   </div>
+  <Loading v-else />
 </template>
 
 <script lang="ts">
@@ -32,12 +36,14 @@
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
   import App from '@/App.vue';
   import ContentBox from '@/components/ContentBox.vue';
+  import Loading from '@/components/Loading.vue';
 
   @Options({
-    components: { ContentBox },
+    components: { ContentBox, Loading },
     title: 'Cumulonimbus | Your Files',
     data() {
       return {
+        loaded: false,
         files: [],
         fileCount: undefined,
         page: 0
@@ -46,16 +52,17 @@
   })
   export default class SelfFiles extends Vue {
     declare $data: {
+      loaded: boolean;
       files: Cumulonimbus.Data.File[];
       fileCount: number;
       page: number;
     };
     async mounted() {
-      this.getPage();
+      this.getPageFromQuery();
       await this.getFiles();
     }
 
-    getPage() {
+    getPageFromQuery() {
       const urlSearchParams = new URLSearchParams(window.location.search);
       if (urlSearchParams.has('page')) {
         const page = Number(urlSearchParams.get('page'));
@@ -80,6 +87,7 @@
 
     async getFiles() {
       try {
+        this.$data.loaded = false;
         const curPageFiles = await (
           this.$store.state.client as Client
         ).getAllSelfFiles(50, 50 * this.$data.page);
@@ -89,6 +97,7 @@
         }
         this.$data.fileCount = curPageFiles.count;
         this.$data.files = curPageFiles.items;
+        this.$data.loaded = true;
       } catch (error) {
         switch ((error as Cumulonimbus.ResponseError).code) {
           case 'RATELIMITED_ERROR':

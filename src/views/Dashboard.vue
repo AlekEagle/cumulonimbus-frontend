@@ -9,17 +9,12 @@
   <div class="quick-action-buttons-container">
     <button @click="signOut" title="This button will sign you out, who knew!?"
       >Sign Out</button
-    ><button
-      @click="disable = !disable"
-      title="Toggle the disabled state of the content boxes below."
-      >Toggle ContentBox Disabled</button
     >
   </div>
   <div class="content-box-group-container">
     <ContentBox
       title="Profile"
       src="/assets/images/profile.svg"
-      :disabled="disable"
       span
       theme-safe
     >
@@ -28,7 +23,6 @@
     <ContentBox
       title="Files"
       src="/assets/images/file.svg"
-      :disabled="disable"
       span
       to="files/"
       theme-safe
@@ -38,8 +32,8 @@
     <ContentBox
       title="Quick Set Up"
       src="/assets/images/info.svg"
-      :disabled="disable"
       span
+      to="set-up/"
       theme-safe
     >
       <p
@@ -50,7 +44,6 @@
     <ContentBox
       title="Upload From Browser"
       src="/assets/images/upload.svg"
-      :disabled="disable"
       span
       to="upload/"
       theme-safe
@@ -72,11 +65,6 @@
 
   @Options({
     components: { ContentBox },
-    data() {
-      return {
-        disable: false
-      };
-    },
     title: 'Dashboard'
   })
   export default class Dashboard extends Vue {

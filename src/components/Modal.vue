@@ -85,6 +85,7 @@
     background-color: #fff;
     width: fit-content;
     padding: 25px;
+    margin: 25px;
     cursor: default;
     border-radius: 20px;
   }

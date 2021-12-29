@@ -2,7 +2,9 @@
   <h1>File Details</h1>
   <h2>See the specifics of a file.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.back()" title="Go back!">Back</button>
+    <button @click="$router.push('/dashboard/files/')" title="Go back!"
+      >Back</button
+    >
     <button @click="$refs.deleteFileModal.showModal()" title="Delete this file!"
       >Delete</button
     >
