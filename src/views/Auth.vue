@@ -105,7 +105,7 @@
         signIn: true
       };
     },
-    title: 'Cumulonimbus | Sign-in/Register'
+    title: 'Sign-in/Register'
   })
   export default class Auth extends Vue {
     declare $refs: {

@@ -69,12 +69,12 @@
   })
   export default class Dashboard extends Vue {
     async mounted() {
-      if (this.$store.state.client === null) {
-        (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-          window.location.pathname
-        );
+      if (
+        await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+          window.location.pathname + window.location.search
+        )
+      )
         return;
-      }
       try {
         if (!this.$store.state.user) {
           let u = await this.$store.state.client.getSelfUser();

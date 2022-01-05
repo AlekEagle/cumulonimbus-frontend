@@ -27,6 +27,8 @@ export default createStore({
         if (
           (error as Cumulonimbus.ResponseError).code === 'INVALID_SESSION_ERROR'
         ) {
+          commit('setUser', null);
+          commit('setSession', null);
           commit('setClient', null);
           return false;
         } else {

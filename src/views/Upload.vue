@@ -98,7 +98,7 @@
         text: labelText
       };
     },
-    title: 'Cumulonimbus | Upload'
+    title: 'Upload'
   })
   export default class Upload extends Vue {
     declare $data: {
@@ -108,7 +108,13 @@
       file?: File;
       text: { [key: string]: string };
     };
-    mounted() {
+    async mounted() {
+      if (
+        await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+          window.location.pathname + window.location.search
+        )
+      )
+        return;
       if (
         getOS() === 'Android' &&
         !parseQueryString(window.location.href.split('?')[1]).file

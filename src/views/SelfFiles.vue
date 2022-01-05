@@ -40,7 +40,7 @@
 
   @Options({
     components: { ContentBox, Loading },
-    title: 'Cumulonimbus | Your Files',
+    title: 'Your Files',
     data() {
       return {
         loaded: false,
@@ -58,6 +58,12 @@
       page: number;
     };
     async mounted() {
+      if (
+        await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+          window.location.pathname + window.location.search
+        )
+      )
+        return;
       this.getPageFromQuery();
       await this.getFiles();
     }

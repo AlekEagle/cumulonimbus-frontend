@@ -84,9 +84,10 @@
 
     async redirectIfNotLoggedIn(path: string) {
       if (!(await this.isLoggedIn())) {
-        if (!path.startsWith('/dashboard')) return;
+        if (!path.startsWith('/dashboard')) return false;
         this.$router.push(`/auth/?redirect=${encodeURIComponent(path)}`);
-      }
+        return true;
+      } else return false;
     }
 
     mobileMenu() {
@@ -228,6 +229,11 @@
 
   .dark-mode-widget {
     margin-left: auto;
+  }
+
+  .content h2 {
+    margin-left: 5px;
+    margin-right: 5px;
   }
 
   h5,

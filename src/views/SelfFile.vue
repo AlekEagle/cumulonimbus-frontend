@@ -73,7 +73,8 @@
         loaded: false,
         hFileSize: null
       };
-    }
+    },
+    title: 'File Details'
   })
   export default class VueComponent extends Vue {
     declare $data: {
@@ -84,12 +85,13 @@
     };
     async mounted() {
       this.$data.hostname = window.location.hostname;
-      if (this.$store.state.client === null) {
-        (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+      if (
+        await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
           window.location.pathname + window.location.search
-        );
+        )
+      )
         return;
-      }
+
       try {
         const urlSearchParams = new URLSearchParams(window.location.search);
         if (!this.$store.state.user) {
