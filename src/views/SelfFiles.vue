@@ -88,7 +88,7 @@
     }
 
     setPage(page?: number, zeroIndexed: boolean = true) {
-      if (!page || page === 0) {
+      if (!page || page === 0 ||   (page === 1 && !zeroIndexed)) {
         this.$router.replace(window.location.pathname);
         this.$data.page = 0;
       } else {
