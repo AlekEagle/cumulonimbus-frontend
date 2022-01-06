@@ -36,7 +36,7 @@
       v-for="service in services"
       :key="service.name"
       :title="service.displayName"
-      :to="`/dashboard/set-up/service/?=${service.name}${
+      :to="`/dashboard/set-up/service/?name=${service.name}${
         newSession ? '&new-session' : ''
       }`"
       span
@@ -78,7 +78,7 @@
       try {
         let services = await (
           this.$store.state.client as Client
-        ).getAllInstructions();
+        ).getInstructions();
         this.$data.services = services.items;
       } catch (error) {
         switch ((error as Cumulonimbus.ResponseError).code) {

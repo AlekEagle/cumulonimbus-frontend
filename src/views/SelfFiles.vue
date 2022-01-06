@@ -29,6 +29,11 @@
     >
   </div>
   <Loading v-else />
+  <div class="page-selector">
+    <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
+    <input type="number" min="1" max="1" ref="pageNum" @change="pageChange" placeholder="Page #" :value="$data.page + 1" class="page-number-box" />
+    <button @click="nextPage" :disabled="$data.maxPage !== -1 && $data.page >= $data.maxPage">Next</button>
+  </div>
 </template>
 
 <script lang="ts">
@@ -46,7 +51,8 @@
         loaded: false,
         files: [],
         fileCount: undefined,
-        page: 0
+        page: 0,
+        maxPage: -1
       };
     }
   })
@@ -56,7 +62,11 @@
       files: Cumulonimbus.Data.File[];
       fileCount: number;
       page: number;
+      maxPage: number;
     };
+    declare $refs: {
+      pageNum: HTMLInputElement;
+    }
     async mounted() {
       if (
         await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
@@ -86,22 +96,45 @@
         if (!isFinite(page)) throw new Error('Cannot be infinite');
         this.$data.page = page - (zeroIndexed ? 0 : 1);
         this.$router.replace(
-          window.location.pathname + '?page=' + (this.$data.page - 1)
+          window.location.pathname + '?page=' + (this.$data.page + 1)
         );
       }
+    }
+
+    async prevPage() {
+      if (this.$data.page <= 0) return;
+      this.setPage(this.$data.page - 1);
+      await this.getFiles();
+    }
+
+    async nextPage() {
+      if (this.$data.maxPage !== -1 && this.$data.page >= this.$data.maxPage) return;
+      this.setPage(this.$data.page +1);
+      await this.getFiles();
+    }
+
+    async pageChange(e: InputEvent) {
+      if ((e.target as HTMLInputElement).valueAsNumber < 1) (e.target as HTMLInputElement).valueAsNumber = 1;
+      if ((e.target as HTMLInputElement).valueAsNumber > this.$data.maxPage + 1) (e.target as HTMLInputElement).valueAsNumber = this.$data.maxPage + 1;
+      this.setPage((e.target as HTMLInputElement).valueAsNumber, false);
+      this.getFiles();
+      console.log(e);
     }
 
     async getFiles() {
       try {
         this.$data.loaded = false;
+        this.$data.files = [];
         const curPageFiles = await (
           this.$store.state.client as Client
-        ).getAllSelfFiles(50, 50 * this.$data.page);
-        if (curPageFiles.items.length < 1) {
-          this.setPage(0);
+        ).getSelfFiles(50, 50 * this.$data.page);
+        if (curPageFiles.items.length < 1 && this.$data.page > 0) {
+          this.setPage(this.$data.maxPage);
           this.getFiles();
         }
         this.$data.fileCount = curPageFiles.count;
+        this.$data.maxPage = Math.floor(this.$data.fileCount / 50);
+        this.$refs.pageNum.max = (this.$data.maxPage + 1).toString();
         this.$data.files = curPageFiles.items;
         this.$data.loaded = true;
       } catch (error) {
@@ -134,3 +167,10 @@
     }
   }
 </script>
+
+<style>
+  .page-number-box {
+    width: 65px;
+    margin: 0 5px;
+  }
+</style>
