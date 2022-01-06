@@ -82,7 +82,7 @@
       } else return false;
     }
 
-    async redirectIfNotLoggedIn(path: string) {
+    async redirectIfNotLoggedIn(path: string): Promise<boolean> {
       if (!(await this.isLoggedIn())) {
         if (!path.startsWith('/dashboard')) return false;
         this.$router.push(`/auth/?redirect=${encodeURIComponent(path)}`);
