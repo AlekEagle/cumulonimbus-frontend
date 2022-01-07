@@ -81,15 +81,30 @@
           this.$store.commit('setUser', u);
         }
       } catch (error) {
-        if (
-          (error as Cumulonimbus.ResponseError).code === 'INVALID_SESSION_ERROR'
-        ) {
-          (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+
+        switch((error as Cumulonimbus.ResponseError).code) {
+          case 'INVALID_SESSION_ERROR':
+            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
             window.location.pathname
           );
-        } else {
-          (this.$parent?.$parent as App).temporaryToast('I did a bad.', 15000);
-          console.error(error);
+          break;
+          case 'RATELIMITED_ERROR':
+            (this.$parent?.$parent as App).ratelimitToast(
+              (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
+            );
+            break;
+            case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+              window.location.pathname
+            );
+            break;
+          default:
+            (this.$parent?.$parent as App).temporaryToast(
+              'I did a bad.',
+              15000
+            );
+            console.log(error);
         }
       }
     }
@@ -121,6 +136,12 @@
             this.$store.commit('setUser', null);
             this.$store.commit('setSession', null);
             this.$store.commit('setClient', null);
+            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+              window.location.pathname
+            );
+            break;
+            case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
             (this.$parent?.$parent as App).redirectIfNotLoggedIn(
               window.location.pathname
             );

@@ -14,7 +14,7 @@
     }}.</h2
   >
   <div class="quick-action-buttons-container">
-    <button title="Go Back!" @click="$router.push('/dashboard/')">Back</button>
+    <button title="Go Back!" @click="goBack">Back</button>
   </div>
   <div v-if="loaded" class="content-box-group-container">
     <ContentBox
@@ -74,6 +74,7 @@
         )
       )
         return;
+      if (this.$store.state.filePage !== null) this.setPage(this.$store.state.filePage);
       this.getPageFromQuery();
       await this.getFiles();
     }
@@ -83,18 +84,19 @@
       if (urlSearchParams.has('page')) {
         const page = Number(urlSearchParams.get('page'));
         if (isNaN(page)) this.$router.replace(window.location.pathname);
-        else this.$data.page = page - 1;
+        else this.setPage(page, false);
       }
     }
 
     setPage(page?: number, zeroIndexed: boolean = true) {
-      if (!page || page === 0 ||   (page === 1 && !zeroIndexed)) {
+      if (!page || page < 1 || (page < 2 && !zeroIndexed)) {
         this.$router.replace(window.location.pathname);
         this.$data.page = 0;
       } else {
         if (isNaN(page)) throw new Error('Cannot be NaN');
         if (!isFinite(page)) throw new Error('Cannot be infinite');
         this.$data.page = page - (zeroIndexed ? 0 : 1);
+        this.$store.commit('setFilePage', this.$data.page);
         this.$router.replace(
           window.location.pathname + '?page=' + (this.$data.page + 1)
         );
@@ -129,7 +131,7 @@
           this.$store.state.client as Client
         ).getSelfFiles(50, 50 * this.$data.page);
         if (curPageFiles.items.length < 1 && this.$data.page > 0) {
-          this.setPage(this.$data.maxPage);
+          this.setPage(this.$data.maxPage <= 0 ? this.$data.maxPage : 0);
           this.getFiles();
         }
         this.$data.fileCount = curPageFiles.count;
@@ -156,6 +158,12 @@
               window.location.pathname
             );
             break;
+            case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+              window.location.pathname
+            );
+            break;
           default:
             (this.$parent?.$parent as App).temporaryToast(
               'I did a bad.',
@@ -164,6 +172,11 @@
             console.error(error);
         }
       }
+    }
+
+    goBack() {
+      this.$router.push('/dashboard/');;
+      this.$store.commit('setFilePage', null);
     }
   }
 </script>

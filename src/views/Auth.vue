@@ -4,17 +4,17 @@
     <div class="auth-box"
       ><br />
       <div class="checkbox-container"
-        ><p class="label-left">Register</p>
+        ><p @click="$data.signIn = false" class="label-left">Register</p>
         <input
           type="checkbox"
           id="sign-in-toggle"
-          :checked="signIn"
+          :checked="$data.signIn"
           @change="signInOrRegister"
         />
         <label for="sign-in-toggle"><span></span></label
-        ><p class="label-right">Sign In</p>
+        ><p @click="$data.signIn = true" class="label-right">Sign In</p>
       </div>
-      <template v-if="signIn">
+      <template v-if="$data.signIn">
         <h2>Sign In</h2>
         <form ref="signInForm" @submit.prevent="submitSignIn">
           <input
@@ -267,5 +267,9 @@
   html.dark-theme .auth-box {
     border: 2px solid #000000;
     box-shadow: 0px 0px 75px 20px #000000aa;
+  }
+
+  .label-left, .label-right {
+    cursor:pointer;
   }
 </style>

@@ -43,7 +43,8 @@
       disabled: Boolean,
       selectable: Boolean,
       themeSafe: Boolean,
-      lazyLoad: Boolean
+      lazyLoad: Boolean,
+      toNewTab: Boolean
     },
     computed: {
       contentTitle() {
@@ -69,6 +70,9 @@
       },
       shouldLazyLoad() {
         return this.lazyLoad;
+      },
+      inNewTab() {
+        return this.toNewTab;
       }
     }
   })
@@ -78,10 +82,12 @@
     declare iconSrc?: string;
     declare contentTo?: string;
     declare contentDisabled: boolean;
-    declare iconThemeSafe: boolean | null;
+    declare iconThemeSafe: boolean;
+    declare inNewTab: boolean;
     handleContentTo() {
       if (this.contentTo !== undefined && !this.contentDisabled) {
-        this.$router.push(this.contentTo);
+        if (this.inNewTab) window.open(this.contentTo, "_blank");
+        else this.$router.push(this.contentTo);
       }
     }
   }

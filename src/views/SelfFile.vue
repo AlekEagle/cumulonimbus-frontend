@@ -14,6 +14,8 @@
       title="Information"
       span
       lazy-load
+      to-new-tab
+      :to="`https://${hostname}/${file.filename}`"
       :src="`https://previews.${hostname}/${file.filename}`"
     >
       <p>Filename: {{ file.filename }}</p>
@@ -47,7 +49,7 @@
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
   import ContentBox from '@/components/ContentBox.vue';
-  import { Cumulonimbus } from '../../../cumulonimbus-wrapper';
+  import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
   import Modal from '@/components/Modal.vue';
   import Loading from '@/components/Loading.vue';
   import App from '@/App.vue';
@@ -120,6 +122,41 @@
               15000
             );
             console.error(error);
+        }
+      }
+    }
+
+    async deleteFile() {
+      try {
+        let res = await (this.$store.state.client as Client).deleteSelfFileByID(this.$data.file?.filename as string);
+        console.log(res);
+        (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
+        this.$router.push('/dashboard/files/');
+      }catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch(error.code) {
+            case 'INVALID_SESSION_ERROR':
+            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+              window.location.pathname
+            );
+            break;
+          case 'INVALID_FILE_ERROR':
+            this.$router.push('/dashboard/files/');
+            (this.$parent?.$parent as App).temporaryToast('Sometime between when you got here and now this file has been deleted.', 15000);
+            break;
+          case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+              window.location.pathname
+            );
+            break;
+          default:
+            (this.$parent?.$parent as App).temporaryToast(
+              'I did a bad.',
+              15000
+            );
+            console.error(error);
+          }
         }
       }
     }

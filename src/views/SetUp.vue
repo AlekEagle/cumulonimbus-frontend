@@ -99,6 +99,12 @@
               window.location.pathname
             );
             break;
+            case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+              window.location.pathname
+            );
+            break;
           default:
             (this.$parent?.$parent as App).temporaryToast(
               'I did a bad.',

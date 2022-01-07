@@ -5,7 +5,8 @@ export default createStore({
   state: {
     client: null,
     user: null,
-    session: null
+    session: null,
+    filePage: null
   },
   mutations: {
     setClient(state, client) {
@@ -16,6 +17,9 @@ export default createStore({
     },
     setSession(state, session) {
       state.session = session;
+    },
+    setFilePage(state, page) {
+      state.filePage = page;
     }
   },
   actions: {
