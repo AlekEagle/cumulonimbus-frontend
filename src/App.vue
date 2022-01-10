@@ -138,9 +138,9 @@
     }
 
     async beforeMount() {
+      window.addEventListener('online', ()=> window.location.reload());
+      window.addEventListener('offline', () => this.temporaryToast('You just went offline, I\'m pretty useless offline.', 10000));
       if (!navigator.onLine) {
-        window.addEventListener('online', ()=> window.location.reload());
-        window.addEventListener('offline', () => this.temporaryToast('You just went offline, I\'m pretty useless offline.', 10000));
         return;
       }
       if (localStorage.getItem('token')) {
