@@ -109,6 +109,10 @@
       text: { [key: string]: string };
     };
     async mounted() {
+      if (!navigator.onLine) {
+        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        return;
+      }
       if (
         await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
           window.location.pathname + window.location.search

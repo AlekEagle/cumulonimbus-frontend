@@ -48,11 +48,9 @@
       to="upload/"
       theme-safe
     >
-      <p
-        >Upload directly from your browser, no external software required!
-        (installing the dashboard as an app on Android will allow you to use the
-        share menu to upload files!)</p
-      >
+      <p>
+        Upload directly from your browser, no external software required!
+      </p>
     </ContentBox>
   </div>
 </template>
@@ -69,6 +67,10 @@
   })
   export default class Dashboard extends Vue {
     async mounted() {
+      if (!navigator.onLine) {
+        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        return;
+      }
       if (
         await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
           window.location.pathname + window.location.search
