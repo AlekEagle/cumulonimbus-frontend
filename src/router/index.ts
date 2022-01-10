@@ -37,6 +37,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/SetUp.vue')
   },
   {
+    path: '/dashboard/set-up/service',
+    name: 'SetUpService',
+    component: () => import('@/view/SetUpService.vue')
+  },
+  {
     path: '/dashboard/upload',
     name: 'Upload',
     component: () => import('@/views/Upload.vue')
