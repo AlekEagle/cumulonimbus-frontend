@@ -167,4 +167,8 @@
   }
 </script>
 
-<style></style>
+<style>
+  :root {
+    --content-boxes-per-row: 1;
+  }
+</style>
