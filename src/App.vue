@@ -75,11 +75,16 @@
     };
 
     async isLoggedIn() {
+      try {
       if (!!this.$store.state.client) {
         let authCheck = await this.$store.dispatch('checkClientAuth');
         if (typeof authCheck === 'boolean') return authCheck;
         else return false;
       } else return false;
+      }catch (error) {
+        this.temporaryToast('Something weird happened, lets try again later.');
+        return true;
+      }
     }
 
     async redirectIfNotLoggedIn(path: string): Promise<boolean> {
@@ -133,6 +138,11 @@
     }
 
     async beforeMount() {
+      window.addEventListener('online', ()=> window.location.reload());
+      window.addEventListener('offline', () => this.temporaryToast('You just went offline, I\'m pretty useless offline.', 10000));
+      if (!navigator.onLine) {
+        return;
+      }
       if (localStorage.getItem('token')) {
         this.$store.commit(
           'setClient',

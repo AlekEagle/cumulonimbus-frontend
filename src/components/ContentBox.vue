@@ -94,6 +94,7 @@
 </script>
 
 <style>
+
   .content-box-group-container {
     width: 100%;
     z-index: 1;
@@ -102,11 +103,14 @@
     justify-content: space-evenly;
   }
 
-  .content-box-title,
   .content-box-content * {
     margin: 0;
     float: left;
     height: fit-content;
+  }
+
+  .content h2.content-box-title {
+    margin: 0;
   }
 
   .content-box-content {
@@ -116,7 +120,8 @@
   .content-box-text-content {
     display: flex;
     flex-wrap: wrap;
-    align-content: space-around;
+    align-content: left;
+    text-align: left;
   }
 
   .content-box-icon ~ .content-box-text-content {
@@ -137,6 +142,42 @@
     filter: invert(1);
   }
 
+  @media screen and (max-width: 789px) {
+    :root {
+      --content-boxes-per-row: 1;
+    }
+  }
+
+  @media screen and (min-width: 790px) and (max-width: 1149px) {
+    :root {
+      --content-boxes-per-row: 2;
+    }
+  }
+
+  @media screen and (min-width: 1150px) and (max-width: 1509px) {
+    :root {
+      --content-boxes-per-row: 3;
+    }
+  }
+
+  @media screen and (min-width: 1510px) and (max-width: 1869px) {
+    :root {
+      --content-boxes-per-row: 4;
+    }
+  }
+
+  @media screen and (min-width: 1870px) and (max-width: 2229px) {
+    :root {
+      --content-boxes-per-row: 5;
+    }
+  }
+
+  @media screen and (min-width: 2230px) {
+    :root {
+      --content-boxes-per-row: 6;
+    }
+  }
+
   .content-box {
     text-align: center;
     position: relative;
@@ -147,6 +188,8 @@
     transition: border 0.25s, background-color 0.25s, box-shadow 0.25s;
     margin: 10px 20px;
     flex-wrap: nowrap;
+    width: calc((100% - (20px * 4 + 1px * 2) * var(--content-boxes-per-row, 1)) / var(--content-boxes-per-row, 1));
+    align-items: center;
   }
 
   .content-box.no-select {

@@ -86,6 +86,10 @@
       hFileSize: string | null;
     };
     async mounted() {
+      if (!navigator.onLine) {
+        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        return;
+      }
       this.$data.hostname = window.location.hostname;
       if (
         await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
@@ -163,4 +167,8 @@
   }
 </script>
 
-<style></style>
+<style>
+  :root {
+    --content-boxes-per-row: 1;
+  }
+</style>
