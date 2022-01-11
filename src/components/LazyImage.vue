@@ -43,7 +43,8 @@
       return {
         done: false,
         lazyBlobURL: undefined,
-        currentTries: 0
+        currentTries: 0,
+        timeout: undefined
       };
     }
   })
@@ -57,9 +58,11 @@
       done: boolean;
       lazyBlobURL?: string;
       currentTries: number;
+      timeout?: number;
     };
 
     async loadIcon() {
+      this.$data.timeout = undefined;
       try {
         let res = await fetch(this.lazySrc);
         if (res.ok) {
@@ -77,7 +80,7 @@
 
     handleFail() {
       if (++this.$data.currentTries <= this.maxTries) {
-        setTimeout(this.loadIcon, this.waitPeriod);
+        this.$data.timeout = setTimeout(this.loadIcon, this.waitPeriod);
       } else {
         this.$data.lazyBlobURL = this.failedLazySrc;
         this.$data.done = true;
@@ -93,6 +96,10 @@
       this.$data.lazyBlobURL = undefined;
       this.$data.currentTries = 0;
       this.loadIcon();
+    }
+
+    beforeUnmount() {
+      if (this.$data.timeout) clearTimeout(this.$data.timeout);
     }
   }
 </script>

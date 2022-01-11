@@ -87,7 +87,10 @@
     };
     async mounted() {
       if (!navigator.onLine) {
-        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        (this.$parent?.$parent as App).temporaryToast(
+          "Looks like you're offline, I'm pretty useless offline.",
+          10000
+        );
         return;
       }
       this.$data.hostname = window.location.hostname;
@@ -132,34 +135,42 @@
 
     async deleteFile() {
       try {
-        let res = await (this.$store.state.client as Client).deleteSelfFileByID(this.$data.file?.filename as string);
+        let res = await (this.$store.state.client as Client).deleteSelfFileByID(
+          this.$data.file?.filename as string
+        );
         console.log(res);
         (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
         this.$router.push('/dashboard/files/');
-      }catch (error) {
+      } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
-          switch(error.code) {
+          switch (error.code) {
             case 'INVALID_SESSION_ERROR':
-            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-              window.location.pathname
-            );
-            break;
-          case 'INVALID_FILE_ERROR':
-            this.$router.push('/dashboard/files/');
-            (this.$parent?.$parent as App).temporaryToast('Sometime between when you got here and now this file has been deleted.', 15000);
-            break;
-          case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
-            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-              window.location.pathname
-            );
-            break;
-          default:
-            (this.$parent?.$parent as App).temporaryToast(
-              'I did a bad.',
-              15000
-            );
-            console.error(error);
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            case 'INVALID_FILE_ERROR':
+              this.$router.push('/dashboard/files/');
+              (this.$parent?.$parent as App).temporaryToast(
+                'Sometime between when you got here and now this file has been deleted.',
+                15000
+              );
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'lol ur banned',
+                10000
+              );
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did a bad.',
+                15000
+              );
+              console.error(error);
           }
         }
       }
@@ -167,7 +178,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   :root {
     --content-boxes-per-row: 1;
   }

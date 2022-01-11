@@ -14,7 +14,7 @@
         @change="e => ($data.newSession = e.target.checked)"
       />
       <label for="session-type-selector"><span></span></label
-      ><p class="label-right">New session (recommended)</p>
+      ><p class="label-right">New session</p>
     </div>
     <button
       @click="$refs.sessionSelectorModal.showModal()"
@@ -70,7 +70,10 @@
     };
     async mounted() {
       if (!navigator.onLine) {
-        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        (this.$parent?.$parent as App).temporaryToast(
+          "Looks like you're offline, I'm pretty useless offline.",
+          10000
+        );
         return;
       }
       if (
@@ -103,8 +106,11 @@
               window.location.pathname
             );
             break;
-            case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+          case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              'lol ur banned',
+              10000
+            );
             (this.$parent?.$parent as App).redirectIfNotLoggedIn(
               window.location.pathname
             );

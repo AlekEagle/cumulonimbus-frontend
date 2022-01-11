@@ -70,7 +70,7 @@
   .toast-box {
     position: fixed;
     right: 35px;
-    bottom: 25px;
+    bottom: 35px;
     padding: 10px 15px;
     border-radius: 8px;
     box-shadow: 5px 5px 5px #000000aa, inset 0px 0px 3px #000000;
@@ -80,6 +80,7 @@
     font-size: 20px;
     transition: background-color 0.25s, box-shadow 0.25s;
     overflow-y: hidden;
+    margin-left: 35px;
   }
 
   html.dark-theme .toast-box {
@@ -101,6 +102,6 @@
 
   .toast-enter-to,
   .toast-leave-from {
-    bottom: 25px;
+    bottom: 35px;
   }
 </style>

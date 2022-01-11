@@ -3,7 +3,7 @@
   <h2>Do the upload things.</h2>
   <div class="upload-box-container">
     <div class="upload-box">
-      <form @submit.prevent="uploadFile">
+      <form ref="fileForm" @submit.prevent="uploadFile">
         <input
           type="file"
           name="file"
@@ -108,9 +108,15 @@
       file?: File;
       text: { [key: string]: string };
     };
+    declare $refs: {
+      fileForm: HTMLFormElement;
+    };
     async mounted() {
       if (!navigator.onLine) {
-        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        (this.$parent?.$parent as App).temporaryToast(
+          "Looks like you're offline, I'm pretty useless offline.",
+          10000
+        );
         return;
       }
       if (
@@ -138,6 +144,25 @@
           );
         }
       }
+      if (parseQueryString(window.location.href.split('?')[1]).file) {
+        try {
+          let file = await fetch(
+            `/shared-files/${
+              parseQueryString(window.location.href.split('?')[1]).file
+            }`
+          );
+          if (file.ok) {
+            let slime = await file.blob();
+            this.$data.file = new File(
+              [slime],
+              file.headers.get('X-Filename') as string
+            );
+            this.uploadFile();
+          }
+        } catch (error) {
+          this.$router.push(window.location.pathname);
+        }
+      }
     }
     drop(e: DragEvent) {
       if ((e.dataTransfer as DataTransfer).files.length > 1) {
@@ -161,7 +186,7 @@
       this.$data.state = 'default';
       this.$data.file = ((e.target as HTMLInputElement).files as FileList)[0];
     }
-    async uploadFile(e: any) {
+    async uploadFile() {
       this.$data.link = undefined;
       this.$data.upload = true;
       try {
@@ -171,8 +196,15 @@
         this.$data.upload = false;
         this.$data.file = undefined;
         this.$data.link = success.url;
-        (e.target as HTMLFormElement).reset();
+        this.$refs.fileForm.reset();
         this.copyToClipboard(true);
+        if (parseQueryString(window.location.href.split('?')[1]).file) {
+          navigator.serviceWorker.controller?.postMessage({
+            op: 0,
+            d: parseQueryString(window.location.href.split('?')[1]).file
+          });
+          this.$router.push(window.location.pathname);
+        }
       } catch (error) {
         this.$data.upload = false;
         switch ((error as Cumulonimbus.ResponseError).code) {
@@ -193,8 +225,11 @@
               window.location.pathname
             );
             break;
-            case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+          case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              'lol ur banned',
+              10000
+            );
             (this.$parent?.$parent as App).redirectIfNotLoggedIn(
               window.location.pathname
             );

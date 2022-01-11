@@ -2,7 +2,12 @@
   <header class="header">
     <router-link to="/">
       <div class="nav-logo">
-        <img src="/assets/images/Cumulonimbus.svg" />
+        <img
+          src="/assets/images/Cumulonimbus.svg"
+          alt="logo"
+          height="50"
+          width="50"
+        />
         <p>Cumulonimbus</p>
       </div>
     </router-link>
@@ -25,12 +30,14 @@
           >
         </li>
         <li class="nav-item" @click="hideMobileMenu">
-          <a :href="`https://docs.${hostname}`" target="_blank"
+          <a :href="`https://docs.${hostname}`" rel="noopener" target="_blank"
             >Documentation</a
           >
         </li>
         <li class="nav-item" @click="hideMobileMenu">
-          <a href="https://alekeagle.com/d" target="_blank">Discord</a>
+          <a href="https://alekeagle.com/d" rel="noopener" target="_blank"
+            >Discord</a
+          >
         </li>
       </ul>
       <div ref="hamburger" class="hamburger" @click="mobileMenu"
@@ -76,12 +83,12 @@
 
     async isLoggedIn() {
       try {
-      if (!!this.$store.state.client) {
-        let authCheck = await this.$store.dispatch('checkClientAuth');
-        if (typeof authCheck === 'boolean') return authCheck;
-        else return false;
-      } else return false;
-      }catch (error) {
+        if (!!this.$store.state.client) {
+          let authCheck = await this.$store.dispatch('checkClientAuth');
+          if (typeof authCheck === 'boolean') return authCheck;
+          else return false;
+        } else return false;
+      } catch (error) {
         this.temporaryToast('Something weird happened, lets try again later.');
         return true;
       }
@@ -138,8 +145,13 @@
     }
 
     async beforeMount() {
-      window.addEventListener('online', ()=> window.location.reload());
-      window.addEventListener('offline', () => this.temporaryToast('You just went offline, I\'m pretty useless offline.', 10000));
+      window.addEventListener('online', () => window.location.reload());
+      window.addEventListener('offline', () =>
+        this.temporaryToast(
+          "You just went offline, I'm pretty useless offline.",
+          10000
+        )
+      );
       if (!navigator.onLine) {
         return;
       }
@@ -158,6 +170,17 @@
     mounted() {
       this.$data.hostname = window.location.hostname;
       (window as any).cumClient = this.$store.state.client;
+
+      navigator.serviceWorker.addEventListener('message', e => {
+        switch (e.data.op) {
+          case 0:
+            this.temporaryToast(
+              'The page has just updated, please refresh to apply update.',
+              15000
+            );
+            break;
+        }
+      });
     }
   }
 </script>
@@ -438,6 +461,12 @@
     flex-wrap: wrap;
   }
 
+  @media screen and (max-width: 781px) {
+    .quick-action-buttons-container {
+      width: 90%;
+    }
+  }
+
   button:hover:not(:disabled) {
     background-color: #bebebe;
   }
@@ -539,7 +568,7 @@
 
   input[type='checkbox']:checked + label {
     border-color: #292929;
-    background-color: #009fbb;
+    background-color: #08f1fd;
   }
 
   html.dark-theme input[type='checkbox']:checked + label {

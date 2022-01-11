@@ -25,57 +25,83 @@ function manageNagTimeout() {
 }
 
 self.addEventListener('install', async e => {
-  await self.skipWaiting();
-  await caches.delete('offline-cache');
-  await caches.delete('shared-files');
-  await caches.delete('preview-icons');
-  e.waitUntil((async function() {
-    let offlineCache = await caches.open('offline-cache');
-    for (let url of URLSToCache) {
-      console.log(`Adding ${url} to cache...`);
-      await offlineCache.add(new Request(url));
-    }
-    return;
-  })());
+  try {
+    await self.skipWaiting();
+    await caches.delete('offline-cache');
+    await caches.delete('shared-files');
+    manageNagTimeout();
+    e.waitUntil(
+      (async function () {
+        let offlineCache = await caches.open('offline-cache');
+        for (let url of URLSToCache) {
+          console.log(`Adding ${url} to cache...`);
+          await offlineCache.add(new Request(url));
+        }
+        return;
+      })()
+    );
+  } catch (error) {}
 });
 
 self.addEventListener('activate', async () => {
-  await clients.claim();
-  let cs = await clients.matchAll();
-  cs.forEach(c => {
-    c.postMessage({ op: 0, d: true });
-  });
+  manageNagTimeout();
 });
 
 self.addEventListener('fetch', async e => {
-  if (e.request.method === 'POST' && e.request.url.endsWith('/dashboard/upload/')) {
-    e.respondWith((async () => {
-      const cache = await caches.open('shared-files'),
-        reqData = await e.request.formData(),
-        file = reqData.get('file'),
-        now = Date.now();
-      
-      await cache.put(`/shared-files/${now}`, new Response(file, {
-        headers: {
-          'Content-Type': file.type,
-          'Content-Length': file.size,
-          'X-Filename': file.name
-        }
-      }));
+  if (
+    e.request.method === 'POST' &&
+    e.request.url.endsWith('/dashboard/upload/')
+  ) {
+    e.respondWith(
+      (async () => {
+        const cache = await caches.open('shared-files'),
+          reqData = await e.request.formData(),
+          file = reqData.get('file'),
+          now = Date.now();
 
-      return Response.redirect(`/dashboard/upload/?file=${now}`);
-    })());
+        await cache.put(
+          `/shared-files/${now}`,
+          new Response(file, {
+            headers: {
+              'Content-Type': file.type,
+              'Content-Length': file.size,
+              'X-Filename': file.name
+            }
+          })
+        );
+
+        return Response.redirect(`/dashboard/upload/?file=${now}`);
+      })()
+    );
   } else if (e.request.method !== 'POST') {
     let newlyAdded = false;
     e.respondWith(
       (async () => {
         let cacheMatch = await caches.match(e.request);
-        if (cacheMatch) return cacheMatch;        
+        if (cacheMatch) return cacheMatch;
         else {
           try {
             let response = await fetch(e.request);
-            if (!response.ok && !response.url.includes('/api/')) return await (await caches.open('offline-cache')).match('/index.html');
-            if (!response || !response.ok || response.type === 'opaque' || response.url.includes('/api/')) return response;
+            if (
+              !response.ok &&
+              !response.url.includes('/api/') &&
+              !response.url.includes('previews') &&
+              !e.request.url.includes('/shared-files/')
+            ) {
+              if (e.request.url.includes('/shared-files/')) {
+                return new Response('', { status: 404 });
+              } else
+                return await (
+                  await caches.open('offline-cache')
+                ).match('/index.html');
+            }
+            if (
+              !response ||
+              !response.ok ||
+              response.type === 'opaque' ||
+              response.url.includes('/api/')
+            )
+              return response;
             else {
               console.log(`Adding ${e.request.url} to cache...`);
               newlyAdded = true;
@@ -89,10 +115,18 @@ self.addEventListener('fetch', async e => {
 
                 await cache.put(e.request, responseToCache);
               }
+              manageNagTimeout();
               return response;
             }
           } catch (error) {
-            if (!e.request.url.includes('/api/')) return await (await caches.open('offline-cache')).match('/index.html');
+            if (
+              !e.request.url.includes('/api/') &&
+              !e.request.url.includes('previews') &&
+              !e.request.url.includes('/shared-files/')
+            )
+              return await (
+                await caches.open('offline-cache')
+              ).match('/index.html');
             console.error(error);
           }
         }
@@ -103,9 +137,9 @@ self.addEventListener('fetch', async e => {
 
     let offlineCache = await caches.open('offline-cache'),
       cached = await offlineCache.match(e.request);
-    
+
     if (navigator.onLine && cached) {
-      let res = await fetch(e.request)
+      let res = await fetch(e.request);
       if (
         res.headers.get('Last-Modified') &&
         new Date(res.headers.get('Last-Modified')).getTime()
@@ -119,10 +153,19 @@ self.addEventListener('fetch', async e => {
               new URL(e.request.url).pathname
             } from cache is outdated, updating cache!`
           );
+          manageNagTimeout();
           await offlineCache.delete(e.request.url);
           await offlineCache.put(e.request, res);
         }
       }
     }
+  }
+});
+self.addEventListener('message', async e => {
+  switch (e.data.op) {
+    case 0:
+      let shareCache = await caches.open('shared-files');
+      await shareCache.delete(e.data.d);
+      break;
   }
 });

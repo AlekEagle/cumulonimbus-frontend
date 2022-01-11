@@ -11,7 +11,12 @@
         :src="iconSrc"
         alt="Content icon"
       />
-      <LazyImage v-else :src="iconSrc" class="content-box-icon" />
+      <LazyImage
+        v-else
+        :src="iconSrc"
+        failed-src="/assets/images/exclamation-mark.svg"
+        class="content-box-icon"
+      />
     </template>
     <div class="content-box-text-content">
       <h2 class="content-box-title" v-text="contentTitle" />
@@ -86,7 +91,7 @@
     declare inNewTab: boolean;
     handleContentTo() {
       if (this.contentTo !== undefined && !this.contentDisabled) {
-        if (this.inNewTab) window.open(this.contentTo, "_blank");
+        if (this.inNewTab) window.open(this.contentTo, '_blank');
         else this.$router.push(this.contentTo);
       }
     }
@@ -94,7 +99,6 @@
 </script>
 
 <style>
-
   .content-box-group-container {
     width: 100%;
     z-index: 1;
@@ -110,6 +114,7 @@
   }
 
   .content h2.content-box-title {
+    overflow-wrap: anywhere;
     margin: 0;
   }
 
@@ -120,7 +125,7 @@
   .content-box-text-content {
     display: flex;
     flex-wrap: wrap;
-    align-content: left;
+    align-content: center;
     text-align: left;
   }
 
@@ -188,7 +193,10 @@
     transition: border 0.25s, background-color 0.25s, box-shadow 0.25s;
     margin: 10px 20px;
     flex-wrap: nowrap;
-    width: calc((100% - (20px * 4 + 1px * 2) * var(--content-boxes-per-row, 1)) / var(--content-boxes-per-row, 1));
+    width: calc(
+      (100% - (20px * 4 + 1px * 2) * var(--content-boxes-per-row, 1)) /
+        var(--content-boxes-per-row, 1)
+    );
     align-items: center;
   }
 

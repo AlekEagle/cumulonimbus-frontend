@@ -21,9 +21,13 @@
       toggleDarkTheme() {
         if (html.classList.contains('dark-theme')) {
           this.enableTransition();
+          document.head.querySelector('meta[name="theme-color"]').content =
+            '#FFFFFF';
           html.classList.remove('dark-theme');
         } else {
           this.enableTransition();
+          document.head.querySelector('meta[name="theme-color"]').content =
+            '#212121';
           html.classList.add('dark-theme');
         }
         this.toggleUserPreference();
@@ -50,6 +54,8 @@
       },
       initThemePreference() {
         if (!this.checkUserPreference()) return;
+        document.head.querySelector('meta[name="theme-color"]').content =
+          '#212121';
         html.classList.add('dark-theme');
         document.getElementById('theme-toggle').checked = true;
       },
