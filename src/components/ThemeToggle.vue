@@ -49,7 +49,7 @@
       },
       checkUserPreference() {
         if (!localStorage.getItem('dark-theme'))
-          localStorage.setItem('dark-theme', 'false');
+          localStorage.setItem('dark-theme', 'true');
         return JSON.parse(localStorage.getItem('dark-theme'));
       },
       initThemePreference() {

@@ -29,7 +29,6 @@ self.addEventListener('install', async e => {
     await self.skipWaiting();
     await caches.delete('offline-cache');
     await caches.delete('shared-files');
-    manageNagTimeout();
     e.waitUntil(
       (async function () {
         let offlineCache = await caches.open('offline-cache');
@@ -37,14 +36,11 @@ self.addEventListener('install', async e => {
           console.log(`Adding ${url} to cache...`);
           await offlineCache.add(new Request(url));
         }
+        manageNagTimeout();
         return;
       })()
     );
   } catch (error) {}
-});
-
-self.addEventListener('activate', async () => {
-  manageNagTimeout();
 });
 
 self.addEventListener('fetch', async e => {
@@ -90,10 +86,12 @@ self.addEventListener('fetch', async e => {
             ) {
               if (e.request.url.includes('/shared-files/')) {
                 return new Response('', { status: 404 });
-              } else
-                return await (
+              } else {
+                let cachedIndex = await (
                   await caches.open('offline-cache')
                 ).match('/index.html');
+                return cachedIndex;
+              }
             }
             if (
               !response ||
@@ -166,6 +164,13 @@ self.addEventListener('message', async e => {
     case 0:
       let shareCache = await caches.open('shared-files');
       await shareCache.delete(e.data.d);
+      break;
+    case 1:
+      clearTimeout(nagTimeout);
+      nagTimeout = null;
+      console.log(`Turns out ${e.data.d} doesn't exist, removing from cache.`);
+      let offlineCache = await caches.open('offline-cache');
+      await offlineCache.delete(e.data.d);
       break;
   }
 });

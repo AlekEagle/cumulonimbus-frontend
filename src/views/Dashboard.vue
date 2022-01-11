@@ -30,7 +30,7 @@
       <p>View and manage your files.</p>
     </ContentBox>
     <ContentBox
-      title="Quick Set Up"
+      title="Service Set Up"
       src="/assets/images/info.svg"
       span
       to="set-up/"
@@ -48,9 +48,7 @@
       to="upload/"
       theme-safe
     >
-      <p>
-        Upload directly from your browser, no external software required!
-      </p>
+      <p> Upload directly from your browser, no external software required! </p>
     </ContentBox>
   </div>
 </template>
@@ -68,7 +66,10 @@
   export default class Dashboard extends Vue {
     async mounted() {
       if (!navigator.onLine) {
-        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        (this.$parent?.$parent as App).temporaryToast(
+          "Looks like you're offline, I'm pretty useless offline.",
+          10000
+        );
         return;
       }
       if (
@@ -83,20 +84,22 @@
           this.$store.commit('setUser', u);
         }
       } catch (error) {
-
-        switch((error as Cumulonimbus.ResponseError).code) {
+        switch ((error as Cumulonimbus.ResponseError).code) {
           case 'INVALID_SESSION_ERROR':
             (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-            window.location.pathname
-          );
-          break;
+              window.location.pathname
+            );
+            break;
           case 'RATELIMITED_ERROR':
             (this.$parent?.$parent as App).ratelimitToast(
               (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
             );
             break;
-            case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+          case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              'lol ur banned',
+              10000
+            );
             (this.$parent?.$parent as App).redirectIfNotLoggedIn(
               window.location.pathname
             );
@@ -142,8 +145,11 @@
               window.location.pathname
             );
             break;
-            case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+          case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              'lol ur banned',
+              10000
+            );
             (this.$parent?.$parent as App).redirectIfNotLoggedIn(
               window.location.pathname
             );

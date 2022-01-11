@@ -1,7 +1,8 @@
 {
-  "name": "Cumulonimbus Dashboard",
+  "name": "Cumulonimbus",
   "short_name": "Cumulonimbus",
-  "theme_color": "#3a3a3a",
+  "description": "The funny cloud platform.",
+  "theme_color": "#08f1fd",
   "background_color": "#212121",
   "display": "standalone",
   "scope": "/",
@@ -67,6 +68,5 @@
         }
       ]
     }
-  },
-  "splash_pages": null
+  }
 }

@@ -31,8 +31,21 @@
   <Loading v-else />
   <div class="page-selector">
     <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
-    <input type="number" min="1" max="1" ref="pageNum" @change="pageChange" placeholder="Page #" :value="$data.page + 1" class="page-number-box" />
-    <button @click="nextPage" :disabled="$data.maxPage !== -1 && $data.page >= $data.maxPage">Next</button>
+    <input
+      type="number"
+      min="1"
+      max="1"
+      ref="pageNum"
+      @change="pageChange"
+      placeholder="Page #"
+      :value="$data.page + 1"
+      class="page-number-box"
+    />
+    <button
+      @click="nextPage"
+      :disabled="$data.maxPage !== -1 && $data.page >= $data.maxPage"
+      >Next</button
+    >
   </div>
 </template>
 
@@ -66,10 +79,13 @@
     };
     declare $refs: {
       pageNum: HTMLInputElement;
-    }
+    };
     async mounted() {
       if (!navigator.onLine) {
-        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        (this.$parent?.$parent as App).temporaryToast(
+          "Looks like you're offline, I'm pretty useless offline.",
+          10000
+        );
         return;
       }
       if (
@@ -78,7 +94,8 @@
         )
       )
         return;
-      if (this.$store.state.filePage !== null) this.setPage(this.$store.state.filePage);
+      if (this.$store.state.filePage !== null)
+        this.setPage(this.$store.state.filePage);
       this.getPageFromQuery();
       await this.getFiles();
     }
@@ -114,14 +131,17 @@
     }
 
     async nextPage() {
-      if (this.$data.maxPage !== -1 && this.$data.page >= this.$data.maxPage) return;
-      this.setPage(this.$data.page +1);
+      if (this.$data.maxPage !== -1 && this.$data.page >= this.$data.maxPage)
+        return;
+      this.setPage(this.$data.page + 1);
       await this.getFiles();
     }
 
     async pageChange(e: InputEvent) {
-      if ((e.target as HTMLInputElement).valueAsNumber < 1) (e.target as HTMLInputElement).valueAsNumber = 1;
-      if ((e.target as HTMLInputElement).valueAsNumber > this.$data.maxPage + 1) (e.target as HTMLInputElement).valueAsNumber = this.$data.maxPage + 1;
+      if ((e.target as HTMLInputElement).valueAsNumber < 1)
+        (e.target as HTMLInputElement).valueAsNumber = 1;
+      if ((e.target as HTMLInputElement).valueAsNumber > this.$data.maxPage + 1)
+        (e.target as HTMLInputElement).valueAsNumber = this.$data.maxPage + 1;
       this.setPage((e.target as HTMLInputElement).valueAsNumber, false);
       this.getFiles();
       console.log(e);
@@ -162,8 +182,11 @@
               window.location.pathname
             );
             break;
-            case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast('lol ur banned', 10000);
+          case 'BANNED_ERROR':
+            (this.$parent?.$parent as App).temporaryToast(
+              'lol ur banned',
+              10000
+            );
             (this.$parent?.$parent as App).redirectIfNotLoggedIn(
               window.location.pathname
             );
@@ -179,13 +202,13 @@
     }
 
     goBack() {
-      this.$router.push('/dashboard/');;
+      this.$router.push('/dashboard/');
       this.$store.commit('setFilePage', null);
     }
   }
 </script>
 
-<style>
+<style scoped>
   .page-number-box {
     width: 65px;
     margin: 0 5px;

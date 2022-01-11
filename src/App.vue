@@ -191,9 +191,23 @@
     transition: background-color 0.25s, color 0.25s;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   html.dark-theme body {
     background-color: #212121;
     color: white;
+  }
+
+  h1 {
+    font-size: 1.65em;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 1.35em;
+    font-weight: 600;
   }
 
   h1,
@@ -272,7 +286,8 @@
   h5,
   h6,
   p {
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 400;
     color: black;
     font-family: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: background-color 0.25s, color 0.25s;
@@ -333,13 +348,14 @@
     padding: 0;
     font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', Arial,
       sans-serif;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 28px;
     color: black;
   }
 
   html.dark-theme .nav-logo p {
     color: white;
+    font-weight: 700;
   }
 
   .nav-logo img {
@@ -401,9 +417,12 @@
       transform: translateY(-8px) rotate(-45deg);
     }
 
+    .nav-item {
+      margin: 3px 0;
+    }
+
     .nav-item a {
-      font-size: 36px;
-      margin: 10px 0;
+      font-size: 26px;
     }
   }
 

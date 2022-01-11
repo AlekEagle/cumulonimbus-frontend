@@ -23,10 +23,16 @@
     position: absolute;
     width: 6px;
     height: 6px;
-    background: #fff;
+    background: rgb(0, 0, 0);
     border-radius: 50%;
+    transition: background-color 0.4s !important;
     animation: lds-default 1.2s linear infinite;
   }
+
+  html.dark-theme .lds-default div {
+    background: #fff;
+  }
+
   .lds-default div:nth-child(1) {
     animation-delay: 0s;
     top: 37px;

@@ -132,11 +132,15 @@
   .content-box-icon ~ .content-box-text-content {
     margin-left: 14px;
   }
-
   .content-box-icon {
-    min-width: 85px;
-    width: 85px;
-    max-height: 85px;
+    min-width: 65px;
+    width: 65px;
+    max-height: 65px;
+  }
+
+  .content-box-icon.lds-default {
+    top: -7.5px;
+    left: -8.75px;
   }
 
   .content-box-icon.theme-safe {
