@@ -197,7 +197,7 @@
 
   html.dark-theme body {
     background-color: #212121;
-    color: white;
+    color: #fff;
   }
 
   h1 {
@@ -267,7 +267,7 @@
   }
 
   html.dark-theme .bar {
-    background-color: white;
+    background-color: #fff;
   }
 
   a {
@@ -302,7 +302,7 @@
   html.dark-theme h5,
   html.dark-theme h6,
   html.dark-theme p {
-    color: white;
+    color: #fff;
   }
 
   .nav-item {
@@ -322,7 +322,7 @@
   }
 
   html.dark-theme .nav-item a {
-    color: white;
+    color: #fff;
     border-bottom: transparent solid 4px;
   }
 
@@ -360,7 +360,7 @@
   }
 
   html.dark-theme .nav-logo p {
-    color: white;
+    color: #fff;
     font-weight: 700;
   }
 
@@ -400,7 +400,7 @@
 
     html.dark-theme .nav-menu {
       background-color: #212121bf;
-      border-color: white;
+      border-color: #fff;
     }
 
     .nav-menu.active {
@@ -500,7 +500,7 @@
 
   html.dark-theme button {
     background-color: #272727;
-    color: white;
+    color: #fff;
     border: 1px solid #000000;
   }
 
@@ -537,7 +537,7 @@
 
   html.dark-theme input {
     background-color: #101010;
-    color: white;
+    color: #fff;
   }
 
   html.dark-theme input:hover,

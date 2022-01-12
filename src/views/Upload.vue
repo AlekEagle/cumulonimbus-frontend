@@ -321,8 +321,8 @@
     font-weight: 700;
     font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', Arial,
       sans-serif;
-    color: black;
-    background-color: white;
+    color: #000;
+    background-color: #fff;
     display: block;
     cursor: pointer;
     overflow-x: hidden;
@@ -332,7 +332,7 @@
     margin-bottom: 10px;
     padding: 30px 20px;
     border-radius: 20px;
-    border: 1px solid black;
+    border: 1px solid #000;
     transition: color 0.25s, background-color 0.25s, border 0.25s,
       box-shadow 0.25s;
     user-select: none;
@@ -343,7 +343,7 @@
   }
 
   html.dark-theme .upload-file + label {
-    color: white;
+    color: #fff;
     background-color: #212121;
   }
 
