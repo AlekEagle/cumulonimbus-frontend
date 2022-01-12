@@ -196,7 +196,7 @@
   }
 
   html.dark-theme body {
-    background-image: #212121;
+    background-color: #212121;
     color: white;
   }
 
