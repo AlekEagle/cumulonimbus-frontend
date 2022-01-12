@@ -227,7 +227,7 @@
             break;
           case 'BANNED_ERROR':
             (this.$parent?.$parent as App).temporaryToast(
-              'lol ur banned',
+              "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
               10000
             );
             (this.$parent?.$parent as App).redirectIfNotLoggedIn(

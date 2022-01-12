@@ -28,16 +28,18 @@ export default createStore({
         await (state.client as unknown as Client).getSelfSessionByID();
         return true;
       } catch (error) {
-        if (
-          (error as Cumulonimbus.ResponseError).code === 'INVALID_SESSION_ERROR'
-        ) {
-          commit('setUser', null);
-          commit('setSession', null);
-          commit('setClient', null);
-          return false;
+        if (error instanceof Cumulonimbus.ResponseError) {
+          if (error.code === 'INVALID_SESSION_ERROR') {
+            commit('setUser', null);
+            commit('setSession', null);
+            commit('setClient', null);
+            localStorage.removeItem('token');
+            return false;
+          } else {
+            throw error;
+          }
         } else {
-          console.log(error);
-          return null;
+          throw error;
         }
       }
     },

@@ -3,7 +3,12 @@
     <div
       v-if="__show"
       :class="`modal-container${__cancelable ? '' : ' no-close'}`"
-      @click.self="hideModal"
+      @click.self="
+        () => {
+          if (!__cancelable) return;
+          hideModal();
+        }
+      "
     >
       <div class="modal">
         <div class="modal-header">
@@ -49,7 +54,7 @@
     },
     data() {
       return {
-        __show: this.show
+        __show: false
       };
     }
   })
@@ -57,11 +62,15 @@
     declare $data: {
       __show: boolean;
     };
+    declare show: boolean;
     hideModal() {
       this.$data.__show = false;
     }
     showModal() {
       this.$data.__show = true;
+    }
+    mounted() {
+      if (this.show) setTimeout(() => (this.$data.__show = this.show), 500);
     }
   }
 </script>

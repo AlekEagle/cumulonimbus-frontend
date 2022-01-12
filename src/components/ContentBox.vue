@@ -89,7 +89,7 @@
     declare contentDisabled: boolean;
     declare iconThemeSafe: boolean;
     declare inNewTab: boolean;
-    handleContentTo() {
+    handleContentTo(e: MouseEvent) {
       if (this.contentTo !== undefined && !this.contentDisabled) {
         if (this.inNewTab) window.open(this.contentTo, '_blank');
         else this.$router.push(this.contentTo);

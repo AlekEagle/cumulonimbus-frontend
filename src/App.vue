@@ -57,7 +57,7 @@
   import { Options, Vue } from 'vue-class-component';
   import ThemeToggle from '@/components/ThemeToggle.vue';
   import Toast from '@/components/Toast.vue';
-  import { Client } from '../../cumulonimbus-wrapper';
+  import { Client, Cumulonimbus } from '../../cumulonimbus-wrapper';
 
   @Options({
     components: {
@@ -89,8 +89,38 @@
           else return false;
         } else return false;
       } catch (error) {
-        this.temporaryToast('Something weird happened, lets try again later.');
-        return true;
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              this.ratelimitToast(
+                (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
+              );
+              break;
+            case 'BANNED_ERROR':
+              this.temporaryToast(
+                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
+                10000
+              );
+              this.$store.commit('setUser', null);
+              this.$store.commit('setSession', null);
+              this.$store.commit('setClient', null);
+              localStorage.removeItem('token');
+              return false;
+            case 'INTERNAL_SERVER_ERROR':
+              this.temporaryToast('Server did a bad.', 10000);
+              return true;
+            default:
+              this.temporaryToast(
+                'Something weird happened, lets try again later.'
+              );
+              return true;
+          }
+        } else {
+          this.temporaryToast(
+            'Something weird happened, lets try again later.'
+          );
+          return true;
+        }
       }
     }
 

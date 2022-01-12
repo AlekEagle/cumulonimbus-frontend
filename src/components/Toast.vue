@@ -81,6 +81,7 @@
     transition: background-color 0.25s, box-shadow 0.25s;
     overflow-y: hidden;
     margin-left: 35px;
+    z-index: 30;
   }
 
   html.dark-theme .toast-box {
