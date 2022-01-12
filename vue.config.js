@@ -13,7 +13,7 @@ module.exports = {
     name: manifestJSON.short_name,
     msTileColor: manifestJSON.background_color,
     appleMobileWebAppCapable: 'yes',
-    appleMobileWebAppStatusBarStyle: 'black',
+    appleMobileWebAppStatusBarStyle: '#000',
     iconPaths: {
       favicon32: 'assets/images/icons/favicon-32x32.png',
       favicon16: 'assets/images/icons/favicon-16x16.png',

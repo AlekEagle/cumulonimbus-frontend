@@ -294,7 +294,7 @@
   p {
     font-size: 18px;
     font-weight: 400;
-    color: black;
+    color: #000;
     font-family: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: background-color 0.25s, color 0.25s;
   }
@@ -356,7 +356,7 @@
       sans-serif;
     font-weight: 700;
     font-size: 28px;
-    color: black;
+    color: #000;
   }
 
   html.dark-theme .nav-logo p {
@@ -395,7 +395,7 @@
       box-shadow: 10px 10px 10px #00000099;
       backdrop-filter: blur(5px);
       z-index: 10;
-      border: 2px solid black;
+      border: 2px solid #000;
     }
 
     html.dark-theme .nav-menu {
