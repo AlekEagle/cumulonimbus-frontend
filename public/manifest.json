@@ -1,6 +1,6 @@
 {
   "name": "Cumulonimbus",
-  "short_name": "Cumulonimbus",
+  "short_name": "Cum",
   "description": "The funny cloud platform.",
   "theme_color": "#08f1fd",
   "background_color": "#212121",
@@ -8,6 +8,7 @@
   "scope": "/",
   "gcm_sender_id": "267615612426",
   "start_url": "/dashboard/",
+  "id": "/dashboard/",
   "icons": [
     {
       "src": "assets/images/icons/icon-72x72.png",

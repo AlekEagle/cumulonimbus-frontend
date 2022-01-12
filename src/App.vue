@@ -196,7 +196,7 @@
   }
 
   html.dark-theme body {
-    background-color: #212121;
+    background-image: #212121;
     color: white;
   }
 
@@ -208,6 +208,12 @@
   h2 {
     font-size: 1.35em;
     font-weight: 600;
+  }
+
+  .content > h1,
+  .content > h1 + h2 {
+    margin-left: 30px;
+    margin-right: 30px;
   }
 
   h1,
@@ -311,29 +317,29 @@
     font-size: 19px;
     font-weight: 600;
     color: #000000;
-    border-bottom: transparent solid 2px;
+    border-bottom: transparent solid 4px;
     transition: border 0.25s, color 0.25s;
   }
 
   html.dark-theme .nav-item a {
     color: white;
-    border-bottom: transparent solid 2px;
+    border-bottom: transparent solid 4px;
   }
 
   .nav-item a.router-link-active {
-    border-bottom: #000000 solid 2px;
+    border-bottom: #000000 solid 4px;
   }
 
   .nav-item a:hover:not(.router-link-active) {
-    border-bottom: #019ac0 solid 2px;
+    border-bottom: #019ac0 solid 4px;
   }
 
   html.dark-theme .nav-item a:hover:not(.router-link-active) {
-    border-bottom: #019ac0 solid 2px;
+    border-bottom: #019ac0 solid 4px;
   }
 
   html.dark-theme .nav-item a.router-link-active {
-    border-bottom: #ffffff solid 2px;
+    border-bottom: #ffffff solid 4px;
   }
 
   .nav-logo {
@@ -385,14 +391,16 @@
       width: calc(100% - (30px * 2));
       border-radius: 10px;
       text-align: center;
-      transition: left 0.4s, background-color 0.25s;
+      transition: left 0.4s, background-color 0.25s, border 0.4s;
       box-shadow: 10px 10px 10px #00000099;
       backdrop-filter: blur(5px);
       z-index: 10;
+      border: 2px solid black;
     }
 
     html.dark-theme .nav-menu {
       background-color: #212121bf;
+      border-color: white;
     }
 
     .nav-menu.active {
@@ -418,11 +426,11 @@
     }
 
     .nav-item {
-      margin: 3px 0;
+      padding: 2px 0;
     }
 
     .nav-item a {
-      font-size: 26px;
+      font-size: 33px;
     }
   }
 

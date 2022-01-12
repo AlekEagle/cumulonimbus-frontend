@@ -61,7 +61,17 @@
   }
 
   .hero-point {
-    width: 35vw;
+    width: 45vw;
+  }
+
+  @media screen and (min-width: 769px) {
+    .hero-point:nth-child(even) {
+      text-align: left;
+    }
+
+    .hero-point:nth-child(odd):not(:last-child) {
+      text-align: right;
+    }
   }
 
   @media only screen and (max-width: 768px) {

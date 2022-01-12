@@ -5,23 +5,11 @@ const URLSToCache = [
   ...self.__precacheManifest.map(a => a.url)
 ];
 
-let nagTimeout = null;
-
 async function nagTimeoutFn() {
   let cs = await clients.matchAll();
   cs.forEach(c => {
     c.postMessage({ op: 0, d: true });
   });
-  nagTimeout = null;
-}
-
-function manageNagTimeout() {
-  if (nagTimeout !== null) {
-    clearTimeout(nagTimeout);
-    nagTimeout = null;
-  }
-
-  nagTimeout = setTimeout(nagTimeoutFn, 5000);
 }
 
 self.addEventListener('install', async e => {
@@ -36,7 +24,7 @@ self.addEventListener('install', async e => {
           console.log(`Adding ${url} to cache...`);
           await offlineCache.add(new Request(url));
         }
-        manageNagTimeout();
+        nagTimeoutFn();
         return;
       })()
     );
@@ -113,7 +101,6 @@ self.addEventListener('fetch', async e => {
 
                 await cache.put(e.request, responseToCache);
               }
-              manageNagTimeout();
               return response;
             }
           } catch (error) {
@@ -151,7 +138,6 @@ self.addEventListener('fetch', async e => {
               new URL(e.request.url).pathname
             } from cache is outdated, updating cache!`
           );
-          manageNagTimeout();
           await offlineCache.delete(e.request.url);
           await offlineCache.put(e.request, res);
         }
@@ -166,9 +152,9 @@ self.addEventListener('message', async e => {
       await shareCache.delete(e.data.d);
       break;
     case 1:
-      clearTimeout(nagTimeout);
-      nagTimeout = null;
-      console.log(`Turns out ${e.data.d} doesn't exist, removing from cache.`);
+      console.log(
+        `Turns out ${e.data.d} doesn't really exist, removing from cache.`
+      );
       let offlineCache = await caches.open('offline-cache');
       await offlineCache.delete(e.data.d);
       break;

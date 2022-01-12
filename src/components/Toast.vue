@@ -84,7 +84,7 @@
   }
 
   html.dark-theme .toast-box {
-    background-color: #3f3f3f;
+    background-color: #212121;
     border: 1px solid #aaaaaa;
     box-shadow: 5px 5px 5px #000000aa, inset 0px 0px 3px #aaaaaa;
   }

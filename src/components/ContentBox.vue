@@ -195,10 +195,10 @@
     border-radius: 25px;
     padding: 15px 20px;
     transition: border 0.25s, background-color 0.25s, box-shadow 0.25s;
-    margin: 10px 20px;
+    margin: 15px 25px;
     flex-wrap: nowrap;
     width: calc(
-      (100% - (20px * 4 + 1px * 2) * var(--content-boxes-per-row, 1)) /
+      (100% - (25px * 2 + 20px * 2 + 1px * 2) * var(--content-boxes-per-row, 1)) /
         var(--content-boxes-per-row, 1)
     );
     align-items: center;

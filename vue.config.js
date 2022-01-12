@@ -16,7 +16,10 @@ module.exports = {
     appleMobileWebAppStatusBarStyle: 'black',
     iconPaths: {
       favicon32: 'assets/images/icons/favicon-32x32.png',
-      favicon16: 'assets/images/icons/favicon-16x16.png'
+      favicon16: 'assets/images/icons/favicon-16x16.png',
+      appleTouchIcon: 'assets/images/icons/apple-touch-icon-152x152.png',
+      msTileImage: 'assets/images/icons/msapplication-icon-144x144.png',
+      maskIcon: null
     }
   }
 };
