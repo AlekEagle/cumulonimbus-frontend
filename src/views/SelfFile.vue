@@ -12,6 +12,7 @@
   <div v-if="loaded" class="content-box-group-container">
     <ContentBox
       title="Information"
+      class="file-info-box"
       span
       lazy-load
       to-new-tab
@@ -178,8 +179,8 @@
   }
 </script>
 
-<style scoped>
-  :root {
-    --content-boxes-per-row: 1;
+<style>
+  .file-info-box {
+    width: 100%;
   }
 </style>

@@ -4,7 +4,7 @@
     v-if="done"
     ref="lazyImg"
     :alt="altText"
-    :src="$data.lazyBlobURL"
+    :src="$data.lazyBlobURL || failedLazySrc"
   />
   <Loading v-else />
 </template>
@@ -51,7 +51,6 @@
   export default class LazyImage extends Vue {
     declare lazySrc: string;
     declare altText: string;
-    declare failedLazySrc: string;
     declare maxTries: number;
     declare waitPeriod: number;
     declare $data: {
@@ -82,7 +81,7 @@
       if (++this.$data.currentTries <= this.maxTries) {
         this.$data.timeout = setTimeout(this.loadIcon, this.waitPeriod);
       } else {
-        this.$data.lazyBlobURL = this.failedLazySrc;
+        this.$data.lazyBlobURL;
         this.$data.done = true;
       }
     }
@@ -100,6 +99,7 @@
 
     beforeUnmount() {
       if (this.$data.timeout) clearTimeout(this.$data.timeout);
+      if (this.$data.lazyBlobURL) URL.revokeObjectURL(this.$data.lazyBlobURL);
     }
   }
 </script>

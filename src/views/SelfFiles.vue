@@ -16,6 +16,24 @@
   <div class="quick-action-buttons-container">
     <button title="Go Back!" @click="goBack">Back</button>
   </div>
+  <div class="page-selector">
+    <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
+    <input
+      type="number"
+      min="1"
+      max="1"
+      ref="pageNum"
+      @change="pageChange"
+      placeholder="Page #"
+      :value="$data.page + 1"
+      class="page-number-box"
+    />
+    <button
+      @click="nextPage"
+      :disabled="$data.maxPage !== -1 && $data.page >= $data.maxPage"
+      >Next</button
+    >
+  </div>
   <div v-if="loaded" class="content-box-group-container">
     <ContentBox
       v-for="file in $data.files"

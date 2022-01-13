@@ -5,7 +5,11 @@
     <p
       >Please verify your identity. That way we can make sure its really you and
       create a unique session for this service so you can keep your account more
-      secure.</p
+      secure.
+      <br />
+      <br />
+      Give a name to this session that will be created so its easily
+      identifiable in case the session needs to be invalidated.</p
     >
 
     <form ref="identityForm" @submit.prevent="verify">
@@ -22,6 +26,7 @@
         autocomplete="password"
         placeholder="Password"
         name="pass"
+        autofocus
         required
       />
       <input type="submit" />
@@ -64,8 +69,7 @@
         instruction: undefined,
         loaded: false,
         newIdentity: undefined,
-        os: undefined,
-        serviceName: undefined
+        os: undefined
       };
     }
   })
@@ -75,7 +79,6 @@
       loaded: boolean;
       newIdentity?: Cumulonimbus.Data.SuccessfulAuth;
       os?: string;
-      serviceName?: string;
     };
 
     declare $refs: {
@@ -84,7 +87,8 @@
     };
 
     async mounted() {
-      this.$data.os = (navigator as any).userAgentData.platform;
+      this.$data.os =
+        (navigator as any).userAgentData.platform || navigator.platform;
       const urlSearchParams = new URLSearchParams(window.location.search);
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
@@ -104,7 +108,6 @@
           this.$router.push('/dashboard/set-up/');
           return;
         }
-        this.$data.serviceName = urlSearchParams.get('name') as string;
         let res = await (this.$store.state.client as Client).getInstructionByID(
           urlSearchParams.get('name') as string
         );
@@ -167,13 +170,44 @@
       }
     }
 
+    copyToClipboard() {
+      navigator.clipboard
+        .writeText(this.$data.newIdentity?.token as string)
+        .then(
+          () => {
+            (this.$parent?.$parent as App).temporaryToast(
+              'Copied to your clipboard!'
+            );
+          },
+          err => {
+            (this.$parent?.$parent as App).temporaryToast(
+              "I still wasn't able to do it, it might be a browser permission issue. Let us know about it in the discord please!",
+              20000
+            );
+            console.error(err);
+          }
+        );
+    }
+
     async downloadSetUpFile(index: number) {
       if (index !== 0) return;
       let configWithToken = this.$data.instruction?.fileContent.replace(
         '{{token}}',
         this.$data.newIdentity?.token as string
       );
-      console.log(configWithToken);
+      if (this.$data.instruction?.filename !== null) {
+        let aE = document.createElement('a'),
+          url = URL.createObjectURL(new Blob([configWithToken as string]));
+        aE.download = this.$data.instruction?.filename as string;
+        aE.style.display = 'none';
+        aE.href = url;
+        document.body.appendChild(aE);
+        aE.click();
+        URL.revokeObjectURL(url);
+        aE.remove();
+      } else {
+        this.copyToClipboard();
+      }
     }
 
     goBack() {
