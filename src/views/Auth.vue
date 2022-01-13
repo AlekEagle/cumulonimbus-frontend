@@ -222,7 +222,10 @@
 
     async mounted() {
       if (!navigator.onLine) {
-        (this.$parent?.$parent as App).temporaryToast('Looks like you\'re offline, I\'m pretty useless offline.', 10000);
+        (this.$parent?.$parent as App).temporaryToast(
+          "Looks like you're offline, I'm pretty useless offline.",
+          10000
+        );
         return;
       }
       if (await (this.$parent?.$parent as App).isLoggedIn()) {
@@ -261,7 +264,6 @@
 
   form input {
     text-align: center;
-    font-size: 20px;
   }
 
   .auth-box h2 {
@@ -273,7 +275,8 @@
     box-shadow: 0px 0px 75px 20px #000000aa;
   }
 
-  .label-left, .label-right {
-    cursor:pointer;
+  .label-left,
+  .label-right {
+    cursor: pointer;
   }
 </style>

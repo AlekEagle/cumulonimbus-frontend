@@ -560,6 +560,12 @@
     outline: none;
   }
 
+  @media screen and (min-width: 790px) {
+    input {
+      font-size: 20px;
+    }
+  }
+
   input:hover,
   input:focus {
     background-color: #d6d6d6;
