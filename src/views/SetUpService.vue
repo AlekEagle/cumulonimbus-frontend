@@ -87,8 +87,9 @@
     };
 
     async mounted() {
-      this.$data.os =
-        (navigator as any).userAgentData.platform || navigator.platform;
+      this.$data.os = (navigator as any).userAgentData
+        ? (navigator as any).userAgentData.platform
+        : navigator.platform;
       const urlSearchParams = new URLSearchParams(window.location.search);
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
