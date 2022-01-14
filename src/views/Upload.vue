@@ -1,6 +1,9 @@
 <template>
   <h1>Upload</h1>
   <h2>Do the upload things.</h2>
+  <div class="quick-action-buttons-container">
+    <button @click="$router.push('/dashboard/')" title="Go back!">Back</button>
+  </div>
   <div class="upload-box-container">
     <div class="upload-box">
       <form ref="fileForm" @submit.prevent="uploadFile">
@@ -54,7 +57,8 @@
 
   function getOS() {
     let userAgent = window.navigator.userAgent,
-      platform = window.navigator.platform,
+      platform =
+        (navigator as any).userAgentData.platform || window.navigator.platform,
       macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
       windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
       iosPlatforms = ['iPhone', 'iPad', 'iPod'],
@@ -119,12 +123,7 @@
         );
         return;
       }
-      if (
-        await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-          window.location.pathname + window.location.search
-        )
-      )
-        return;
+      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
       if (
         getOS() === 'Android' &&
         !parseQueryString(window.location.href.split('?')[1]).file
@@ -207,46 +206,54 @@
         }
       } catch (error) {
         this.$data.upload = false;
-        switch ((error as Cumulonimbus.ResponseError).code) {
-          case 'RATELIMITED_ERROR':
-            (this.$parent?.$parent as App).ratelimitToast(
-              (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
-            );
-            break;
-          case 'INVALID_SESSION_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              "That's funny, your session just expired!",
-              15000
-            );
-            this.$store.commit('setUser', null);
-            this.$store.commit('setSession', null);
-            this.$store.commit('setClient', null);
-            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-              window.location.pathname
-            );
-            break;
-          case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-              10000
-            );
-            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-              window.location.pathname
-            );
-            break;
-          case 'BODY_TOO_LARGE_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              'Your file is too big! Sorry!',
-              15000
-            );
-            this.$data.file = undefined;
-            break;
-          default:
-            (this.$parent?.$parent as App).temporaryToast(
-              'I did a bad.',
-              15000
-            );
-            console.log(error);
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                "That's funny, your session just expired!",
+                15000
+              );
+              this.$store.commit('setUser', null);
+              this.$store.commit('setSession', null);
+              this.$store.commit('setClient', null);
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
+                10000
+              );
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            case 'BODY_TOO_LARGE_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'Your file is too big! Sorry!',
+                15000
+              );
+              this.$data.file = undefined;
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                15000
+              );
+              console.log(error);
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            10000
+          );
+          console.error(error);
         }
       }
     }

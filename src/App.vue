@@ -59,6 +59,30 @@
   import Toast from '@/components/Toast.vue';
   import { Client, Cumulonimbus } from '../../cumulonimbus-wrapper';
 
+  const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ],
+    days = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday'
+    ];
+
   @Options({
     components: {
       ThemeToggle,
@@ -82,6 +106,48 @@
     };
 
     async isLoggedIn() {
+      if (!this.$store.state.loadComplete) {
+        try {
+          if (!(await this.$store.dispatch('restoreSession'))) return false;
+        } catch (error) {
+          if (error instanceof Cumulonimbus.ResponseError) {
+            switch (error.code) {
+              case 'RATELIMITED_ERROR':
+                this.ratelimitToast(error.ratelimit.resetsAt);
+                break;
+              case 'INVALID_SESSION_ERROR':
+                if (window.location.pathname.includes('/dashboard'))
+                  this.redirectIfNotLoggedIn(
+                    window.location.pathname + window.location.search
+                  );
+                localStorage.removeItem('token');
+                break;
+              case 'BANNED_ERROR':
+                this.temporaryToast(
+                  "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
+                  10000
+                );
+                localStorage.removeItem('token');
+                break;
+              case 'INTERNAL_SERVER_ERROR':
+                this.temporaryToast(
+                  'The server did something weird, lets try again later.',
+                  10000
+                );
+                break;
+              default:
+                this.temporaryToast(
+                  'Something weird happened, lets try again later.'
+                );
+                break;
+            }
+          } else {
+            this.temporaryToast(
+              'Something weird happened, lets try again later.'
+            );
+          }
+        }
+      }
       try {
         if (!!this.$store.state.client) {
           let authCheck = await this.$store.dispatch('checkClientAuth');
@@ -92,9 +158,7 @@
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
-              this.ratelimitToast(
-                (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
-              );
+              this.ratelimitToast(error.ratelimit.resetsAt);
               break;
             case 'BANNED_ERROR':
               this.temporaryToast(
@@ -107,7 +171,10 @@
               localStorage.removeItem('token');
               return false;
             case 'INTERNAL_SERVER_ERROR':
-              this.temporaryToast('Server did a bad.', 10000);
+              this.temporaryToast(
+                'The server did something weird, lets try again later.',
+                10000
+              );
               return true;
             default:
               this.temporaryToast(
@@ -158,6 +225,27 @@
       this.$refs.toast.toastPermanent(text);
     }
 
+    toDateString(date: Date) {
+      let timeOffset = date.getTimezoneOffset();
+      return `${months[date.getMonth()]} ${
+        days[date.getDay()]
+      } ${date.getDate()} ${date.getFullYear()}, ${date
+        .getHours()
+        .toString()
+        .padStart(2, '0')}:${date
+        .getMinutes()
+        .toString()
+        .padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} ${
+        date
+          .toLocaleTimeString('en-us', { timeZoneName: 'short' })
+          .split(' ')[2]
+      } (GMT${timeOffset < 0 ? '-' : '+'}${Math.abs(
+        Math.floor(timeOffset / 60)
+      )}:${Math.abs(timeOffset % 60)
+        .toString()
+        .padStart(2, '0')})`;
+    }
+
     ratelimitToast(reset: number) {
       let timeLeftMills = reset * 1000 - Date.now();
       let hours = Math.floor(timeLeftMills / (1000 * 60 * 60));
@@ -182,25 +270,6 @@
           10000
         )
       );
-      if (!navigator.onLine) {
-        return;
-      }
-      if (localStorage.getItem('token')) {
-        this.$store.commit(
-          'setClient',
-          new Client(localStorage.getItem('token') as string)
-        );
-        let s = await (this.$store.state.client as Client).getSelfSessionByID();
-        this.$store.commit('setSession', s);
-        let u = await (this.$store.state.client as Client).getSelfUser();
-        this.$store.commit('setUser', u);
-      }
-    }
-
-    mounted() {
-      this.$data.hostname = window.location.hostname;
-      (window as any).cumClient = this.$store.state.client;
-
       navigator.serviceWorker.addEventListener('message', e => {
         switch (e.data.op) {
           case 0:
@@ -211,6 +280,16 @@
             break;
         }
       });
+      if (!navigator.onLine) return;
+
+      await this.redirectIfNotLoggedIn(
+        window.location.pathname + window.location.search
+      );
+    }
+
+    async mounted() {
+      this.$data.hostname = window.location.hostname;
+      (window as any).cumClient = this.$store.state.client;
     }
   }
 </script>
@@ -317,6 +396,17 @@
   .content h2 {
     margin-left: 5px;
     margin-right: 5px;
+  }
+
+  code {
+    padding: 2px;
+    background-color: #ddd;
+    border-radius: 4px;
+    transition: background-color 0.25s;
+  }
+
+  html.dark-theme code {
+    background-color: #161616;
   }
 
   h5,
@@ -561,7 +651,8 @@
   }
 
   @media screen and (min-width: 790px) {
-    input {
+    input,
+    select {
       font-size: 20px;
     }
   }
@@ -576,9 +667,15 @@
     color: #fff;
   }
 
-  html.dark-theme input:hover,
-  html.dark-theme input:focus {
+  html.dark-theme input:hover:not(:disabled),
+  html.dark-theme input:focus:not(:disabled) {
     background-color: #202020;
+  }
+
+  html.dark-theme input:disabled {
+    cursor: not-allowed;
+    background-color: #000;
+    color: #ccc;
   }
 
   .checkbox-container {
@@ -596,6 +693,10 @@
   }
 
   input[type='checkbox'] {
+    display: none;
+  }
+
+  form input[type='submit'] {
     display: none;
   }
 
@@ -640,5 +741,41 @@
 
   input[type='checkbox']:checked + label span {
     transform: translateX(calc(100%)) scale(0.65);
+  }
+
+  select:focus {
+    outline: none;
+  }
+
+  select {
+    color: #000000;
+    border: 1px solid #9a9a9a;
+    font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', 'Arial',
+      'sans-serif';
+    border-radius: 10px;
+    font-weight: 600;
+    background-color: #ffffff;
+    outline: none;
+    padding: 10px;
+    transition: background-color 0.25s;
+  }
+
+  select:hover,
+  select:focus {
+    background-color: #d6d6d6;
+  }
+
+  html.dark-theme select:hover,
+  html.dark-theme select:focus {
+    background-color: #202020;
+  }
+
+  option {
+    font-weight: 600;
+  }
+
+  html.dark-theme select {
+    color: white;
+    background-color: #101010;
   }
 </style>

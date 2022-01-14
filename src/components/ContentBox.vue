@@ -109,7 +109,6 @@
 
   .content-box-content * {
     margin: 0;
-    float: left;
     height: fit-content;
   }
 
@@ -127,6 +126,11 @@
     flex-wrap: wrap;
     align-content: center;
     text-align: left;
+    flex-direction: column;
+  }
+
+  .content-box-text-content p {
+    margin: 5px 0;
   }
 
   .content-box-icon ~ .content-box-text-content {

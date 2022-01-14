@@ -19,13 +19,16 @@
       :to="`https://${hostname}/${file.filename}`"
       :src="`https://previews.${hostname}/${file.filename}`"
     >
-      <p>Filename: {{ file.filename }}</p>
-      <br />
-      <br />
-      <p>Uploaded at: {{ new Date(file.createdAt).toTimeString() }}</p>
-      <br />
-      <br />
-      <p>Size: {{ hFileSize }}</p>
+      <p
+        >Filename: <code>{{ file.filename }}</code></p
+      >
+      <p
+        >Uploaded at:
+        <code>{{ new Date(file.createdAt).toTimeString() }}</code></p
+      >
+      <p
+        >Size: <code>{{ hFileSize }}</code></p
+      >
     </ContentBox>
   </div>
   <Loading v-else />
@@ -95,12 +98,8 @@
         return;
       }
       this.$data.hostname = window.location.hostname;
-      if (
-        await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-          window.location.pathname + window.location.search
-        )
-      )
-        return;
+
+      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
 
       try {
         const urlSearchParams = new URLSearchParams(window.location.search);
@@ -115,21 +114,34 @@
         this.$data.hFileSize = formatBytes(this.$data.file?.size as number);
         this.$data.loaded = true;
       } catch (error) {
-        switch ((error as Cumulonimbus.ResponseError).code) {
-          case 'INVALID_SESSION_ERROR':
-            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-              window.location.pathname
-            );
-            break;
-          case 'INVALID_FILE_ERROR':
-            this.$router.push('/dashboard/files/');
-            break;
-          default:
-            (this.$parent?.$parent as App).temporaryToast(
-              'I did a bad.',
-              15000
-            );
-            console.error(error);
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            case 'INVALID_FILE_ERROR':
+              this.$router.push('/dashboard/files/');
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did a bad.',
+                15000
+              );
+              console.error(error);
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            10000
+          );
+          console.error(error);
         }
       }
     }

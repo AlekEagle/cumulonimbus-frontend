@@ -58,7 +58,7 @@
       };
     }
   })
-  export default class VueComponent extends Vue {
+  export default class Modal extends Vue {
     declare $data: {
       __show: boolean;
     };
@@ -77,7 +77,7 @@
 
 <style>
   .modal-container {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;

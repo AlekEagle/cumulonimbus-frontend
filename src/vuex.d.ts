@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
     session: Cumulonimbus.Data.Session | null;
     user: Cumulonimbus.Data.User | null;
     filePage: number | null;
+    loadComplete: boolean;
   }
 
   // provide typings for `this.$store`

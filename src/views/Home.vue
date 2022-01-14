@@ -3,7 +3,7 @@
 
   <div class="hero-points">
     <div class="hero-point">
-      <h2>The only file sharing platform</h2>
+      <h2>The only file sharing platform.</h2>
       <p
         >Yes, this is totally the only file sharing platform, don't even bother
         with looking up other file sharing platforms, because they don't exist.
@@ -12,14 +12,14 @@
       >
     </div>
     <div class="hero-point">
-      <h2>Large selection of domains</h2>
+      <h2>Large selection of domains.</h2>
       <p
         >With a large selection of domains already, we are always accepting more
         domains if you're open to supplying them!</p
       >
     </div>
     <div class="hero-point">
-      <h2>Support for uploading services</h2>
+      <h2>Support for uploading services.</h2>
       <p
         >With official support for ShareX and ShareNiX, we are always looking to
         expand what is officially supported, just let us know what you want to
@@ -30,13 +30,16 @@
       <h2>Having trouble?</h2>
       <p
         >We are always happy to help with any issues you might be having in our
-        discord server!</p
+        <a href="https://alekeagle.com/d" rel="noopener" target="_blank"
+          >Discord</a
+        >
+        server!</p
       ></div
     >
     <div class="hero-point">
       <h2>Lets get started!</h2>
       <p
-        >Click <router-link to="/dashboard/">me</router-link> to open the
+        >Click <router-link to="/dashboard/">here</router-link> to open the
         dashboard!</p
       >
     </div>

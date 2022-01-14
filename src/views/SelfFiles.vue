@@ -106,12 +106,7 @@
         );
         return;
       }
-      if (
-        await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-          window.location.pathname + window.location.search
-        )
-      )
-        return;
+      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
       if (this.$store.state.filePage !== null)
         this.setPage(this.$store.state.filePage);
       this.getPageFromQuery();
@@ -182,39 +177,47 @@
         this.$data.files = curPageFiles.items;
         this.$data.loaded = true;
       } catch (error) {
-        switch ((error as Cumulonimbus.ResponseError).code) {
-          case 'RATELIMITED_ERROR':
-            (this.$parent?.$parent as App).ratelimitToast(
-              (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
-            );
-            break;
-          case 'INVALID_SESSION_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              "That's funny, your session just expired!",
-              15000
-            );
-            this.$store.commit('setUser', null);
-            this.$store.commit('setSession', null);
-            this.$store.commit('setClient', null);
-            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-              window.location.pathname
-            );
-            break;
-          case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-              10000
-            );
-            (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-              window.location.pathname
-            );
-            break;
-          default:
-            (this.$parent?.$parent as App).temporaryToast(
-              'I did a bad.',
-              10000
-            );
-            console.error(error);
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                "That's funny, your session just expired!",
+                15000
+              );
+              this.$store.commit('setUser', null);
+              this.$store.commit('setSession', null);
+              this.$store.commit('setClient', null);
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
+                10000
+              );
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                10000
+              );
+              console.error(error);
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            10000
+          );
+          console.error(error);
         }
       }
     }

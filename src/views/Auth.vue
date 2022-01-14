@@ -126,36 +126,44 @@
         });
         if (loginRes === true) this.authedRedir();
       } catch (error) {
-        switch ((error as Cumulonimbus.ResponseError).code) {
-          case 'BANNED_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-              10000
-            );
-            break;
-          case 'RATELIMITED_ERROR':
-            (this.$parent?.$parent as App).ratelimitToast(
-              (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
-            );
-            break;
-          case 'INVALID_USER_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              "Hmm, I can't seem to find anyone with that username or email!",
-              10000
-            );
-            break;
-          case 'INVALID_PASSWORD_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              'No, that is not the password.',
-              10000
-            );
-            break;
-          default:
-            (this.$parent?.$parent as App).temporaryToast(
-              'I did a bad.',
-              10000
-            );
-            console.error(error);
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
+                10000
+              );
+              break;
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_USER_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                "Hmm, I can't seem to find anyone with that username or email!",
+                10000
+              );
+              break;
+            case 'INVALID_PASSWORD_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'No, that is not the password.',
+                10000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                10000
+              );
+              console.error(error);
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            10000
+          );
+          console.error(error);
         }
       }
     }
@@ -179,30 +187,38 @@
           if (createAccRes === true) this.authedRedir();
         }
       } catch (error) {
-        switch ((error as Cumulonimbus.ResponseError).code) {
-          case 'MISSING_FIELDS_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              'You need to fill everything out.',
-              10000
-            );
-            break;
-          case 'RATELIMITED_ERROR':
-            (this.$parent?.$parent as App).ratelimitToast(
-              (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
-            );
-            break;
-          case 'USER_EXISTS_ERROR':
-            (this.$parent?.$parent as App).temporaryToast(
-              'Someone already has that username or email!',
-              10000
-            );
-            break;
-          default:
-            (this.$parent?.$parent as App).temporaryToast(
-              'I did a bad.',
-              10000
-            );
-            console.error(error);
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'MISSING_FIELDS_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'You need to fill everything out.',
+                10000
+              );
+              break;
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'USER_EXISTS_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'Someone already has that username or email!',
+                10000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                10000
+              );
+              console.error(error);
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            10000
+          );
+          console.error(error);
         }
       }
     }

@@ -6,7 +6,8 @@ export default createStore({
     client: null,
     user: null,
     session: null,
-    filePage: null
+    filePage: null,
+    loadComplete: false
   },
   mutations: {
     setClient(state, client) {
@@ -20,6 +21,9 @@ export default createStore({
     },
     setFilePage(state, page) {
       state.filePage = page;
+    },
+    clientLoadComplete(state) {
+      state.loadComplete = true;
     }
   },
   actions: {
@@ -117,6 +121,31 @@ export default createStore({
         } else {
           console.error(error);
           return null;
+        }
+      }
+    },
+    async restoreSession({ commit }) {
+      const tokenFromStorage = localStorage.getItem('token');
+      try {
+        if (tokenFromStorage === null) return false;
+        else {
+          const client = new Client(tokenFromStorage),
+            currentSession = await client.getSelfSessionByID(),
+            currentUser = await client.getSelfUser();
+          commit('setClient', client);
+          commit('setSession', currentSession);
+          commit('setUser', currentUser);
+          commit('clientLoadComplete');
+          return true;
+        }
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          commit('clientLoadComplete');
+          throw error;
+        } else {
+          console.error(error);
+          commit('clientLoadComplete');
+          return false;
         }
       }
     }

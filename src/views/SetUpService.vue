@@ -1,6 +1,11 @@
 <template>
   <h1>Set Up</h1>
   <h2>Trust me, you'll be done in a couple minutes.</h2>
+  <div class="quick-action-buttons-container">
+    <button @click="$router.push('/dashboard/set-up/')" title="Go back!"
+      >Back</button
+    >
+  </div>
   <Modal ref="identityModal" title="Verify your identity">
     <p
       >Please verify your identity. That way we can make sure its really you and
@@ -98,12 +103,7 @@
         );
         return;
       }
-      if (
-        await (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-          window.location.pathname + window.location.search
-        )
-      )
-        return;
+      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
       try {
         if (!urlSearchParams.has('name')) {
           this.$router.push('/dashboard/set-up/');
@@ -127,7 +127,7 @@
               break;
             case 'RATELIMITED_ERROR':
               (this.$parent?.$parent as App).ratelimitToast(
-                (error as Cumulonimbus.ResponseError).ratelimit.resetsAt
+                error.ratelimit.resetsAt
               );
               break;
             case 'INVALID_SESSION_ERROR':
@@ -156,17 +156,23 @@
               break;
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
-                'Server did a bad.',
+                'The server did something weird, lets try again later.',
                 10000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
-                'I did a bad.',
+                'I did something weird, lets try again later.',
                 10000
               );
               console.error(error);
           }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            10000
+          );
+          console.error(error);
         }
       }
     }
@@ -264,7 +270,7 @@
               break;
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
-                'Server did a bad.',
+                'The server did something weird, lets try again later.',
                 10000
               );
               break;
@@ -288,14 +294,17 @@
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
-                'I did a bad.',
+                'I did something weird, lets try again later.',
                 10000
               );
               console.error(json);
           }
         }
       } catch (error) {
-        (this.$parent?.$parent as App).temporaryToast('I did a bad.', 10000);
+        (this.$parent?.$parent as App).temporaryToast(
+          'I did something weird, lets try again later.',
+          10000
+        );
         console.error(error);
       }
     }

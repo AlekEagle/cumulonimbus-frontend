@@ -158,5 +158,9 @@ self.addEventListener('message', async e => {
       let offlineCache = await caches.open('offline-cache');
       await offlineCache.delete(e.data.d);
       break;
+    case 2:
+      console.log('Deleting preview thumbnail cache!');
+      await caches.delete('preview-icons');
+      break;
   }
 });
