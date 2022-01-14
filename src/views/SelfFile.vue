@@ -24,7 +24,9 @@
       >
       <p
         >Uploaded at:
-        <code>{{ new Date(file.createdAt).toTimeString() }}</code></p
+        <code>{{
+          $parent.$parent.toDateString(new Date(file.createdAt))
+        }}</code></p
       >
       <p
         >Size: <code>{{ hFileSize }}</code></p
