@@ -5,7 +5,7 @@
     use with only a few simple steps!
   </h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.push('/dashboard/')" title="Go back!">Back</button>
+    <button @click="$router.replace('/dashboard/')" title="Go back!">Back</button>
   </div>
   <div class="content-box-group-container">
     <ContentBox
@@ -48,7 +48,6 @@
         );
         return;
       }
-      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
       try {
         let services = await (
           this.$store.state.client as Client

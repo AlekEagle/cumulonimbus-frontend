@@ -2,7 +2,7 @@
   <h1>File Details</h1>
   <h2>See the specifics of a file.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.push('/dashboard/files/')" title="Go back!"
+    <button @click="$router.replace('/dashboard/files/')" title="Go back!"
       >Back</button
     >
     <button @click="$refs.deleteFileModal.showModal()" title="Delete this file!"
@@ -98,8 +98,6 @@
         return;
       }
       this.$data.hostname = window.location.hostname;
-
-      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
 
       try {
         const urlSearchParams = new URLSearchParams(window.location.search);

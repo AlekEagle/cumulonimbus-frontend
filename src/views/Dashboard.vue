@@ -73,7 +73,6 @@
         );
         return;
       }
-      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
     }
 
     async signOut() {

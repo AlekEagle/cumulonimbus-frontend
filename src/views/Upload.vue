@@ -2,7 +2,9 @@
   <h1>Upload</h1>
   <h2>Do the upload things.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.push('/dashboard/')" title="Go back!">Back</button>
+    <button @click="$router.replace('/dashboard/')" title="Go back!"
+      >Back</button
+    >
   </div>
   <div class="upload-box-container">
     <div class="upload-box">
@@ -123,7 +125,6 @@
         );
         return;
       }
-      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
       if (
         getOS() === 'Android' &&
         !parseQueryString(window.location.href.split('?')[1]).file
@@ -298,11 +299,6 @@
       height 0.25s;
     padding: 0 25px 45px 25px;
     min-width: fit-content;
-  }
-
-  form input {
-    text-align: center;
-    font-size: 20px;
   }
 
   .upload-box h2 {

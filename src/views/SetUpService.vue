@@ -2,7 +2,7 @@
   <h1>Set Up</h1>
   <h2>Trust me, you'll be done in a couple minutes.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.push('/dashboard/set-up/')" title="Go back!"
+    <button @click="$router.replace('/dashboard/set-up/')" title="Go back!"
       >Back</button
     >
   </div>
@@ -103,7 +103,6 @@
         );
         return;
       }
-      if (!(await (this.$parent?.$parent as App).isLoggedIn())) return;
       try {
         if (!urlSearchParams.has('name')) {
           this.$router.push('/dashboard/set-up/');

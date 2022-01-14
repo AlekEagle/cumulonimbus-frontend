@@ -52,6 +52,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/Profile.vue')
   },
   {
+    path: '/dashboard/profile/sessions',
+    name: 'Sessions',
+    component: () => import('@/views/Sessions.vue')
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue')

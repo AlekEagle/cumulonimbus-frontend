@@ -295,4 +295,8 @@
   .label-right {
     cursor: pointer;
   }
+
+  .auth-box input {
+    font-size: 20px;
+  }
 </style>

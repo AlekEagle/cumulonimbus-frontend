@@ -20,14 +20,7 @@
           <router-link to="/">Home</router-link>
         </li>
         <li class="nav-item" @click="hideMobileMenu">
-          <router-link
-            :to="
-              !!this.$store.state.client
-                ? '/dashboard/'
-                : '/auth/?redirect=%2Fdashboard%2F'
-            "
-            >Dashboard</router-link
-          >
+          <router-link to="/dashboard/">Dashboard</router-link>
         </li>
         <li class="nav-item" @click="hideMobileMenu">
           <a :href="`https://docs.${hostname}`" rel="noopener" target="_blank"
@@ -194,7 +187,7 @@
     async redirectIfNotLoggedIn(path: string): Promise<boolean> {
       if (!(await this.isLoggedIn())) {
         if (!path.startsWith('/dashboard')) return false;
-        this.$router.push(`/auth/?redirect=${encodeURIComponent(path)}`);
+        this.$router.push(`/auth/?redirect=${path}`);
         return true;
       } else return false;
     }
@@ -290,6 +283,17 @@
     async mounted() {
       this.$data.hostname = window.location.hostname;
       (window as any).cumClient = this.$store.state.client;
+      this.$router.beforeEach(async (to, from, next) => {
+        if (to.path.startsWith('/dashboard')) {
+          let loggedIn = await this.isLoggedIn();
+          if (!loggedIn)
+            next({
+              path: '/auth/',
+              query: { redirect: to.fullPath }
+            });
+          else next();
+        } else next();
+      });
     }
   }
 </script>
@@ -650,11 +654,9 @@
     outline: none;
   }
 
-  @media screen and (min-width: 790px) {
-    input,
-    select {
-      font-size: 20px;
-    }
+  input,
+  select {
+    font-size: calc(13.3px + 0.5vw);
   }
 
   input:hover,
@@ -777,5 +779,10 @@
   html.dark-theme select {
     color: white;
     background-color: #101010;
+  }
+
+  .page-number-box {
+    width: 65px;
+    margin: 0 5px;
   }
 </style>
