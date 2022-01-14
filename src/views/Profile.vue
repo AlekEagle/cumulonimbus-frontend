@@ -970,6 +970,10 @@
           'Goodbye, we hope you enjoyed Cumulonimbus!',
           10000
         );
+        this.$refs.deleteAccountModal.hideModal();
+        (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+          window.location.pathname
+        );
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
