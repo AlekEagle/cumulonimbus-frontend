@@ -152,7 +152,7 @@
           switch (error.code) {
             case 'RATELIMITED_ERROR':
               this.ratelimitToast(error.ratelimit.resetsAt);
-              break;
+              return true;
             case 'BANNED_ERROR':
               this.temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
