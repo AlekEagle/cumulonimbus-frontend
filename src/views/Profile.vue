@@ -347,6 +347,11 @@
       >
     </template>
   </Modal>
+  <transition name="upload-animation-container">
+    <div v-if="$data.deletingFiles" class="upload-animation-container"
+      ><Loading
+    /></div>
+  </transition>
 </template>
 
 <script lang="ts">
@@ -362,7 +367,8 @@
     data() {
       return {
         domains: [],
-        subdomainCompatible: true
+        subdomainCompatible: true,
+        deletingFiles: false
       };
     },
     title: 'Your Profile'
@@ -371,6 +377,7 @@
     declare $data: {
       domains: Cumulonimbus.Data.Domain[];
       subdomainCompatible: boolean;
+      deletingFiles: boolean;
     };
     declare $refs: {
       changeUsernameModal: Modal;
@@ -895,6 +902,8 @@
 
     async deleteAllFiles() {
       try {
+        this.$refs.deleteAllFilesModal.hideModal();
+        this.$data.deletingFiles = true;
         let res = await (
           this.$store.state.client as Client
         ).bulkDeleteAllSelfFiles();
@@ -903,7 +912,9 @@
           `Done! Deleted: ${res.count} files!`,
           15000
         );
+        this.$data.deletingFiles = false;
       } catch (error) {
+        this.$data.deletingFiles = false;
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -1062,5 +1073,37 @@
     font-weight: 900;
     font-size: xx-large;
     margin: 0 5px;
+  }
+
+  .upload-animation-container {
+    z-index: 15;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    cursor: wait;
+    background-color: #000000aa;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(3px);
+  }
+
+  .upload-animation-container-enter-active,
+  .upload-animation-container-leave-active {
+    transition: opacity 0.4s, backdrop-filter 0.4s;
+  }
+
+  .upload-animation-container-enter-from,
+  .upload-animation-container-leave-to {
+    opacity: 0;
+    backdrop-filter: none;
+  }
+
+  .upload-animation-container-enter-to,
+  .upload-animation-container-leave-from {
+    opacity: 1;
+    backdrop-filter: blur(3px);
   }
 </style>
