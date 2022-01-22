@@ -3,8 +3,8 @@
     class="lazy"
     v-if="done"
     ref="lazyImg"
-    :alt="altText"
-    :src="$data.lazyBlobURL || failedLazySrc"
+    :alt="alt"
+    :src="$data.lazyBlobURL || failedSrc"
   />
   <Loading v-else />
 </template>
@@ -16,27 +16,25 @@
   @Options({
     components: { Loading },
     props: {
-      src: String,
-      alt: String,
-      failedSrc: String,
-      tries: Number,
-      wait: Number
-    },
-    computed: {
-      lazySrc() {
-        return this.src;
+      src: {
+        type: String,
+        required: true
       },
-      altText() {
-        return this.alt || 'A lazily loaded image.';
+      alt: {
+        type: String,
+        default: 'A lazily loaded image.'
       },
-      failedLazySrc() {
-        return this.failedSrc || '/assets/images/exclamation-mark.svg';
+      failedSrc: {
+        type: String,
+        default: '/assets/images/exclamation-mark.svg'
       },
-      maxTries() {
-        return this.tries || 5;
+      tries: {
+        type: Number,
+        default: 5
       },
-      waitPeriod() {
-        return this.wait || 5000;
+      wait: {
+        type: Number,
+        default: 5000
       }
     },
     data() {
@@ -46,13 +44,18 @@
         currentTries: 0,
         timeout: undefined
       };
+    },
+    watch: {
+      src() {
+        this.loadIcon();
+      }
     }
   })
   export default class LazyImage extends Vue {
-    declare lazySrc: string;
-    declare altText: string;
-    declare maxTries: number;
-    declare waitPeriod: number;
+    declare src: string;
+    declare alt: string;
+    declare tries: number;
+    declare wait: number;
     declare $data: {
       done: boolean;
       lazyBlobURL?: string;
@@ -63,7 +66,7 @@
     async loadIcon() {
       this.$data.timeout = undefined;
       try {
-        let res = await fetch(this.lazySrc);
+        let res = await fetch(this.src);
         if (res.ok) {
           let slimySlime = await res.blob();
           this.$data.lazyBlobURL = URL.createObjectURL(slimySlime);
@@ -78,8 +81,8 @@
     }
 
     handleFail() {
-      if (++this.$data.currentTries <= this.maxTries) {
-        this.$data.timeout = setTimeout(this.loadIcon, this.waitPeriod);
+      if (++this.$data.currentTries <= this.tries) {
+        this.$data.timeout = setTimeout(this.loadIcon, this.wait);
       } else {
         this.$data.lazyBlobURL;
         this.$data.done = true;

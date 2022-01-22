@@ -15,6 +15,27 @@
   >
   <div class="quick-action-buttons-container">
     <button title="Go Back!" @click="goBack">Back</button>
+    <button
+      title="Delete a bunch of files!"
+      v-if="!$data.bulkDeleteMode"
+      @click="$data.bulkDeleteMode = true"
+      >Bulk Delete Mode</button
+    >
+    <template v-if="$data.bulkDeleteMode">
+      <button
+        @click="$refs.confirmBulkDeleteModal.showModal()"
+        title="Haha delete stuff go bRRR"
+        >Delete 'em!</button
+      >
+      <button
+        @click="
+          $data.bulkDeleteMode = false;
+          $data.selectedFiles = $data.selectedFiles.filter(() => false);
+        "
+        title="Nevermind"
+        >Nevermind..</button
+      >
+    </template>
   </div>
   <div class="page-selector">
     <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
@@ -40,10 +61,21 @@
       :title="file.filename"
       span
       lazy-load
-      :src="`https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`"
-      :to="`/dashboard/file/?id=${file.filename}`"
-      ><p>Take a closer look at this file.</p></ContentBox
-    >
+      @click="handleClickEvent(file.filename)"
+      :theme-safe="isSelected(file.filename)"
+      :src="
+        isSelected(file.filename)
+          ? '/assets/images/checkmark.svg'
+          : `https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`
+      "
+      ><p
+        v-text="
+          $data.bulkDeleteMode
+            ? 'Click me to select or dis-select me for deletion!'
+            : 'Take a closer look at this file.'
+        "
+      ></p
+    ></ContentBox>
   </div>
   <Loading v-else />
   <div class="page-selector">
@@ -63,6 +95,30 @@
       >Next</button
     >
   </div>
+
+  <Modal ref="confirmBulkDeleteModal" title="Delete Multiple Files" cancelable>
+    <p
+      >Are you sure you want to delete all of these files? You'll never see them
+      again!</p
+    >
+    <template v-slot:buttons>
+      <button
+        title="baby"
+        @click="
+          $refs.confirmBulkDeleteModal.hideModal();
+          $data.bulkDeleteMode = false;
+          $data.selectedFiles = $data.selectedFiles.filter(() => false);
+        "
+        >Nevermind</button
+      >
+      <button @click="bulkDelete" title="haha they are gone">Buh Bye!</button>
+    </template>
+  </Modal>
+  <transition name="delete-files-animation-container">
+    <div v-if="$data.bulkDeleting" class="delete-files-animation-container"
+      ><Loading
+    /></div>
+  </transition>
 </template>
 
 <script lang="ts">
@@ -71,9 +127,10 @@
   import App from '@/App.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import Loading from '@/components/Loading.vue';
+  import Modal from '@/components/Modal.vue';
 
   @Options({
-    components: { ContentBox, Loading },
+    components: { ContentBox, Loading, Modal },
     title: 'Your Files',
     data() {
       return {
@@ -81,7 +138,10 @@
         files: [],
         fileCount: undefined,
         page: 0,
-        maxPage: -1
+        maxPage: -1,
+        bulkDeleteMode: false,
+        selectedFiles: [],
+        bulkDeleting: false
       };
     }
   })
@@ -92,8 +152,13 @@
       fileCount: number;
       page: number;
       maxPage: number;
+      bulkDeleteMode: boolean;
+      selectedFiles: string[];
+      bulkDeleting: boolean;
     };
-    declare $refs: {};
+    declare $refs: {
+      confirmBulkDeleteModal: Modal;
+    };
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
@@ -220,5 +285,119 @@
       this.$router.replace('/dashboard/');
       this.$store.commit('setFilePage', null);
     }
+
+    handleClickEvent(filename: string) {
+      if (!this.$data.bulkDeleteMode)
+        this.$router.push(`/dashboard/file/?id=${filename}`);
+      else {
+        if (this.$data.selectedFiles.includes(filename))
+          this.$data.selectedFiles = this.$data.selectedFiles.filter(
+            a => a !== filename
+          );
+        else this.$data.selectedFiles.push(filename);
+      }
+    }
+
+    isSelected(filename: string): boolean {
+      return (
+        this.$data.bulkDeleteMode && this.$data.selectedFiles.includes(filename)
+      );
+    }
+
+    async bulkDelete() {
+      try {
+        this.$data.bulkDeleting = true;
+        let res = await (
+          this.$store.state.client as Client
+        ).bulkDeleteSelfFilesByID(this.$data.selectedFiles);
+        await this.getFiles();
+        (this.$parent?.$parent as App).temporaryToast(
+          `Done! Deleted: ${res.count} files!`,
+          15000
+        );
+
+        this.$data.bulkDeleting = false;
+        this.$refs.confirmBulkDeleteModal.hideModal();
+      } catch (error) {
+        this.$data.bulkDeleting = false;
+        this.$refs.confirmBulkDeleteModal.hideModal();
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                "That's funny, your session just expired!",
+                15000
+              );
+              this.$store.commit('setUser', null);
+              this.$store.commit('setSession', null);
+              this.$store.commit('setClient', null);
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
+                10000
+              );
+              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+                window.location.pathname
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                10000
+              );
+              console.error(error);
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            10000
+          );
+          console.error(error);
+        }
+      }
+    }
   }
 </script>
+
+<style>
+  .delete-files-animation-container {
+    z-index: 15;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    cursor: wait;
+    background-color: #000000aa;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(3px);
+  }
+
+  .delete-files-animation-container-enter-active,
+  .delete-files-animation-container-leave-active {
+    transition: opacity 0.4s, backdrop-filter 0.4s;
+  }
+
+  .delete-files-animation-container-enter-from,
+  .delete-files-animation-container-leave-to {
+    opacity: 0;
+    backdrop-filter: none;
+  }
+
+  .delete-files-animation-container-enter-to,
+  .delete-files-animation-container-leave-from {
+    opacity: 1;
+    backdrop-filter: blur(3px);
+  }
+</style>

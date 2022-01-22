@@ -714,11 +714,11 @@
   }
 
   html.dark-theme input[type='checkbox'] + label {
-    border: 0.125em solid #eef3f6;
+    border: 0.125em solid #eeeeee;
   }
 
   input[type='checkbox'] + label span {
-    background: #fffad8;
+    background: #ffffff;
     border-radius: 50%;
     height: 2em;
     width: 2em;
@@ -734,11 +734,11 @@
 
   input[type='checkbox']:checked + label {
     border-color: #292929;
-    background-color: #08f1fd;
+    background-color: #019ac0;
   }
 
   html.dark-theme input[type='checkbox']:checked + label {
-    border-color: #eef3f6;
+    border-color: #eeeeee;
   }
 
   input[type='checkbox']:checked + label span {

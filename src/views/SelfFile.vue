@@ -8,6 +8,9 @@
     <button @click="$refs.deleteFileModal.showModal()" title="Delete this file!"
       >Delete</button
     >
+    <button @click="shareFile" title="Share file!" v-if="$data.canShare"
+      >Share</button
+    >
   </div>
   <div v-if="loaded" class="content-box-group-container">
     <ContentBox
@@ -15,7 +18,7 @@
       class="file-info-box"
       span
       lazy-load
-      to-new-tab
+      new-tab
       :to="`https://${hostname}/${file.filename}`"
       :src="`https://previews.${hostname}/${file.filename}`"
     >
@@ -79,7 +82,8 @@
         file: null,
         hostname: null,
         loaded: false,
-        hFileSize: null
+        hFileSize: null,
+        canShare: false
       };
     },
     title: 'File Details'
@@ -90,8 +94,10 @@
       hostname: string | null;
       loaded: boolean;
       hFileSize: string | null;
+      canShare: boolean;
     };
     async mounted() {
+      this.$data.canShare = !!navigator.share;
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline.",
@@ -180,12 +186,33 @@
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
-                'I did a bad.',
+                'I did something weird, lets try again later.',
                 15000
               );
               console.error(error);
           }
         }
+      }
+    }
+
+    async shareFile() {
+      try {
+        await navigator.share({
+          title: this.$data.file?.filename,
+          text: 'Check this out on Cumulonimbus!',
+          url: `https://${
+            this.$store.state.user?.subdomain
+              ? `${this.$store.state.user.subdomain}.`
+              : ''
+          }${this.$store.state.user?.domain}/${this.$data.file?.filename}`
+        });
+      } catch (error) {
+        if (error instanceof DOMException) return;
+        (this.$parent?.$parent as App).temporaryToast(
+          'I did something weird, lets try again later.',
+          15000
+        );
+        console.error(error);
       }
     }
   }

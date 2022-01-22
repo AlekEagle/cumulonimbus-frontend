@@ -1,34 +1,34 @@
 <template>
   <div
-    :class="`content-box${contentDisabled ? ' disabled' : ''}${
-      contentSelectable ? '' : ' no-select'
+    :class="`content-box${disabled ? ' disabled' : ''}${
+      selectable ? '' : ' no-select'
     }`"
   >
-    <template v-if="iconSrc !== undefined">
+    <template v-if="src !== undefined">
       <img
-        :class="`content-box-icon${iconThemeSafe ? ' theme-safe' : ''}`"
-        v-if="!shouldLazyLoad"
-        :src="iconSrc"
+        :class="`content-box-icon${themeSafe ? ' theme-safe' : ''}`"
+        v-if="!lazyLoad"
+        :src="src"
         alt="Content icon"
       />
       <LazyImage
         v-else
-        :src="iconSrc"
+        :src="src"
         failed-src="/assets/images/exclamation-mark.svg"
-        class="content-box-icon"
+        :class="`content-box-icon${themeSafe ? ' theme-safe' : ''}`"
       />
     </template>
     <div class="content-box-text-content">
-      <h2 class="content-box-title" v-text="contentTitle" />
+      <h2 class="content-box-title" v-text="title" />
       <div class="content-box-content">
         <slot>
-          <p>Content of the box with content.</p>
+          <p>Da box with da content in it!</p>
         </slot>
       </div>
     </div>
     <span
-      :class="`content-box-overlay${contentDisabled ? ' disabled' : ''}`"
-      v-if="contentSpan"
+      :class="`content-box-overlay${disabled ? ' disabled' : ''}`"
+      v-if="span"
       @click.self="handleContentTo"
     />
   </div>
@@ -41,58 +41,34 @@
   @Options({
     components: { LazyImage },
     props: {
-      title: String,
+      title: {
+        type: String,
+        default: 'Content Box Title'
+      },
       span: Boolean,
-      src: String,
-      to: String,
+      src: {
+        type: String,
+        default: undefined
+      },
+      to: {
+        type: String,
+        default: undefined
+      },
       disabled: Boolean,
       selectable: Boolean,
       themeSafe: Boolean,
       lazyLoad: Boolean,
-      toNewTab: Boolean
-    },
-    computed: {
-      contentTitle() {
-        return this.title || 'Content Box Title';
-      },
-      contentSpan() {
-        return this.span;
-      },
-      iconSrc() {
-        return this.src || undefined;
-      },
-      contentTo() {
-        return this.to || undefined;
-      },
-      contentDisabled() {
-        return this.disabled;
-      },
-      contentSelectable() {
-        return this.selectable;
-      },
-      iconThemeSafe() {
-        return this.themeSafe;
-      },
-      shouldLazyLoad() {
-        return this.lazyLoad;
-      },
-      inNewTab() {
-        return this.toNewTab;
-      }
+      newTab: Boolean
     }
   })
   export default class ContentBox extends Vue {
-    declare contentTitle: string;
-    declare contentSpan: boolean;
-    declare iconSrc?: string;
-    declare contentTo?: string;
-    declare contentDisabled: boolean;
-    declare iconThemeSafe: boolean;
-    declare inNewTab: boolean;
+    declare to?: string;
+    declare disabled: boolean;
+    declare newTab: boolean;
     handleContentTo(e: MouseEvent) {
-      if (this.contentTo !== undefined && !this.contentDisabled) {
-        if (this.inNewTab) window.open(this.contentTo, '_blank');
-        else this.$router.push(this.contentTo);
+      if (this.to !== undefined && !this.disabled) {
+        if (this.newTab) window.open(this.to, '_blank');
+        else this.$router.push(this.to);
       }
     }
   }

@@ -347,8 +347,8 @@
       >
     </template>
   </Modal>
-  <transition name="upload-animation-container">
-    <div v-if="$data.deletingFiles" class="upload-animation-container"
+  <transition name="delete-files-animation-container">
+    <div v-if="$data.deletingFiles" class="delete-files-animation-container"
       ><Loading
     /></div>
   </transition>
@@ -1075,7 +1075,7 @@
     margin: 0 5px;
   }
 
-  .upload-animation-container {
+  .delete-files-animation-container {
     z-index: 15;
     position: fixed;
     left: 0;
@@ -1090,19 +1090,19 @@
     backdrop-filter: blur(3px);
   }
 
-  .upload-animation-container-enter-active,
-  .upload-animation-container-leave-active {
+  .delete-files-animation-container-enter-active,
+  .delete-files-animation-container-leave-active {
     transition: opacity 0.4s, backdrop-filter 0.4s;
   }
 
-  .upload-animation-container-enter-from,
-  .upload-animation-container-leave-to {
+  .delete-files-animation-container-enter-from,
+  .delete-files-animation-container-leave-to {
     opacity: 0;
     backdrop-filter: none;
   }
 
-  .upload-animation-container-enter-to,
-  .upload-animation-container-leave-from {
+  .delete-files-animation-container-enter-to,
+  .delete-files-animation-container-leave-from {
     opacity: 1;
     backdrop-filter: blur(3px);
   }
