@@ -23,7 +23,7 @@
     >
     <template v-if="$data.bulkDeleteMode">
       <button
-        @click="$refs.confirmBulkDeleteModal.showModal()"
+        @click="$refs.confirmBulkDeleteModal.show()"
         title="Haha delete stuff go bRRR"
         >Delete 'em!</button
       >
@@ -105,7 +105,7 @@
       <button
         title="baby"
         @click="
-          $refs.confirmBulkDeleteModal.hideModal();
+          $refs.confirmBulkDeleteModal.hide();
           $data.bulkDeleteMode = false;
           $data.selectedFiles = $data.selectedFiles.filter(() => false);
         "
@@ -332,10 +332,14 @@
         );
 
         this.$data.bulkDeleting = false;
-        this.$refs.confirmBulkDeleteModal.hideModal();
+        this.$data.bulkDeleteMode = false;
+        this.$data.selectedFiles = [];
+        this.$refs.confirmBulkDeleteModal.hide();
       } catch (error) {
         this.$data.bulkDeleting = false;
-        this.$refs.confirmBulkDeleteModal.hideModal();
+        this.$data.bulkDeleteMode = false;
+        this.$data.selectedFiles = [];
+        this.$refs.confirmBulkDeleteModal.hide();
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':

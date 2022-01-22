@@ -113,7 +113,7 @@
         );
         this.$data.instruction = res;
         this.$data.loaded = true;
-        this.$refs.identityModal.showModal();
+        this.$refs.identityModal.show();
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
@@ -217,7 +217,7 @@
     }
 
     goBack() {
-      this.$refs.identityModal.hideModal();
+      this.$refs.identityModal.hide();
       setTimeout(() => this.$router.push('/dashboard/set-up/'), 400);
     }
 
@@ -247,7 +247,7 @@
         let json = await newSession.json();
         if (newSession.ok) {
           this.$data.newIdentity = json;
-          this.$refs.identityModal.hideModal();
+          this.$refs.identityModal.hide();
         } else {
           switch (json.code) {
             case 'RATELIMITED_ERROR':

@@ -2,22 +2,22 @@
   <transition name="modal">
     <div
       v-if="__show"
-      :class="`modal-container${__cancelable ? '' : ' no-close'}`"
+      :class="`modal-container${cancelable ? '' : ' no-close'}`"
       @click.self="
         () => {
-          if (!__cancelable) return;
-          hideModal();
+          if (!cancelable) return;
+          hide();
         }
       "
     >
       <div class="modal">
         <div class="modal-header">
-          <h1 class="modal-title" v-text="__title" /><img
-            v-if="__cancelable"
+          <h1 class="modal-title" v-text="title" /><img
+            v-if="cancelable"
             class="modal-close"
             src="/assets/images/close.svg"
             alt="Close Modal"
-            @click.self="hideModal"
+            @click.self="hide"
         /></div>
         <div class="modal-content">
           <slot name="default">
@@ -26,7 +26,7 @@
         </div>
         <div class="modal-buttons">
           <slot name="buttons">
-            <button @click="hideModal" v-if="__cancelable">Close</button>
+            <button @click="hide" v-if="cancelable">Close</button>
           </slot>
         </div>
       </div>
@@ -40,17 +40,12 @@
   @Options({
     components: {},
     props: {
-      title: String,
-      cancelable: Boolean,
-      show: Boolean
-    },
-    computed: {
-      __title() {
-        return this.title || 'Modal Title';
+      title: {
+        type: String,
+        default: 'Modal Title'
       },
-      __cancelable() {
-        return this.cancelable;
-      }
+      cancelable: Boolean,
+      visible: Boolean
     },
     data() {
       return {
@@ -62,15 +57,15 @@
     declare $data: {
       __show: boolean;
     };
-    declare show: boolean;
-    hideModal() {
+    declare visible: boolean;
+    hide() {
       this.$data.__show = false;
     }
-    showModal() {
+    show() {
       this.$data.__show = true;
     }
     mounted() {
-      if (this.show) setTimeout(() => (this.$data.__show = this.show), 500);
+      if (this.visible) setTimeout(() => (this.$data.__show = true), 500);
     }
   }
 </script>

@@ -5,12 +5,10 @@
     <button @click="$router.replace('/dashboard/files/')" title="Go back!"
       >Back</button
     >
-    <button @click="$refs.deleteFileModal.showModal()" title="Delete this file!"
+    <button @click="$refs.deleteFileModal.show()" title="Delete this file!"
       >Delete</button
     >
-    <button @click="shareFile" title="Share file!" v-if="$data.canShare"
-      >Share</button
-    >
+    <button @click="shareFile" title="Share file!">Share</button>
   </div>
   <div v-if="loaded" class="content-box-group-container">
     <ContentBox
@@ -47,7 +45,7 @@
     <template v-slot:buttons>
       <button @click="deleteFile" title="Bye bye file!">I'm sure</button>
       <button
-        @click="$refs.deleteFileModal.hideModal()"
+        @click="$refs.deleteFileModal.hide()"
         title="That's what I thought."
         >On second thought...</button
       >
@@ -135,7 +133,7 @@
             case 'INVALID_FILE_ERROR':
               this.$router.push('/dashboard/files/');
               break;
-              case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
                 10000
@@ -190,7 +188,7 @@
                 window.location.pathname
               );
               break;
-              case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
                 10000
@@ -208,24 +206,53 @@
     }
 
     async shareFile() {
-      try {
-        await navigator.share({
-          title: this.$data.file?.filename,
-          text: 'Check this out on Cumulonimbus!',
-          url: `https://${
+      if (this.$data.canShare) {
+        try {
+          await navigator.share({
+            title: this.$data.file?.filename,
+            text: 'Check this out on Cumulonimbus!',
+            url: `https://${
+              this.$store.state.user?.subdomain
+                ? `${this.$store.state.user.subdomain}.`
+                : ''
+            }${this.$store.state.user?.domain}/${this.$data.file?.filename}`
+          });
+        } catch (error) {
+          if (error instanceof DOMException) return;
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            15000
+          );
+          console.error(error);
+        }
+      } else {
+        this.copyToClipboard();
+      }
+    }
+
+    copyToClipboard() {
+      navigator.clipboard
+        .writeText(
+          `https://${
             this.$store.state.user?.subdomain
               ? `${this.$store.state.user.subdomain}.`
               : ''
           }${this.$store.state.user?.domain}/${this.$data.file?.filename}`
-        });
-      } catch (error) {
-        if (error instanceof DOMException) return;
-        (this.$parent?.$parent as App).temporaryToast(
-          'I did something weird, lets try again later.',
-          15000
+        )
+        .then(
+          () => {
+            (this.$parent?.$parent as App).temporaryToast(
+              'Copied to your clipboard!'
+            );
+          },
+          err => {
+            (this.$parent?.$parent as App).temporaryToast(
+              "I still wasn't able to do it, it might be a browser permission issue. Let us know about it in the discord please!",
+              20000
+            );
+            console.error(err);
+          }
         );
-        console.error(error);
-      }
     }
   }
 </script>

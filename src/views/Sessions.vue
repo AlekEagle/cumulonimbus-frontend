@@ -208,7 +208,7 @@
                 window.location.pathname
               );
               break;
-              case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
                 10000
@@ -233,7 +233,7 @@
 
     promptInvalidateSession(s: Cumulonimbus.Data.Session) {
       this.$data.session = s;
-      this.$refs.invalidateSessionModal.showModal();
+      this.$refs.invalidateSessionModal.show();
     }
 
     async invalidateSession() {
@@ -241,7 +241,7 @@
         await (this.$store.state.client as Client).deleteSelfSessionByID(
           (this.$data.session?.iat as number).toString()
         );
-        this.$refs.invalidateSessionModal.hideModal();
+        this.$refs.invalidateSessionModal.hide();
         (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
         await this.getSessions();
       } catch (error) {
@@ -269,7 +269,7 @@
                   "Look's like it's already invalid!",
                   15000
                 );
-                this.$refs.invalidateSessionModal.hideModal();
+                this.$refs.invalidateSessionModal.hide();
                 this.$data.session = undefined;
                 await this.getSessions();
               }

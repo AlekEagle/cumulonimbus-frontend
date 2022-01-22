@@ -68,7 +68,7 @@
       span
       src="/assets/images/gear.svg"
       theme-safe
-      @click="$refs.changeUsernameModal.showModal()"
+      @click="$refs.changeUsernameModal.show()"
     >
       <p>Click me to change your username!</p>
     </ContentBox>
@@ -77,7 +77,7 @@
       span
       src="/assets/images/gear.svg"
       theme-safe
-      @click="$refs.changeEmailModal.showModal()"
+      @click="$refs.changeEmailModal.show()"
     >
       <p>Click me to change your email!</p>
     </ContentBox>
@@ -86,7 +86,7 @@
       span
       src="/assets/images/gear.svg"
       theme-safe
-      @click="$refs.changePasswordModal.showModal()"
+      @click="$refs.changePasswordModal.show()"
     >
       <p>Click me to change your password!</p>
     </ContentBox>
@@ -113,7 +113,7 @@
       span
       src="/assets/images/gear.svg"
       theme-safe
-      @click="$refs.clearCacheModal.showModal()"
+      @click="$refs.clearCacheModal.show()"
     >
       <p>Having issues seeing previews in the file view? Try this!</p>
     </ContentBox>
@@ -128,7 +128,7 @@
         src="/assets/images/gear.svg"
         span
         theme-safe
-        @click="$refs.invalidateSessionsModal.showModal()"
+        @click="$refs.invalidateSessionsModal.show()"
       >
         <p
           >Feel like someone got into your account? Paranoid about security?
@@ -140,7 +140,7 @@
         src="/assets/images/gear.svg"
         span
         theme-safe
-        @click="$refs.deleteAllFilesModal.showModal()"
+        @click="$refs.deleteAllFilesModal.show()"
       >
         <p
           >Want to rid the server of all your files without deleting your
@@ -152,7 +152,7 @@
         src="/assets/images/gear.svg"
         span
         theme-safe
-        @click="$refs.deleteAccountModal.showModal()"
+        @click="$refs.deleteAccountModal.show()"
       >
         <p>You want to delete your account? Here it is!</p>
       </ContentBox>
@@ -264,7 +264,7 @@
         >I'm sure</button
       >
       <button
-        @click="$refs.clearCacheModal.hideModal()"
+        @click="$refs.clearCacheModal.hide()"
         title="That's what I thought."
         >On second thought...</button
       >
@@ -294,7 +294,7 @@
         >I'm sure</button
       >
       <button
-        @click="$refs.invalidateSessionsModal.hideModal()"
+        @click="$refs.invalidateSessionsModal.hide()"
         title="That's what I thought."
         >On second thought...</button
       >
@@ -308,7 +308,7 @@
     <template v-slot:buttons>
       <button @click="deleteAllFiles" title="So long files!">I'm sure</button>
       <button
-        @click="$refs.deleteAllFilesModal.hideModal()"
+        @click="$refs.deleteAllFilesModal.hide()"
         title="That's what I thought."
         >On second thought...</button
       >
@@ -341,7 +341,7 @@
     <template v-slot:buttons>
       <button @click="deleteAccount" title="Goodbye">Confirm</button>
       <button
-        @click="$refs.deleteAccountModal.hideModal()"
+        @click="$refs.deleteAccountModal.hide()"
         title="That's what I thought."
         >On second thought...</button
       >
@@ -479,7 +479,7 @@
         );
 
         this.$store.commit('setUser', res);
-        this.$refs.changeUsernameModal.hideModal();
+        this.$refs.changeUsernameModal.hide();
         (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
@@ -551,7 +551,7 @@
         );
 
         this.$store.commit('setUser', res);
-        this.$refs.changeEmailModal.hideModal();
+        this.$refs.changeEmailModal.hide();
         (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
@@ -633,7 +633,7 @@
         );
 
         this.$store.commit('setUser', res);
-        this.$refs.changePasswordModal.hideModal();
+        this.$refs.changePasswordModal.hide();
         (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
@@ -697,7 +697,7 @@
     }
 
     showDomainModal() {
-      this.$refs.changeDomainModal.showModal();
+      this.$refs.changeDomainModal.show();
       setTimeout(
         () =>
           ((
@@ -731,7 +731,7 @@
             : undefined
         );
         this.$store.commit('setUser', res);
-        this.$refs.changeDomainModal.hideModal();
+        this.$refs.changeDomainModal.hide();
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
@@ -822,7 +822,7 @@
       navigator.serviceWorker.controller?.postMessage({
         op: 2
       });
-      this.$refs.clearCacheModal.hideModal();
+      this.$refs.clearCacheModal.hide();
     }
 
     async invalidateSessions() {
@@ -830,7 +830,7 @@
         let res = await (
           this.$store.state.client as Client
         ).bulkDeleteAllSelfSessions(this.$refs.keepThisSession.checked);
-        this.$refs.invalidateSessionsModal.hideModal();
+        this.$refs.invalidateSessionsModal.hide();
         if (!this.$refs.keepThisSession.checked) {
           (this.$parent?.$parent as App).temporaryToast(
             `See you later! Logged out: ${res.count} sessions!`,
@@ -902,12 +902,12 @@
 
     async deleteAllFiles() {
       try {
-        this.$refs.deleteAllFilesModal.hideModal();
+        this.$refs.deleteAllFilesModal.hide();
         this.$data.deletingFiles = true;
         let res = await (
           this.$store.state.client as Client
         ).bulkDeleteAllSelfFiles();
-        this.$refs.deleteAllFilesModal.hideModal();
+        this.$refs.deleteAllFilesModal.hide();
         (this.$parent?.$parent as App).temporaryToast(
           `Done! Deleted: ${res.count} files!`,
           15000
@@ -981,7 +981,7 @@
           'Goodbye, we hope you enjoyed Cumulonimbus!',
           10000
         );
-        this.$refs.deleteAccountModal.hideModal();
+        this.$refs.deleteAccountModal.hide();
         (this.$parent?.$parent as App).redirectIfNotLoggedIn(
           window.location.pathname
         );
