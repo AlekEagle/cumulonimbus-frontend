@@ -5,7 +5,9 @@
     use with only a few simple steps!
   </h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard/')" title="Go back!">Back</button>
+    <button @click="$router.replace('/dashboard/')" title="Go back!"
+      >Back</button
+    >
   </div>
   <div class="content-box-group-container">
     <ContentBox
@@ -80,6 +82,12 @@
               );
               (this.$parent?.$parent as App).redirectIfNotLoggedIn(
                 window.location.pathname
+              );
+              break;
+            case 'INTERNAL_SERVER_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                10000
               );
               break;
             default:

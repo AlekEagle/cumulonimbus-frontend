@@ -385,12 +385,8 @@
 
   a {
     text-decoration: none;
-    color: #005f77;
+    color: #00ccff;
     transition: background-color 0.25s, color 0.25s;
-  }
-
-  html.dark-theme a {
-    color: #00f7ff;
   }
 
   .dark-mode-widget {

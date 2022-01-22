@@ -264,6 +264,12 @@
                 window.location.pathname
               );
               break;
+            case 'INTERNAL_SERVER_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                10000
+              );
+              break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
@@ -294,7 +300,16 @@
           this.$data.selectedFiles = this.$data.selectedFiles.filter(
             a => a !== filename
           );
-        else this.$data.selectedFiles.push(filename);
+        else {
+          if (this.$data.selectedFiles.length >= 100) {
+            (this.$parent?.$parent as App).temporaryToast(
+              'You can only bulk delete 100 files at a time, sorry!',
+              10000
+            );
+            return;
+          }
+          this.$data.selectedFiles.push(filename);
+        }
       }
     }
 
@@ -347,6 +362,18 @@
               );
               (this.$parent?.$parent as App).redirectIfNotLoggedIn(
                 window.location.pathname
+              );
+              break;
+            case 'INTERNAL_SERVER_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                10000
+              );
+              break;
+            case 'MISSING_FIELDS_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'You can only bulk delete 100 files at a time, sorry!',
+                10000
               );
               break;
             default:

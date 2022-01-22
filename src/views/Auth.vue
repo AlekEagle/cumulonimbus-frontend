@@ -151,6 +151,12 @@
                 10000
               );
               break;
+              case 'INTERNAL_SERVER_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                10000
+              );
+              break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
@@ -203,6 +209,12 @@
             case 'USER_EXISTS_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'Someone already has that username or email!',
+                10000
+              );
+              break;
+              case 'INTERNAL_SERVER_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
                 10000
               );
               break;
