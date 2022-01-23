@@ -168,7 +168,12 @@
         autofocus
       />
       <br />
-      <input name="password" placeholder="Password" autocomplete="password" />
+      <input
+        name="password"
+        placeholder="Password"
+        autocomplete="password"
+        type="password"
+      />
       <input type="submit" />
     </form>
 
@@ -187,7 +192,12 @@
         autofocus
       />
       <br />
-      <input name="password" placeholder="Password" autocomplete="password" />
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        autocomplete="password"
+      />
       <input type="submit" />
     </form>
 
@@ -216,6 +226,7 @@
       <br />
       <input
         name="password"
+        type="password"
         placeholder="Current Password"
         autocomplete="password"
       />
