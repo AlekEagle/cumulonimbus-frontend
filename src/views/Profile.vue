@@ -345,7 +345,7 @@
         autofocus
       />
       <br />
-      <input name="password" placeholder="Password" autocomplete="password" />
+      <input name="password" placeholder="Password" autocomplete="password" type="password" />
       <input type="submit" />
     </form>
 
@@ -983,20 +983,23 @@
     async deleteAccount() {
       const data = new FormData(this.$refs.deleteAccountForm);
       try {
+        this.$refs.deleteAccountModal.hide();
+        this.$data.deletingFiles = true;
         let res = await (this.$store.state.client as Client).deleteSelfUser(
           data.get('username') as string,
           data.get('password') as string
         );
+        this.$data.deletingFiles = false;
         console.log(res);
         (this.$parent?.$parent as App).temporaryToast(
           'Goodbye, we hope you enjoyed Cumulonimbus!',
           10000
         );
-        this.$refs.deleteAccountModal.hide();
         (this.$parent?.$parent as App).redirectIfNotLoggedIn(
           window.location.pathname
         );
       } catch (error) {
+        this.$data.deletingFiles = false;
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
