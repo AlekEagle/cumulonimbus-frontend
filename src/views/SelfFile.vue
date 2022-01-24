@@ -141,7 +141,7 @@
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
-                'I did a bad.',
+                'I did something weird, lets try again later.',
                 15000
               );
               console.error(error);

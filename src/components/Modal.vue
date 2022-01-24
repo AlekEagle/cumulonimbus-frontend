@@ -59,9 +59,11 @@
     };
     declare visible: boolean;
     hide() {
+      document.body.classList.remove('no-scroll');
       this.$data.__show = false;
     }
     show() {
+      document.body.classList.add('no-scroll');
       this.$data.__show = true;
     }
     mounted() {
@@ -123,6 +125,9 @@
 
   .modal-content {
     margin: 15px 0 10px;
+    overflow-y: auto;
+    max-height: 50vh;
+    line-height: 1.5;
   }
 
   .modal-buttons button {

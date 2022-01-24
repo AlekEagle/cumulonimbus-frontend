@@ -68,7 +68,7 @@ self.addEventListener('fetch', async e => {
             let response = await fetch(e.request);
             if (
               !response.ok &&
-              !response.url.includes('/api/') &&
+              !response.url.includes('/api') &&
               !response.url.includes('previews') &&
               !e.request.url.includes('/shared-files/')
             ) {
@@ -85,7 +85,7 @@ self.addEventListener('fetch', async e => {
               !response ||
               !response.ok ||
               response.type === 'opaque' ||
-              response.url.includes('/api/')
+              response.url.includes('/api')
             )
               return response;
             else {
@@ -105,7 +105,7 @@ self.addEventListener('fetch', async e => {
             }
           } catch (error) {
             if (
-              !e.request.url.includes('/api/') &&
+              !e.request.url.includes('/api') &&
               !e.request.url.includes('previews') &&
               !e.request.url.includes('/shared-files/')
             )
@@ -161,6 +161,10 @@ self.addEventListener('message', async e => {
     case 2:
       console.log('Deleting preview thumbnail cache!');
       await caches.delete('preview-icons');
+      break;
+    case 3:
+      console.log('Deleting offline cache!');
+      await caches.delete('offline-cache');
       break;
   }
 });

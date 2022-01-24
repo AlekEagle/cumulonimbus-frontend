@@ -55,7 +55,8 @@ export default createStore({
         let a = await Client.login(
           payload.user,
           payload.pass,
-          payload.rememberMe
+          payload.rememberMe,
+          { baseURL: '/api' }
         );
         commit('setClient', a);
         let u = await (state.client as unknown as Client).getSelfUser();
@@ -87,7 +88,8 @@ export default createStore({
           payload.username,
           payload.password,
           payload.email,
-          payload.rememberMe
+          payload.rememberMe,
+          { baseURL: '/api' }
         );
         commit('setClient', a);
         let u = await (state.client as unknown as Client).getSelfUser();
@@ -129,7 +131,7 @@ export default createStore({
       try {
         if (tokenFromStorage === null) return false;
         else {
-          const client = new Client(tokenFromStorage),
+          const client = new Client(tokenFromStorage, { baseURL: '/api' }),
             currentSession = await client.getSelfSessionByID(),
             currentUser = await client.getSelfUser();
           commit('setClient', client);

@@ -263,21 +263,26 @@
           10000
         )
       );
-      navigator.serviceWorker.addEventListener('message', e => {
-        switch (e.data.op) {
-          case 0:
-            this.temporaryToast(
-              'The page has just updated, please refresh to apply update.',
-              15000
-            );
-            break;
-        }
-      });
+      navigator.serviceWorker.addEventListener(
+        'message',
+        this.serviceWorkerListener
+      );
       if (!navigator.onLine) return;
 
       await this.redirectIfNotLoggedIn(
         window.location.pathname + window.location.search
       );
+    }
+
+    async serviceWorkerListener(e: MessageEvent) {
+      switch (e.data.op) {
+        case 0:
+          this.temporaryToast(
+            'The page has just updated, please refresh to apply update.',
+            15000
+          );
+          break;
+      }
     }
 
     async mounted() {
@@ -302,6 +307,12 @@
   body {
     margin: 0;
     transition: background-color 0.25s, color 0.25s;
+    overflow-y: overlay;
+    overflow-x: hidden;
+  }
+
+  body.no-scroll {
+    overflow-y: hidden;
   }
 
   html {

@@ -117,6 +117,24 @@
     >
       <p>Having issues seeing previews in the file view? Try this!</p>
     </ContentBox>
+    <ContentBox
+      title="Clear all cached data"
+      span
+      src="/assets/images/gear.svg"
+      theme-safe
+      @click="$refs.clearDataModal.show()"
+    >
+      <p>Try me to attempt to fix interesting issues.</p>
+    </ContentBox>
+    <ContentBox
+      title="About Cumulonimbus"
+      span
+      src="/assets/images/info.svg"
+      theme-safe
+      @click="$refs.aboutCumulonimbusModal.show()"
+    >
+      <p>Various information about the funny cloud platform.</p>
+    </ContentBox>
   </div>
   <Loading v-else />
   <template v-if="$store.state.loadComplete">
@@ -345,7 +363,12 @@
         autofocus
       />
       <br />
-      <input name="password" placeholder="Password" autocomplete="password" type="password" />
+      <input
+        name="password"
+        placeholder="Password"
+        autocomplete="password"
+        type="password"
+      />
       <input type="submit" />
     </form>
 
@@ -358,8 +381,57 @@
       >
     </template>
   </Modal>
-  <transition name="delete-files-animation-container">
-    <div v-if="$data.deletingFiles" class="delete-files-animation-container"
+  <Modal ref="clearDataModal" title="Clear all cached data" cancelable>
+    <p
+      >This can fix issues that come from your browser inconsistently updating,
+      the update system is janky, even with my attempts to improve it, issues
+      still fall through from time to time. If you think that's why you're
+      having issues, go ahead and continue. You will need to be online to pull
+      the latest version of Cumulonimbus.</p
+    >
+    <template v-slot:buttons>
+      <button
+        @click="clearData"
+        title="Ha ha clear button go bRRRRRRRRRRRRRRRRRR"
+        >I'm sure</button
+      >
+      <button
+        @click="$refs.clearDataModal.hide()"
+        title="That's what I thought."
+        >On second thought...</button
+      >
+    </template>
+  </Modal>
+  <Modal ref="aboutCumulonimbusModal" cancelable title="About Cumulonimbus">
+    <p>
+      Frontend Version: <code>{{ $appInformation.version }}</code>
+    </p>
+    <p>
+      Backend Version: <code>{{ $data.apiInfo.version }}</code>
+    </p>
+    <p>
+      Backend Latency (as of:
+      <code v-text="$data.apiInfo.asOf.toTimeString()" />):
+      <code>{{ $data.apiInfo.latency }} ms</code>
+    </p>
+    <div class="dependency-list-container">
+      <div class="dependency-list">
+        <p><strong>Frontend Dependencies</strong></p>
+        <p v-for="(ver, pkg) of $appInformation.dependencies" :key="pkg">
+          <code v-text="pkg" />: <code v-text="ver" />
+        </p>
+      </div>
+      <div class="dependency-list">
+        <p><strong>Frontend Development Dependencies</strong></p>
+        <p v-for="(ver, pkg) of $appInformation.devDependencies" :key="pkg">
+          <code v-text="pkg" />: <code v-text="ver" />
+        </p>
+      </div>
+    </div>
+  </Modal>
+
+  <transition name="long-action-animation-container">
+    <div v-if="$data.longAction" class="long-action-animation-container"
       ><Loading
     /></div>
   </transition>
@@ -379,7 +451,8 @@
       return {
         domains: [],
         subdomainCompatible: true,
-        deletingFiles: false
+        longAction: false,
+        apiInfo: {}
       };
     },
     title: 'Your Profile'
@@ -388,7 +461,12 @@
     declare $data: {
       domains: Cumulonimbus.Data.Domain[];
       subdomainCompatible: boolean;
-      deletingFiles: boolean;
+      longAction: boolean;
+      apiInfo: {
+        latency: number;
+        asOf: Date;
+        version: string;
+      };
     };
     declare $refs: {
       changeUsernameModal: Modal;
@@ -400,6 +478,8 @@
       changeDomainModal: Modal;
       changeDomainForm: HTMLFormElement;
       clearCacheModal: Modal;
+      clearDataModal: Modal;
+      aboutCumulonimbusModal: Modal;
       invalidateSessionsModal: Modal;
       keepThisSession: HTMLInputElement;
       deleteAllFilesModal: Modal;
@@ -478,6 +558,21 @@
           );
           console.error(error);
         }
+      }
+      try {
+        const reqBegin = Date.now();
+        let apiData = await fetch('/api');
+        const reqEnd = Date.now();
+        const json = await apiData.json();
+        this.$data.apiInfo.latency = reqEnd - reqBegin;
+        this.$data.apiInfo.version = json.version;
+        this.$data.apiInfo.asOf = new Date(reqEnd);
+      } catch (error) {
+        (this.$parent?.$parent as App).temporaryToast(
+          'I did something weird, lets try again later.',
+          10000
+        );
+        console.error(error);
       }
     }
 
@@ -833,7 +928,17 @@
       navigator.serviceWorker.controller?.postMessage({
         op: 2
       });
+      (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
       this.$refs.clearCacheModal.hide();
+    }
+
+    clearData() {
+      navigator.serviceWorker.controller?.postMessage({
+        op: 3
+      });
+      (this.$parent?.$parent as App).temporaryToast('Done, refreshing!', 10000);
+      this.$refs.clearDataModal.hide();
+      window.location.reload();
     }
 
     async invalidateSessions() {
@@ -914,7 +1019,7 @@
     async deleteAllFiles() {
       try {
         this.$refs.deleteAllFilesModal.hide();
-        this.$data.deletingFiles = true;
+        this.$data.longAction = true;
         let res = await (
           this.$store.state.client as Client
         ).bulkDeleteAllSelfFiles();
@@ -923,9 +1028,9 @@
           `Done! Deleted: ${res.count} files!`,
           15000
         );
-        this.$data.deletingFiles = false;
+        this.$data.longAction = false;
       } catch (error) {
-        this.$data.deletingFiles = false;
+        this.$data.longAction = false;
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -984,12 +1089,12 @@
       const data = new FormData(this.$refs.deleteAccountForm);
       try {
         this.$refs.deleteAccountModal.hide();
-        this.$data.deletingFiles = true;
+        this.$data.longAction = true;
         let res = await (this.$store.state.client as Client).deleteSelfUser(
           data.get('username') as string,
           data.get('password') as string
         );
-        this.$data.deletingFiles = false;
+        this.$data.longAction = false;
         console.log(res);
         (this.$parent?.$parent as App).temporaryToast(
           'Goodbye, we hope you enjoyed Cumulonimbus!',
@@ -999,7 +1104,7 @@
           window.location.pathname
         );
       } catch (error) {
-        this.$data.deletingFiles = false;
+        this.$data.longAction = false;
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -1089,7 +1194,7 @@
     margin: 0 5px;
   }
 
-  .delete-files-animation-container {
+  .long-action-animation-container {
     z-index: 15;
     position: fixed;
     left: 0;
@@ -1104,20 +1209,53 @@
     backdrop-filter: blur(3px);
   }
 
-  .delete-files-animation-container-enter-active,
-  .delete-files-animation-container-leave-active {
+  .long-action-animation-container-enter-active,
+  .long-action-animation-container-leave-active {
     transition: opacity 0.4s, backdrop-filter 0.4s;
   }
 
-  .delete-files-animation-container-enter-from,
-  .delete-files-animation-container-leave-to {
+  .long-action-animation-container-enter-from,
+  .long-action-animation-container-leave-to {
     opacity: 0;
     backdrop-filter: none;
   }
 
-  .delete-files-animation-container-enter-to,
-  .delete-files-animation-container-leave-from {
+  .long-action-animation-container-enter-to,
+  .long-action-animation-container-leave-from {
     opacity: 1;
     backdrop-filter: blur(3px);
+  }
+
+  .dependency-list-container {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+
+  .dependency-list {
+    width: 45%;
+    padding: 8px;
+    margin: 6px 0;
+    border-radius: 8px;
+    background-color: #ddd;
+  }
+
+  .dependency-list:first-child {
+    margin-top: 0;
+  }
+
+  .dependency-list:last-child {
+    margin-bottom: 0;
+  }
+
+  @media screen and (max-width: 840px) {
+    .dependency-list {
+      width: 100%;
+    }
+  }
+
+  html.dark-theme .dependency-list {
+    background-color: #161616;
   }
 </style>
