@@ -163,7 +163,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline.",
-          10000
+          5000
         );
         return;
       }
@@ -246,7 +246,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -258,7 +258,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               (this.$parent?.$parent as App).redirectIfNotLoggedIn(
                 window.location.pathname
@@ -267,20 +267,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -304,7 +304,7 @@
           if (this.$data.selectedFiles.length >= 100) {
             (this.$parent?.$parent as App).temporaryToast(
               'You can only bulk delete 100 files at a time, sorry!',
-              10000
+              5000
             );
             return;
           }
@@ -328,7 +328,7 @@
         await this.getFiles();
         (this.$parent?.$parent as App).temporaryToast(
           `Done! Deleted: ${res.count} files!`,
-          15000
+          5000
         );
 
         this.$data.bulkDeleting = false;
@@ -350,7 +350,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -362,7 +362,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               (this.$parent?.$parent as App).redirectIfNotLoggedIn(
                 window.location.pathname
@@ -371,26 +371,26 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             case 'MISSING_FIELDS_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'You can only bulk delete 100 files at a time, sorry!',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }

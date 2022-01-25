@@ -403,16 +403,20 @@
     </template>
   </Modal>
   <Modal ref="aboutCumulonimbusModal" cancelable title="About Cumulonimbus">
+    <p> Frontend Version: <code v-text="$appInformation.version" /> </p>
+    <p> Backend Version: <code v-text="$data.apiInfo.version" /> </p>
     <p>
-      Frontend Version: <code>{{ $appInformation.version }}</code>
-    </p>
-    <p>
-      Backend Version: <code>{{ $data.apiInfo.version }}</code>
+      Thumbnail Backend Version: <code v-text="$data.thumbApiInfo.version" />
     </p>
     <p>
       Backend Latency (as of:
       <code v-text="$data.apiInfo.asOf.toTimeString()" />):
-      <code>{{ $data.apiInfo.latency }} ms</code>
+      <code v-text="`${$data.apiInfo.latency} ms`" />
+    </p>
+    <p>
+      Thumbnail Backend Latency (as of:
+      <code v-text="$data.thumbApiInfo.asOf.toTimeString()" />):
+      <code v-text="`${$data.thumbApiInfo.latency} ms`" />
     </p>
     <div class="dependency-list-container">
       <div class="dependency-list">
@@ -428,6 +432,7 @@
         </p>
       </div>
     </div>
+    <p>Made with ❤️ by Alek Evans</p>
   </Modal>
 
   <transition name="long-action-animation-container">
@@ -452,7 +457,8 @@
         domains: [],
         subdomainCompatible: true,
         longAction: false,
-        apiInfo: {}
+        apiInfo: {},
+        thumbApiInfo: {}
       };
     },
     title: 'Your Profile'
@@ -463,6 +469,11 @@
       subdomainCompatible: boolean;
       longAction: boolean;
       apiInfo: {
+        latency: number;
+        asOf: Date;
+        version: string;
+      };
+      thumbApiInfo: {
         latency: number;
         asOf: Date;
         version: string;
@@ -490,7 +501,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline.",
-          10000
+          5000
         );
         return;
       }
@@ -511,7 +522,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -523,13 +534,13 @@
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'No, that is not the password.',
-                10000
+                5000
               );
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -541,36 +552,54 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
       }
       try {
-        const reqBegin = Date.now();
+        const apiReqBegin = Date.now();
         let apiData = await fetch('/api');
-        const reqEnd = Date.now();
-        const json = await apiData.json();
-        this.$data.apiInfo.latency = reqEnd - reqBegin;
-        this.$data.apiInfo.version = json.version;
-        this.$data.apiInfo.asOf = new Date(reqEnd);
+        const apiReqEnd = Date.now();
+        const apiJson = await apiData.json();
+        this.$data.apiInfo.latency = apiReqEnd - apiReqBegin;
+        this.$data.apiInfo.version = apiJson.version;
+        this.$data.apiInfo.asOf = new Date(apiReqEnd);
       } catch (error) {
         (this.$parent?.$parent as App).temporaryToast(
           'I did something weird, lets try again later.',
-          10000
+          5000
+        );
+        console.error(error);
+      }
+
+      try {
+        const thumbApiReqBegin = Date.now();
+        const thumbApiData = await fetch(
+          `https://previews.${window.location.host}/`
+        );
+        const thumbApiReqEnd = Date.now();
+        const thumbApiJson = await thumbApiData.json();
+        this.$data.thumbApiInfo.latency = thumbApiReqEnd - thumbApiReqBegin;
+        this.$data.thumbApiInfo.version = thumbApiJson.version;
+        this.$data.thumbApiInfo.asOf = new Date(thumbApiReqEnd);
+      } catch (error) {
+        (this.$parent?.$parent as App).temporaryToast(
+          'I did something weird, lets try again later.',
+          5000
         );
         console.error(error);
       }
@@ -586,7 +615,7 @@
 
         this.$store.commit('setUser', res);
         this.$refs.changeUsernameModal.hide();
-        (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
+        (this.$parent?.$parent as App).temporaryToast('Done!', 2000);
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
@@ -598,7 +627,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -610,13 +639,13 @@
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'No, that is not the password.',
-                10000
+                5000
               );
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -628,20 +657,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -658,7 +687,7 @@
 
         this.$store.commit('setUser', res);
         this.$refs.changeEmailModal.hide();
-        (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
+        (this.$parent?.$parent as App).temporaryToast('Done!', 2000);
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
@@ -670,7 +699,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -682,13 +711,13 @@
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'No, that is not the password.',
-                10000
+                5000
               );
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -700,20 +729,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -740,7 +769,7 @@
 
         this.$store.commit('setUser', res);
         this.$refs.changePasswordModal.hide();
-        (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
+        (this.$parent?.$parent as App).temporaryToast('Done!', 2000);
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
@@ -752,7 +781,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -764,13 +793,13 @@
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'No, that is not the password.',
-                10000
+                5000
               );
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -782,20 +811,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -822,7 +851,7 @@
       if (!this.$data.subdomainCompatible) {
         (this.$parent?.$parent as App).temporaryToast(
           "This domain isn't compatible with subdomains! Sorry!",
-          10000
+          5000
         );
       }
     }
@@ -849,7 +878,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -861,19 +890,19 @@
             case 'INVALID_SUBDOMAIN_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Your subdomain can't be longer than 63 characters!",
-                15000
+                5000
               );
               break;
             case 'SUBDOMAIN_NOT_SUPPORTED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "I said, this domain doesn't support subdomains!",
-                15000
+                5000
               );
               break;
             case 'INVALID_DOMAIN_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That domain isn't an option anymore, let me reload the list!",
-                15000
+                5000
               );
               let domains = await (
                 this.$store.state.client as Client
@@ -892,7 +921,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -904,20 +933,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -928,16 +957,16 @@
       navigator.serviceWorker.controller?.postMessage({
         op: 2
       });
-      (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
+      (this.$parent?.$parent as App).temporaryToast('Done!', 2000);
       this.$refs.clearCacheModal.hide();
     }
 
-    clearData() {
-      navigator.serviceWorker.controller?.postMessage({
-        op: 3
-      });
-      (this.$parent?.$parent as App).temporaryToast('Done, refreshing!', 10000);
+    async clearData() {
+      let registration = await navigator.serviceWorker.getRegistration();
+      await registration?.unregister();
+      (this.$parent?.$parent as App).temporaryToast('Done, refreshing!', 1000);
       this.$refs.clearDataModal.hide();
+      await new Promise(res => setTimeout(res, 1000));
       window.location.reload();
     }
 
@@ -950,7 +979,7 @@
         if (!this.$refs.keepThisSession.checked) {
           (this.$parent?.$parent as App).temporaryToast(
             `See you later! Logged out: ${res.count} sessions!`,
-            15000
+            5000
           );
           (this.$parent?.$parent as App).redirectIfNotLoggedIn(
             window.location.pathname
@@ -958,7 +987,7 @@
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             `Done! Logged out: ${res.count} sessions!`,
-            15000
+            5000
           );
         }
       } catch (error) {
@@ -972,7 +1001,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -984,7 +1013,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -996,20 +1025,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -1026,7 +1055,7 @@
         this.$refs.deleteAllFilesModal.hide();
         (this.$parent?.$parent as App).temporaryToast(
           `Done! Deleted: ${res.count} files!`,
-          15000
+          5000
         );
         this.$data.longAction = false;
       } catch (error) {
@@ -1041,7 +1070,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -1053,7 +1082,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -1065,20 +1094,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -1098,7 +1127,7 @@
         console.log(res);
         (this.$parent?.$parent as App).temporaryToast(
           'Goodbye, we hope you enjoyed Cumulonimbus!',
-          10000
+          5000
         );
         (this.$parent?.$parent as App).redirectIfNotLoggedIn(
           window.location.pathname
@@ -1115,7 +1144,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -1127,7 +1156,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -1139,32 +1168,32 @@
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'No, that is not the password.',
-                10000
+                5000
               );
               break;
             case 'INVALID_USER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'No, that is not your username.',
-                10000
+                5000
               );
               break;
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -1175,7 +1204,7 @@
 
 <style>
   .content-box.profile {
-    width: 100%;
+    width: calc((100% - (25px * 2 + 20px * 2 + 1px * 2) * 1) / 1);
   }
 
   input[type='text'][name='subdomain'] {
@@ -1236,22 +1265,22 @@
   .dependency-list {
     width: 45%;
     padding: 8px;
-    margin: 6px 0;
     border-radius: 8px;
     background-color: #ddd;
-  }
-
-  .dependency-list:first-child {
-    margin-top: 0;
-  }
-
-  .dependency-list:last-child {
-    margin-bottom: 0;
   }
 
   @media screen and (max-width: 840px) {
     .dependency-list {
       width: 100%;
+      margin: 6px 0;
+    }
+
+    .dependency-list:first-child {
+      margin-top: 0;
+    }
+
+    .dependency-list:last-child {
+      margin-bottom: 0;
     }
   }
 

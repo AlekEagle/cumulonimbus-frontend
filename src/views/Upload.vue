@@ -121,7 +121,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline.",
-          10000
+          5000
         );
         return;
       }
@@ -135,12 +135,12 @@
         ) {
           (this.$parent?.$parent as App).temporaryToast(
             'Pro Tip: You can use the native share menu from any app to share content to Cumulonimbus!',
-            15000
+            5000
           );
         } else if (getPWADisplayMode() === 'browser') {
           (this.$parent?.$parent as App).temporaryToast(
             'Pro Tip: If you install Cumulonimbus as an app, you can use the native share menu from any app to share content to Cumulonimbus!',
-            15000
+            10000
           );
         }
       }
@@ -217,7 +217,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -229,7 +229,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               (this.$parent?.$parent as App).redirectIfNotLoggedIn(
                 window.location.pathname
@@ -238,27 +238,27 @@
             case 'BODY_TOO_LARGE_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'Your file is too big! Sorry!',
-                15000
+                5000
               );
               this.$data.file = undefined;
               break;
-              case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                15000
+                5000
               );
               console.log(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -278,7 +278,7 @@
             fromUpload
               ? "Upload successful, I wasn't able to copy the link to your clipboard though. Click that button to copy it!"
               : "I still wasn't able to do it, it might be a browser permission issue. Let us know about it in the discord please!",
-            20000
+            10000
           );
           console.error(err);
         }

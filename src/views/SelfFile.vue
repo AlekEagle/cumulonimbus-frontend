@@ -94,12 +94,15 @@
       hFileSize: string | null;
       canShare: boolean;
     };
+    declare $refs: {
+      deleteFileModal: Modal;
+    };
     async mounted() {
       this.$data.canShare = !!navigator.share;
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline.",
-          10000
+          5000
         );
         return;
       }
@@ -136,20 +139,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                15000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -162,7 +165,8 @@
           this.$data.file?.filename as string
         );
         console.log(res);
-        (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
+        (this.$parent?.$parent as App).temporaryToast('Done!', 2000);
+        this.$refs.deleteFileModal.hide();
         this.$router.push('/dashboard/files/');
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
@@ -176,13 +180,13 @@
               this.$router.push('/dashboard/files/');
               (this.$parent?.$parent as App).temporaryToast(
                 'Sometime between when you got here and now this file has been deleted.',
-                15000
+                5000
               );
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               (this.$parent?.$parent as App).redirectIfNotLoggedIn(
                 window.location.pathname
@@ -191,13 +195,13 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                15000
+                5000
               );
               console.error(error);
           }
@@ -221,7 +225,7 @@
           if (error instanceof DOMException) return;
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            15000
+            5000
           );
           console.error(error);
         }
@@ -248,7 +252,7 @@
           err => {
             (this.$parent?.$parent as App).temporaryToast(
               "I still wasn't able to do it, it might be a browser permission issue. Let us know about it in the discord please!",
-              20000
+              10000
             );
             console.error(err);
           }

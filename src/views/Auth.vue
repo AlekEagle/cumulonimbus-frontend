@@ -131,7 +131,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               break;
             case 'RATELIMITED_ERROR':
@@ -142,32 +142,32 @@
             case 'INVALID_USER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Hmm, I can't seem to find anyone with that username or email!",
-                10000
+                5000
               );
               break;
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'No, that is not the password.',
-                10000
+                5000
               );
               break;
-              case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -198,7 +198,7 @@
             case 'MISSING_FIELDS_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'You need to fill everything out.',
-                10000
+                5000
               );
               break;
             case 'RATELIMITED_ERROR':
@@ -209,26 +209,26 @@
             case 'USER_EXISTS_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'Someone already has that username or email!',
-                10000
+                5000
               );
               break;
-              case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -252,7 +252,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline.",
-          10000
+          5000
         );
         return;
       }

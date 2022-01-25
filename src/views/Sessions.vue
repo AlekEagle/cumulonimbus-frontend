@@ -111,7 +111,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline.",
-          10000
+          5000
         );
         return;
       }
@@ -190,7 +190,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -202,7 +202,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               (this.$parent?.$parent as App).redirectIfNotLoggedIn(
                 window.location.pathname
@@ -211,20 +211,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -242,7 +242,7 @@
           (this.$data.session?.iat as number).toString()
         );
         this.$refs.invalidateSessionModal.hide();
-        (this.$parent?.$parent as App).temporaryToast('Done!', 10000);
+        (this.$parent?.$parent as App).temporaryToast('Done!', 2000);
         await this.getSessions();
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
@@ -256,7 +256,7 @@
               if (!(await (this.$parent?.$parent as App).isLoggedIn())) {
                 (this.$parent?.$parent as App).temporaryToast(
                   "That's funny, your session just expired!",
-                  15000
+                  5000
                 );
                 this.$store.commit('setUser', null);
                 this.$store.commit('setSession', null);
@@ -267,7 +267,7 @@
               } else {
                 (this.$parent?.$parent as App).temporaryToast(
                   "Look's like it's already invalid!",
-                  15000
+                  5000
                 );
                 this.$refs.invalidateSessionModal.hide();
                 this.$data.session = undefined;
@@ -277,7 +277,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               (this.$parent?.$parent as App).redirectIfNotLoggedIn(
                 window.location.pathname
@@ -286,14 +286,14 @@
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }

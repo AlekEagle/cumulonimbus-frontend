@@ -5,7 +5,8 @@ const URLSToCache = [
   ...self.__precacheManifest.map(a => a.url)
 ];
 
-async function nagTimeoutFn() {
+async function nagTimeoutFn(claimClients) {
+  if (claimClients) await clients.claim();
   let cs = await clients.matchAll();
   cs.forEach(c => {
     c.postMessage({ op: 0, d: true });
@@ -24,7 +25,7 @@ self.addEventListener('install', async e => {
           console.log(`Adding ${url} to cache...`);
           await offlineCache.add(new Request(url));
         }
-        nagTimeoutFn();
+        nagTimeoutFn(true);
         return;
       })()
     );

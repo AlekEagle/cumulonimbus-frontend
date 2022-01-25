@@ -118,14 +118,14 @@
               case 'BANNED_ERROR':
                 this.temporaryToast(
                   "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                  10000
+                  5000
                 );
                 localStorage.removeItem('token');
                 break;
               case 'INTERNAL_SERVER_ERROR':
                 this.temporaryToast(
                   'The server did something weird, lets try again later.',
-                  10000
+                  5000
                 );
                 break;
               default:
@@ -156,7 +156,7 @@
             case 'BANNED_ERROR':
               this.temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -166,7 +166,7 @@
             case 'INTERNAL_SERVER_ERROR':
               this.temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               return true;
             default:
@@ -251,7 +251,8 @@
           minutes > 0 ? `${minutes} minute(s) ` : ''
         }${
           hours > 0 || minutes > 0 ? 'and ' : ''
-        }${seconds} second(s) before trying again.`
+        }${seconds} second(s) before trying again.`,
+        7500
       );
     }
 
@@ -260,7 +261,7 @@
       window.addEventListener('offline', () =>
         this.temporaryToast(
           "You just went offline, I'm pretty useless offline.",
-          10000
+          5000
         )
       );
       navigator.serviceWorker.addEventListener(
@@ -279,7 +280,7 @@
         case 0:
           this.temporaryToast(
             'The page has just updated, please refresh to apply update.',
-            15000
+            5000
           );
           break;
       }
@@ -306,6 +307,7 @@
 <style>
   body {
     margin: 0;
+    margin-bottom: 15px;
     transition: background-color 0.25s, color 0.25s;
     overflow-y: overlay;
     overflow-x: hidden;

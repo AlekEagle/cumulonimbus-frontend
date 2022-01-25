@@ -99,7 +99,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline.",
-          10000
+          5000
         );
         return;
       }
@@ -120,7 +120,7 @@
             case 'INVALID_INSTRUCTION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That service doesn't exist silly!",
-                15000
+                5000
               );
               this.$router.push('/dashboard/set-up/');
               break;
@@ -132,7 +132,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "That's funny, your session just expired!",
-                15000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -144,7 +144,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -156,20 +156,20 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
             'I did something weird, lets try again later.',
-            10000
+            5000
           );
           console.error(error);
         }
@@ -188,7 +188,7 @@
           err => {
             (this.$parent?.$parent as App).temporaryToast(
               "I still wasn't able to do it, it might be a browser permission issue. Let us know about it in the discord please!",
-              20000
+              10000
             );
             console.error(err);
           }
@@ -258,7 +258,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                10000
+                5000
               );
               this.$store.commit('setUser', null);
               this.$store.commit('setSession', null);
@@ -270,31 +270,31 @@
             case 'INTERNAL_SERVER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
-                10000
+                5000
               );
               break;
             case 'INVALID_USER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 "Hmm, I can't seem to find anyone with that username or email!",
-                10000
+                5000
               );
               break;
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'No, that is not the password.',
-                10000
+                5000
               );
               break;
             case 'MISSING_FIELDS_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The password is not optional.',
-                10000
+                5000
               );
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
-                10000
+                5000
               );
               console.error(json);
           }
@@ -302,7 +302,7 @@
       } catch (error) {
         (this.$parent?.$parent as App).temporaryToast(
           'I did something weird, lets try again later.',
-          10000
+          5000
         );
         console.error(error);
       }
