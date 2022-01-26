@@ -122,7 +122,7 @@
                 );
                 localStorage.removeItem('token');
                 break;
-              case 'INTERNAL_SERVER_ERROR':
+              case 'INTERNAL_ERROR':
                 this.temporaryToast(
                   'The server did something weird, lets try again later.',
                   5000
@@ -163,7 +163,7 @@
               this.$store.commit('setClient', null);
               localStorage.removeItem('token');
               return false;
-            case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_ERROR':
               this.temporaryToast(
                 'The server did something weird, lets try again later.',
                 5000
@@ -288,7 +288,6 @@
 
     async mounted() {
       this.$data.hostname = window.location.hostname;
-      (window as any).cumClient = this.$store.state.client;
       this.$router.beforeEach(async (to, from, next) => {
         if (to.path.startsWith('/dashboard')) {
           let loggedIn = await this.isLoggedIn();

@@ -116,7 +116,7 @@
                 window.location.pathname
               );
               break;
-            case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
                 5000

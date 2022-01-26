@@ -12,6 +12,7 @@ export default createStore({
   mutations: {
     setClient(state, client) {
       state.client = client;
+      (window as any).cumClient = state.client;
     },
     setUser(state, user) {
       state.user = user;
@@ -80,6 +81,7 @@ export default createStore({
         username: string;
         email: string;
         password: string;
+        repeatPassword: string;
         rememberMe: boolean;
       }
     ) {
@@ -87,6 +89,7 @@ export default createStore({
         let a = await Client.createAccount(
           payload.username,
           payload.password,
+          payload.repeatPassword,
           payload.email,
           payload.rememberMe,
           { baseURL: '/api' }

@@ -151,7 +151,7 @@
                 5000
               );
               break;
-            case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
                 5000
@@ -187,6 +187,7 @@
           let createAccRes = await this.$store.dispatch('createAccount', {
             username: a.get('username') as string,
             password: a.get('password') as string,
+            repeatPassword: a.get('repeatPassword') as string,
             email: a.get('email') as string,
             rememberMe: a.has('rememberMe')
           });
@@ -212,7 +213,7 @@
                 5000
               );
               break;
-            case 'INTERNAL_SERVER_ERROR':
+            case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
                 'The server did something weird, lets try again later.',
                 5000
