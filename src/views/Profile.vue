@@ -433,6 +433,14 @@
       </div>
     </div>
     <p>Made with ❤️ by Alek Evans</p>
+    <template v-slot:buttons>
+      <button @click="$refs.aboutCumulonimbusModal.hide()" title="Close">
+        Close
+      </button>
+      <button @click="refreshAPIInfo" title="Refresh API Info">
+        Refresh API Info
+      </button>
+    </template>
   </Modal>
 
   <transition name="long-action-animation-container">
@@ -570,13 +578,21 @@
           console.error(error);
         }
       }
+      await this.refreshAPIInfo();
+    }
+
+    async refreshAPIInfo() {
+      await this.getAPISanity();
+      await this.getThumbAPISanity();
+    }
+
+    async getAPISanity() {
       try {
         const apiReqBegin = Date.now();
-        let apiData = await fetch('/api');
+        let apiData = await (this.$store.state.client as Client).sanityCheck();
         const apiReqEnd = Date.now();
-        const apiJson = await apiData.json();
         this.$data.apiInfo.latency = apiReqEnd - apiReqBegin;
-        this.$data.apiInfo.version = apiJson.version;
+        this.$data.apiInfo.version = apiData.version;
         this.$data.apiInfo.asOf = new Date(apiReqEnd);
       } catch (error) {
         (this.$parent?.$parent as App).temporaryToast(
@@ -585,17 +601,18 @@
         );
         console.error(error);
       }
+    }
 
+    async getThumbAPISanity() {
       try {
-        const thumbApiReqBegin = Date.now();
-        const thumbApiData = await fetch(
-          `https://previews.${window.location.host}/`
-        );
-        const thumbApiReqEnd = Date.now();
-        const thumbApiJson = await thumbApiData.json();
-        this.$data.thumbApiInfo.latency = thumbApiReqEnd - thumbApiReqBegin;
-        this.$data.thumbApiInfo.version = thumbApiJson.version;
-        this.$data.thumbApiInfo.asOf = new Date(thumbApiReqEnd);
+        const apiReqBegin = Date.now();
+        let apiData = await (
+          this.$store.state.client as Client
+        ).thumbnailSanityCheck();
+        const apiReqEnd = Date.now();
+        this.$data.thumbApiInfo.latency = apiReqEnd - apiReqBegin;
+        this.$data.thumbApiInfo.version = apiData.version;
+        this.$data.thumbApiInfo.asOf = new Date(apiReqEnd);
       } catch (error) {
         (this.$parent?.$parent as App).temporaryToast(
           'I did something weird, lets try again later.',

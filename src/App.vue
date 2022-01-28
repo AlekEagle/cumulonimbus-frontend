@@ -662,6 +662,16 @@
     outline: none;
   }
 
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
   input,
   select {
     font-size: calc(13.3px + 0.5vw);

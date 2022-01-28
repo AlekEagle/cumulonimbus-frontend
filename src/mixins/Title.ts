@@ -9,7 +9,7 @@ export default {
   created() {
     const title = getTitle(this);
     if (typeof title === 'string') {
-      if (title !== '') document.title = 'Cumulonimbus | ' + title;
+      if (title !== '') document.title = title + ' | Cumulonimbus';
       else document.title = 'Cumulonimbus';
     }
   }

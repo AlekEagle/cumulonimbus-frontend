@@ -98,8 +98,15 @@
 
   <Modal ref="confirmBulkDeleteModal" title="Delete Multiple Files" cancelable>
     <p
-      >Are you sure you want to delete all of these files? You'll never see them
-      again!</p
+      >Are you sure you want to delete the
+      {{ $data.selectedFiles.length }} file{{
+        typeof $data.sessionCount === 'number'
+          ? $data.sessionCount !== 1
+            ? 's'
+            : ''
+          : 's'
+      }}
+      that you selected? You'll never see them again!</p
     >
     <template v-slot:buttons>
       <button
@@ -107,10 +114,11 @@
         @click="
           $refs.confirmBulkDeleteModal.hide();
           $data.bulkDeleteMode = false;
-          $data.selectedFiles = $data.selectedFiles.filter(() => false);
+          $data.selectedFiles = [];
         "
-        >Nevermind</button
       >
+        Nevermind
+      </button>
       <button @click="bulkDelete" title="haha they are gone">Buh Bye!</button>
     </template>
   </Modal>
@@ -303,7 +311,7 @@
         else {
           if (this.$data.selectedFiles.length >= 100) {
             (this.$parent?.$parent as App).temporaryToast(
-              'You can only bulk delete 100 files at a time, sorry!',
+              'You can only select up to 100 files at a time.',
               5000
             );
             return;
