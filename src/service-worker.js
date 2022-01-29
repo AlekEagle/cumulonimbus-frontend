@@ -33,10 +33,8 @@ self.addEventListener('install', async e => {
 });
 
 self.addEventListener('fetch', async e => {
-  if (
-    e.request.method === 'POST' &&
-    e.request.url.endsWith('/dashboard/upload/')
-  ) {
+  const url = new URL(e.request.url);
+  if (e.request.method === 'POST' && url.pathname === '/dashboard/upload/') {
     e.respondWith(
       (async () => {
         const cache = await caches.open('shared-files'),
@@ -69,9 +67,8 @@ self.addEventListener('fetch', async e => {
             let response = await fetch(e.request);
             if (
               !response.ok &&
-              !response.url.includes('/api') &&
-              !response.url.includes('previews') &&
-              !e.request.url.includes('/shared-files/')
+              !url.pathname.startsWith('/api') &&
+              !url.host.startsWith('previews')
             ) {
               if (e.request.url.includes('/shared-files/')) {
                 return new Response('', { status: 404 });
@@ -86,29 +83,31 @@ self.addEventListener('fetch', async e => {
               !response ||
               !response.ok ||
               response.type === 'opaque' ||
-              response.url.includes('/api')
+              url.pathname.startsWith('/api') ||
+              response.headers.get('Cache-Control') === 'no-cache'
             )
               return response;
             else {
-              console.log(`Adding ${e.request.url} to cache...`);
               newlyAdded = true;
               let responseToCache = response.clone();
-              if (e.request.url.includes('previews.')) {
+              if (url.pathname === '/' && url.host.startsWith('previews'))
+                return response;
+              if (url.host.startsWith('previews')) {
                 let cache = await caches.open('preview-icons');
-
+                console.log(`Adding ${e.request.url} to cache...`);
                 await cache.put(e.request, responseToCache);
               } else {
                 let cache = await caches.open('offline-cache');
-
+                console.log(`Adding ${e.request.url} to cache...`);
                 await cache.put(e.request, responseToCache);
               }
               return response;
             }
           } catch (error) {
             if (
-              !e.request.url.includes('/api') &&
-              !e.request.url.includes('previews') &&
-              !e.request.url.includes('/shared-files/')
+              !url.pathname.startsWith('/api') &&
+              !url.host.startsWith('previews') &&
+              !url.pathname.startsWith('/shared-files/')
             )
               return await (
                 await caches.open('offline-cache')
@@ -119,7 +118,7 @@ self.addEventListener('fetch', async e => {
       })()
     );
 
-    if (newlyAdded || e.request.url.includes('previews.')) return;
+    if (newlyAdded || url.host.startsWith('previews')) return;
 
     let offlineCache = await caches.open('offline-cache'),
       cached = await offlineCache.match(e.request);
