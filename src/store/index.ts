@@ -1,6 +1,11 @@
 import { createStore } from 'vuex';
 import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
 
+const clientOptions: Cumulonimbus.ClientOptions = {
+  baseURL: '/api',
+  baseThumbnailURL: `${window.location.protocol}//previews.${window.location.host}`
+};
+
 export default createStore({
   state: {
     client: null,
@@ -57,7 +62,7 @@ export default createStore({
           payload.user,
           payload.pass,
           payload.rememberMe,
-          { baseURL: '/api' }
+          clientOptions
         );
         commit('setClient', a);
         let u = await (state.client as unknown as Client).getSelfUser();
@@ -92,7 +97,7 @@ export default createStore({
           payload.repeatPassword,
           payload.email,
           payload.rememberMe,
-          { baseURL: '/api' }
+          clientOptions
         );
         commit('setClient', a);
         let u = await (state.client as unknown as Client).getSelfUser();
@@ -134,7 +139,7 @@ export default createStore({
       try {
         if (tokenFromStorage === null) return false;
         else {
-          const client = new Client(tokenFromStorage, { baseURL: '/api' }),
+          const client = new Client(tokenFromStorage, clientOptions),
             currentSession = await client.getSelfSessionByID(),
             currentUser = await client.getSelfUser();
           commit('setClient', client);

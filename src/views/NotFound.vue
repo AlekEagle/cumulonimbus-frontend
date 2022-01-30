@@ -102,10 +102,6 @@
       nextLineTimeout?: number;
     };
     mounted() {
-      navigator.serviceWorker.controller?.postMessage({
-        op: 1,
-        d: window.location.pathname + window.location.search
-      });
       setTimeout(this.displayNextLine, 1000);
     }
 

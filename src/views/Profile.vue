@@ -408,6 +408,7 @@
     <p>
       Thumbnail Backend Version: <code v-text="$data.thumbApiInfo.version" />
     </p>
+    <p> API Wrapper version: <code v-text="$data.wrapperVersion" /> </p>
     <p>
       Backend Latency (as of:
       <code v-text="$data.apiInfo.asOf.toTimeString()" />):
@@ -466,7 +467,8 @@
         subdomainCompatible: true,
         longAction: false,
         apiInfo: {},
-        thumbApiInfo: {}
+        thumbApiInfo: {},
+        wrapperVersion: Cumulonimbus.VERSION
       };
     },
     title: 'Your Profile'

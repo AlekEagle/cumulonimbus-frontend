@@ -5,7 +5,8 @@ const URLSToCache = [
   ...self.__precacheManifest.map(a => a.url)
 ];
 
-async function nagTimeoutFn(claimClients) {
+async function nagUpdate(claimClients) {
+  console.debug('[UpdateNagManager] Nagging clients to update...');
   if (claimClients) await clients.claim();
   let cs = await clients.matchAll();
   cs.forEach(c => {
@@ -22,10 +23,12 @@ self.addEventListener('install', async e => {
       (async function () {
         let offlineCache = await caches.open('offline-cache');
         for (let url of URLSToCache) {
-          console.log(`Adding ${url} to cache...`);
+          console.debug(
+            `[ServiceWorkerInstallManager] Adding ${url} to cache...`
+          );
           await offlineCache.add(new Request(url));
         }
-        nagTimeoutFn(true);
+        nagUpdate(true);
         return;
       })()
     );
@@ -35,6 +38,7 @@ self.addEventListener('install', async e => {
 self.addEventListener('fetch', async e => {
   const url = new URL(e.request.url);
   if (e.request.method === 'POST' && url.pathname === '/dashboard/upload/') {
+    console.debug('[ExternalShareManager] External share request detected...');
     e.respondWith(
       (async () => {
         const cache = await caches.open('shared-files'),
@@ -61,8 +65,10 @@ self.addEventListener('fetch', async e => {
     e.respondWith(
       (async () => {
         let cacheMatch = await caches.match(e.request);
-        if (cacheMatch) return cacheMatch;
-        else {
+        if (cacheMatch) {
+          console.debug(`[CacheManager] Cache hit for ${url}`);
+          return cacheMatch;
+        } else {
           try {
             let response = await fetch(e.request);
             if (
@@ -71,8 +77,14 @@ self.addEventListener('fetch', async e => {
               !url.host.startsWith('previews')
             ) {
               if (e.request.url.includes('/shared-files/')) {
+                console.debug(
+                  `[ExternalShareManager] Shared file not found: ${url}`
+                );
                 return new Response('', { status: 404 });
               } else {
+                console.debug(
+                  `[CacheManager] Page not found: ${url}, returning 404 page`
+                );
                 let cachedIndex = await (
                   await caches.open('offline-cache')
                 ).match('/index.html');
@@ -84,26 +96,32 @@ self.addEventListener('fetch', async e => {
               !response.ok ||
               response.type === 'opaque' ||
               url.pathname.startsWith('/api') ||
-              response.headers.get('Cache-Control') === 'no-cache'
-            )
+              (response.headers.get('Cache-Control') === 'no-cache' &&
+                !url.host.startsWith('previews')) ||
+              (url.pathname === '/' && url.host.startsWith('previews'))
+            ) {
+              console.debug(`[CacheManager] ${url} is not eligible for caching`);
               return response;
-            else {
+            } else {
               newlyAdded = true;
               let responseToCache = response.clone();
-              if (url.pathname === '/' && url.host.startsWith('previews'))
-                return response;
               if (url.host.startsWith('previews')) {
                 let cache = await caches.open('preview-icons');
-                console.log(`Adding ${e.request.url} to cache...`);
+                console.debug(
+                  `[CacheManager] Adding ${e.request.url} to preview cache...`
+                );
                 await cache.put(e.request, responseToCache);
               } else {
                 let cache = await caches.open('offline-cache');
-                console.log(`Adding ${e.request.url} to cache...`);
+                console.debug(
+                  `[CacheManager] Adding ${e.request.url} to offline cache...`
+                );
                 await cache.put(e.request, responseToCache);
               }
               return response;
             }
           } catch (error) {
+            console.error('[CacheManager] ', error);
             if (
               !url.pathname.startsWith('/api') &&
               !url.host.startsWith('previews') &&
@@ -112,14 +130,21 @@ self.addEventListener('fetch', async e => {
               return await (
                 await caches.open('offline-cache')
               ).match('/index.html');
-            console.error(error);
+            else return new Response('', { status: 500 });
           }
         }
       })()
     );
 
-    if (newlyAdded || url.host.startsWith('previews')) return;
-
+    if (
+      newlyAdded ||
+      url.host.startsWith('previews') ||
+      url.pathname.startsWith('/shared-files/') ||
+      url.pathname.startsWith('/api')
+    ) {
+      console.debug(`[CacheManager] ${url} is not eligible for update check`);
+      return;
+    }
     let offlineCache = await caches.open('offline-cache'),
       cached = await offlineCache.match(e.request);
 
@@ -133,15 +158,25 @@ self.addEventListener('fetch', async e => {
           new Date(cached.headers.get('Last-Modified')).getTime() <
           new Date(res.headers.get('Last-Modified')).getTime()
         ) {
-          console.log(
-            `${
+          console.debug(
+            `[CacheManager] ${
               new URL(e.request.url).pathname
             } from cache is outdated, updating cache!`
           );
           await offlineCache.delete(e.request.url);
           await offlineCache.put(e.request, res);
+        } else {
+          console.debug(`[CacheManager] ${url} is up to date`);
         }
+      } else {
+        console.debug(
+          `[CacheManager] ${url} has no Last-Modified header or is not a valid date`
+        );
       }
+    } else {
+      console.debug(
+        `[CacheManager] UA is offline or ${url} is not cached, unnessary to check for updates`
+      );
     }
   }
 });
@@ -151,19 +186,14 @@ self.addEventListener('message', async e => {
       let shareCache = await caches.open('shared-files');
       await shareCache.delete(e.data.d);
       break;
-    case 1:
-      console.log(
-        `Turns out ${e.data.d} doesn't really exist, removing from cache.`
-      );
-      let offlineCache = await caches.open('offline-cache');
-      await offlineCache.delete(e.data.d);
-      break;
     case 2:
-      console.log('Deleting preview thumbnail cache!');
+      console.debug('[MessageManager] Deleting preview thumbnail cache!');
       await caches.delete('preview-icons');
       break;
     case 3:
-      console.log('Deleting offline cache!');
+      console.debug('[MessageManager] Deleting all caches!');
+      await caches.delete('shared-files');
+      await caches.delete('preview-icons');
       await caches.delete('offline-cache');
       break;
   }
