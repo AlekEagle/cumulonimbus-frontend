@@ -7,13 +7,7 @@
     >
   </div>
   <div class="content-box-group-container" v-if="$store.state.loadComplete">
-    <ContentBox
-      title="You"
-      class="profile"
-      theme-safe
-      selectable
-      src="/assets/images/profile.svg"
-    >
+    <ContentBox title="You" class="profile" selectable>
       <p>
         Username:
         <code
