@@ -225,7 +225,7 @@
         (e.target as HTMLInputElement).valueAsNumber = this.$data.maxPage + 1;
       this.setPage((e.target as HTMLInputElement).valueAsNumber, false);
       this.getFiles();
-      console.log(e);
+      (e.target as HTMLInputElement).blur();
     }
 
     async getFiles() {
