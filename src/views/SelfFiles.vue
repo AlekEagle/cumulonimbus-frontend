@@ -109,6 +109,7 @@
       that you selected? You'll never see them again!</p
     >
     <template v-slot:buttons>
+      <button @click="bulkDelete" title="haha they are gone">Buh Bye!</button>
       <button
         title="baby"
         @click="
@@ -119,7 +120,6 @@
       >
         Nevermind
       </button>
-      <button @click="bulkDelete" title="haha they are gone">Buh Bye!</button>
     </template>
   </Modal>
   <transition name="delete-files-animation-container">
