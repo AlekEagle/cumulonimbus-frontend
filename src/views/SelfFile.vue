@@ -10,27 +10,27 @@
     >
     <button @click="shareFile" title="Share file!">Share</button>
   </div>
-  <div v-if="loaded" class="content-box-group-container">
+  <div v-if="$data.loaded" class="content-box-group-container">
     <ContentBox
       title="Information"
       class="file-info-box"
       span
       lazy-load
       new-tab
-      :to="`https://${hostname}/${file.filename}`"
-      :src="`https://previews.${hostname}/${file.filename}`"
+      :to="`https://${$data.hostname}/${$data.file?.filename}`"
+      :src="`https://previews.${$data.hostname}/${$data.file?.filename}`"
     >
       <p
-        >Filename: <code>{{ file.filename }}</code></p
+        >Filename: <code>{{ $data.file?.filename }}</code></p
       >
       <p
         >Uploaded at:
         <code>{{
-          $parent.$parent.toDateString(new Date(file.createdAt))
+          ($parent?.$parent as any).toDateString(new Date($data.file?.createdAt as string))
         }}</code></p
       >
       <p
-        >Size: <code>{{ hFileSize }}</code></p
+        >Size: <code>{{ $data.hFileSize }}</code></p
       >
     </ContentBox>
   </div>
@@ -38,7 +38,7 @@
   <Modal title="Delete file" ref="deleteFileModal" cancelable>
     <template v-slot:default>
       <p
-        >Are you sure you want to delete <code>{{ file.filename }}</code
+        >Are you sure you want to delete <code>{{ $data.file?.filename }}</code
         >? Unless you have it saved somewhere you will never see it again!</p
       >
     </template>

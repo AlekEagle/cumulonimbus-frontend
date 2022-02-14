@@ -1,6 +1,6 @@
 <template>
   <transition name="toast">
-    <div class="toast-box" v-text="text" v-if="showing" />
+    <div class="toast-box" v-text="$data.text" v-if="$data.showing" />
   </transition>
 </template>
 

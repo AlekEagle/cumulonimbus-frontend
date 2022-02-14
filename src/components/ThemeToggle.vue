@@ -1,72 +1,90 @@
 <template>
   <div class="dark-mode-widget">
-    <input type="checkbox" id="theme-toggle" @click="toggleDarkTheme" />
+    <input
+      ref="darkModeCheckbox"
+      type="checkbox"
+      id="theme-toggle"
+      @click="toggleDarkTheme"
+    />
     <label for="theme-toggle"><span></span></label>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+  import { Options, Vue } from 'vue-class-component';
+
   const html = document.getElementsByTagName('html')[0];
-  export default {
+  @Options({
     data() {
       return {
         themeTransitionTimeout: -1
       };
-    },
+    }
+  })
+  export default class ThemeToggle extends Vue {
+    declare $data: {
+      themeTransitionTimeout: number;
+    };
+    declare $refs: {
+      darkModeCheckbox: HTMLInputElement;
+    };
     mounted() {
       setTimeout(() => html.classList.remove('no-theme'), 500);
       this.initThemePreference();
-    },
-    methods: {
-      toggleDarkTheme() {
-        if (html.classList.contains('dark-theme')) {
-          this.enableTransition();
-          document.head.querySelector('meta[name="theme-color"]').content =
-            '#FFFFFF';
-          html.classList.remove('dark-theme');
-        } else {
-          this.enableTransition();
-          document.head.querySelector('meta[name="theme-color"]').content =
-            '#212121';
-          html.classList.add('dark-theme');
-        }
-        this.toggleUserPreference();
-      },
-      enableTransition() {
-        if (this.$data.themeTransitionTimeout !== -1) {
-          clearTimeout(this.themeTransitionTimeout);
-          this.themeTransitionTimeout = setTimeout(() => {
-            html.classList.remove('dark-theme-transition');
-            this.themeTransitionTimeout = -1;
-          }, 250);
-        } else {
-          html.classList.add('dark-theme-transition');
-          this.themeTransitionTimeout = setTimeout(() => {
-            html.classList.remove('dark-theme-transition');
-            this.themeTransitionTimeout = -1;
-          }, 250);
-        }
-      },
-      checkUserPreference() {
-        if (!localStorage.getItem('dark-theme'))
-          localStorage.setItem('dark-theme', 'true');
-        return JSON.parse(localStorage.getItem('dark-theme'));
-      },
-      initThemePreference() {
-        if (!this.checkUserPreference()) return;
-        document.head.querySelector('meta[name="theme-color"]').content =
-          '#212121';
+    }
+    toggleDarkTheme() {
+      const themeColorMetaElement = document.head.querySelector(
+        'meta[name="theme-color"]'
+      ) as HTMLMetaElement;
+      if (html.classList.contains('dark-theme')) {
+        this.enableTransition();
+        themeColorMetaElement.content = '#FFFFFF';
+        html.classList.remove('dark-theme');
+      } else {
+        this.enableTransition();
+        themeColorMetaElement.content = '#212121';
         html.classList.add('dark-theme');
-        document.getElementById('theme-toggle').checked = true;
-      },
-      toggleUserPreference() {
-        localStorage.setItem(
-          'dark-theme',
-          JSON.stringify(!JSON.parse(localStorage.getItem('dark-theme')))
-        );
+      }
+      this.toggleUserPreference();
+    }
+    enableTransition() {
+      if (this.$data.themeTransitionTimeout !== -1) {
+        clearTimeout(this.$data.themeTransitionTimeout);
+        this.$data.themeTransitionTimeout = setTimeout(() => {
+          html.classList.remove('dark-theme-transition');
+          this.$data.themeTransitionTimeout = -1;
+        }, 250);
+      } else {
+        html.classList.add('dark-theme-transition');
+        this.$data.themeTransitionTimeout = setTimeout(() => {
+          html.classList.remove('dark-theme-transition');
+          this.$data.themeTransitionTimeout = -1;
+        }, 250);
       }
     }
-  };
+    checkUserPreference() {
+      if (!localStorage.getItem('dark-theme'))
+        localStorage.setItem('dark-theme', 'true');
+      return JSON.parse(localStorage.getItem('dark-theme') as string);
+    }
+    initThemePreference() {
+      const themeColorMetaElement = document.head.querySelector(
+        'meta[name="theme-color"]'
+      ) as HTMLMetaElement;
+      if (!this.checkUserPreference()) return;
+      themeColorMetaElement.content = '#212121';
+      html.classList.add('dark-theme');
+      this.$refs.darkModeCheckbox.checked = true;
+    }
+    toggleUserPreference() {
+      localStorage.setItem(
+        'dark-theme',
+        JSON.stringify(
+          !JSON.parse(localStorage.getItem('dark-theme') as string)
+        )
+      );
+    }
+  }
 </script>
 
 <style>

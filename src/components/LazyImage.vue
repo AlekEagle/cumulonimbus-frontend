@@ -1,7 +1,7 @@
 <template>
   <img
     class="lazy"
-    v-if="done"
+    v-if="$data.done"
     ref="lazyImg"
     :alt="alt"
     :src="$data.lazyBlobURL || failedSrc"
@@ -56,6 +56,7 @@
     declare alt: string;
     declare tries: number;
     declare wait: number;
+    declare failedSrc: string;
     declare $data: {
       done: boolean;
       lazyBlobURL?: string;

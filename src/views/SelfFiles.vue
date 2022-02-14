@@ -37,74 +37,38 @@
       >
     </template>
   </div>
-  <div class="page-selector">
-    <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
-    <input
-      type="number"
-      min="1"
-      :max="$data.maxPage > 0 ? $data.maxPage.toString() : '1'"
-      @change="pageChange"
-      placeholder="Page #"
-      :value="$data.page + 1"
-      class="page-number-box"
-    />
-    <button
-      @click="nextPage"
-      :disabled="$data.maxPage !== -1 && $data.page >= $data.maxPage"
-      >Next</button
-    >
-  </div>
-  <div v-if="loaded" class="content-box-group-container">
-    <ContentBox
-      v-for="file in $data.files"
-      :key="file.filename"
-      :title="file.filename"
-      span
-      lazy-load
-      @click="handleClickEvent(file.filename)"
-      :theme-safe="isSelected(file.filename)"
-      :src="
-        isSelected(file.filename)
-          ? '/assets/images/checkmark.svg'
-          : `https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`
-      "
-      ><p
-        v-text="
-          $data.bulkDeleteMode
-            ? 'Click me to select or dis-select me for deletion!'
-            : 'Take a closer look at this file.'
+  <Paginator :max="$data.maxPage" ref="paginator" @change="getFiles">
+    <div v-if="$data.loaded" class="content-box-group-container">
+      <ContentBox
+        v-for="file in $data.files"
+        :key="file.filename"
+        :title="file.filename"
+        span
+        lazy-load
+        @click="handleClickEvent(file.filename)"
+        :theme-safe="isSelected(file.filename)"
+        :src="
+          isSelected(file.filename)
+            ? '/assets/images/checkmark.svg'
+            : `https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`
         "
-      ></p
-    ></ContentBox>
-  </div>
-  <Loading v-else />
-  <div class="page-selector">
-    <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
-    <input
-      type="number"
-      min="1"
-      :max="$data.maxPage > 0 ? $data.maxPage.toString() : '1'"
-      @change="pageChange"
-      placeholder="Page #"
-      :value="$data.page + 1"
-      class="page-number-box"
-    />
-    <button
-      @click="nextPage"
-      :disabled="$data.maxPage !== -1 && $data.page >= $data.maxPage"
-      >Next</button
-    >
-  </div>
+        ><p
+          v-text="
+            $data.bulkDeleteMode
+              ? 'Click me to select or dis-select me for deletion!'
+              : 'Take a closer look at this file.'
+          "
+        ></p
+      ></ContentBox>
+    </div>
+    <Loading v-else />
+  </Paginator>
 
   <Modal ref="confirmBulkDeleteModal" title="Delete Multiple Files" cancelable>
     <p
       >Are you sure you want to delete the
       {{ $data.selectedFiles.length }} file{{
-        typeof $data.sessionCount === 'number'
-          ? $data.sessionCount !== 1
-            ? 's'
-            : ''
-          : 's'
+        $data.selectedFiles.length !== 1 ? 's' : ''
       }}
       that you selected? You'll never see them again!</p
     >
@@ -136,16 +100,16 @@
   import ContentBox from '@/components/ContentBox.vue';
   import Loading from '@/components/Loading.vue';
   import Modal from '@/components/Modal.vue';
+  import Paginator from '../components/Paginator.vue';
 
   @Options({
-    components: { ContentBox, Loading, Modal },
+    components: { ContentBox, Loading, Modal, Paginator },
     title: 'Your Files',
     data() {
       return {
         loaded: false,
         files: [],
         fileCount: undefined,
-        page: 0,
         maxPage: -1,
         bulkDeleteMode: false,
         selectedFiles: [],
@@ -158,7 +122,6 @@
       loaded: boolean;
       files: Cumulonimbus.Data.File[];
       fileCount: number;
-      page: number;
       maxPage: number;
       bulkDeleteMode: boolean;
       selectedFiles: string[];
@@ -166,6 +129,7 @@
     };
     declare $refs: {
       confirmBulkDeleteModal: Modal;
+      paginator: Paginator;
     };
     async mounted() {
       if (!navigator.onLine) {
@@ -175,69 +139,22 @@
         );
         return;
       }
-      if (this.$store.state.filePage !== null)
-        this.setPage(this.$store.state.filePage);
-      this.getPageFromQuery();
-      await this.getFiles();
+      await this.getFiles(this.$refs.paginator.page);
     }
 
-    getPageFromQuery() {
-      const urlSearchParams = new URLSearchParams(window.location.search);
-      if (urlSearchParams.has('page')) {
-        const page = Number(urlSearchParams.get('page'));
-        if (isNaN(page)) this.$router.replace(window.location.pathname);
-        else this.setPage(page, false);
-      }
-    }
-
-    setPage(page?: number, zeroIndexed: boolean = true) {
-      if (!page || page < 1 || (page < 2 && !zeroIndexed)) {
-        this.$router.replace(window.location.pathname);
-        this.$data.page = 0;
-      } else {
-        if (isNaN(page)) throw new Error('Cannot be NaN');
-        if (!isFinite(page)) throw new Error('Cannot be infinite');
-        this.$data.page = page - (zeroIndexed ? 0 : 1);
-        this.$store.commit('setFilePage', this.$data.page);
-        this.$router.replace(
-          window.location.pathname + '?page=' + (this.$data.page + 1)
-        );
-      }
-    }
-
-    async prevPage() {
-      if (this.$data.page <= 0) return;
-      this.setPage(this.$data.page - 1);
-      await this.getFiles();
-    }
-
-    async nextPage() {
-      if (this.$data.maxPage !== -1 && this.$data.page >= this.$data.maxPage)
-        return;
-      this.setPage(this.$data.page + 1);
-      await this.getFiles();
-    }
-
-    async pageChange(e: InputEvent) {
-      if ((e.target as HTMLInputElement).valueAsNumber < 1)
-        (e.target as HTMLInputElement).valueAsNumber = 1;
-      if ((e.target as HTMLInputElement).valueAsNumber > this.$data.maxPage + 1)
-        (e.target as HTMLInputElement).valueAsNumber = this.$data.maxPage + 1;
-      this.setPage((e.target as HTMLInputElement).valueAsNumber, false);
-      this.getFiles();
-      (e.target as HTMLInputElement).blur();
-    }
-
-    async getFiles() {
+    async getFiles(page: number) {
       try {
+        await (this.$parent?.$parent as App).isLoggedIn();
         this.$data.loaded = false;
         this.$data.files = [];
         const curPageFiles = await (
           this.$store.state.client as Client
-        ).getSelfFiles(50, 50 * this.$data.page);
-        if (curPageFiles.items.length < 1 && this.$data.page > 0) {
-          this.setPage(this.$data.maxPage <= 0 ? this.$data.maxPage : 0);
-          this.getFiles();
+        ).getSelfFiles(50, 50 * page);
+        if (curPageFiles.items.length < 1 && this.$refs.paginator.page > 0) {
+          this.$refs.paginator.setPage(
+            this.$data.maxPage <= 0 ? this.$data.maxPage : 0
+          );
+          this.getFiles(this.$refs.paginator.page);
         }
         this.$data.fileCount = curPageFiles.count;
         this.$data.maxPage = Math.floor(this.$data.fileCount / 50);
@@ -297,7 +214,7 @@
 
     goBack() {
       this.$router.replace('/dashboard/');
-      this.$store.commit('setFilePage', null);
+      this.$store.commit('setPage', null);
     }
 
     handleClickEvent(filename: string) {
@@ -333,7 +250,7 @@
         let res = await (
           this.$store.state.client as Client
         ).bulkDeleteSelfFilesByID(this.$data.selectedFiles);
-        await this.getFiles();
+        await this.getFiles(this.$refs.paginator.page);
         (this.$parent?.$parent as App).temporaryToast(
           `Done! Deleted: ${res.count} files!`,
           5000

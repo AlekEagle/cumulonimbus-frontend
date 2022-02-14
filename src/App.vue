@@ -23,7 +23,10 @@
           <router-link to="/dashboard/">Dashboard</router-link>
         </li>
         <li class="nav-item" @click="hideMobileMenu">
-          <a :href="`https://docs.${hostname}`" rel="noopener" target="_blank"
+          <a
+            :href="`https://docs.${$data.hostname}`"
+            rel="noopener"
+            target="_blank"
             >Documentation</a
           >
         </li>
@@ -184,6 +187,15 @@
       }
     }
 
+    async isStaff() {
+      //check if logged in first, no bother checking staff if they aren't logged in
+      if (!(await this.isLoggedIn())) return false;
+      return (
+        this.$store.state.user?.staff !== null &&
+        this.$store.state.user?.staff !== ''
+      );
+    }
+
     async redirectIfNotLoggedIn(path: string): Promise<boolean> {
       if (!(await this.isLoggedIn())) {
         if (!path.startsWith('/dashboard')) return false;
@@ -257,6 +269,10 @@
     }
 
     async beforeMount() {
+      await this.redirectIfNotLoggedIn(
+        window.location.pathname + window.location.search
+      );
+
       window.addEventListener('online', () => window.location.reload());
       window.addEventListener('offline', () =>
         this.temporaryToast(
@@ -269,10 +285,6 @@
         this.serviceWorkerListener
       );
       if (!navigator.onLine) return;
-
-      await this.redirectIfNotLoggedIn(
-        window.location.pathname + window.location.search
-      );
     }
 
     async serviceWorkerListener(e: MessageEvent) {
@@ -288,6 +300,10 @@
 
     async mounted() {
       this.$data.hostname = window.location.hostname;
+      if (!(await this.isLoggedIn())) {
+        if (window.location.pathname.startsWith('/admin')) {
+        }
+      }
       this.$router.beforeEach(async (to, from, next) => {
         if (to.path.startsWith('/dashboard')) {
           let loggedIn = await this.isLoggedIn();
@@ -297,6 +313,20 @@
               query: { redirect: to.fullPath }
             });
           else next();
+        } else if (to.path.startsWith('/admin')) {
+          let loggedIn = await this.isLoggedIn();
+          if (!loggedIn)
+            next({
+              path: '/auth/',
+              query: { redirect: to.fullPath }
+            });
+          else {
+            if (!(await this.isStaff()))
+              next({
+                path: from.path
+              });
+            else next();
+          }
         } else next();
       });
     }

@@ -9,17 +9,19 @@
       >Back</button
     >
   </div>
-  <div class="content-box-group-container">
-    <ContentBox
-      v-for="service in services"
-      :key="service.name"
-      :title="service.displayName"
-      :to="`/dashboard/set-up/service/?name=${service.name}`"
-      span
-    >
-      <p>{{ service.description }}</p>
-    </ContentBox>
-  </div>
+  <Paginator :max="$data.maxPage" ref="paginator" @change="getInstructions">
+    <div class="content-box-group-container">
+      <ContentBox
+        v-for="service in $data.services"
+        :key="service.name"
+        :title="service.displayName"
+        :to="`/dashboard/set-up/service/?name=${service.name}`"
+        span
+      >
+        <p>{{ service.description }}</p>
+      </ContentBox>
+    </div>
+  </Paginator>
 </template>
 
 <script lang="ts">
@@ -28,12 +30,14 @@
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
   import ContentBox from '@/components/ContentBox.vue';
   import App from '@/App.vue';
+  import Paginator from '../components/Paginator.vue';
 
   @Options({
-    components: { Modal, ContentBox },
+    components: { Modal, ContentBox, Paginator },
     data() {
       return {
-        services: []
+        services: [],
+        maxPage: -1
       };
     },
     title: 'Officially Supported Services'
@@ -41,6 +45,10 @@
   export default class SetUp extends Vue {
     declare $data: {
       services: Cumulonimbus.Data.Instruction[];
+      maxPage: number;
+    };
+    declare $refs: {
+      paginator: Paginator;
     };
     async mounted() {
       if (!navigator.onLine) {
@@ -50,11 +58,18 @@
         );
         return;
       }
+
+      await this.getInstructions();
+    }
+
+    async getInstructions() {
       try {
+        await (this.$parent?.$parent as App).isLoggedIn();
         let services = await (
           this.$store.state.client as Client
-        ).getInstructions();
+        ).getInstructions(50, 50 * this.$refs.paginator.page);
         this.$data.services = services.items;
+        this.$data.maxPage = services.count;
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {

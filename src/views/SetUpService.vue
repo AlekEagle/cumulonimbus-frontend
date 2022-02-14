@@ -21,8 +21,8 @@
       <input
         type="text"
         autocomplete="off"
-        :placeholder="`${$data.instruction.displayName} on ${$data.os}`"
-        :value="`${$data.instruction.displayName} on ${$data.os}`"
+        :placeholder="`${$data.instruction?.displayName} on ${$data.os}`"
+        :value="`${$data.instruction?.displayName} on ${$data.os}`"
         name="tname"
       />
       <br />
@@ -42,10 +42,10 @@
       <button @click="verify" title="Yes I am me">Verify</button>
     </template>
   </Modal>
-  <template v-if="newIdentity !== undefined">
+  <template v-if="$data.newIdentity !== undefined">
     <div class="content-box-group-container" v-if="$data.loaded">
       <ContentBox
-        v-for="(step, index) in $data.instruction.steps"
+        v-for="(step, index) in $data.instruction?.steps"
         :key="index"
         :title="`Step ${index + 1}`"
         :selectable="index !== 0"

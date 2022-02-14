@@ -37,73 +37,41 @@
       >
     </template>
   </div>
-  <div class="page-selector">
-    <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
-    <input
-      type="number"
-      min="1"
-      :max="$data.maxPage > 0 ? $data.maxPage.toString() : '1'"
-      @change="pageChange"
-      placeholder="Page #"
-      :value="$data.page + 1"
-      class="page-number-box"
-    />
-    <button
-      @click="nextPage"
-      :disabled="$data.maxPage !== -1 && $data.page >= $data.maxPage"
-      >Next</button
-    >
-  </div>
-  <div class="content-box-group-container">
-    <ContentBox
-      span
-      theme-safe
-      v-for="session in $data.sessions"
-      :key="session.iat"
-      :title="session.name"
-      @click="handleClickEvent(session)"
-      :src="
-        isSelected(session.iat.toString())
-          ? '/assets/images/checkmark.svg'
-          : '/assets/images/gear.svg'
-      "
-    >
-      <p v-if="session.iat === $store.state.session.iat"
-        ><strong>This session!</strong></p
+  <Paginator :max="$data.maxPage" ref="paginator" @change="getSessions">
+    <div class="content-box-group-container">
+      <ContentBox
+        span
+        theme-safe
+        v-for="session in $data.sessions"
+        :key="session.iat"
+        :title="session.name"
+        @click="handleClickEvent(session)"
+        :src="
+          isSelected(session.iat.toString())
+            ? '/assets/images/checkmark.svg'
+            : '/assets/images/gear.svg'
+        "
       >
-      <p>Click me to invalidate this session!</p>
-      <p
-        >Expires at:
-        <code
-          v-text="$parent.$parent.toDateString(new Date(session.exp * 1000))"
-      /></p>
-    </ContentBox>
-  </div>
-  <div class="page-selector">
-    <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
-    <input
-      type="number"
-      min="1"
-      :max="$data.maxPage > 0 ? $data.maxPage.toString() : '1'"
-      @change="pageChange"
-      placeholder="Page #"
-      :value="$data.page + 1"
-      class="page-number-box"
-    />
-    <button
-      @click="nextPage"
-      :disabled="$data.maxPage !== -1 && $data.page >= $data.maxPage"
-      >Next</button
-    >
-  </div>
+        <p v-if="session.iat === $store.state.session?.iat"
+          ><strong>This session!</strong></p
+        >
+        <p>Click me to invalidate this session!</p>
+        <p
+          >Expires at:
+          <code
+            v-text="($parent?.$parent as any).toDateString(new Date(session.exp * 1000))"
+        /></p>
+      </ContentBox>
+    </div>
+  </Paginator>
 
   <Modal ref="invalidateSessionModal" title="Invalidate Session" cancelable>
-    <p v-if="$data.session.iat === $store.state.session.iat"
+    <p v-if="$data.session?.iat === $store.state.session?.iat"
       ><strong>Doing this will sign you out!</strong></p
     >
     <p
       >Are you sure you want to invalidate the session that belongs to
-      <code v-text="$data.session.name" />?</p
+      <code v-text="$data.session?.name" />?</p
     >
     <template v-slot:buttons>
       <button title="baby" @click="$refs.invalidateSessionModal.hide()">
@@ -154,16 +122,16 @@
   import ContentBox from '@/components/ContentBox.vue';
   import App from '@/App.vue';
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
+  import Paginator from '../components/Paginator.vue';
 
   @Options({
-    components: { Modal, Loading, ContentBox },
+    components: { Modal, Loading, ContentBox, Paginator },
     title: 'Manage Sessions',
     data() {
       return {
         sessions: [],
         session: undefined,
         sessionCount: undefined,
-        page: 0,
         maxPage: -1,
         loaded: false,
         bulkInvalidateMode: false,
@@ -194,54 +162,7 @@
         );
         return;
       }
-      this.getPageFromQuery();
       await this.getSessions();
-    }
-
-    getPageFromQuery() {
-      const urlSearchParams = new URLSearchParams(window.location.search);
-      if (urlSearchParams.has('page')) {
-        const page = Number(urlSearchParams.get('page'));
-        if (isNaN(page)) this.$router.replace(window.location.pathname);
-        else this.setPage(page, false);
-      }
-    }
-
-    setPage(page?: number, zeroIndexed: boolean = true) {
-      if (!page || page < 1 || (page < 2 && !zeroIndexed)) {
-        this.$router.replace(window.location.pathname);
-        this.$data.page = 0;
-      } else {
-        if (isNaN(page)) throw new Error('Cannot be NaN');
-        if (!isFinite(page)) throw new Error('Cannot be infinite');
-        this.$data.page = page - (zeroIndexed ? 0 : 1);
-        this.$router.replace(
-          window.location.pathname + '?page=' + (this.$data.page + 1)
-        );
-      }
-    }
-
-    async prevPage() {
-      if (this.$data.page <= 0) return;
-      this.setPage(this.$data.page - 1);
-      await this.getSessions();
-    }
-
-    async nextPage() {
-      if (this.$data.maxPage !== -1 && this.$data.page >= this.$data.maxPage)
-        return;
-      this.setPage(this.$data.page + 1);
-      await this.getSessions();
-    }
-
-    async pageChange(e: InputEvent) {
-      if ((e.target as HTMLInputElement).valueAsNumber < 1)
-        (e.target as HTMLInputElement).valueAsNumber = 1;
-      if ((e.target as HTMLInputElement).valueAsNumber > this.$data.maxPage + 1)
-        (e.target as HTMLInputElement).valueAsNumber = this.$data.maxPage + 1;
-      this.setPage((e.target as HTMLInputElement).valueAsNumber, false);
-      this.getSessions();
-      console.log(e);
     }
 
     async getSessions() {
@@ -251,7 +172,7 @@
           50 * this.$data.page
         );
         if (res.items.length < 1 && this.$data.page > 0) {
-          this.setPage(this.$data.maxPage <= 0 ? this.$data.maxPage : 0);
+          this.$data.maxPage <= 0 ? this.$data.maxPage : 0;
           this.getSessions();
         }
         this.$data.sessionCount = res.count;

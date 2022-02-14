@@ -17,21 +17,27 @@
           class="upload-file"
         />
         <label
-          v-text="file && state === 'default' ? file.name : text[state]"
-          @dragover.prevent.stop="state = 'dragover'"
-          @dragleave.prevent.stop="state = 'default'"
+          v-text="
+            $data.file && $data.state === 'default'
+              ? $data.file.name
+              : $data.text[$data.state]
+          "
+          @dragover.prevent.stop="$data.state = 'dragover'"
+          @dragleave.prevent.stop="$data.state = 'default'"
           @drop.prevent.stop="drop"
           for="file"
         ></label>
-        <button class="button" :disabled="!file">To Mars it goes!</button>
+        <button class="button" :disabled="!$data.file">To Mars it goes!</button>
       </form>
-      <button @click="() => copyToClipboard(false)" v-if="link"
+      <button @click="() => copyToClipboard(false)" v-if="$data.link"
         >Copy link</button
       >
     </div>
   </div>
   <transition name="upload-animation-container">
-    <div v-if="upload" class="upload-animation-container"><Loading /></div>
+    <div v-if="$data.upload" class="upload-animation-container"
+      ><Loading
+    /></div>
   </transition>
 </template>
 
@@ -175,7 +181,7 @@
       this.$data.state = 'default';
       this.$data.file = (e.dataTransfer as DataTransfer).files[0];
     }
-    fileAdded(e: InputEvent) {
+    fileAdded(e: Event) {
       if (((e.target as HTMLInputElement).files as FileList).length > 1) {
         this.$data.state = 'manyFiles';
         setTimeout(() => {

@@ -10,6 +10,13 @@
     <button @click="signOut" title="This button will sign you out, who knew!?"
       >Sign Out</button
     >
+    <button
+      v-if="$data.isStaff"
+      @click="$router.push('/admin/')"
+      title="This button will take you to the staff dashboard"
+    >
+      Admin Dashboard
+    </button>
   </div>
   <div class="content-box-group-container">
     <ContentBox
@@ -62,9 +69,13 @@
 
   @Options({
     components: { ContentBox },
-    title: 'Dashboard'
+    title: 'Dashboard',
+    data() {
+      return { isStaff: false };
+    }
   })
   export default class Dashboard extends Vue {
+    declare $data: { isStaff: boolean };
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
@@ -73,6 +84,8 @@
         );
         return;
       }
+
+      this.$data.isStaff = await (this.$parent?.$parent as App).isStaff();
     }
 
     async signOut() {

@@ -236,7 +236,7 @@
       }
     }
 
-    signInOrRegister(e: InputEvent) {
+    signInOrRegister(e: Event) {
       this.$data.signIn = (e.target as HTMLInputElement).checked;
     }
 

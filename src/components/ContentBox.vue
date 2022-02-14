@@ -65,6 +65,12 @@
     declare to?: string;
     declare disabled: boolean;
     declare newTab: boolean;
+    declare selectable: boolean;
+    declare themeSafe: boolean;
+    declare lazyLoad: boolean;
+    declare title: string;
+    declare src?: string;
+    declare span: boolean;
     handleContentTo(e: MouseEvent) {
       if (this.to !== undefined && !this.disabled) {
         if (this.newTab) window.open(this.to, '_blank');

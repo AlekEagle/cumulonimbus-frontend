@@ -12,27 +12,27 @@
         Username:
         <code
           v-text="
-            `${$store.state.user.username} (${$store.state.user.displayName})`
+            `${$store.state.user?.username} (${$store.state.user?.displayName})`
           "
         />
       </p>
       <p>
         User ID:
-        <code v-text="$store.state.user.id" />
+        <code v-text="$store.state.user?.id" />
       </p>
       <p>
         Email:
-        <code v-text="$store.state.user.email" />
+        <code v-text="$store.state.user?.email" />
       </p>
       <p>
         Domain Selection:
         <code
           v-text="
             `${
-              $store.state.user.subdomain
-                ? `${$store.state.user.subdomain}.`
+              $store.state.user?.subdomain
+                ? `${$store.state.user?.subdomain}.`
                 : ''
-            }${$store.state.user.domain}`
+            }${$store.state.user?.domain}`
           "
         />
       </p>
@@ -40,7 +40,9 @@
         Created at:
         <code
           v-text="
-            $parent.$parent.toDateString(new Date($store.state.user.createdAt))
+            ($parent?.$parent as any).toDateString(
+              new Date($store.state.user?.createdAt as string)
+            )
           "
         />
       </p>
@@ -48,13 +50,13 @@
         Updated at:
         <code
           v-text="
-            $parent.$parent.toDateString(new Date($store.state.user.updatedAt))
+            ($parent?.$parent as any).toDateString(new Date($store.state.user?.updatedAt as string))
           "
         />
       </p>
-      <p v-if="$store.state.user.staff !== null">
+      <p v-if="$store.state.user?.staff !== null">
         Staff:
-        <code v-text="$store.state.user.staff" />
+        <code v-text="$store.state.user?.staff" />
       </p>
     </ContentBox>
     <ContentBox
@@ -257,7 +259,7 @@
         type="text"
         maxlength="63"
         placeholder="Subdomain"
-        :value="$store.state.user.subdomain"
+        :value="$store.state.user?.subdomain"
         :disabled="!$data.subdomainCompatible"
       />
       <p>.</p>
@@ -482,6 +484,7 @@
         asOf: Date;
         version: string;
       };
+      wrapperVersion: string;
     };
     declare $refs: {
       changeUsernameModal: Modal;

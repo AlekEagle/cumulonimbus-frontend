@@ -1,7 +1,7 @@
 <template>
   <transition name="modal">
     <div
-      v-if="__show"
+      v-if="$data.__show"
       :class="`modal-container${cancelable ? '' : ' no-close'}`"
       @click.self="
         () => {
@@ -58,6 +58,8 @@
       __show: boolean;
     };
     declare visible: boolean;
+    declare title: string;
+    declare cancelable: boolean;
     hide() {
       if (document.body.classList.contains('no-scroll'))
         document.body.classList.remove('no-scroll');
