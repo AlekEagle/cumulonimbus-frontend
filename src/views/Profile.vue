@@ -513,6 +513,7 @@
         return;
       }
       try {
+        await (this.$parent?.$parent as App).isLoggedIn();
         let domains = await (this.$store.state.client as Client).getDomains();
         this.$data.domains = domains.items;
         this.$data.subdomainCompatible = this.$data.domains.find(
