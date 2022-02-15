@@ -6,6 +6,7 @@
       @click.self="
         () => {
           if (!cancelable) return;
+          $emit('closed');
           hide();
         }
       "
@@ -17,7 +18,13 @@
             class="modal-close"
             src="/assets/images/close.svg"
             alt="Close Modal"
-            @click.self="hide"
+            @click.self="
+              () => {
+                if (!cancelable) return;
+                $emit('closed');
+                hide();
+              }
+            "
         /></div>
         <div class="modal-content">
           <slot name="default">
@@ -26,7 +33,17 @@
         </div>
         <div class="modal-buttons">
           <slot name="buttons">
-            <button @click="hide" v-if="cancelable">Close</button>
+            <button
+              @click="
+                () => {
+                  if (!cancelable) return;
+                  $emit('closed');
+                  hide();
+                }
+              "
+              v-if="cancelable"
+              >Close</button
+            >
           </slot>
         </div>
       </div>
@@ -51,7 +68,8 @@
       return {
         __show: false
       };
-    }
+    },
+    emits: ['closed'] //Only emitted when the modal is closed through a default action, ex: clicking off modal, clicking close button, clicking default close modal button
   })
   export default class Modal extends Vue {
     declare $data: {

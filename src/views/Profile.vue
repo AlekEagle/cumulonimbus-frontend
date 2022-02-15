@@ -172,7 +172,12 @@
       </ContentBox>
     </div>
   </template>
-  <Modal ref="changeUsernameModal" title="Changing your username" cancelable>
+  <ConfirmModal
+    ref="changeUsernameModal"
+    title="Change your username"
+    cancelable
+    @accept="changeUsername"
+  >
     <p>Lets change your username!</p>
     <form ref="changeUsernameForm" @submit.prevent="changeUsername">
       <input
@@ -190,12 +195,13 @@
       />
       <input type="submit" />
     </form>
-
-    <template v-slot:buttons>
-      <button @click="changeUsername" title="Change it!">Confirm</button>
-    </template>
-  </Modal>
-  <Modal ref="changeEmailModal" title="Changing your email" cancelable>
+  </ConfirmModal>
+  <ConfirmModal
+    ref="changeEmailModal"
+    title="Change your email"
+    cancelable
+    @accept="changeEmail"
+  >
     <p>Lets change your email!</p>
     <form ref="changeEmailForm" @submit.prevent="changeEmail">
       <input
@@ -214,12 +220,13 @@
       />
       <input type="submit" />
     </form>
-
-    <template v-slot:buttons>
-      <button @click="changeEmail" title="Change it!">Confirm</button>
-    </template>
-  </Modal>
-  <Modal ref="changePasswordModal" title="Changing your password" cancelable>
+  </ConfirmModal>
+  <ConfirmModal
+    ref="changePasswordModal"
+    title="Change your password"
+    cancelable
+    @accept="changePassword"
+  >
     <p>Lets change your password!</p>
     <form ref="changePasswordForm" @submit.prevent="changePassword">
       <input
@@ -246,12 +253,13 @@
       />
       <input type="submit" />
     </form>
-
-    <template v-slot:buttons>
-      <button @click="changePassword" title="Change it!">Confirm</button>
-    </template>
-  </Modal>
-  <Modal ref="changeDomainModal" title="Change your domain" cancelable>
+  </ConfirmModal>
+  <ConfirmModal
+    ref="changeDomainModal"
+    title="Change your domain"
+    cancelable
+    @accept="changeDomain"
+  >
     <p>Let's change what your domain is!</p>
     <form ref="changeDomainForm" @submit.prevent="changeDomain">
       <input
@@ -272,30 +280,24 @@
         />
       </select>
     </form>
-
-    <template v-slot:buttons>
-      <button @click="changeDomain" title="Change it!">Confirm</button>
-    </template>
-  </Modal>
-  <Modal ref="clearCacheModal" title="Clear preview cache" cancelable>
-    <p
-      >Clear the preview cache for the file previews in the file list! This may
-      fix issues with previews loading improperly.</p
-    >
-    <template v-slot:buttons>
-      <button
-        @click="clearCache"
-        title="Ha ha clear button go bRRRRRRRRRRRRRRRRRR"
-        >I'm sure</button
-      >
-      <button
-        @click="$refs.clearCacheModal.hide()"
-        title="That's what I thought."
-        >On second thought...</button
-      >
-    </template>
-  </Modal>
-  <Modal ref="invalidateSessionsModal" title="Sign out everywhere" cancelable>
+  </ConfirmModal>
+  <ConfirmModal
+    ref="clearCacheModal"
+    title="Clear preview cache"
+    cancelable
+    @accept="clearCache"
+  >
+    <p>
+      Clear the preview cache for the file previews in the file list! This may
+      fix issues with previews loading improperly.
+    </p>
+  </ConfirmModal>
+  <ConfirmModal
+    ref="invalidateSessionsModal"
+    title="Sign out everywhere"
+    cancelable
+    @accept="invalidateSessions"
+  >
     <p> This is going to sign you out of: </p>
     <p><strong>Browsers</strong></p>
     <p><strong>Services</strong></p>
@@ -304,42 +306,25 @@
       >Or anything else, using your account, the switch below will determine
       wether or not you want to stay signed in on this browser.</p
     >
-    <div class="checkbox-container">
-      <input
-        type="checkbox"
-        id="keep-this-session"
-        ref="keepThisSession"
-        checked
-      />
-      <label for="keep-this-session"><span></span></label
-      ><p class="label-right">Keep me signed in here</p>
-    </div>
-    <template v-slot:buttons>
-      <button @click="invalidateSessions" title="So long logins!"
-        >I'm sure</button
-      >
-      <button
-        @click="$refs.invalidateSessionsModal.hide()"
-        title="That's what I thought."
-        >On second thought...</button
-      >
-    </template>
-  </Modal>
-  <Modal ref="deleteAllFilesModal" cancelable title="Delete all of your files">
-    <p
-      >This will delete EVERY file you've uploaded, and there are NO take
-      backsies, period.</p
-    >
-    <template v-slot:buttons>
-      <button @click="deleteAllFiles" title="So long files!">I'm sure</button>
-      <button
-        @click="$refs.deleteAllFilesModal.hide()"
-        title="That's what I thought."
-        >On second thought...</button
-      >
-    </template>
-  </Modal>
-  <Modal ref="deleteAccountModal" title="Delete your account" cancelable>
+    <ToggleSwitch ref="keepThisSession" label-right="Keep me signed in here" />
+  </ConfirmModal>
+  <ConfirmModal
+    ref="deleteAllFilesModal"
+    cancelable
+    title="Delete all of your files"
+    @accept="deleteAllFiles"
+  >
+    <p>
+      This will delete EVERY file you've uploaded, and there are NO take
+      backsies, period.
+    </p>
+  </ConfirmModal>
+  <ConfirmModal
+    ref="deleteAccount"
+    title="Delete your account"
+    cancelable
+    @accept="deleteAccount"
+  >
     <p
       >We're sad to see you go, but we understand if you really want to.
       Remember that this is permanent. All of your files will be permanently
@@ -367,37 +352,21 @@
       />
       <input type="submit" />
     </form>
-
-    <template v-slot:buttons>
-      <button @click="deleteAccount" title="Goodbye">Confirm</button>
-      <button
-        @click="$refs.deleteAccountModal.hide()"
-        title="That's what I thought."
-        >On second thought...</button
-      >
-    </template>
-  </Modal>
-  <Modal ref="clearDataModal" title="Clear all cached data" cancelable>
-    <p
-      >This can fix issues that come from your browser inconsistently updating,
+  </ConfirmModal>
+  <ConfirmModal
+    ref="clearDataModal"
+    cancelable
+    title="Clear all cached data"
+    @accept="clearData"
+  >
+    <p>
+      This can fix issues that come from your browser inconsistently updating,
       the update system is janky, even with my attempts to improve it, issues
       still fall through from time to time. If you think that's why you're
       having issues, go ahead and continue. You will need to be online to pull
-      the latest version of Cumulonimbus.</p
-    >
-    <template v-slot:buttons>
-      <button
-        @click="clearData"
-        title="Ha ha clear button go bRRRRRRRRRRRRRRRRRR"
-        >I'm sure</button
-      >
-      <button
-        @click="$refs.clearDataModal.hide()"
-        title="That's what I thought."
-        >On second thought...</button
-      >
-    </template>
-  </Modal>
+      the latest version of Cumulonimbus.
+    </p>
+  </ConfirmModal>
   <Modal ref="aboutCumulonimbusModal" cancelable title="About Cumulonimbus">
     <p> Frontend Version: <code v-text="$appInformation.version" /> </p>
     <p> Backend Version: <code v-text="$data.apiInfo.version" /> </p>
@@ -440,11 +409,7 @@
     </template>
   </Modal>
 
-  <transition name="long-action-animation-container">
-    <div v-if="$data.longAction" class="long-action-animation-container"
-      ><Loading
-    /></div>
-  </transition>
+  <FullscreenLoading ref="fullscreenLoading" />
 </template>
 
 <script lang="ts">
@@ -454,14 +419,23 @@
   import ContentBox from '@/components/ContentBox.vue';
   import App from '@/App.vue';
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
+  import FullscreenLoading from '@/components/FullscreenLoading.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import ToggleSwitch from '@/components/ToggleSwitch.vue';
 
   @Options({
-    components: { Modal, Loading, ContentBox },
+    components: {
+      Modal,
+      Loading,
+      ContentBox,
+      FullscreenLoading,
+      ConfirmModal,
+      ToggleSwitch
+    },
     data() {
       return {
         domains: [],
         subdomainCompatible: true,
-        longAction: false,
         apiInfo: {},
         thumbApiInfo: {},
         wrapperVersion: Cumulonimbus.VERSION
@@ -473,7 +447,6 @@
     declare $data: {
       domains: Cumulonimbus.Data.Domain[];
       subdomainCompatible: boolean;
-      longAction: boolean;
       apiInfo: {
         latency: number;
         asOf: Date;
@@ -487,22 +460,23 @@
       wrapperVersion: string;
     };
     declare $refs: {
-      changeUsernameModal: Modal;
+      changeUsernameModal: ConfirmModal;
       changeUsernameForm: HTMLFormElement;
-      changeEmailModal: Modal;
+      changeEmailModal: ConfirmModal;
       changeEmailForm: HTMLFormElement;
-      changePasswordModal: Modal;
+      changePasswordModal: ConfirmModal;
       changePasswordForm: HTMLFormElement;
-      changeDomainModal: Modal;
+      changeDomainModal: ConfirmModal;
       changeDomainForm: HTMLFormElement;
-      clearCacheModal: Modal;
-      clearDataModal: Modal;
+      clearCacheModal: ConfirmModal;
+      clearDataModal: ConfirmModal;
       aboutCumulonimbusModal: Modal;
-      invalidateSessionsModal: Modal;
-      keepThisSession: HTMLInputElement;
-      deleteAllFilesModal: Modal;
-      deleteAccountModal: Modal;
+      invalidateSessionsModal: ConfirmModal;
+      keepThisSession: ToggleSwitch;
+      deleteAllFilesModal: ConfirmModal;
+      deleteAccountModal: ConfirmModal;
       deleteAccountForm: HTMLFormElement;
+      fullscreenLoading: FullscreenLoading;
     };
     async mounted() {
       if (!navigator.onLine) {
@@ -1065,7 +1039,7 @@
     async deleteAllFiles() {
       try {
         this.$refs.deleteAllFilesModal.hide();
-        this.$data.longAction = true;
+        this.$refs.fullscreenLoading.show();
         let res = await (
           this.$store.state.client as Client
         ).bulkDeleteAllSelfFiles();
@@ -1074,9 +1048,9 @@
           `Done! Deleted: ${res.count} files!`,
           5000
         );
-        this.$data.longAction = false;
+        this.$refs.fullscreenLoading.hide();
       } catch (error) {
-        this.$data.longAction = false;
+        this.$refs.fullscreenLoading.hide();
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -1135,12 +1109,12 @@
       const data = new FormData(this.$refs.deleteAccountForm);
       try {
         this.$refs.deleteAccountModal.hide();
-        this.$data.longAction = true;
+        this.$refs.fullscreenLoading.show();
         let res = await (this.$store.state.client as Client).deleteSelfUser(
           data.get('username') as string,
           data.get('password') as string
         );
-        this.$data.longAction = false;
+        this.$refs.fullscreenLoading.hide();
         console.log(res);
         (this.$parent?.$parent as App).temporaryToast(
           'Goodbye, we hope you enjoyed Cumulonimbus!',
@@ -1150,7 +1124,7 @@
           window.location.pathname
         );
       } catch (error) {
-        this.$data.longAction = false;
+        this.$refs.fullscreenLoading.hide();
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':

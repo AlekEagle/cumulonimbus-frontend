@@ -96,7 +96,7 @@
     setPage(page: number, zeroIndexed: boolean = true, emit: boolean = true) {
       if (!page || page <= 0 || (!zeroIndexed && page <= 1)) {
         this.$data.page = 0;
-        this.$router.replace({ query: {} });
+        this.$router.replace({ query: { ...this.$route.query, page: null } });
         if (!this.noStore) this.$store.commit('setPage', null);
         if (emit) {
           this.$emit('change', this.$data.page);
@@ -108,7 +108,9 @@
       } else {
         this.$data.page = page - 1;
       }
-      this.$router.replace({ query: { page: this.$data.page + 1 } });
+      this.$router.replace({
+        query: { ...this.$route.query, page: this.$data.page + 1 }
+      });
       if (!this.noStore) this.$store.commit('setPage', this.$data.page);
       if (emit) {
         this.$emit('change', this.$data.page);
@@ -133,6 +135,10 @@
 
     get page() {
       return this.$data.page;
+    }
+
+    beforeUnmount() {
+      this.$store.commit('setPage', null);
     }
   }
 </script>

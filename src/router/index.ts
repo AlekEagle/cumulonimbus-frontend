@@ -62,6 +62,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/admin/Dashboard.vue')
   },
   {
+    path: '/admin/files',
+    name: 'AdminFiles',
+    component: () => import('@/views/admin/Files.vue')
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue')
