@@ -64,28 +64,19 @@
     <Loading v-else />
   </Paginator>
 
-  <Modal ref="confirmBulkDeleteModal" title="Delete Multiple Files" cancelable>
-    <p
-      >Are you sure you want to delete the
+  <ConfirmModal
+    ref="confirmBulkDeleteModal"
+    title="Delete these files?"
+    cancelable
+  >
+    <p>
+      Are you sure you want to delete the
       {{ $data.selectedFiles.length }} file{{
         $data.selectedFiles.length !== 1 ? 's' : ''
       }}
-      that you selected? You'll never see them again!</p
-    >
-    <template v-slot:buttons>
-      <button
-        title="baby"
-        @click="
-          $refs.confirmBulkDeleteModal.hide();
-          $data.bulkDeleteMode = false;
-          $data.selectedFiles = [];
-        "
-      >
-        Nevermind
-      </button>
-      <button @click="bulkDelete" title="haha they are gone">Buh Bye!</button>
-    </template>
-  </Modal>
+      that you selected? You'll never see them again!
+    </p>
+  </ConfirmModal>
   <FullscreenLoading ref="fullscreenLoading" />
 </template>
 
@@ -95,12 +86,12 @@
   import App from '@/App.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import Loading from '@/components/Loading.vue';
-  import Modal from '@/components/Modal.vue';
   import Paginator from '../components/Paginator.vue';
   import FullscreenLoading from '../components/FullscreenLoading.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
 
   @Options({
-    components: { ContentBox, Loading, Modal, Paginator, FullscreenLoading },
+    components: { ContentBox, Loading, Paginator, FullscreenLoading },
     title: 'Your Files',
     data() {
       return {
@@ -123,14 +114,14 @@
       selectedFiles: string[];
     };
     declare $refs: {
-      confirmBulkDeleteModal: Modal;
+      confirmBulkDeleteModal: ConfirmModal;
       paginator: Paginator;
       fullscreenLoading: FullscreenLoading;
     };
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
-          "Looks like you're offline, I'm pretty useless offline.",
+          "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
           5000
         );
         return;
@@ -165,16 +156,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -209,6 +191,7 @@
     }
 
     goBack() {
+      this.$store.commit('setPage', null);
       this.$router.replace('/dashboard/');
     }
 
@@ -250,16 +233,7 @@
           `Done! Deleted: ${res.count} files!`,
           5000
         );
-
-        this.$refs.fullscreenLoading.hide();
-        this.$data.bulkDeleteMode = false;
-        this.$data.selectedFiles = [];
-        this.$refs.confirmBulkDeleteModal.hide();
       } catch (error) {
-        this.$refs.fullscreenLoading.hide();
-        this.$data.bulkDeleteMode = false;
-        this.$data.selectedFiles = [];
-        this.$refs.confirmBulkDeleteModal.hide();
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -268,16 +242,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -314,6 +279,11 @@
           );
           console.error(error);
         }
+      } finally {
+        this.$refs.fullscreenLoading.hide();
+        this.$data.bulkDeleteMode = false;
+        this.$data.selectedFiles = [];
+        this.$refs.confirmBulkDeleteModal.hide();
       }
     }
   }

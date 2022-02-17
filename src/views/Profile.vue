@@ -91,7 +91,7 @@
       span
       src="/assets/images/gear.svg"
       theme-safe
-      @click="showDomainModal()"
+      @click="$refs.changeDomainModal.show()"
     >
       <p>Click me to change your domain selection!</p>
     </ContentBox>
@@ -176,7 +176,8 @@
     ref="changeUsernameModal"
     title="Change your username"
     cancelable
-    @accept="changeUsername"
+    @confirm="changeUsername"
+    deny-closes-modal
   >
     <p>Lets change your username!</p>
     <form ref="changeUsernameForm" @submit.prevent="changeUsername">
@@ -200,7 +201,8 @@
     ref="changeEmailModal"
     title="Change your email"
     cancelable
-    @accept="changeEmail"
+    @confirm="changeEmail"
+    deny-closes-modal
   >
     <p>Lets change your email!</p>
     <form ref="changeEmailForm" @submit.prevent="changeEmail">
@@ -225,7 +227,8 @@
     ref="changePasswordModal"
     title="Change your password"
     cancelable
-    @accept="changePassword"
+    @confirm="changePassword"
+    deny-closes-modal
   >
     <p>Lets change your password!</p>
     <form ref="changePasswordForm" @submit.prevent="changePassword">
@@ -254,38 +257,14 @@
       <input type="submit" />
     </form>
   </ConfirmModal>
-  <ConfirmModal
-    ref="changeDomainModal"
-    title="Change your domain"
-    cancelable
-    @accept="changeDomain"
-  >
-    <p>Let's change what your domain is!</p>
-    <form ref="changeDomainForm" @submit.prevent="changeDomain">
-      <input
-        name="subdomain"
-        type="text"
-        maxlength="63"
-        placeholder="Subdomain"
-        :value="$store.state.user?.subdomain"
-        :disabled="!$data.subdomainCompatible"
-      />
-      <p>.</p>
-      <select name="domain" @change="allowsSubdomains">
-        <option
-          v-for="domain in $data.domains"
-          :key="domain.domain"
-          :name="domain.domain"
-          v-text="domain.domain"
-        />
-      </select>
-    </form>
-  </ConfirmModal>
+  <DomainModal ref="changeDomainModal" @confirm="changeDomain" />
   <ConfirmModal
     ref="clearCacheModal"
     title="Clear preview cache"
     cancelable
-    @accept="clearCache"
+    @confirm="clearCache"
+    deny-closes-modal
+    confirm-closes-modal
   >
     <p>
       Clear the preview cache for the file previews in the file list! This may
@@ -296,7 +275,8 @@
     ref="invalidateSessionsModal"
     title="Sign out everywhere"
     cancelable
-    @accept="invalidateSessions"
+    @confirm="invalidateSessions"
+    deny-closes-modal
   >
     <p> This is going to sign you out of: </p>
     <p><strong>Browsers</strong></p>
@@ -312,7 +292,8 @@
     ref="deleteAllFilesModal"
     cancelable
     title="Delete all of your files"
-    @accept="deleteAllFiles"
+    @confirm="deleteAllFiles"
+    deny-closes-modal
   >
     <p>
       This will delete EVERY file you've uploaded, and there are NO take
@@ -323,7 +304,8 @@
     ref="deleteAccount"
     title="Delete your account"
     cancelable
-    @accept="deleteAccount"
+    @confirm="deleteAccount"
+    deny-closes-modal
   >
     <p
       >We're sad to see you go, but we understand if you really want to.
@@ -357,7 +339,9 @@
     ref="clearDataModal"
     cancelable
     title="Clear all cached data"
-    @accept="clearData"
+    @confirm="clearData"
+    deny-closes-modal
+    confirm-closes-modal
   >
     <p>
       This can fix issues that come from your browser inconsistently updating,
@@ -422,6 +406,7 @@
   import FullscreenLoading from '@/components/FullscreenLoading.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import ToggleSwitch from '@/components/ToggleSwitch.vue';
+  import DomainModal from '@/components/DomainModal.vue';
 
   @Options({
     components: {
@@ -466,8 +451,7 @@
       changeEmailForm: HTMLFormElement;
       changePasswordModal: ConfirmModal;
       changePasswordForm: HTMLFormElement;
-      changeDomainModal: ConfirmModal;
-      changeDomainForm: HTMLFormElement;
+      changeDomainModal: DomainModal;
       clearCacheModal: ConfirmModal;
       clearDataModal: ConfirmModal;
       aboutCumulonimbusModal: Modal;
@@ -481,7 +465,7 @@
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
-          "Looks like you're offline, I'm pretty useless offline.",
+          "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
           5000
         );
         return;
@@ -502,16 +486,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -616,16 +591,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -688,16 +654,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -770,16 +727,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'INVALID_PASSWORD_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -822,39 +770,11 @@
       }
     }
 
-    showDomainModal() {
-      this.$refs.changeDomainModal.show();
-      setTimeout(
-        () =>
-          ((
-            document.querySelector('select[name="domain"]') as HTMLSelectElement
-          ).value = this.$store.state.user?.domain as string),
-        10
-      );
-    }
-
-    allowsSubdomains() {
-      const data = new FormData(this.$refs.changeDomainForm);
-      this.$data.subdomainCompatible = this.$data.domains.find(
-        a => a.domain === data.get('domain')
-      )?.allowsSubdomains as boolean;
-
-      if (!this.$data.subdomainCompatible) {
-        (this.$parent?.$parent as App).temporaryToast(
-          "This domain isn't compatible with subdomains! Sorry!",
-          5000
-        );
-      }
-    }
-
-    async changeDomain() {
-      const data = new FormData(this.$refs.changeDomainForm);
+    async changeDomain(data: { domain: string; subdomain: string | null }) {
       try {
         let res = await (this.$store.state.client as Client).editSelfDomain(
-          data.get('domain') as string,
-          data.get('subdomain') !== '' && this.$data.subdomainCompatible
-            ? (data.get('subdomain') as string)
-            : undefined
+          data.domain,
+          data.subdomain ? data.subdomain : undefined
         );
         this.$store.commit('setUser', res);
         this.$refs.changeDomainModal.hide();
@@ -867,16 +787,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'INVALID_SUBDOMAIN_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -990,16 +901,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -1048,9 +950,7 @@
           `Done! Deleted: ${res.count} files!`,
           5000
         );
-        this.$refs.fullscreenLoading.hide();
       } catch (error) {
-        this.$refs.fullscreenLoading.hide();
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -1059,16 +959,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -1102,6 +993,8 @@
           );
           console.error(error);
         }
+      } finally {
+        this.$refs.fullscreenLoading.hide();
       }
     }
 
@@ -1114,8 +1007,6 @@
           data.get('username') as string,
           data.get('password') as string
         );
-        this.$refs.fullscreenLoading.hide();
-        console.log(res);
         (this.$parent?.$parent as App).temporaryToast(
           'Goodbye, we hope you enjoyed Cumulonimbus!',
           5000
@@ -1124,7 +1015,6 @@
           window.location.pathname
         );
       } catch (error) {
-        this.$refs.fullscreenLoading.hide();
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -1133,16 +1023,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -1188,6 +1069,8 @@
           );
           console.error(error);
         }
+      } finally {
+        this.$refs.fullscreenLoading.hide();
       }
     }
   }
@@ -1196,54 +1079,6 @@
 <style>
   .content-box.profile {
     width: calc((100% - (25px * 2 + 20px * 2 + 1px * 2) * 1) / 1);
-  }
-
-  input[type='text'][name='subdomain'] {
-    text-align: right;
-  }
-
-  select[name='domain'],
-  input[type='text'][name='subdomain'] {
-    width: 30vw;
-  }
-
-  input[type='text'][name='subdomain'] + p {
-    display: inline;
-    font-weight: 900;
-    font-size: xx-large;
-    margin: 0 5px;
-  }
-
-  .long-action-animation-container {
-    z-index: 15;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    cursor: wait;
-    background-color: #000000aa;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(3px);
-  }
-
-  .long-action-animation-container-enter-active,
-  .long-action-animation-container-leave-active {
-    transition: opacity 0.4s, backdrop-filter 0.4s;
-  }
-
-  .long-action-animation-container-enter-from,
-  .long-action-animation-container-leave-to {
-    opacity: 0;
-    backdrop-filter: none;
-  }
-
-  .long-action-animation-container-enter-to,
-  .long-action-animation-container-leave-from {
-    opacity: 1;
-    backdrop-filter: blur(3px);
   }
 
   .dependency-list-container {

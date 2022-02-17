@@ -40,10 +40,10 @@
         :title="file.filename"
         span
         lazy-load
-        @click="handleClickEvent(file)"
-        :theme-safe="isSelected(file)"
+        @click="handleClickEvent(file.filename)"
+        :theme-safe="isSelected(file.filename)"
         :src="
-          isSelected(file)
+          isSelected(file.filename)
             ? '/assets/images/checkmark.svg'
             : `https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`
         "
@@ -63,8 +63,8 @@
     title="Bulk Delete files"
     ref="confirmBulkDeleteModal"
     cancelable
-    @accept="bulkDelete"
-    @decline="clearSelection"
+    @confirm="bulkDelete"
+    @deny="clearSelection"
   >
     <p
       >Are you sure you want to delete the
@@ -115,7 +115,7 @@
       fileCount: number;
       maxPage: number;
       bulkDeleteMode: boolean;
-      selectedFiles: Cumulonimbus.Data.File[];
+      selectedFiles: string[];
     };
     declare $refs: {
       paginator: Paginator;
@@ -125,7 +125,7 @@
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
-          "Looks like you're offline, I'm pretty useless offline.",
+          "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
           5000
         );
         return;
@@ -159,7 +159,6 @@
         this.$data.fileCount = curPageFiles.count;
         this.$data.maxPage = Math.floor(this.$data.fileCount / 50);
         this.$data.files = curPageFiles.items;
-        this.$data.loading = false;
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           this.$data.loading = false;
@@ -173,16 +172,7 @@
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -213,6 +203,8 @@
           );
           console.error(error);
         }
+      } finally {
+        this.$data.loading = false;
       }
     }
 
@@ -237,9 +229,7 @@
         this.$data.fileCount = curPageFiles.count;
         this.$data.maxPage = Math.floor(this.$data.fileCount / 50);
         this.$data.files = curPageFiles.items;
-        this.$data.loading = false;
       } catch (error) {
-        this.$data.loading = false;
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -258,16 +248,7 @@
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -298,10 +279,13 @@
           );
           console.error(error);
         }
+      } finally {
+        this.$data.loading = false;
       }
     }
 
     goBack() {
+        this.$store.commit('setPage', null);
       if (this.$route.query.uid)
         this.$router.push({
           path: '/admin/user/',
@@ -315,32 +299,22 @@
       this.$data.bulkDeleteMode = false;
     }
 
-    isSelected(f: Cumulonimbus.Data.File): boolean {
-      return (
-        this.$data.bulkDeleteMode &&
-        this.$data.selectedFiles.findIndex(
-          file => (file.filename = f.filename)
-        ) !== -1
-      );
+    isSelected(f: string): boolean {
+      return this.$data.bulkDeleteMode && this.$data.selectedFiles.includes(f);
     }
 
     async bulkDelete() {
-      console.log('lol');
       try {
         this.$refs.fullscreenLoading.show();
         let res = await (
           this.$store.state.client as Client
-        ).bulkDeleteFilesByID(this.$data.selectedFiles.map(f => f.filename));
+        ).bulkDeleteFilesByID(this.$data.selectedFiles);
         await this.getFiles();
         (this.$parent?.$parent as App).temporaryToast(
           `Done! Deleted: ${res.count} files!`,
           5000
         );
-        this.clearSelection();
-        this.$refs.fullscreenLoading.hide();
       } catch (error) {
-        this.clearSelection();
-        this.$refs.fullscreenLoading.hide();
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -352,16 +326,7 @@
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -398,20 +363,18 @@
           );
           console.error(error);
         }
+      } finally {
+        this.clearSelection();
+        this.$refs.fullscreenLoading.hide();
       }
     }
 
-    handleClickEvent(f: Cumulonimbus.Data.File) {
-      if (!this.$data.bulkDeleteMode)
-        this.$router.push(`/admin/file/?id=${f.filename}`);
+    handleClickEvent(f: string) {
+      if (!this.$data.bulkDeleteMode) this.$router.push(`/admin/file/?id=${f}`);
       else {
-        if (
-          this.$data.selectedFiles.findIndex(
-            file => (file.filename = f.filename)
-          ) !== -1
-        )
+        if (this.$data.selectedFiles.includes(f))
           this.$data.selectedFiles = this.$data.selectedFiles.filter(
-            a => a.filename !== f.filename
+            a => a !== f
           );
         else {
           if (this.$data.selectedFiles.length >= 100) {

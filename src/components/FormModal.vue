@@ -1,25 +1,21 @@
 <template>
-  <Modal
-    ref="modal"
-    :title="$props.title"
+  <ConfirmModal
     :cancelable="$props.cancelable"
-    @closed="decline"
+    :title="$props.title"
+    @confirm="accept"
+    @deny="decline"
+    ref="modal"
   >
-    <template v-slot:default>
-      <slot>
-        <p>A modal for user confirmation.</p>
-      </slot>
-    </template>
-    <template v-slot:buttons>
-      <button @click="decline" title="That's what I thought.">Nevermind</button>
-      <button @click="accept" title="Yes do thing">I'm sure</button>
-    </template>
-  </Modal>
+    <form ref="form" @submit.prevent="accept">
+      <slot />
+      <input type="submit" />
+    </form>
+  </ConfirmModal>
 </template>
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
-  import Modal from '@/components/Modal.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
 
   @Options({
     emits: ['confirm', 'deny'],
@@ -39,21 +35,32 @@
       denyClosesModal: {
         type: Boolean,
         default: false
+      },
+      confirmResetsForm: {
+        type: Boolean,
+        default: false
+      },
+      denyResetsForm: {
+        type: Boolean,
+        default: false
       }
     },
     components: {
-      Modal
+      ConfirmModal
     }
   })
-  export default class ConfirmModal extends Vue {
+  export default class FormModal extends Vue {
     declare $refs: {
-      modal: Modal;
+      modal: ConfirmModal;
+      form: HTMLFormElement;
     };
     declare $props: {
       cancelable: boolean;
       title: string;
       confirmClosesModal: boolean;
       denyClosesModal: boolean;
+      confirmResetsForm: boolean;
+      denyResetsForm: boolean;
     };
 
     show() {
@@ -65,13 +72,20 @@
     }
 
     accept() {
-      this.$emit('confirm');
+      const data = new FormData(this.$refs.form),
+        dataAsJSON: { [key: string]: string } = {};
+      for (const [key, value] of data.entries()) {
+        dataAsJSON[key] = value.toString();
+      }
+      this.$emit('confirm', dataAsJSON);
       if (this.$props.confirmClosesModal) this.hide();
+      if (this.$props.confirmResetsForm) this.$refs.form.reset();
     }
 
     decline() {
       this.$emit('deny');
       if (this.$props.denyClosesModal) this.hide();
+      if (this.$props.denyResetsForm) this.$refs.form.reset();
     }
   }
 </script>

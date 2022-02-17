@@ -268,6 +268,34 @@
       );
     }
 
+    handleInvalidSession() {
+      this.temporaryToast(
+        'Your session has expired, please log in again.',
+        5000
+      );
+      this.$store.commit('setUser', null);
+      this.$store.commit('setSession', null);
+      this.$store.commit('setClient', null);
+      localStorage.removeItem('token');
+      (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+        window.location.pathname + window.location.search
+      );
+    }
+
+    handleBannedUser() {
+      this.temporaryToast(
+        "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
+        5000
+      );
+      this.$store.commit('setUser', null);
+      this.$store.commit('setSession', null);
+      this.$store.commit('setClient', null);
+      localStorage.removeItem('token');
+      (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+        window.location.pathname + window.location.search
+      );
+    }
+
     async beforeMount() {
       await this.redirectIfNotLoggedIn(
         window.location.pathname + window.location.search
@@ -276,7 +304,7 @@
       window.addEventListener('online', () => window.location.reload());
       window.addEventListener('offline', () =>
         this.temporaryToast(
-          "You just went offline, I'm pretty useless offline.",
+          "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
           5000
         )
       );

@@ -35,22 +35,18 @@
     </ContentBox>
   </div>
   <Loading v-else />
-  <Modal title="Delete file" ref="deleteFileModal" cancelable>
-    <template v-slot:default>
-      <p
-        >Are you sure you want to delete <code>{{ $data.file?.filename }}</code
-        >? Unless you have it saved somewhere you will never see it again!</p
-      >
-    </template>
-    <template v-slot:buttons>
-      <button @click="deleteFile" title="Bye bye file!">I'm sure</button>
-      <button
-        @click="$refs.deleteFileModal.hide()"
-        title="That's what I thought."
-        >On second thought...</button
-      >
-    </template>
-  </Modal>
+  <ConfirmModal
+    ref="deleteFileModal"
+    @confirm="deleteFile"
+    title="Delete this file?"
+    deny-closes-modal
+  >
+    <p>
+      Are you sure you want to delete
+      <code v-text="$data.file?.filename" />? Unless you have it saved somewhere
+      you will never see it again!
+    </p>
+  </ConfirmModal>
 </template>
 
 <script lang="ts">
@@ -101,7 +97,7 @@
       this.$data.canShare = !!navigator.share;
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
-          "Looks like you're offline, I'm pretty useless offline.",
+          "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
           5000
         );
         return;

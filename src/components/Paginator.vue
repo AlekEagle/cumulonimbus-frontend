@@ -4,13 +4,15 @@
     <input
       type="number"
       min="1"
-      :max="max > 0 ? max.toString() : '1'"
+      :max="$props.max > 0 ? $props.max.toString() : '1'"
       @change="pageChange"
       placeholder="Page #"
       :value="$data.page + 1"
       class="page-number-box"
     />
-    <button @click="nextPage" :disabled="max !== -1 && $data.page >= max"
+    <button
+      @click="nextPage"
+      :disabled="$props.max !== -1 && $data.page >= $props.max"
       >Next</button
     >
   </div>
@@ -20,13 +22,15 @@
     <input
       type="number"
       min="1"
-      :max="max > 0 ? max.toString() : '1'"
+      :max="$props.max > 0 ? $props.max.toString() : '1'"
       @change="pageChange"
       placeholder="Page #"
       :value="$data.page + 1"
       class="page-number-box"
     />
-    <button @click="nextPage" :disabled="max !== -1 && $data.page >= max"
+    <button
+      @click="nextPage"
+      :disabled="$props.max !== -1 && $data.page >= $props.max"
       >Next</button
     >
   </div>
@@ -58,9 +62,11 @@
     }
   })
   export default class Paginator extends Vue {
-    declare min: number;
-    declare max: number;
-    declare noStore: boolean;
+    declare $props: {
+      min: number;
+      max: number;
+      noStore: boolean;
+    };
     declare $data: {
       page: number;
     };
@@ -85,8 +91,8 @@
         return;
       }
 
-      if (this.max !== -1 && page > this.max) {
-        input.value = (this.max + 1).toString();
+      if (this.$props.max !== -1 && page > this.$props.max) {
+        input.value = (this.$props.max + 1).toString();
         return;
       }
 
@@ -96,8 +102,10 @@
     setPage(page: number, zeroIndexed: boolean = true, emit: boolean = true) {
       if (!page || page <= 0 || (!zeroIndexed && page <= 1)) {
         this.$data.page = 0;
-        this.$router.replace({ query: { ...this.$route.query, page: null } });
-        if (!this.noStore) this.$store.commit('setPage', null);
+        this.$router.replace({
+          query: { ...this.$route.query, page: undefined }
+        });
+        if (!this.$props.noStore) this.$store.commit('setPage', null);
         if (emit) {
           this.$emit('change', this.$data.page);
         }
@@ -111,14 +119,14 @@
       this.$router.replace({
         query: { ...this.$route.query, page: this.$data.page + 1 }
       });
-      if (!this.noStore) this.$store.commit('setPage', this.$data.page);
+      if (!this.$props.noStore) this.$store.commit('setPage', this.$data.page);
       if (emit) {
         this.$emit('change', this.$data.page);
       }
     }
 
     nextPage() {
-      if (this.max !== -1 && this.$data.page >= this.max) {
+      if (this.$props.max !== -1 && this.$data.page >= this.$props.max) {
         return;
       }
 
@@ -137,8 +145,12 @@
       return this.$data.page;
     }
 
-    beforeUnmount() {
-      this.$store.commit('setPage', null);
+    set page(page: number) {
+      this.setPage(page, false);
+    }
+
+    set pageZeroIndexed(page: number) {
+      this.setPage(page);
     }
   }
 </script>

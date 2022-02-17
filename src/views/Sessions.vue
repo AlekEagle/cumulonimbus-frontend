@@ -12,7 +12,12 @@
     for your account.</h2
   >
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard/profile/')" title="Go back!"
+    <button
+      @click="
+        $router.replace('/dashboard/profile/');
+        $store.commit('setPage', null);
+      "
+      title="Go back!"
       >Back</button
     >
     <button
@@ -65,26 +70,27 @@
     </div>
   </Paginator>
 
-  <Modal ref="invalidateSessionModal" title="Invalidate Session" cancelable>
-    <p v-if="$data.session?.iat === $store.state.session?.iat"
-      ><strong>Doing this will sign you out!</strong></p
-    >
-    <p
-      >Are you sure you want to invalidate the session that belongs to
-      <code v-text="$data.session?.name" />?</p
-    >
-    <template v-slot:buttons>
-      <button title="baby" @click="$refs.invalidateSessionModal.hide()">
-        Nevermind
-      </button>
-      <button @click="invalidateSession" title="Do it!">Confirm</button>
-    </template>
-  </Modal>
-
-  <Modal
-    ref="bulkInvalidateSessionModal"
-    title="Invalidate Sessions"
+  <ConfirmModal
+    ref="invalidateSessionModal"
+    @confirm="invalidateSession"
+    @deny="$data.session = undefined"
     cancelable
+  >
+    <p v-if="$data.session?.iat === $store.state.session?.iat">
+      <strong>Doing this will sign you out!</strong>
+    </p>
+    <p>
+      Are you sure you want to invalidate the session that belongs to
+      <code v-text="$data.session?.name" />?
+    </p>
+  </ConfirmModal>
+
+  <ConfirmModal
+    ref="bulkInvalidateSessionModal"
+    title="Are you sure?"
+    cancelable
+    @accept="invalidateSelectedSessions"
+    @deny="clearSelection"
   >
     <p>
       Are you sure you want to invalidate the
@@ -97,27 +103,12 @@
       }}
       that you selected?
     </p>
-    <template v-slot:buttons>
-      <button
-        title="baby"
-        @click="
-          $refs.bulkInvalidateSessionModal.hide();
-          $data.bulkInvalidateMode = false;
-          $data.selectedSessions = [];
-        "
-      >
-        Nevermind
-      </button>
-      <button @click="invalidateSelectedSessions" title="Do it!">
-        Confirm
-      </button>
-    </template>
-  </Modal>
+  </ConfirmModal>
 </template>
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
-  import Modal from '@/components/Modal.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
   import Loading from '@/components/Loading.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import App from '@/App.vue';
@@ -125,7 +116,7 @@
   import Paginator from '../components/Paginator.vue';
 
   @Options({
-    components: { Modal, Loading, ContentBox, Paginator },
+    components: { ConfirmModal, Loading, ContentBox, Paginator },
     title: 'Manage Sessions',
     data() {
       return {
@@ -151,18 +142,23 @@
       selectedSessions: string[];
     };
     declare $refs: {
-      invalidateSessionModal: Modal;
-      bulkInvalidateSessionModal: Modal;
+      invalidateSessionModal: ConfirmModal;
+      bulkInvalidateSessionModal: ConfirmModal;
     };
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
-          "Looks like you're offline, I'm pretty useless offline.",
+          "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
           5000
         );
         return;
       }
       await this.getSessions();
+    }
+
+    clearSelection() {
+      this.$data.bulkInvalidateMode = false;
+      this.$data.selectedSessions = [];
     }
 
     async getSessions() {
@@ -188,16 +184,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -254,16 +241,7 @@
               break;
             case 'INVALID_SESSION_ERROR':
               if (!(await (this.$parent?.$parent as App).isLoggedIn())) {
-                (this.$parent?.$parent as App).temporaryToast(
-                  "That's funny, your session just expired!",
-                  5000
-                );
-                this.$store.commit('setUser', null);
-                this.$store.commit('setSession', null);
-                this.$store.commit('setClient', null);
-                (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                  window.location.pathname
-                );
+                (this.$parent?.$parent as App).handleInvalidSession();
               } else {
                 (this.$parent?.$parent as App).temporaryToast(
                   "Look's like it's already invalid!",
@@ -360,16 +338,7 @@
               break;
             case 'INVALID_SESSION_ERROR':
               if (!(await (this.$parent?.$parent as App).isLoggedIn())) {
-                (this.$parent?.$parent as App).temporaryToast(
-                  "That's funny, your session just expired!",
-                  5000
-                );
-                this.$store.commit('setUser', null);
-                this.$store.commit('setSession', null);
-                this.$store.commit('setClient', null);
-                (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                  window.location.pathname
-                );
+                (this.$parent?.$parent as App).handleInvalidSession();
               } else {
                 (this.$parent?.$parent as App).temporaryToast(
                   "Look's like it's already invalid!",

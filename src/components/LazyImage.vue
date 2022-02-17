@@ -3,8 +3,8 @@
     class="lazy"
     v-if="$data.done"
     ref="lazyImg"
-    :alt="alt"
-    :src="$data.lazyBlobURL || failedSrc"
+    :alt="$props.alt"
+    :src="$data.lazyBlobURL || $props.failedSrc"
   />
   <Loading v-else />
 </template>
@@ -52,11 +52,13 @@
     }
   })
   export default class LazyImage extends Vue {
-    declare src: string;
-    declare alt: string;
-    declare tries: number;
-    declare wait: number;
-    declare failedSrc: string;
+    declare $props: {
+      src: string;
+      alt: string;
+      failedSrc: string;
+      tries: number;
+      wait: number;
+    };
     declare $data: {
       done: boolean;
       lazyBlobURL?: string;
@@ -67,7 +69,7 @@
     async loadIcon() {
       this.$data.timeout = undefined;
       try {
-        let res = await fetch(this.src);
+        let res = await fetch(this.$props.src);
         if (res.ok) {
           let slimySlime = await res.blob();
           this.$data.lazyBlobURL = URL.createObjectURL(slimySlime);
@@ -82,8 +84,8 @@
     }
 
     handleFail() {
-      if (++this.$data.currentTries <= this.tries) {
-        this.$data.timeout = setTimeout(this.loadIcon, this.wait);
+      if (++this.$data.currentTries <= this.$props.tries) {
+        this.$data.timeout = setTimeout(this.loadIcon, this.$props.wait);
       } else {
         this.$data.lazyBlobURL;
         this.$data.done = true;

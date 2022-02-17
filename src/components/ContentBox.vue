@@ -1,25 +1,25 @@
 <template>
   <div
-    :class="`content-box${disabled ? ' disabled' : ''}${
-      selectable ? '' : ' no-select'
+    :class="`content-box${$props.disabled ? ' disabled' : ''}${
+      $props.selectable ? '' : ' no-select'
     }`"
   >
-    <template v-if="src !== undefined">
+    <template v-if="$props.src !== undefined">
       <img
-        :class="`content-box-icon${themeSafe ? ' theme-safe' : ''}`"
-        v-if="!lazyLoad"
-        :src="src"
+        :class="`content-box-icon${$props.themeSafe ? ' theme-safe' : ''}`"
+        v-if="!$props.lazyLoad"
+        :src="$props.src"
         alt="Content icon"
       />
       <LazyImage
         v-else
-        :src="src"
+        :src="$props.src"
         failed-src="/assets/images/exclamation-mark.svg"
-        :class="`content-box-icon${themeSafe ? ' theme-safe' : ''}`"
+        :class="`content-box-icon${$props.themeSafe ? ' theme-safe' : ''}`"
       />
     </template>
     <div class="content-box-text-content">
-      <h2 class="content-box-title" v-text="title" />
+      <h2 class="content-box-title" v-text="$props.title" />
       <div class="content-box-content">
         <slot>
           <p>Da box with da content in it!</p>
@@ -27,8 +27,8 @@
       </div>
     </div>
     <span
-      :class="`content-box-overlay${disabled ? ' disabled' : ''}`"
-      v-if="span"
+      :class="`content-box-overlay${$props.disabled ? ' disabled' : ''}`"
+      v-if="$props.span"
       @click.self="handleContentTo"
     />
   </div>
@@ -62,19 +62,21 @@
     }
   })
   export default class ContentBox extends Vue {
-    declare to?: string;
-    declare disabled: boolean;
-    declare newTab: boolean;
-    declare selectable: boolean;
-    declare themeSafe: boolean;
-    declare lazyLoad: boolean;
-    declare title: string;
-    declare src?: string;
-    declare span: boolean;
+    declare $props: {
+      title: string;
+      span: boolean;
+      src?: string;
+      to?: string;
+      disabled: boolean;
+      selectable: boolean;
+      themeSafe: boolean;
+      lazyLoad: boolean;
+      newTab: boolean;
+    };
     handleContentTo(e: MouseEvent) {
-      if (this.to !== undefined && !this.disabled) {
-        if (this.newTab) window.open(this.to, '_blank');
-        else this.$router.push(this.to);
+      if (this.$props.to !== undefined && !this.$props.disabled) {
+        if (this.$props.newTab) window.open(this.$props.to, '_blank');
+        else this.$router.push(this.$props.to);
       }
     }
   }

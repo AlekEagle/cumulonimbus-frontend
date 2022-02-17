@@ -2,8 +2,8 @@
   <div class="checkbox-container">
     <p
       class="label-left"
-      v-if="labelLeft !== null"
-      v-text="labelLeft"
+      v-if="$props.labelLeft !== null"
+      v-text="$props.labelLeft"
       @click="handleLeftLabelClick"
     />
     <input
@@ -11,7 +11,7 @@
       :id="$data.UID"
       ref="toggleSwitch"
       :checked="$data.__checked"
-      :name="name"
+      :name="$props.name"
       @change.prevent="handleChange"
     />
     <label :for="$data.UID">
@@ -19,8 +19,8 @@
     </label>
     <p
       class="label-right"
-      v-if="labelRight !== null"
-      v-text="labelRight"
+      v-if="$props.labelRight !== null"
+      v-text="$props.labelRight"
       @click="handleRightLabelClick"
     />
   </div>
@@ -81,13 +81,15 @@
     declare $refs: {
       toggleSwitch: HTMLInputElement;
     };
-    declare labelLeft?: string;
-    declare labelRight?: string;
-    declare isChecked: boolean;
-    declare labelsChangeValue: boolean;
-    declare name: string;
+    declare $props: {
+      labelLeft: string;
+      labelRight: string;
+      isChecked: boolean;
+      labelsChangeValue: boolean;
+      name: string;
+    };
     mounted() {
-      this.checked = this.isChecked;
+      this.checked = this.$props.isChecked;
     }
 
     handleChange() {
@@ -97,12 +99,12 @@
 
     handleLeftLabelClick() {
       this.$emit('leftLabelClick');
-      if (this.labelsChangeValue) this.checked = false;
+      if (this.$props.labelsChangeValue) this.checked = false;
     }
 
     handleRightLabelClick() {
       this.$emit('rightLabelClick');
-      if (this.labelsChangeValue) this.checked = true;
+      if (this.$props.labelsChangeValue) this.checked = true;
     }
 
     get checked() {
