@@ -37,6 +37,16 @@
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
   import LazyImage from '@/components/LazyImage.vue';
+  import {
+    LocationAsPath,
+    LocationAsRelativeRaw,
+    RouteLocationOptions,
+    RouteQueryAndHash
+  } from 'vue-router';
+
+  type RouteLocationRaw = RouteQueryAndHash &
+    LocationAsPath &
+    RouteLocationOptions;
 
   @Options({
     components: { LazyImage },
@@ -51,7 +61,7 @@
         default: undefined
       },
       to: {
-        type: String,
+        type: Object,
         default: undefined
       },
       disabled: Boolean,
@@ -66,7 +76,7 @@
       title: string;
       span: boolean;
       src?: string;
-      to?: string;
+      to?: RouteLocationRaw;
       disabled: boolean;
       selectable: boolean;
       themeSafe: boolean;
@@ -75,7 +85,8 @@
     };
     handleContentTo(e: MouseEvent) {
       if (this.$props.to !== undefined && !this.$props.disabled) {
-        if (this.$props.newTab) window.open(this.$props.to, '_blank');
+        if (this.$props.newTab)
+          window.open(`${this.$props.to?.path}`, '_blank');
         else this.$router.push(this.$props.to);
       }
     }

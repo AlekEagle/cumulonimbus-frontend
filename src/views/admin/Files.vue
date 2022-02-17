@@ -126,7 +126,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }
@@ -148,8 +148,11 @@
         this.$data.files = [];
         const curPageFiles = await (
           this.$store.state.client as Client
-        ).getFiles(50, 50 * this.$refs.paginator.page);
-        if (curPageFiles.items.length < 1 && this.$refs.paginator.page > 0) {
+        ).getFiles(50, 50 * this.$refs.paginator.pageZeroIndexed);
+        if (
+          curPageFiles.items.length < 1 &&
+          this.$refs.paginator.pageZeroIndexed > 0
+        ) {
           this.$refs.paginator.setPage(
             this.$data.maxPage <= 0 ? this.$data.maxPage : 0,
             true,
@@ -217,9 +220,12 @@
         ).getUserFiles(
           this.$route.query.uid as string,
           50,
-          50 * this.$refs.paginator.page
+          50 * this.$refs.paginator.pageZeroIndexed
         );
-        if (curPageFiles.items.length < 1 && this.$refs.paginator.page > 0) {
+        if (
+          curPageFiles.items.length < 1 &&
+          this.$refs.paginator.pageZeroIndexed > 0
+        ) {
           this.$refs.paginator.setPage(
             this.$data.maxPage <= 0 ? this.$data.maxPage : 0,
             true,
@@ -242,7 +248,7 @@
                 "That user doesn't exist!",
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
               break;
             case 'PERMISSIONS_ERROR':
               this.$router.replace('/');
@@ -285,13 +291,13 @@
     }
 
     goBack() {
-        this.$store.commit('setPage', null);
+      this.$refs.paginator.reset();
       if (this.$route.query.uid)
         this.$router.push({
-          path: '/admin/user/',
+          path: '/admin/user',
           query: { uid: this.$route.query.uid }
         });
-      else this.$router.push('/admin/');
+      else this.$router.push('/admin');
     }
 
     clearSelection() {

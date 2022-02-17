@@ -236,7 +236,7 @@
       this.$router.push(
         urlSearchParams.has('redirect')
           ? (urlSearchParams.get('redirect') as string)
-          : '/dashboard/'
+          : '/dashboard'
       );
     }
 
@@ -244,7 +244,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }
@@ -258,7 +258,7 @@
       this.$router.push(
         urlSearchParams.has('redirect')
           ? (urlSearchParams.get('redirect') as string)
-          : '/dashboard/'
+          : '/dashboard'
       );
     }
   }

@@ -11,7 +11,7 @@ export default createStore({
     client: null,
     user: null,
     session: null,
-    page: null,
+    page: {},
     loadComplete: false
   },
   mutations: {
@@ -25,8 +25,12 @@ export default createStore({
     setSession(state, session) {
       state.session = session;
     },
-    setPage(state, page) {
-      state.page = page;
+    setPage(state, pageInfo: { pageID: string; page: number }) {
+      (state.page as { [key: string]: number })[pageInfo.pageID] =
+        pageInfo.page;
+    },
+    removePage(state, pageID: string) {
+      delete (state.page as { [key: string]: number })[pageID];
     },
     clientLoadComplete(state) {
       state.loadComplete = true;

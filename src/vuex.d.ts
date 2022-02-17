@@ -8,7 +8,7 @@ declare module '@vue/runtime-core' {
     client: Client | null;
     session: Cumulonimbus.Data.Session | null;
     user: Cumulonimbus.Data.User | null;
-    page: number | null;
+    page: { [key: string]: number };
     loadComplete: boolean;
   }
 

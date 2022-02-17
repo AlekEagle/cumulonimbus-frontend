@@ -12,7 +12,7 @@
     >
     <button
       v-if="$data.isStaff"
-      @click="$router.push('/admin/')"
+      @click="$router.push('/admin')"
       title="This button will take you to the admin dashboard."
     >
       Admin Dashboard
@@ -23,7 +23,7 @@
       title="Profile"
       src="/assets/images/profile.svg"
       span
-      to="profile/"
+      to="/dashboard/profile"
       theme-safe
     >
       <p>View and manage your profile.</p>
@@ -32,7 +32,7 @@
       title="Files"
       src="/assets/images/file.svg"
       span
-      to="files/"
+      to="/dashboard/files"
       theme-safe
     >
       <p>View and manage your files.</p>
@@ -41,7 +41,7 @@
       title="Service Set Up"
       src="/assets/images/info.svg"
       span
-      to="set-up/"
+      to="/dashboard/set-up"
       theme-safe
     >
       <p
@@ -53,7 +53,7 @@
       title="Upload From Browser"
       src="/assets/images/upload.svg"
       span
-      to="upload/"
+      to="/dashboard/upload"
       theme-safe
     >
       <p> Upload directly from your browser, no external software required! </p>
@@ -80,7 +80,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }

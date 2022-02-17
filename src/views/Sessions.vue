@@ -14,8 +14,8 @@
   <div class="quick-action-buttons-container">
     <button
       @click="
-        $router.replace('/dashboard/profile/');
-        $store.commit('setPage', null);
+        $refs.paginator.reset();
+        $router.replace('/dashboard/profile');
       "
       title="Go back!"
       >Back</button
@@ -135,7 +135,6 @@
       sessions: Cumulonimbus.Data.Session[];
       session?: Cumulonimbus.Data.Session;
       sessionCount: number;
-      page: number;
       maxPage: number;
       loaded: boolean;
       bulkInvalidateMode: boolean;
@@ -144,12 +143,13 @@
     declare $refs: {
       invalidateSessionModal: ConfirmModal;
       bulkInvalidateSessionModal: ConfirmModal;
+      paginator: Paginator;
     };
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }
@@ -165,9 +165,9 @@
       try {
         let res = await (this.$store.state.client as Client).getSelfSessions(
           50,
-          50 * this.$data.page
+          50 * this.$refs.paginator.pageZeroIndexed
         );
-        if (res.items.length < 1 && this.$data.page > 0) {
+        if (res.items.length < 1 && this.$refs.paginator.pageZeroIndexed > 0) {
           this.$data.maxPage <= 0 ? this.$data.maxPage : 0;
           this.getSessions();
         }

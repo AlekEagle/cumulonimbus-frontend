@@ -91,7 +91,13 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
 
   @Options({
-    components: { ContentBox, Loading, Paginator, FullscreenLoading },
+    components: {
+      ContentBox,
+      Loading,
+      Paginator,
+      FullscreenLoading,
+      ConfirmModal
+    },
     title: 'Your Files',
     data() {
       return {
@@ -122,11 +128,11 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }
-      await this.getFiles(this.$refs.paginator.page);
+      await this.getFiles(this.$refs.paginator.pageZeroIndexed);
     }
 
     async getFiles(page: number) {
@@ -137,11 +143,14 @@
         const curPageFiles = await (
           this.$store.state.client as Client
         ).getSelfFiles(50, 50 * page);
-        if (curPageFiles.items.length < 1 && this.$refs.paginator.page > 0) {
+        if (
+          curPageFiles.items.length < 1 &&
+          this.$refs.paginator.pageZeroIndexed > 0
+        ) {
           this.$refs.paginator.setPage(
             this.$data.maxPage <= 0 ? this.$data.maxPage : 0
           );
-          this.getFiles(this.$refs.paginator.page);
+          this.getFiles(this.$refs.paginator.pageZeroIndexed);
         }
         this.$data.fileCount = curPageFiles.count;
         this.$data.maxPage = Math.floor(this.$data.fileCount / 50);
@@ -191,13 +200,13 @@
     }
 
     goBack() {
-      this.$store.commit('setPage', null);
-      this.$router.replace('/dashboard/');
+      this.$refs.paginator.reset();
+      this.$router.replace('/dashboard');
     }
 
     handleClickEvent(filename: string) {
       if (!this.$data.bulkDeleteMode)
-        this.$router.push(`/dashboard/file/?id=${filename}`);
+        this.$router.push({ path: '/dashboard/file', query: { id: filename } });
       else {
         if (this.$data.selectedFiles.includes(filename))
           this.$data.selectedFiles = this.$data.selectedFiles.filter(
@@ -228,7 +237,7 @@
         let res = await (
           this.$store.state.client as Client
         ).bulkDeleteSelfFilesByID(this.$data.selectedFiles);
-        await this.getFiles(this.$refs.paginator.page);
+        await this.getFiles(this.$refs.paginator.pageZeroIndexed);
         (this.$parent?.$parent as App).temporaryToast(
           `Done! Deleted: ${res.count} files!`,
           5000

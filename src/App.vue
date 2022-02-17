@@ -20,7 +20,7 @@
           <router-link to="/">Home</router-link>
         </li>
         <li class="nav-item" @click="hideMobileMenu">
-          <router-link to="/dashboard/">Dashboard</router-link>
+          <router-link to="/dashboard">Dashboard</router-link>
         </li>
         <li class="nav-item" @click="hideMobileMenu">
           <a
@@ -305,7 +305,7 @@
       window.addEventListener('offline', () =>
         this.temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         )
       );
       navigator.serviceWorker.addEventListener(
@@ -328,16 +328,12 @@
 
     async mounted() {
       this.$data.hostname = window.location.hostname;
-      if (!(await this.isLoggedIn())) {
-        if (window.location.pathname.startsWith('/admin')) {
-        }
-      }
       this.$router.beforeEach(async (to, from, next) => {
         if (to.path.startsWith('/dashboard')) {
           let loggedIn = await this.isLoggedIn();
           if (!loggedIn)
             next({
-              path: '/auth/',
+              path: '/auth',
               query: { redirect: to.fullPath }
             });
           else next();
@@ -345,7 +341,7 @@
           let loggedIn = await this.isLoggedIn();
           if (!loggedIn)
             next({
-              path: '/auth/',
+              path: '/auth',
               query: { redirect: to.fullPath }
             });
           else {

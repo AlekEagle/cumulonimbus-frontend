@@ -3,14 +3,14 @@
   <h2>Here's everything we know about this person.</h2>
   <div class="quick-action-buttons-container">
     <button
-      @click="$router.push('/admin/users/')"
+      @click="$router.push('/admin/users')"
       title="Back to cool town resident directory."
       >Back</button
     >
   </div>
 
   <div v-if="!$data.loading" class="content-box-group-container">
-    <ContentBox title="User" class="profile">
+    <ContentBox title="User" class="profile" selectable>
       <p>
         Username:
         <code v-text="`${$data.user?.username} (${$data.user?.displayName})`" />
@@ -131,8 +131,26 @@
       <p>Delete the user's content.</p>
     </ContentBox>
     <ContentBox
+      title="Manage user's sessions"
+      :to="{ path: '/admin/user-sessions', query: { uid: $data.user?.id } }"
+      span
+      src="/assets/images/gear.svg"
+      theme-safe
+    >
+      <p>Manage the user's sessions.</p>
+    </ContentBox>
+    <ContentBox
+      title="Clear all user sessions"
+      @click="$refs.clearUserSessionsModal.show()"
+      span
+      src="/assets/images/gear.svg"
+      theme-safe
+    >
+      <p>Clear all the user's sessions.</p>
+    </ContentBox>
+    <ContentBox
       title="View User's Content"
-      :to="`/admin/files/?uid=${$data.user?.id}`"
+      :to="{ path: '/admin/files', query: { uid: $data.user?.id } }"
       span
       src="/assets/images/file.svg"
       theme-safe
@@ -199,6 +217,7 @@
     :subdomain="$data.user?.subdomain"
   />
   <ConfirmModal
+    cancelable
     ref="banUserModal"
     @confirm="banUser"
     deny-closes-modal
@@ -207,6 +226,7 @@
     <p> Are you sure you want to ban/unban this user? </p>
   </ConfirmModal>
   <ConfirmModal
+    cancelable
     ref="deleteUserModal"
     @confirm="deleteUser"
     deny-closes-modal
@@ -222,6 +242,7 @@
   </ConfirmModal>
 
   <ConfirmModal
+    cancelable
     ref="deleteUserContentModal"
     @confirm="deleteUserContent"
     deny-closes-modal
@@ -232,6 +253,16 @@
     <p>
       <strong> This action is irreversible. </strong>
     </p>
+  </ConfirmModal>
+
+  <ConfirmModal
+    cancelable
+    ref="clearUserSessionsModal"
+    @confirm="clearUserSessions"
+    deny-closes-modal
+    title="Clear All User Sessions"
+  >
+    <p> Are you sure you want to clear all of this user's sessions? </p>
   </ConfirmModal>
 
   <FullscreenLoading ref="fullscreenLoading" />
@@ -281,6 +312,7 @@
       banUserModal: ConfirmModal;
       deleteUserModal: ConfirmModal;
       deleteUserContentModal: ConfirmModal;
+      clearUserSessionsModal: ConfirmModal;
       fullscreenLoading: FullscreenLoading;
     };
 
@@ -288,7 +320,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }
@@ -329,7 +361,7 @@
                 'This user does not exist.',
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -385,7 +417,7 @@
                 'This user does not exist.',
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
               break;
             case 'INVALID_USER_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -454,7 +486,7 @@
                 'This user does not exist.',
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
               break;
             case 'USER_EXISTS_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -527,7 +559,7 @@
                 'This user does not exist.',
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -584,7 +616,7 @@
                 'This user does not exist.',
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
               break;
             case 'INVALID_DOMAIN_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -696,7 +728,7 @@
                 'This user does not exist.',
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -732,7 +764,7 @@
           this.$data.user.id
         );
         (this.$parent?.$parent as App).temporaryToast('User deleted.', 5000);
-        this.$router.replace('/admin/users/');
+        this.$router.replace('/admin/users');
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
@@ -755,7 +787,7 @@
                 'This user does not exist.',
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -816,7 +848,68 @@
                 'This user does not exist.',
                 5000
               );
-              this.$router.replace('/admin/users/');
+              this.$router.replace('/admin/users');
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                5000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                5000
+              );
+              console.error(error);
+              break;
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            5000
+          );
+          console.error(error);
+        }
+      } finally {
+        this.$refs.fullscreenLoading.hide();
+      }
+    }
+
+    async clearUserSessions() {
+      try {
+        this.$refs.fullscreenLoading.show();
+        this.$refs.clearUserSessionsModal.hide();
+        await (this.$store.state.client as Client).bulkDeleteUserSessions(
+          this.$data.user.id
+        );
+        (this.$parent?.$parent as App).temporaryToast(
+          'User sessions cleared.',
+          5000
+        );
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).handleInvalidSession();
+              break;
+            case 'PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'INVALID_USER_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'This user does not exist.',
+                5000
+              );
+              this.$router.replace('/admin/users');
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(

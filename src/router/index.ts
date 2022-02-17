@@ -77,6 +77,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/admin/User.vue')
   },
   {
+    path: '/admin/user-sessions',
+    name: 'AdminUserSessions',
+    component: () => import('@/views/admin/Sessions.vue')
+  },
+  {
+    path: '/admin/file',
+    name: 'AdminFile',
+    component: () => import('@/views/admin/File.vue')
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue')

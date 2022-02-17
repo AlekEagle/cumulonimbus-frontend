@@ -1,36 +1,36 @@
 <template>
   <div class="page-selector">
-    <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
+    <button @click="prevPage" :disabled="$data.__page <= 0">Prev</button>
     <input
       type="number"
       min="1"
       :max="$props.max > 0 ? $props.max.toString() : '1'"
       @change="pageChange"
       placeholder="Page #"
-      :value="$data.page + 1"
+      :value="$data.__page + 1"
       class="page-number-box"
     />
     <button
       @click="nextPage"
-      :disabled="$props.max !== -1 && $data.page >= $props.max"
+      :disabled="$props.max !== -1 && $data.__page >= $props.max"
       >Next</button
     >
   </div>
   <slot />
   <div class="page-selector">
-    <button @click="prevPage" :disabled="$data.page <= 0">Prev</button>
+    <button @click="prevPage" :disabled="$data.__page <= 0">Prev</button>
     <input
       type="number"
       min="1"
       :max="$props.max > 0 ? $props.max.toString() : '1'"
       @change="pageChange"
       placeholder="Page #"
-      :value="$data.page + 1"
+      :value="$data.__page + 1"
       class="page-number-box"
     />
     <button
       @click="nextPage"
-      :disabled="$props.max !== -1 && $data.page >= $props.max"
+      :disabled="$props.max !== -1 && $data.__page >= $props.max"
       >Next</button
     >
   </div>
@@ -57,7 +57,7 @@
     emits: ['change'],
     data() {
       return {
-        page: 0
+        __page: 0
       };
     }
   })
@@ -68,7 +68,7 @@
       noStore: boolean;
     };
     declare $data: {
-      page: number;
+      __page: number;
     };
     mounted() {
       if (this.$route.query.page as string) {
@@ -76,8 +76,8 @@
         return;
       }
 
-      if (this.$store.state.page !== null) {
-        this.setPage(this.$store.state.page, true, false);
+      if (this.$store.state.page[this.$route.path] !== undefined) {
+        this.setPage(this.$store.state.page[this.$route.path], true, false);
         return;
       }
     }
@@ -101,48 +101,57 @@
 
     setPage(page: number, zeroIndexed: boolean = true, emit: boolean = true) {
       if (!page || page <= 0 || (!zeroIndexed && page <= 1)) {
-        this.$data.page = 0;
+        this.$data.__page = 0;
         this.$router.replace({
           query: { ...this.$route.query, page: undefined }
         });
-        if (!this.$props.noStore) this.$store.commit('setPage', null);
+        if (!this.$props.noStore)
+          this.$store.commit('removePage', this.$route.path);
         if (emit) {
-          this.$emit('change', this.$data.page);
+          this.$emit('change', this.$data.__page);
         }
         return;
       }
       if (zeroIndexed) {
-        this.$data.page = page;
+        this.$data.__page = page;
       } else {
-        this.$data.page = page - 1;
+        this.$data.__page = page - 1;
       }
       this.$router.replace({
-        query: { ...this.$route.query, page: this.$data.page + 1 }
+        query: { ...this.$route.query, page: this.$data.__page + 1 }
       });
-      if (!this.$props.noStore) this.$store.commit('setPage', this.$data.page);
+      if (!this.$props.noStore)
+        this.$store.commit('setPage', {
+          pageID: this.$route.path,
+          page: this.$data.__page
+        });
       if (emit) {
-        this.$emit('change', this.$data.page);
+        this.$emit('change', this.$data.__page);
       }
     }
 
     nextPage() {
-      if (this.$props.max !== -1 && this.$data.page >= this.$props.max) {
+      if (this.$props.max !== -1 && this.$data.__page >= this.$props.max) {
         return;
       }
 
-      this.setPage(this.$data.page + 1, true);
+      this.setPage(this.$data.__page + 1, true);
     }
 
     prevPage() {
-      if (this.$data.page <= 0) {
+      if (this.$data.__page <= 0) {
         return;
       }
 
-      this.setPage(this.$data.page - 1, true);
+      this.setPage(this.$data.__page - 1, true);
     }
 
     get page() {
-      return this.$data.page;
+      return this.$data.__page + 1;
+    }
+
+    get pageZeroIndexed() {
+      return this.$data.__page;
     }
 
     set page(page: number) {
@@ -151,6 +160,10 @@
 
     set pageZeroIndexed(page: number) {
       this.setPage(page);
+    }
+
+    reset() {
+      this.setPage(0, true, false);
     }
   }
 </script>

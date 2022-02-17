@@ -2,7 +2,7 @@
   <h1>Your Profile</h1>
   <h2>Make yourself feel at home.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard/')" title="Go back!"
+    <button @click="$router.replace('/dashboard')" title="Go back!"
       >Back</button
     >
   </div>
@@ -100,7 +100,7 @@
       span
       src="/assets/images/gear.svg"
       theme-safe
-      to="sessions/"
+      to="sessions"
     >
       <p>Manage devices/services that have access to your account!</p>
     </ContentBox>
@@ -466,7 +466,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }

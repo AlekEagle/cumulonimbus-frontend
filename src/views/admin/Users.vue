@@ -7,8 +7,8 @@
   <div class="quick-action-buttons-container">
     <button
       @click="
-        $router.push('/admin/');
-        $store.commit('setPage', null);
+        $refs.paginator.reset();
+        $router.push('/admin');
       "
       title="Back to cool town square."
       >Back</button
@@ -58,6 +58,7 @@
     @deny="clearSelection"
     title="Delete these users?"
     choice-closes-modal
+    cancelable
   >
     <p>
       Are you sure you want to delete these
@@ -118,7 +119,7 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }
@@ -139,7 +140,7 @@
         this.$data.loading = true;
         const curPageUsers = await (
           this.$store.state.client as Client
-        ).getUsers(50, 50 * this.$refs.paginator.page);
+        ).getUsers(50, 50 * this.$refs.paginator.pageZeroIndexed);
         this.$data.users = curPageUsers.items;
         this.$data.userCount = curPageUsers.count;
         this.$data.maxPage = Math.floor(curPageUsers.count / 50);
@@ -192,7 +193,7 @@
     handleClickEvent(u: string) {
       if (!this.$data.bulkDeleteMode) {
         this.$router.push({
-          path: '/admin/user/',
+          path: '/admin/user',
           query: { uid: u }
         });
       } else {

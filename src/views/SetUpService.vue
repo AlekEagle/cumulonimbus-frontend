@@ -2,7 +2,7 @@
   <h1>Set Up</h1>
   <h2>Trust me, you'll be done in a couple minutes.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard/set-up/')" title="Go back!"
+    <button @click="$router.replace('/dashboard/set-up')" title="Go back!"
       >Back</button
     >
   </div>
@@ -99,13 +99,13 @@
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
           "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
-          5000
+          15000
         );
         return;
       }
       try {
         if (!urlSearchParams.has('name')) {
-          this.$router.push('/dashboard/set-up/');
+          this.$router.push('/dashboard/set-up');
           return;
         }
         let res = await (this.$store.state.client as Client).getInstructionByID(
@@ -122,7 +122,7 @@
                 "That service doesn't exist silly!",
                 5000
               );
-              this.$router.push('/dashboard/set-up/');
+              this.$router.push('/dashboard/set-up');
               break;
             case 'RATELIMITED_ERROR':
               (this.$parent?.$parent as App).ratelimitToast(
@@ -209,7 +209,7 @@
 
     goBack() {
       this.$refs.identityModal.hide();
-      setTimeout(() => this.$router.push('/dashboard/set-up/'), 400);
+      setTimeout(() => this.$router.push('/dashboard/set-up'), 400);
     }
 
     async verify() {
