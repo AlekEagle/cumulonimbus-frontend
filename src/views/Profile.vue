@@ -415,7 +415,8 @@
       ContentBox,
       FullscreenLoading,
       ConfirmModal,
-      ToggleSwitch
+      ToggleSwitch,
+      DomainModal
     },
     data() {
       return {
