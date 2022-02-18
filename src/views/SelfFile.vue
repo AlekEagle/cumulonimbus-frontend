@@ -53,7 +53,7 @@
   import { Options, Vue } from 'vue-class-component';
   import ContentBox from '@/components/ContentBox.vue';
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
-  import Modal from '@/components/Modal.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
   import Loading from '@/components/Loading.vue';
   import App from '@/App.vue';
 
@@ -70,7 +70,7 @@
   }
 
   @Options({
-    components: { ContentBox, Modal, Loading },
+    components: { ContentBox, ConfirmModal, Loading },
     data() {
       return {
         file: null,
@@ -91,7 +91,7 @@
       canShare: boolean;
     };
     declare $refs: {
-      deleteFileModal: Modal;
+      deleteFileModal: ConfirmModal;
     };
     async mounted() {
       this.$data.canShare = !!navigator.share;
