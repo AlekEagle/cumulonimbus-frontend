@@ -86,8 +86,18 @@
     handleContentTo(e: MouseEvent) {
       if (this.$props.to !== undefined && !this.$props.disabled) {
         if (this.$props.newTab)
-          window.open(`${this.$props.to?.path}`, '_blank');
-        else this.$router.push(this.$props.to);
+          window.open(
+            typeof this.$props.to === 'string'
+              ? this.$props.to
+              : this.$props.to.path,
+            '_blank'
+          );
+        else
+          this.$router.push(
+            typeof this.$props.to === 'string'
+              ? this.$props.to
+              : this.$props.to.path
+          );
       }
     }
   }
