@@ -4,7 +4,7 @@
     >Here you can see and manage all of the domains on Cumulonimbus. There's
     {{ $data.domainCount }} to be exact.</h2
   >
-  <div class="quick-actions-buttons-container">
+  <div class="quick-action-buttons-container">
     <button @click="$router.back()" title="Back to cool town square."
       >Back</button
     >
@@ -23,6 +23,12 @@
       </button>
       <button @click="clearSelection" title="Nevermind"> Nevermind.. </button>
     </template>
+    <button
+      v-if="!$data.bulkDeleteMode"
+      @click="$refs.createDomainModal.show()"
+      title="Create a new domain."
+      >Create Domain</button
+    >
   </div>
   <Paginator :max="$data.maxPage" ref="paginator" @change="getDomains">
     <div v-if="!$data.loading" class="content-box-group-container">
@@ -39,7 +45,11 @@
         :title="domain.domain"
         theme-safe
       >
-        Click to manage this domain.
+        <p>Click to manage this domain.</p>
+        <p
+          >Subdomains are:
+          <code v-text="domain.allowsSubdomains ? 'Enabled' : 'Disabled'"
+        /></p>
       </ContentBox>
     </div>
     <Loading v-else />
@@ -50,8 +60,74 @@
     @confirm="bulkDelete"
     @deny="clearSelection"
     title="Delete these domains?"
-    choice-closes-modal
-  />
+    deny-closes-modal
+  >
+    <p>
+      <strong>
+        <code v-text="$data.selectedDomains.length" />
+      </strong>
+      domains will be deleted.
+    </p>
+    <p>Are you sure you want to delete these domains?</p>
+  </ConfirmModal>
+
+  <Modal
+    ref="editDomainModal"
+    @close="clearSelection"
+    title="Edit Domain"
+    cancelable
+  >
+    <ToggleSwitch
+      @change="setAllowsSubdomains"
+      :is-checked="$data.selectedDomain?.allowsSubdomains"
+      label-right="Domain allows subdomains?"
+    />
+
+    <template v-slot:buttons>
+      <button
+        @click="
+          $refs.editDomainModal.hide();
+          $data.selectedDomain = null;
+        "
+        class="button-cancel"
+      >
+        Close
+      </button>
+      <button
+        @click="
+          $refs.confirmDeleteModal.show();
+          $refs.editDomainModal.hide();
+        "
+        class="button-primary"
+      >
+        Delete
+      </button>
+    </template>
+  </Modal>
+
+  <ConfirmModal
+    ref="confirmDeleteModal"
+    @confirm="deleteDomain"
+    @deny="clearSelection"
+    title="Delete this domain?"
+    deny-closes-modal
+  >
+    <p>Are you sure you want to delete this domain?</p>
+  </ConfirmModal>
+
+  <FormModal
+    ref="createDomainModal"
+    @confirm="createDomain"
+    title="Create a new domain"
+    cancelable
+    deny-closes-modal
+  >
+    <input type="text" name="domain" placeholder="example.com" required />
+    <ToggleSwitch
+      name="allowsSubdomains"
+      label-right="Domain allows subdomains?"
+    />
+  </FormModal>
 </template>
 
 <script lang="ts">
@@ -61,6 +137,8 @@
   import Paginator from '@/components/Paginator.vue';
   import FormModal from '@/components/FormModal.vue';
   import Loading from '@/components/Loading.vue';
+  import Modal from '@/components/Modal.vue';
+  import ToggleSwitch from '@/components/ToggleSwitch.vue';
   import { Cumulonimbus, Client } from '../../../../cumulonimbus-wrapper';
   import App from '@/App.vue';
 
@@ -70,7 +148,9 @@
       ConfirmModal,
       Paginator,
       FormModal,
-      Loading
+      Loading,
+      Modal,
+      ToggleSwitch
     },
     data() {
       return {
@@ -98,6 +178,9 @@
     declare $refs: {
       paginator: Paginator;
       confirmBulkDeleteModal: ConfirmModal;
+      editDomainModal: Modal;
+      confirmDeleteModal: ConfirmModal;
+      createDomainModal: FormModal;
     };
 
     async mounted() {
@@ -112,6 +195,7 @@
       if (!(await (this.$parent?.$parent as App).isStaff())) {
         this.$router.replace('/');
       }
+      await this.getDomains();
     }
 
     async getDomains() {
@@ -186,6 +270,7 @@
         }
       } else {
         this.$data.selectedDomain = domain;
+        this.$refs.editDomainModal.show();
       }
     }
 
@@ -212,6 +297,186 @@
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird. Lets try again later.',
+                5000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird. Lets try again later.',
+                5000
+              );
+              console.error(error);
+              break;
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird. Lets try again later.',
+            5000
+          );
+          console.error(error);
+        }
+      }
+    }
+
+    async deleteDomain() {
+      try {
+        this.$data.loading = true;
+        this.$refs.confirmDeleteModal.hide();
+        await (this.$store.state.client as Client).deleteDomainByID(
+          this.$data.selectedDomain?.domain as string
+        );
+        (this.$parent?.$parent as App).temporaryToast(
+          'Domain deleted successfully.',
+          5000
+        );
+        this.$data.loading = false;
+        this.clearSelection();
+        this.getDomains();
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).handleInvalidSession();
+              break;
+            case 'PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird. Lets try again later.',
+                5000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird. Lets try again later.',
+                5000
+              );
+              console.error(error);
+              break;
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird. Lets try again later.',
+            5000
+          );
+          console.error(error);
+        }
+      }
+    }
+
+    async setAllowsSubdomains(checked: boolean) {
+      try {
+        this.$data.loading = true;
+        await (this.$store.state.client as Client).editDomainByID(
+          this.$data.selectedDomain?.domain as string,
+          checked
+        );
+        (this.$parent?.$parent as App).temporaryToast(
+          'Domain updated successfully.',
+          5000
+        );
+        this.$data.loading = false;
+        this.getDomains();
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).handleInvalidSession();
+              break;
+            case 'PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'INVALID_DOMAIN_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The domain you are trying to edit does not exist.',
+                5000
+              );
+              this.$refs.editDomainModal.hide();
+              await this.getDomains();
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird. Lets try again later.',
+                5000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird. Lets try again later.',
+                5000
+              );
+              console.error(error);
+              break;
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird. Lets try again later.',
+            5000
+          );
+          console.error(error);
+        }
+      }
+    }
+
+    async createDomain(data: { domain: string; allowsSubdomains: boolean }) {
+      try {
+        this.$data.loading = true;
+        await (this.$store.state.client as Client).createDomain(
+          data.domain,
+          data.allowsSubdomains
+        );
+        (this.$parent?.$parent as App).temporaryToast(
+          'Domain created successfully.',
+          5000
+        );
+        this.$data.loading = false;
+        this.getDomains();
+        this.$refs.createDomainModal.hide();
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).handleInvalidSession();
+              break;
+            case 'PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'DOMAIN_EXISTS_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The domain you are trying to create already exists.',
+                5000
+              );
+              this.$refs.createDomainModal.hide();
+              await this.getDomains();
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(

@@ -30,6 +30,15 @@
     >
       <p>View and manage all files.</p>
     </ContentBox>
+    <ContentBox
+      title="Domains"
+      src="/assets/images/gear.svg"
+      span
+      to="/admin/domains"
+      theme-safe
+    >
+      <p>View and manage domains.</p>
+    </ContentBox>
   </div>
 </template>
 

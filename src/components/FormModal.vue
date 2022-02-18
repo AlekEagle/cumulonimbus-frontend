@@ -73,9 +73,15 @@
 
     accept() {
       const data = new FormData(this.$refs.form),
-        dataAsJSON: { [key: string]: string } = {};
+        dataAsJSON: { [key: string]: string | boolean } = {};
       for (const [key, value] of data.entries()) {
-        dataAsJSON[key] = value.toString();
+        if (value === 'on') {
+          dataAsJSON[key] = true;
+        } else if (value === 'off') {
+          dataAsJSON[key] = false;
+        } else {
+          dataAsJSON[key] = value as string;
+        }
       }
       this.$emit('confirm', dataAsJSON);
       if (this.$props.confirmClosesModal) this.hide();
