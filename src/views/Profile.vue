@@ -100,7 +100,7 @@
       span
       src="/assets/images/gear.svg"
       theme-safe
-      to="sessions"
+      to="/dashboard/profile/sessions"
     >
       <p>Manage devices/services that have access to your account!</p>
     </ContentBox>
