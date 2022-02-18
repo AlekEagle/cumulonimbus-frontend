@@ -30,7 +30,7 @@
     </template>
   </div>
 
-  <Paginator ref="paginator" :max="$data.maxPage">
+  <Paginator ref="paginator" :max="$data.maxPage" @change="getUsers">
     <div v-if="!$data.loading" class="content-box-group-container">
       <ContentBox
         v-for="user in $data.users"
