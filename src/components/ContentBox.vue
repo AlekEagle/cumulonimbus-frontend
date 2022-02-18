@@ -93,11 +93,7 @@
             '_blank'
           );
         else
-          this.$router.push(
-            typeof this.$props.to === 'string'
-              ? this.$props.to
-              : this.$props.to.path
-          );
+          this.$router.push(this.$props.to);
       }
     }
   }
