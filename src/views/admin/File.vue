@@ -2,7 +2,19 @@
   <h1>File Information</h1>
   <h2>Information about a specific file.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.back()" title="Back to previous page">
+    <button
+      @click="
+        $router.push({
+          path: '/admin/files',
+          query: {
+            uid: $store.state.adminSelectedUserID
+              ? $store.state.adminSelectedUserID
+              : undefined
+          }
+        })
+      "
+      title="Back to previous page"
+    >
       Back
     </button>
     <button @click="$refs.deleteFileModal.show()" title="Delete this file!"

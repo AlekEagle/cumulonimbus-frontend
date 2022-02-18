@@ -77,6 +77,16 @@
     title="Edit Domain"
     cancelable
   >
+    <p
+      >Created at:
+      <code
+        v-text="($parent?.$parent as any).toDateString(new Date($data.selectedDomain?.createdAt as string))"
+    /></p>
+    <p
+      >Updated at:
+      <code
+        v-text="($parent?.$parent as any).toDateString(new Date($data.selectedDomain?.updatedAt as string))"
+    /></p>
     <ToggleSwitch
       @change="setAllowsSubdomains"
       :is-checked="$data.selectedDomain?.allowsSubdomains"

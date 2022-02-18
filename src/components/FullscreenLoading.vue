@@ -38,7 +38,7 @@
 
 <style>
   .fullscreen-loading-animation-container {
-    z-index: 15;
+    z-index: 20;
     position: fixed;
     top: 0;
     left: 0;

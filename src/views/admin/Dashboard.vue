@@ -39,6 +39,15 @@
     >
       <p>View and manage domains.</p>
     </ContentBox>
+    <ContentBox
+      title="Instructions"
+      src="/assets/images/info.svg"
+      span
+      to="/admin/instructions"
+      theme-safe
+    >
+      <p>View and manage instructions.</p>
+    </ContentBox>
   </div>
 </template>
 

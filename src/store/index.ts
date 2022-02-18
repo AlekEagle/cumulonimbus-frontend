@@ -12,7 +12,8 @@ export default createStore({
     user: null,
     session: null,
     page: {},
-    loadComplete: false
+    loadComplete: false,
+    adminSelectedUserID: null
   },
   mutations: {
     setClient(state, client) {
@@ -34,6 +35,9 @@ export default createStore({
     },
     clientLoadComplete(state) {
       state.loadComplete = true;
+    },
+    setAdminSelectedUserID(state, userID) {
+      state.adminSelectedUserID = userID;
     }
   },
   actions: {

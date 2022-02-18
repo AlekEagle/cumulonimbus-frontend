@@ -10,6 +10,7 @@ declare module '@vue/runtime-core' {
     user: Cumulonimbus.Data.User | null;
     page: { [key: string]: number };
     loadComplete: boolean;
+    adminSelectedUserID: string | null;
   }
 
   // provide typings for `this.$store`

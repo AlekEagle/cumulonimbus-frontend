@@ -13,6 +13,7 @@
     <template v-slot:buttons>
       <button @click="decline" title="That's what I thought.">Nevermind</button>
       <button @click="accept" title="Yes do thing">I'm sure</button>
+      <slot name="ext-buttons" />
     </template>
   </Modal>
 </template>

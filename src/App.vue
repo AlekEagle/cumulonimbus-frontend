@@ -1096,6 +1096,51 @@
     outline: none;
   }
 
+  input:disabled {
+    cursor: not-allowed;
+    background-color: #d6d6d6;
+    color: #5a5a5a;
+  }
+
+  textarea {
+    font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', Arial,
+      sans-serif;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #f3f3f3;
+    transition: border 0.25s, background-color 0.25s, color 0.25s;
+    border: 1px solid #9a9a9a;
+    outline: none;
+    resize: none;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  textarea:focus,
+  textarea:hover {
+    outline: none;
+    background-color: #d6d6d6;
+  }
+
+  html.dark-theme textarea {
+    background-color: #272727;
+    color: #fff;
+    border: 1px solid #000000;
+  }
+
+  html.dark-theme textarea:hover:not(:disabled),
+  html.dark-theme textarea:focus:not(:disabled) {
+    background-color: #202020;
+  }
+
+  html.dark-theme textarea:disabled {
+    cursor: not-allowed;
+    background-color: #000;
+    color: #ccc;
+  }
+
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -1107,18 +1152,20 @@
   }
 
   input,
-  select {
+  select,
+  textarea {
     font-size: calc(13.3px + 0.5vw);
   }
 
-  input:hover,
-  input:focus {
+  input:hover:not(:disabled),
+  input:focus:not(:disabled) {
     background-color: #d6d6d6;
   }
 
   html.dark-theme input {
-    background-color: #101010;
+    background-color: #272727;
     color: #fff;
+    border: 1px solid #000000;
   }
 
   html.dark-theme input:hover:not(:disabled),
@@ -1208,7 +1255,7 @@
       'sans-serif';
     border-radius: 10px;
     font-weight: 600;
-    background-color: #ffffff;
+    background-color: #f3f3f3;
     outline: none;
     padding: 10px;
     transition: background-color 0.25s;
@@ -1229,8 +1276,9 @@
   }
 
   html.dark-theme select {
-    color: white;
-    background-color: #101010;
+    background-color: #272727;
+    color: #fff;
+    border: 1px solid #000000;
   }
 
   .page-number-box {

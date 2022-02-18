@@ -3,17 +3,20 @@
   <h2>Here's everything we know about this person.</h2>
   <div class="quick-action-buttons-container">
     <button
-      @click="$router.push('/admin/users')"
+      @click="
+        $store.commit('setAdminSelectedUserID', null);
+        $router.push('/admin/users');
+      "
       title="Back to cool town resident directory."
       >Back</button
     >
   </div>
 
   <div v-if="!$data.loading" class="content-box-group-container">
-    <ContentBox title="User" class="profile" selectable>
+    <ContentBox :title="$data.user?.displayName" class="profile" selectable>
       <p>
         Username:
-        <code v-text="`${$data.user?.username} (${$data.user?.displayName})`" />
+        <code v-text="$data.user?.username" />
       </p>
       <p>
         User ID:
@@ -60,7 +63,7 @@
             ($parent?.$parent as any).toDateString(new Date($data.user?.bannedAt as string))
           "
         />
-        <code v-else>None</code>
+        <code v-else>Not yet...</code>
       </p>
       <p v-if="$data.user?.staff !== null && $data.user?.staff !== ''">
         Staff:
@@ -152,6 +155,7 @@
       title="View User's Content"
       :to="{ path: '/admin/files', query: { uid: $data.user?.id } }"
       span
+      @click="$store.commit('setAdminSelectedUserID', $data.user?.id)"
       src="/assets/images/file.svg"
       theme-safe
     >

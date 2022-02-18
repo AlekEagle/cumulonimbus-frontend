@@ -10,6 +10,9 @@
       <slot />
       <input type="submit" />
     </form>
+    <template v-slot:ext-buttons>
+      <slot name="ext-buttons" />
+    </template>
   </ConfirmModal>
 </template>
 

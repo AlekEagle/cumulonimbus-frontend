@@ -1,8 +1,8 @@
 <template>
-  <h1>All Users</h1>
+  <h1>Manage Instructions</h1>
   <h2>
-    Here's everyone who has an account on Cumulonimbus. All
-    {{ $data.userCount }} of them, to be exact.
+    Here's where you can manage your instructions. There's
+    {{ $data.instructionCount }} of them, to be exact.
   </h2>
   <div class="quick-action-buttons-container">
     <button
@@ -12,6 +12,12 @@
       "
       title="Back to cool town square."
       >Back</button
+    >
+    <button
+      v-if="!$data.bulkDeleteMode"
+      @click="$refs.newInstructionModal.show()"
+      title="Create a new instruction."
+      >Create</button
     >
     <button
       v-if="!$data.bulkDeleteMode"
@@ -30,24 +36,22 @@
     </template>
   </div>
 
-  <Paginator ref="paginator" :max="$data.maxPage" @change="getUsers">
+  <Paginator ref="paginator" :max="$data.maxPage" @change="getInstructions">
     <div v-if="!$data.loading" class="content-box-group-container">
       <ContentBox
-        v-for="user in $data.users"
-        :key="user.id"
-        :title="user.displayName"
+        v-for="instruction in $data.instructions"
+        :key="instruction.name"
+        :title="instruction.displayName"
         :src="
-          isSelected(user.id)
+          isSelected(instruction.name)
             ? '/assets/images/checkmark.svg'
-            : '/assets/images/profile.svg'
+            : '/assets/images/info.svg'
         "
         span
-        @click="handleClickEvent(user.id)"
+        @click="handleClickEvent(instruction.name)"
         theme-safe
       >
-        <p>
-          <code v-text="user.id" />
-        </p>
+        <p v-text="instruction.description" />
       </ContentBox>
     </div>
     <Loading v-else />
@@ -57,62 +61,70 @@
     ref="confirmBulkDeleteModal"
     @confirm="bulkDelete"
     @deny="clearSelection"
-    title="Delete these users?"
-    choice-closes-modal
+    title="Delete these instructions?"
+    deny-closes-modal
     cancelable
   >
     <p>
-      Are you sure you want to delete these
-      {{ $data.selectedUsers.length }} user{{
-        $data.selectedUsers.length === 1 ? '' : 's'
-      }}?
+      <code v-text="$data.selectedInstructions.length" />
+      instructions will be deleted.
     </p>
   </ConfirmModal>
-  <FullscreenLoading ref="fullscreenLoading" />
+
+  <FormModal
+    ref="newInstructionModal"
+    @confirm="createInstruction"
+    deny-closes-modal
+    title="New Instruction"
+    cancelable
+  >
+    <input type="text" name="name" placeholder="Name" />
+    <textarea name="description" placeholder="Description" />
+  </FormModal>
 </template>
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
-  import { Client, Cumulonimbus } from '../../../../cumulonimbus-wrapper';
-  import Paginator from '@/components/Paginator.vue';
-  import Loading from '@/components/Loading.vue';
+  import { Cumulonimbus, Client } from '../../../../cumulonimbus-wrapper';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import FullscreenLoading from '@/components/FullscreenLoading.vue';
+  import Loading from '@/components/Loading.vue';
+  import Paginator from '@/components/Paginator.vue';
   import ContentBox from '@/components/ContentBox.vue';
+  import FormModal from '@/components/FormModal.vue';
   import App from '@/App.vue';
 
   @Options({
     components: {
-      Paginator,
-      Loading,
       ConfirmModal,
-      FullscreenLoading,
-      ContentBox
+      Loading,
+      Paginator,
+      ContentBox,
+      FormModal
     },
     data() {
       return {
         bulkDeleteMode: false,
-        userCount: 0,
-        maxPage: -1,
+        selectedInstructions: [],
         loading: false,
-        users: [],
-        selectedUsers: []
+        maxPage: 0,
+        instructions: [],
+        instructionCount: 0
       };
-    },
-    title: 'All Users'
+    }
   })
-  export default class AllUsers extends Vue {
+  export default class AdminInstructions extends Vue {
     declare $data: {
-      userCount: number;
-      bulkDeleteMode: boolean;
-      users: Cumulonimbus.Data.User[];
-      selectedUsers: string[];
+      instructions: Cumulonimbus.Data.Instruction[];
+      instructionCount: number;
       loading: boolean;
+      bulkDeleteMode: boolean;
       maxPage: number;
+      selectedInstructions: string[];
     };
+
     declare $refs: {
+      newInstructionModal: FormModal;
       confirmBulkDeleteModal: ConfirmModal;
-      fullscreenLoading: FullscreenLoading;
       paginator: Paginator;
     };
 
@@ -128,23 +140,145 @@
       if (!(await (this.$parent?.$parent as App).isStaff())) {
         this.$router.replace('/');
       }
-      await this.getUsers();
+      await this.getInstructions();
+    }
+
+    async getInstructions() {
+      try {
+        this.$data.loading = true;
+        const curPageInstructions = await (
+          this.$store.state.client as Client
+        ).getInstructions(50, 50 * this.$refs.paginator.pageZeroIndexed);
+        this.$data.instructions = curPageInstructions.items;
+        this.$data.instructionCount = curPageInstructions.count;
+        this.$data.maxPage = Math.floor(this.$data.instructionCount / 50);
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).handleInvalidSession();
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                5000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                5000
+              );
+              console.error(error);
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            5000
+          );
+          console.error(error);
+        }
+      } finally {
+        this.$data.loading = false;
+      }
     }
 
     clearSelection() {
+      this.$data.selectedInstructions = [];
       this.$data.bulkDeleteMode = false;
-      this.$data.selectedUsers = [];
     }
 
-    async getUsers() {
+    isSelected(name: string) {
+      return (
+        this.$data.bulkDeleteMode &&
+        this.$data.selectedInstructions.includes(name)
+      );
+    }
+
+    handleClickEvent(name: string) {
+      if (this.$data.bulkDeleteMode) {
+        if (this.$data.selectedInstructions.includes(name)) {
+          this.$data.selectedInstructions =
+            this.$data.selectedInstructions.filter(
+              instructionName => instructionName !== name
+            );
+        } else {
+          this.$data.selectedInstructions.push(name);
+        }
+      } else {
+        this.$router.push({ path: '/admin/instruction', query: { name } });
+      }
+    }
+
+    async createInstruction(data: { name: string; description: string }) {
+      try {
+        let res = await (this.$store.state.client as Client).createInstruction(
+          data.name.toLowerCase().replace(' ', '-'),
+          [],
+          null,
+          '{{token}}',
+          data.description,
+          data.name
+        );
+        this.$refs.newInstructionModal.hide();
+        this.$router.push({
+          path: '/admin/instruction',
+          query: { name: res.name }
+        });
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).handleInvalidSession();
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                5000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                5000
+              );
+              console.error(error);
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            5000
+          );
+          console.error(error);
+        }
+      }
+    }
+
+    async bulkDelete() {
       try {
         this.$data.loading = true;
-        const curPageUsers = await (
-          this.$store.state.client as Client
-        ).getUsers(50, 50 * this.$refs.paginator.pageZeroIndexed);
-        this.$data.users = curPageUsers.items;
-        this.$data.userCount = curPageUsers.count;
-        this.$data.maxPage = Math.floor(curPageUsers.count / 50);
+        this.$refs.confirmBulkDeleteModal.hide();
+        await (this.$store.state.client as Client).bulkDeleteInstructionsByID(
+          this.$data.selectedInstructions
+        );
+        this.clearSelection();
+        await this.getInstructions();
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
@@ -184,92 +318,6 @@
         }
       } finally {
         this.$data.loading = false;
-      }
-    }
-
-    isSelected(u: string) {
-      return this.$data.bulkDeleteMode && this.$data.selectedUsers.includes(u);
-    }
-
-    handleClickEvent(u: string) {
-      if (!this.$data.bulkDeleteMode) {
-        this.$router.push({
-          path: '/admin/user',
-          query: { uid: u }
-        });
-      } else {
-        if (this.isSelected(u)) {
-          this.$data.selectedUsers = this.$data.selectedUsers.filter(
-            user => user !== u
-          );
-        } else {
-          if (this.$data.selectedUsers.length >= 100) {
-            (this.$parent?.$parent as App).temporaryToast(
-              'You cannot select more than 100 users at once.',
-              5000
-            );
-          } else this.$data.selectedUsers.push(u);
-        }
-      }
-    }
-
-    async bulkDelete() {
-      try {
-        this.$refs.fullscreenLoading.show();
-        const res = await (
-          this.$store.state.client as Client
-        ).bulkDeleteUsersByID(this.$data.selectedUsers);
-        await this.getUsers();
-        (this.$parent?.$parent as App).temporaryToast(
-          `Deleted ${res.count} users!`,
-          5000
-        );
-      } catch (error) {
-        if (error instanceof Cumulonimbus.ResponseError) {
-          switch (error.code) {
-            case 'RATELIMITED_ERROR':
-              (this.$parent?.$parent as App).ratelimitToast(
-                error.ratelimit.resetsAt
-              );
-              break;
-            case 'PERMISSIONS_ERROR':
-              this.$router.replace('/');
-              break;
-            case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).handleInvalidSession();
-              break;
-            case 'BANNED_ERROR':
-              (this.$parent?.$parent as App).handleBannedUser();
-              break;
-            case 'INTERNAL_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                'The server did something weird, lets try again later.',
-                5000
-              );
-              break;
-            case 'MISSING_FIELDS_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                'You can only bulk delete 100 users at a time, sorry!',
-                5000
-              );
-              break;
-            default:
-              (this.$parent?.$parent as App).temporaryToast(
-                'I did something weird, lets try again later.',
-                5000
-              );
-              console.error(error);
-          }
-        } else {
-          (this.$parent?.$parent as App).temporaryToast(
-            'I did something weird, lets try again later.',
-            5000
-          );
-          console.error(error);
-        }
-      } finally {
-        this.clearSelection();
-        this.$refs.fullscreenLoading.hide();
       }
     }
   }
