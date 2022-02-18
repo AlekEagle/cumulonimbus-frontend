@@ -29,7 +29,7 @@
       <ContentBox
         v-for="domain in $data.domains"
         :key="domain.domain"
-        @click="handleClickEvent"
+        @click="handleClickEvent(domain)"
         span
         :src="
           isSelected(domain.domain)
@@ -44,6 +44,14 @@
     </div>
     <Loading v-else />
   </Paginator>
+
+  <ConfirmModal
+    ref="confirmBulkDeleteModal"
+    @confirm="bulkDelete"
+    @deny="clearSelection"
+    title="Delete these domains?"
+    choice-closes-modal
+  />
 </template>
 
 <script lang="ts">
@@ -80,15 +88,16 @@
     declare $data: {
       domains: Cumulonimbus.Data.Domain[];
       bulkDeleteMode: boolean;
-      selectedDomains: Cumulonimbus.Data.Domain[];
+      selectedDomains: string[];
       maxPage: number;
       domainCount: number;
-      selectedDomain: Cumulonimbus.Data.Domain;
+      selectedDomain: Cumulonimbus.Data.Domain | null;
       loading: boolean;
     };
 
     declare $refs: {
       paginator: Paginator;
+      confirmBulkDeleteModal: ConfirmModal;
     };
 
     async mounted() {
@@ -116,6 +125,80 @@
         this.$data.domainCount = data.count;
         this.$data.domains = data.items;
         this.$data.maxPage = Math.floor(this.$data.domainCount / 50);
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).handleInvalidSession();
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird. Lets try again later.',
+                5000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird. Lets try again later.',
+                5000
+              );
+              console.error(error);
+              break;
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird. Lets try again later.',
+            5000
+          );
+          console.error(error);
+        }
+      }
+    }
+
+    clearSelection() {
+      this.$data.selectedDomains = [];
+      this.$data.selectedDomain = null;
+      this.$data.bulkDeleteMode = false;
+    }
+
+    isSelected(domain: string) {
+      return (
+        this.$data.bulkDeleteMode && this.$data.selectedDomains.includes(domain)
+      );
+    }
+
+    handleClickEvent(domain: Cumulonimbus.Data.Domain) {
+      if (this.$data.bulkDeleteMode) {
+        if (this.$data.selectedDomains.includes(domain.domain)) {
+          this.$data.selectedDomains = this.$data.selectedDomains.filter(
+            selectedDomain => selectedDomain !== domain.domain
+          );
+        } else {
+          this.$data.selectedDomains.push(domain.domain);
+        }
+      } else {
+        this.$data.selectedDomain = domain;
+      }
+    }
+
+    async bulkDelete() {
+      try {
+        this.$data.loading = true;
+        this.$refs.confirmBulkDeleteModal.hide();
+        await (this.$store.state.client as Client).bulkDeleteDomainsByID(
+          this.$data.selectedDomains
+        );
+        this.$data.loading = false;
+        this.clearSelection();
+        this.getDomains();
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
