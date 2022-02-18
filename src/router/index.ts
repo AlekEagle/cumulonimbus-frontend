@@ -57,6 +57,41 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/Sessions.vue')
   },
   {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: () => import('@/views/admin/Dashboard.vue')
+  },
+  {
+    path: '/admin/files',
+    name: 'AdminFiles',
+    component: () => import('@/views/admin/Files.vue')
+  },
+  {
+    path: '/admin/users',
+    name: 'AdminUsers',
+    component: () => import('@/views/admin/Users.vue')
+  },
+  {
+    path: '/admin/user',
+    name: 'AdminUser',
+    component: () => import('@/views/admin/User.vue')
+  },
+  {
+    path: '/admin/user-sessions',
+    name: 'AdminUserSessions',
+    component: () => import('@/views/admin/Sessions.vue')
+  },
+  {
+    path: '/admin/file',
+    name: 'AdminFile',
+    component: () => import('@/views/admin/File.vue')
+  },
+  {
+    path: '/admin/domains',
+    name: 'AdminDomains',
+    component: () => import('@/views/admin/Domains.vue')
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue')

@@ -2,7 +2,7 @@
   <h1>Upload</h1>
   <h2>Do the upload things.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard/')" title="Go back!"
+    <button @click="$router.replace('/dashboard')" title="Go back!"
       >Back</button
     >
   </div>
@@ -126,8 +126,8 @@
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
-          "Looks like you're offline, I'm pretty useless offline.",
-          5000
+          "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
+          15000
         );
         return;
       }
@@ -221,16 +221,7 @@
               );
               break;
             case 'INVALID_SESSION_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "That's funny, your session just expired!",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).temporaryToast(

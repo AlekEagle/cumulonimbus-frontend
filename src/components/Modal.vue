@@ -2,22 +2,29 @@
   <transition name="modal">
     <div
       v-if="$data.__show"
-      :class="`modal-container${cancelable ? '' : ' no-close'}`"
+      :class="`modal-container${$props.cancelable ? '' : ' no-close'}`"
       @click.self="
         () => {
-          if (!cancelable) return;
+          if (!$props.cancelable) return;
+          $emit('closed');
           hide();
         }
       "
     >
       <div class="modal">
         <div class="modal-header">
-          <h1 class="modal-title" v-text="title" /><img
-            v-if="cancelable"
+          <h1 class="modal-title" v-text="$props.title" /><img
+            v-if="$props.cancelable"
             class="modal-close"
             src="/assets/images/close.svg"
             alt="Close Modal"
-            @click.self="hide"
+            @click.self="
+              () => {
+                if (!$props.cancelable) return;
+                $emit('closed');
+                hide();
+              }
+            "
         /></div>
         <div class="modal-content">
           <slot name="default">
@@ -26,7 +33,17 @@
         </div>
         <div class="modal-buttons">
           <slot name="buttons">
-            <button @click="hide" v-if="cancelable">Close</button>
+            <button
+              @click="
+                () => {
+                  if (!$props.cancelable) return;
+                  $emit('closed');
+                  hide();
+                }
+              "
+              v-if="$props.cancelable"
+              >Close</button
+            >
           </slot>
         </div>
       </div>
@@ -51,15 +68,18 @@
       return {
         __show: false
       };
-    }
+    },
+    emits: ['closed'] //Only emitted when the modal is closed through a default action, ex: clicking off modal, clicking close button, clicking default close modal button
   })
   export default class Modal extends Vue {
     declare $data: {
       __show: boolean;
     };
-    declare visible: boolean;
-    declare title: string;
-    declare cancelable: boolean;
+    declare $props: {
+      title: string;
+      cancelable: boolean;
+      visible: boolean;
+    };
     hide() {
       if (document.body.classList.contains('no-scroll'))
         document.body.classList.remove('no-scroll');
@@ -71,7 +91,7 @@
       this.$data.__show = true;
     }
     mounted() {
-      if (this.visible) setTimeout(() => (this.$data.__show = true), 500);
+      if (this.$props.visible) setTimeout(() => (this.$data.__show = true), 500);
     }
   }
 </script>

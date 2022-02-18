@@ -1,10 +1,11 @@
 {
   "name": "cumulonimbus-frontend",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "private": true,
   "scripts": {
     "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build"
+    "build": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
+    "build-dev": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --mode development"
   },
   "dependencies": {
     "core-js": "^3.6.5",

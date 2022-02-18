@@ -3,17 +3,15 @@
   <div class="auth-box-container">
     <div class="auth-box"
       ><br />
-      <div class="checkbox-container"
-        ><p @click="$data.signIn = false" class="label-left">Register</p>
-        <input
-          type="checkbox"
-          id="sign-in-toggle"
-          :checked="$data.signIn"
-          @change="signInOrRegister"
-        />
-        <label for="sign-in-toggle"><span></span></label
-        ><p @click="$data.signIn = true" class="label-right">Sign In</p>
-      </div>
+      <ToggleSwitch
+        label-left="Register"
+        label-right="Sign In"
+        @left-label-click="$data.signIn = false"
+        @right-label-click="$data.signIn = true"
+        @change="signInOrRegister"
+        is-checked
+        labels-change-value
+      />
       <template v-if="$data.signIn">
         <h2>Sign In</h2>
         <form ref="signInForm" @submit.prevent="submitSignIn">
@@ -34,11 +32,7 @@
             required
           />
           <br />
-          <div class="checkbox-container">
-            <input type="checkbox" id="remember-me1" name="rememberMe" />
-            <label for="remember-me1"><span></span></label
-            ><p class="label-right">Remember Me</p>
-          </div>
+          <ToggleSwitch label-right="Remember Me" name="rememberMe" />
           <br />
           <button>Sign In</button>
         </form>
@@ -80,11 +74,7 @@
             required
           />
           <br />
-          <div class="checkbox-container">
-            <input type="checkbox" id="remember-me2" name="rememberMe" />
-            <label for="remember-me2"><span></span></label
-            ><p class="label-right">Remember Me</p>
-          </div>
+          <ToggleSwitch label-right="Remember Me" name="rememberMe" />
           <br />
           <button>Register</button>
         </form>
@@ -95,11 +85,12 @@
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
-  import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
+  import { Cumulonimbus } from '../../../cumulonimbus-wrapper';
   import App from '@/App.vue';
+  import ToggleSwitch from '@/components/ToggleSwitch.vue';
 
   @Options({
-    components: {},
+    components: { ToggleSwitch },
     data() {
       return {
         signIn: true
@@ -236,8 +227,8 @@
       }
     }
 
-    signInOrRegister(e: Event) {
-      this.$data.signIn = (e.target as HTMLInputElement).checked;
+    signInOrRegister(e: boolean) {
+      this.$data.signIn = e;
     }
 
     authedRedir() {
@@ -245,15 +236,15 @@
       this.$router.push(
         urlSearchParams.has('redirect')
           ? (urlSearchParams.get('redirect') as string)
-          : '/dashboard/'
+          : '/dashboard'
       );
     }
 
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
-          "Looks like you're offline, I'm pretty useless offline.",
-          5000
+          "Looks like you're offline, I'm pretty useless offline. Without the internet I cannot do the things you requested me to. I don't know what anything is without the internet. I wish i had the internet so I could browse TikTok. Please give me access to TikTok.",
+          15000
         );
         return;
       }
@@ -267,7 +258,7 @@
       this.$router.push(
         urlSearchParams.has('redirect')
           ? (urlSearchParams.get('redirect') as string)
-          : '/dashboard/'
+          : '/dashboard'
       );
     }
   }
