@@ -80,6 +80,9 @@
       cancelable: boolean;
       visible: boolean;
     };
+    beforeUnmount() {
+      this.hide();
+    }
     hide() {
       if (document.body.classList.contains('no-scroll'))
         document.body.classList.remove('no-scroll');
@@ -91,7 +94,8 @@
       this.$data.__show = true;
     }
     mounted() {
-      if (this.$props.visible) setTimeout(() => (this.$data.__show = true), 500);
+      if (this.$props.visible)
+        setTimeout(() => (this.$data.__show = true), 500);
     }
   }
 </script>
