@@ -54,9 +54,9 @@
           "
         />
       </p>
-      <p v-if="$store.state.user?.staff !== null">
+      <p>
         Staff:
-        <code v-text="$store.state.user?.staff" />
+        <code v-text="$store.state.user?.staff ? 'Yes' : 'No'" />
       </p>
     </ContentBox>
     <ContentBox

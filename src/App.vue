@@ -190,10 +190,7 @@
     async isStaff() {
       //check if logged in first, no bother checking staff if they aren't logged in
       if (!(await this.isLoggedIn())) return false;
-      return (
-        this.$store.state.user?.staff !== null &&
-        this.$store.state.user?.staff !== ''
-      );
+      return this.$store.state.user?.staff as boolean;
     }
 
     async redirectIfNotLoggedIn(path: string): Promise<boolean> {

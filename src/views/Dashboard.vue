@@ -11,9 +11,9 @@
       >Sign Out</button
     >
     <button
-      v-if="$data.isStaff"
+      v-if="$store.state.user?.staff"
       @click="$router.push('/admin')"
-      title="This button will take you to the admin dashboard."
+      title="This button will take you to cool town square."
     >
       Admin Dashboard
     </button>
@@ -69,13 +69,9 @@
 
   @Options({
     components: { ContentBox },
-    title: 'Dashboard',
-    data() {
-      return { isStaff: false };
-    }
+    title: 'Dashboard'
   })
   export default class Dashboard extends Vue {
-    declare $data: { isStaff: boolean };
     async mounted() {
       if (!navigator.onLine) {
         (this.$parent?.$parent as App).temporaryToast(
@@ -84,8 +80,6 @@
         );
         return;
       }
-
-      this.$data.isStaff = await (this.$parent?.$parent as App).isStaff();
     }
 
     async signOut() {

@@ -65,9 +65,9 @@
         />
         <code v-else>Not yet...</code>
       </p>
-      <p v-if="$data.user?.staff !== null && $data.user?.staff !== ''">
+      <p>
         Staff:
-        <code v-text="$data.user?.staff" />
+        <code v-text="$data.user?.staff ? 'Yes' : 'No'" />
       </p>
     </ContentBox>
     <ContentBox
