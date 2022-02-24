@@ -116,6 +116,15 @@
       <p>Ban/Unban the user.</p>
     </ContentBox>
     <ContentBox
+      title="Toggle Staff Status"
+      @click="$refs.toggleStaffModal.show()"
+      span
+      src="/assets/images/gear.svg"
+      theme-safe
+    >
+      <p>Toggle the user's staff status.</p>
+    </ContentBox>
+    <ContentBox
       title="Delete User"
       @click="$refs.deleteUserModal.show()"
       span
@@ -247,6 +256,16 @@
 
   <ConfirmModal
     cancelable
+    ref="toggleStaffModal"
+    @confirm="toggleStaff"
+    deny-closes-modal
+    title="Toggle Staff Status"
+  >
+    <p> Are you sure you want to toggle this user's staff status? </p>
+  </ConfirmModal>
+
+  <ConfirmModal
+    cancelable
     ref="deleteUserContentModal"
     @confirm="deleteUserContent"
     deny-closes-modal
@@ -317,6 +336,7 @@
       deleteUserModal: ConfirmModal;
       deleteUserContentModal: ConfirmModal;
       clearUserSessionsModal: ConfirmModal;
+      toggleStaffModal: ConfirmModal;
       fullscreenLoading: FullscreenLoading;
     };
 
@@ -816,6 +836,64 @@
         }
       } finally {
         this.$refs.fullscreenLoading.hide();
+      }
+    }
+
+    async toggleStaff() {
+      try {
+        this.$refs.toggleStaffModal.hide();
+        this.$data.loading = true;
+        this.$data.user = await (
+          this.$store.state.client as Client
+        ).editUserByID(this.$data.user.id, { staff: !this.$data.user.staff });
+        (this.$parent?.$parent as App).temporaryToast('Done!', 5000);
+      } catch (error) {
+        if (error instanceof Cumulonimbus.ResponseError) {
+          switch (error.code) {
+            case 'RATELIMITED_ERROR':
+              (this.$parent?.$parent as App).ratelimitToast(
+                error.ratelimit.resetsAt
+              );
+              break;
+            case 'INVALID_SESSION_ERROR':
+              (this.$parent?.$parent as App).handleInvalidSession();
+              break;
+            case 'PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
+            case 'BANNED_ERROR':
+              (this.$parent?.$parent as App).handleBannedUser();
+              break;
+            case 'INVALID_USER_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'This user does not exist.',
+                5000
+              );
+              this.$router.replace('/admin/users');
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                5000
+              );
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                5000
+              );
+              console.error(error);
+              break;
+          }
+        } else {
+          (this.$parent?.$parent as App).temporaryToast(
+            'I did something weird, lets try again later.',
+            5000
+          );
+          console.error(error);
+        }
+      } finally {
+        this.$data.loading = false;
       }
     }
 
