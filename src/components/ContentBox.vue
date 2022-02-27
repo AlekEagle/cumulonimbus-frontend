@@ -39,7 +39,6 @@
   import LazyImage from '@/components/LazyImage.vue';
   import {
     LocationAsPath,
-    LocationAsRelativeRaw,
     RouteLocationOptions,
     RouteQueryAndHash
   } from 'vue-router';
@@ -61,7 +60,7 @@
         default: undefined
       },
       to: {
-        type: Object,
+        type: null,
         default: undefined
       },
       disabled: Boolean,

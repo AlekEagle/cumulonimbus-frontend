@@ -87,6 +87,7 @@
     }
 
     validateSubdomain(event: Event) {
+      if ((event as InputEvent).data === null) return;
       const input = event.target as HTMLInputElement;
       const r = /[a-z0-9-]+/;
       if (input.value.length >= 63) {
@@ -95,8 +96,9 @@
       }
       if (!r.test((event as InputEvent).data as string)) event.preventDefault();
       if ((event as InputEvent).data === ' ') {
-        input.value += '-';
-        input.setSelectionRange(input.value.length, input.value.length);
+        let curPos = input.selectionStart as number + 1;
+        input.value = input.value.substring(0, curPos - 1) + '-' + input.value.substring(curPos - 1, input.value.length);
+        input.setSelectionRange(curPos, curPos);
       }
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "cumulonimbus-frontend",
-  "version": "3.1.6",
+  "version": "3.1.7",
   "private": true,
   "scripts": {
     "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",

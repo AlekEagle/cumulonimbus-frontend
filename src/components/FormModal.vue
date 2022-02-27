@@ -75,17 +75,14 @@
     }
 
     accept() {
-      const data = new FormData(this.$refs.form),
+      const inputs = this.$refs.form.querySelectorAll('input:not([type="submit"]),textarea'),
         dataAsJSON: { [key: string]: string | boolean } = {};
-      for (const [key, value] of data.entries()) {
-        if (value === 'on') {
-          dataAsJSON[key] = true;
-        } else if (value === 'off') {
-          dataAsJSON[key] = false;
-        } else {
-          dataAsJSON[key] = value as string;
-        }
-      }
+
+      inputs.forEach(el => {
+        if ((el as HTMLInputElement).type === 'checkbox') dataAsJSON[(el as HTMLInputElement).name] = (el as HTMLInputElement).checked;
+        else dataAsJSON[(el as HTMLInputElement).name] = (el as HTMLInputElement).value;
+      });
+
       this.$emit('confirm', dataAsJSON);
       if (this.$props.confirmClosesModal) this.hide();
       if (this.$props.confirmResetsForm) this.$refs.form.reset();

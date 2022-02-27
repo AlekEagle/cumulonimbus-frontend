@@ -257,7 +257,7 @@
       <input type="submit" />
     </form>
   </ConfirmModal>
-  <DomainModal ref="changeDomainModal" @confirm="changeDomain" />
+  <DomainModal ref="changeDomainModal" :domain="$store.state.user?.domain" :subdomain="$store.state.user?.subdomain" @confirm="changeDomain" />
   <ConfirmModal
     ref="clearCacheModal"
     title="Clear preview cache"
