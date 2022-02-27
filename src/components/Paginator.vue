@@ -93,6 +93,7 @@
 
       if (this.$props.max !== -1 && page > this.$props.max + 1) {
         input.value = (this.$props.max + 1).toString();
+        this.setPage(this.$props.max);
         return;
       }
 
