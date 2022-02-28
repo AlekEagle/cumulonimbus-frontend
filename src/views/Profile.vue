@@ -301,7 +301,7 @@
     </p>
   </ConfirmModal>
   <ConfirmModal
-    ref="deleteAccount"
+    ref="deleteAccountModal"
     title="Delete your account"
     cancelable
     @confirm="deleteAccount"
