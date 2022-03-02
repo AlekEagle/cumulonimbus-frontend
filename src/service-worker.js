@@ -1,6 +1,5 @@
 const URLSToCache = [
   '/service-worker.js',
-  '/manifest.json',
   ...self.__precacheManifest.map(a => a.url)
 ];
 
