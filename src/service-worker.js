@@ -82,7 +82,7 @@ self.addEventListener('fetch', async e => {
                 return new Response('', { status: 404 });
               } else {
                 console.debug(
-                  `[CacheManager] Page not found: ${url}, returning 404 page`
+                  `[CacheManager] Page not found: ${url}, serving default page`
                 );
                 let cachedIndex = await (
                   await caches.open('offline-cache')
