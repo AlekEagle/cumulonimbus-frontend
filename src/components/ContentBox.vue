@@ -16,6 +16,7 @@
         :src="$props.src"
         failed-src="/assets/images/exclamation-mark.svg"
         :class="`content-box-icon${$props.themeSafe ? ' theme-safe' : ''}`"
+        :error-handler="$props.thumbnailErrorHandler"
       />
     </template>
     <div class="content-box-text-content">
@@ -67,7 +68,16 @@
       selectable: Boolean,
       themeSafe: Boolean,
       lazyLoad: Boolean,
-      newTab: Boolean
+      newTab: Boolean,
+      thumbnailErrorHandler: {
+        type: Function,
+        default: (
+          res: Response | Error,
+          cb: (data?: string | boolean) => Promise<void>
+        ) => {
+          cb(true);
+        }
+      }
     }
   })
   export default class ContentBox extends Vue {
@@ -81,8 +91,12 @@
       themeSafe: boolean;
       lazyLoad: boolean;
       newTab: boolean;
+      thumbnailErrorHandler: (
+        res: Response | Error,
+        cb: (data?: string | boolean) => void
+      ) => void;
     };
-    handleContentTo(e: MouseEvent) {
+    handleContentTo() {
       if (this.$props.to !== undefined && !this.$props.disabled) {
         if (this.$props.newTab)
           window.open(
@@ -91,8 +105,7 @@
               : this.$props.to.path,
             '_blank'
           );
-        else
-          this.$router.push(this.$props.to);
+        else this.$router.push(this.$props.to);
       }
     }
   }

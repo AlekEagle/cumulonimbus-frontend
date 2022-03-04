@@ -35,6 +35,15 @@
       wait: {
         type: Number,
         default: 5000
+      },
+      errorHandler: {
+        type: Function,
+        default: (
+          res: Response | Error,
+          cb: (data?: string | boolean) => void
+        ) => {
+          cb(true);
+        }
       }
     },
     data() {
@@ -42,7 +51,9 @@
         done: false,
         lazyBlobURL: undefined,
         currentTries: 0,
-        timeout: undefined
+        timeout: undefined,
+        hasErrored: false,
+        firstLoad: true
       };
     },
     watch: {
@@ -58,38 +69,76 @@
       failedSrc: string;
       tries: number;
       wait: number;
+      errorHandler: (
+        res: Response | Error,
+        cb: (data?: string | boolean) => Promise<void>
+      ) => void;
     };
     declare $data: {
       done: boolean;
       lazyBlobURL?: string;
       currentTries: number;
       timeout?: number;
+      hasErrored: boolean;
+      firstLoad: boolean;
     };
 
-    async loadIcon() {
-      this.$data.timeout = undefined;
+    async loadIcon(
+      url: string = this.$props.src,
+      skipWaiting: boolean = false
+    ) {
+      await new Promise(resolve =>
+        setTimeout(
+          resolve,
+          this.$data.firstLoad || skipWaiting ? 0 : this.$props.wait
+        )
+      );
       try {
-        let res = await fetch(this.$props.src);
+        this.$data.firstLoad = false;
+        let res = await fetch(url);
         if (res.ok) {
           let slimySlime = await res.blob();
           this.$data.lazyBlobURL = URL.createObjectURL(slimySlime);
           this.$data.done = true;
         } else {
-          this.handleFail();
+          this.handleFail(res);
         }
       } catch (error) {
         console.error(error);
-        this.handleFail();
+        this.handleFail(error as Error);
       }
     }
 
-    handleFail() {
-      if (++this.$data.currentTries <= this.$props.tries) {
-        this.$data.timeout = setTimeout(this.loadIcon, this.$props.wait);
-      } else {
-        this.$data.lazyBlobURL;
+    async handleFail(res: Response | Error) {
+      if (this.$data.hasErrored) {
         this.$data.done = true;
+        return;
       }
+      if (++this.$data.currentTries >= this.$props.tries) {
+        this.$data.hasErrored = true;
+        await this.loadIcon(this.$props.failedSrc, true);
+      }
+      const callback = async (data?: string | boolean) => {
+        switch (typeof data) {
+          case 'string':
+            await this.loadIcon(data, true);
+            return;
+          case 'boolean':
+            if (data) {
+              await this.loadIcon();
+              return;
+            } else {
+              this.$data.hasErrored = true;
+              await this.loadIcon(this.$props.failedSrc, true);
+              return;
+            }
+          default:
+            await this.loadIcon();
+            return;
+        }
+      };
+
+      this.$props.errorHandler(res, callback);
     }
 
     mounted() {
@@ -97,6 +146,8 @@
     }
 
     retry() {
+      this.$data.hasErrored = false;
+      this.$data.firstLoad = true;
       this.$data.done = false;
       this.$data.lazyBlobURL = undefined;
       this.$data.currentTries = 0;

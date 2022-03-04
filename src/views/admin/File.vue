@@ -28,9 +28,11 @@
       class="file-info-box"
       span
       lazy-load
+      :theme-safe="$data.noPreview"
       new-tab
       :to="`https://${$data.hostname}/${$data.file?.filename}`"
       :src="`https://previews.${$data.hostname}/${$data.file?.filename}`"
+      :thumbnail-error-handler="thumbErrorHandler"
     >
       <p
         >Filename: <code>{{ $data.file?.filename }}</code></p
@@ -99,7 +101,8 @@
         user: null,
         canShare: false,
         hostname: null,
-        hFileSize: null
+        hFileSize: null,
+        noPreview: false
       };
     },
     title: 'File Information'
@@ -112,6 +115,7 @@
       canShare: boolean;
       hostname: string;
       hFileSize: string;
+      noPreview: boolean;
     };
 
     declare $refs: {
@@ -333,6 +337,28 @@
             console.error(err);
           }
         );
+    }
+
+    async thumbErrorHandler(
+      res: Response | Error,
+      cb: (data?: string | boolean) => Promise<void>
+    ) {
+      if (res instanceof Response) {
+        switch (res.status) {
+          case 415:
+            await cb('/assets/images/no-preview.svg');
+            this.$data.noPreview = true;
+            break;
+          case 500:
+          case 501:
+          case 502:
+            await cb(false);
+          default:
+            await cb();
+        }
+      } else {
+        cb();
+      }
     }
   }
 </script>
