@@ -349,10 +349,6 @@
             await cb('/assets/images/no-preview.svg');
             this.$data.noPreview = true;
             break;
-          case 500:
-          case 501:
-          case 502:
-            await cb(false);
           default:
             await cb();
         }

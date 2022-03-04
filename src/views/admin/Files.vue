@@ -412,10 +412,6 @@
             await cb('/assets/images/no-preview.svg');
             this.$data.noPreviewFiles.push(file);
             break;
-          case 500:
-          case 501:
-          case 502:
-            await cb(false);
           default:
             await cb();
         }
