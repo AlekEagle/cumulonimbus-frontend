@@ -224,7 +224,7 @@
   <DomainModal
     ref="changeDomainModal"
     @confirm="updateDomain"
-    @error="updateDomainError"
+    @error="(error: unknown) => updateDomainError(error as Error)"
     title="Change Domain"
     :domain="$data.user?.domain"
     :subdomain="$data.user?.subdomain"

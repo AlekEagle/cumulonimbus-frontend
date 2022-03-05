@@ -41,12 +41,16 @@
         span
         lazy-load
         @click="handleClickEvent(file.filename)"
-        :theme-safe="isSelected(file.filename)"
+        :theme-safe="
+          isSelected(file.filename) ||
+          $data.noPreviewFiles.includes(file.filename)
+        "
         :src="
           isSelected(file.filename)
             ? '/assets/images/checkmark.svg'
             : `https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`
         "
+        :thumbnail-error-handler="(res: any,cb: any) =>thumbErrorHandler(res,cb, file.filename)"
       >
         <p
           v-text="
@@ -104,7 +108,8 @@
         fileCount: 0,
         maxPage: -1,
         bulkDeleteMode: false,
-        selectedFiles: []
+        selectedFiles: [],
+        noPreviewFiles: []
       };
     }
   })
@@ -116,6 +121,7 @@
       maxPage: number;
       bulkDeleteMode: boolean;
       selectedFiles: string[];
+      noPreviewFiles: string[];
     };
     declare $refs: {
       paginator: Paginator;
@@ -392,6 +398,25 @@
           }
           this.$data.selectedFiles.push(f);
         }
+      }
+    }
+
+    async thumbErrorHandler(
+      res: Response | Error,
+      cb: (data?: string | boolean) => Promise<void>,
+      file: string
+    ) {
+      if (res instanceof Response) {
+        switch (res.status) {
+          case 415:
+            await cb('/assets/images/no-preview.svg');
+            this.$data.noPreviewFiles.push(file);
+            break;
+          default:
+            await cb();
+        }
+      } else {
+        cb();
       }
     }
   }

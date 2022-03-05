@@ -37,7 +37,11 @@
       >
     </template>
   </div>
-  <Paginator :max="$data.maxPage" ref="paginator" @change="getFiles">
+  <Paginator
+    :max="$data.maxPage"
+    ref="paginator"
+    @change="(page: unknown) => getFiles(page as number)"
+  >
     <div v-if="$data.loaded" class="content-box-group-container">
       <ContentBox
         v-for="file in $data.files"
@@ -46,12 +50,16 @@
         span
         lazy-load
         @click="handleClickEvent(file.filename)"
-        :theme-safe="isSelected(file.filename)"
+        :theme-safe="
+          isSelected(file.filename) ||
+          $data.noPreviewFiles.includes(file.filename)
+        "
         :src="
           isSelected(file.filename)
             ? '/assets/images/checkmark.svg'
             : `https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`
         "
+        :thumbnail-error-handler="(res: any,cb: any) =>thumbErrorHandler(res,cb, file.filename)"
         ><p
           v-text="
             $data.bulkDeleteMode
@@ -106,7 +114,8 @@
         fileCount: undefined,
         maxPage: -1,
         bulkDeleteMode: false,
-        selectedFiles: []
+        selectedFiles: [],
+        noPreviewFiles: []
       };
     }
   })
@@ -118,6 +127,7 @@
       maxPage: number;
       bulkDeleteMode: boolean;
       selectedFiles: string[];
+      noPreviewFiles: string[];
     };
     declare $refs: {
       confirmBulkDeleteModal: ConfirmModal;
@@ -293,6 +303,25 @@
         this.$data.bulkDeleteMode = false;
         this.$data.selectedFiles = [];
         this.$refs.confirmBulkDeleteModal.hide();
+      }
+    }
+
+    async thumbErrorHandler(
+      res: Response | Error,
+      cb: (data?: string | boolean) => Promise<void>,
+      file: string
+    ) {
+      if (res instanceof Response) {
+        switch (res.status) {
+          case 415:
+            await cb('/assets/images/no-preview.svg');
+            this.$data.noPreviewFiles.push(file);
+            break;
+          default:
+            await cb();
+        }
+      } else {
+        cb();
       }
     }
   }

@@ -17,8 +17,10 @@
       span
       lazy-load
       new-tab
+      :theme-safe="$data.noPreview"
       :to="`https://${$data.hostname}/${$data.file?.filename}`"
       :src="`https://previews.${$data.hostname}/${$data.file?.filename}`"
+      :thumbnail-error-handler="thumbErrorHandler"
     >
       <p
         >Filename: <code>{{ $data.file?.filename }}</code></p
@@ -77,7 +79,8 @@
         hostname: null,
         loaded: false,
         hFileSize: null,
-        canShare: false
+        canShare: false,
+        noPreview: false
       };
     },
     title: 'File Details'
@@ -89,6 +92,7 @@
       loaded: boolean;
       hFileSize: string | null;
       canShare: boolean;
+      noPreview: boolean;
     };
     declare $refs: {
       deleteFileModal: ConfirmModal;
@@ -246,6 +250,24 @@
             console.error(err);
           }
         );
+    }
+
+    async thumbErrorHandler(
+      res: Response | Error,
+      cb: (data?: string | boolean) => Promise<void>
+    ) {
+      if (res instanceof Response) {
+        switch (res.status) {
+          case 415:
+            await cb('/assets/images/no-preview.svg');
+            this.$data.noPreview = true;
+            break;
+          default:
+            await cb();
+        }
+      } else {
+        cb();
+      }
     }
   }
 </script>
