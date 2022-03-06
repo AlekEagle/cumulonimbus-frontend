@@ -77,7 +77,7 @@
           this.$store.state.client as Client
         ).getInstructions(50, 50 * this.$refs.paginator.pageZeroIndexed);
         this.$data.services = services.items;
-        this.$data.maxPage = services.count;
+        this.$data.maxPage = Math.floor(services.count / 50);;
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
