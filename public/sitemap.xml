@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://alekeagle.me/</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/auth</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/dashboard</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/dashboard/files</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/dashboard/file</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/dashboard/set-up</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/dashboard/set-up/service</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/dashboard/upload</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/dashboard/profile</loc>
+  </url>
+  <url>
+    <loc>https://alekeagle.me/dashboard/profile/sessions</loc>
+  </url>
+</urlset>
