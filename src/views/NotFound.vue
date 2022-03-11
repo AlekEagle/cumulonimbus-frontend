@@ -1,6 +1,7 @@
 <template>
   <h1>This doesn't look like the right place...</h1>
   <h2>Um, I think we took a wrong turn somewhere.</h2>
+  <h2>404 not found! The page you're looking for probably doesn't exist!</h2>
   <div class="quick-action-buttons-container">
     <button @click="$router.push('/')" title="Lets go home!"
       >I wanna go home.</button
