@@ -390,7 +390,7 @@
     async setAllowsSubdomains(checked: boolean) {
       try {
         this.$data.loading = true;
-        await (this.$store.state.client as Client).editDomainByID(
+        this.$data.selectedDomain = await (this.$store.state.client as Client).editDomainByID(
           this.$data.selectedDomain?.domain as string,
           checked
         );
