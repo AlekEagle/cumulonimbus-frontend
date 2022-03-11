@@ -13,3 +13,7 @@ The source code of the service is provided not to be used to create a hostile cl
 ## Acceptable Use
 
 Any and all content uploaded by you is, and will always be your property. The service is not liable for any user-generated content. The upload of illegal, harmful, and/or immoral content is not allowed and will be removed with valid reason being sent to you via email. Continued violations may result in your account being disabled or terminated. Account termination will result in your account being deleted and all user generated content being deleted. Violations resulting in an account being disabled can be appealed, while account termination is permanent and cannot be reversed. Abuse of the API is not allowed and can result in your account being disabled or terminated.
+
+## Digital Millennium Copyright Act (DMCA) Claims
+
+If a user is to upload content that violates DMCA a request for a takedown can be filed at dmca@alekeagle.com with a subject of "Cumulonimbus DMCA Claim". Abuse of a DMCA Claim is not tolerated and will go ignored.
