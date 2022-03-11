@@ -27,3 +27,7 @@ Everything is stored in Our Database which is located on Our origin server, our 
 ## Deleting Your Data
 
 You can request a deletion of Your account and/or files via the profile panel. This action is preformed immediately and is irreversible. Data stored inside of the database is immediately deleted, not marked as "deleted". If You have an issue with preforming a deletion of any sort please contact Us as We value Your privacy.
+
+## Contact
+
+If you have any questions please contact us at contact@alekeagle.com
