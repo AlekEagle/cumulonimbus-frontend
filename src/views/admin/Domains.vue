@@ -10,15 +10,15 @@
     >
     <button
       v-if="!$data.bulkDeleteMode"
-      @click="$data.bulkDeleteMode = true"
-      title="Haha delete stuff go bRRRRRRRRR"
-      >Bulk Delete</button
-    >
-    <button
-      v-if="!$data.bulkDeleteMode"
       @click="$refs.createDomainModal.show()"
       title="Create a new domain."
       >Create</button
+    >
+    <button
+      v-if="!$data.bulkDeleteMode"
+      @click="$data.bulkDeleteMode = true"
+      title="Haha delete stuff go bRRRRRRRRR"
+      >Bulk Delete</button
     >
     <template v-if="$data.bulkDeleteMode">
       <button
