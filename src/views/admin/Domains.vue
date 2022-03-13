@@ -14,6 +14,12 @@
       title="Haha delete stuff go bRRRRRRRRR"
       >Bulk Delete</button
     >
+    <button
+      v-if="!$data.bulkDeleteMode"
+      @click="$refs.createDomainModal.show()"
+      title="Create a new domain."
+      >Create</button
+    >
     <template v-if="$data.bulkDeleteMode">
       <button
         @click="$refs.confirmBulkDeleteModal.show()"
@@ -23,12 +29,6 @@
       </button>
       <button @click="clearSelection" title="Nevermind"> Nevermind.. </button>
     </template>
-    <button
-      v-if="!$data.bulkDeleteMode"
-      @click="$refs.createDomainModal.show()"
-      title="Create a new domain."
-      >Create Domain</button
-    >
   </div>
   <Paginator :max="$data.maxPage" ref="paginator" @change="getDomains">
     <div v-if="!$data.loading" class="content-box-group-container">
