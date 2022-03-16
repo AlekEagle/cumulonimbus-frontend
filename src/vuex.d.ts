@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
     page: { [key: string]: number };
     loadComplete: boolean;
     adminSelectedUserID: string | null;
+    adminSelectedFileID: string | null;
   }
 
   // provide typings for `this.$store`

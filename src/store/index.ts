@@ -13,7 +13,8 @@ export default createStore({
     session: null,
     page: {},
     loadComplete: false,
-    adminSelectedUserID: null
+    adminSelectedUserID: null,
+    adminSelectedFileID: null
   },
   mutations: {
     setClient(state, client) {
@@ -38,6 +39,9 @@ export default createStore({
     },
     setAdminSelectedUserID(state, userID) {
       state.adminSelectedUserID = userID;
+    },
+    setAdminSelectedFileID(state, fileID) {
+      state.adminSelectedFileID = fileID;
     }
   },
   actions: {
@@ -144,7 +148,17 @@ export default createStore({
     },
     async restoreSession({ commit }) {
       const tokenFromStorage = localStorage.getItem('token');
+      const selectedUserID = localStorage.getItem('adminSelectedUserID');
+      const selectedFileID = localStorage.getItem('adminSelectedFileID');
       try {
+        if (selectedUserID !== null) {
+          commit('setAdminSelectedUserID', selectedUserID);
+          localStorage.removeItem('adminSelectedUserID');
+        }
+        if (selectedFileID !== null) {
+          commit('setAdminSelectedFileID', selectedFileID);
+          localStorage.removeItem('adminSelectedFileID');
+        }
         if (tokenFromStorage === null) return false;
         else {
           const client = new Client(tokenFromStorage, clientOptions),
@@ -153,18 +167,17 @@ export default createStore({
           commit('setClient', client);
           commit('setSession', currentSession);
           commit('setUser', currentUser);
-          commit('clientLoadComplete');
           return true;
         }
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
-          commit('clientLoadComplete');
           throw error;
         } else {
           console.error(error);
-          commit('clientLoadComplete');
           return false;
         }
+      } finally {
+        commit('clientLoadComplete');
       }
     }
   },

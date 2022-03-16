@@ -141,6 +141,9 @@
         this.$router.replace('/');
       }
       await this.getFiles();
+
+      if (this.$route.query.uid && !this.$store.state.adminSelectedUserID)
+        this.$store.commit('setAdminSelectedUserID', this.$route.query.uid);
     }
 
     async getFiles() {
@@ -298,12 +301,13 @@
 
     goBack() {
       this.$refs.paginator.reset();
-      if (this.$route.query.uid)
+      if (this.$route.query.uid) {
         this.$router.push({
           path: '/admin/user',
           query: { uid: this.$route.query.uid }
         });
-      else this.$router.push('/admin');
+        this.$store.commit('setAdminSelectedUserID', null);
+      } else this.$router.push('/admin');
     }
 
     clearSelection() {

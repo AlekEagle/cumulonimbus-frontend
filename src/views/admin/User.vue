@@ -2,12 +2,7 @@
   <h1>User Information</h1>
   <h2>Here's everything we know about this person.</h2>
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $store.commit('setAdminSelectedUserID', null);
-        $router.push('/admin/users');
-      "
-      title="Back to cool town resident directory."
+    <button @click="back" title="Back to cool town resident directory."
       >Back</button
     >
   </div>
@@ -363,6 +358,11 @@
 
       await (this.$parent?.$parent as App).isLoggedIn();
       await this.getUser();
+
+      window.addEventListener(
+        'beforeunload',
+        this.saveSelectedItemsBeforeUnload
+      );
     }
 
     async getUser() {
@@ -417,6 +417,38 @@
         }
       } finally {
         this.$data.loading = false;
+      }
+    }
+
+    back() {
+      window.removeEventListener(
+        'beforeunload',
+        this.saveSelectedItemsBeforeUnload
+      );
+      if (this.$store.state.adminSelectedFileID) {
+        this.$router.push({
+          path: '/admin/file',
+          query: {
+            id: this.$store.state.adminSelectedFileID
+          }
+        });
+        this.$store.commit('setAdminSelectedFileID', null);
+        this.$store.commit('setAdminSelectedUserID', this.$data.user.id);
+      } else this.$router.push('/admin/users');
+    }
+
+    saveSelectedItemsBeforeUnload() {
+      if (this.$store.state.adminSelectedUserID) {
+        window.localStorage.setItem(
+          'adminSelectedUserID',
+          this.$store.state.adminSelectedUserID
+        );
+      }
+      if (this.$store.state.adminSelectedFileID) {
+        window.localStorage.setItem(
+          'adminSelectedFileID',
+          this.$store.state.adminSelectedFileID
+        );
       }
     }
 

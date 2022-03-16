@@ -2,21 +2,7 @@
   <h1>File Information</h1>
   <h2>Information about a specific file.</h2>
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $router.push({
-          path: '/admin/files',
-          query: {
-            uid: $store.state.adminSelectedUserID
-              ? $store.state.adminSelectedUserID
-              : undefined
-          }
-        })
-      "
-      title="Back to previous page"
-    >
-      Back
-    </button>
+    <button @click="back" title="Back to previous page"> Back </button>
     <button @click="$refs.deleteFileModal.show()" title="Delete this file!"
       >Delete</button
     >
@@ -49,6 +35,17 @@
       <p
         >Size: <code>{{ $data.hFileSize }}</code></p
       >
+    </ContentBox>
+    <ContentBox
+      title="Uploaded By"
+      span
+      theme-safe
+      @click="navigateToUser"
+      src="/assets/images/profile.svg"
+    >
+      <p>
+        <code v-text="`${$data.user.displayName} (${$data.user.username})`" />
+      </p>
     </ContentBox>
   </div>
 
@@ -138,6 +135,51 @@
       }
       if (!this.$route.query.id) this.$router.back();
       await this.loadFile();
+
+      window.addEventListener(
+        'beforeunload',
+        this.saveSelectedItemsBeforeUnload
+      );
+    }
+
+    back() {
+      window.removeEventListener(
+        'beforeunload',
+        this.saveSelectedItemsBeforeUnload
+      );
+      this.$router.push({
+        path: '/admin/files',
+        query: {
+          uid: this.$store.state.adminSelectedUserID
+            ? this.$store.state.adminSelectedUserID
+            : undefined
+        }
+      });
+    }
+
+    saveSelectedItemsBeforeUnload() {
+      if (this.$store.state.adminSelectedUserID) {
+        window.localStorage.setItem(
+          'adminSelectedUserID',
+          this.$store.state.adminSelectedUserID
+        );
+      }
+      if (this.$store.state.adminSelectedFileID) {
+        window.localStorage.setItem(
+          'adminSelectedFileID',
+          this.$store.state.adminSelectedFileID
+        );
+      }
+    }
+
+    navigateToUser() {
+      this.$store.commit('setAdminSelectedFileID', this.$data.file.filename);
+      this.$router.push({
+        path: '/admin/user',
+        query: {
+          uid: this.$data.user.id
+        }
+      });
     }
 
     async loadFile() {
