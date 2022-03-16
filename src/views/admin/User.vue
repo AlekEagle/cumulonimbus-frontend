@@ -197,7 +197,13 @@
     deny-resets-form
     confirm-resets-form
   >
-    <input name="email" placeholder="New Email" autocomplete="off" autofocus />
+    <input
+      name="email"
+      type="email"
+      placeholder="New Email"
+      autocomplete="off"
+      autofocus
+    />
   </FormModal>
   <FormModal
     ref="changePasswordModal"
@@ -210,6 +216,7 @@
   >
     <input
       name="password"
+      type="password"
       placeholder="New Password"
       autocomplete="new-password"
       autofocus
@@ -217,6 +224,7 @@
     <br />
     <input
       name="passwordConfirm"
+      type="password"
       placeholder="Confirm New Password"
       autocomplete="new-password"
     />
