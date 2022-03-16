@@ -309,6 +309,7 @@
         'message',
         this.serviceWorkerListener
       );
+      this.loadPagesFromStorage();
       if (!navigator.onLine) return;
     }
 
@@ -350,6 +351,31 @@
           }
         } else next();
       });
+
+      window.addEventListener('beforeunload', this.savePagesBeforeReload);
+    }
+
+    savePagesBeforeReload() {
+      window.localStorage.setItem(
+        'pages',
+        JSON.stringify(this.$store.state.page)
+      );
+    }
+
+    loadPagesFromStorage() {
+      let pagesRaw = window.localStorage.getItem('pages');
+      let pages;
+      if (pagesRaw) {
+        try {
+          pages = JSON.parse(pagesRaw);
+        } catch (e) {
+          pages = {};
+        }
+      } else pages = {};
+      Object.entries(pages).forEach(([key, value]) => {
+        this.$store.commit('setPage', { pageID: key, page: value });
+      });
+      window.localStorage.removeItem('pages');
     }
   }
 </script>

@@ -76,6 +76,10 @@
     ref="confirmBulkDeleteModal"
     title="Delete these files?"
     cancelable
+    confirm-closes-modal
+    deny-closes-modal
+    @confirm="bulkDelete"
+    @deny="clearSelection"
   >
     <p>
       Are you sure you want to delete the
@@ -212,6 +216,11 @@
     goBack() {
       this.$refs.paginator.reset();
       this.$router.replace('/dashboard');
+    }
+
+    clearSelection() {
+      this.$data.selectedFiles = [];
+      this.$data.bulkDeleteMode = false;
     }
 
     handleClickEvent(filename: string) {
