@@ -91,7 +91,10 @@ self.addEventListener('fetch', async e => {
             }
             if (
               !response ||
-              !response.ok ||
+              (!response.ok && !url.host.startsWith('previews')) ||
+              (!response.ok &&
+                url.host.startsWith('previews') &&
+                response.status !== 415) ||
               response.type === 'opaque' ||
               url.pathname.startsWith('/api') ||
               (response.headers.get('Cache-Control') === 'no-cache' &&
