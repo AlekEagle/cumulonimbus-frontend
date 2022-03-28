@@ -274,14 +274,6 @@
       );
     }
 
-    back(fallbackPath?: RouteLocationRaw) {
-      if (window.history.state.back !== null) {
-        this.$router.back();
-      } else {
-        this.$router.replace(fallbackPath || '/');
-      }
-    }
-
     handleInvalidSession() {
       this.temporaryToast(
         'Your session has expired, please log in again.',
