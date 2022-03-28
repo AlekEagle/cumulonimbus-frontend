@@ -35,7 +35,7 @@
           :class="`content-box-overlay${$props.disabled ? ' disabled' : ''}`"
         />
       </router-link>
-      <a v-else :href="($props.to as unknown as string)">
+      <a v-else :href="($props.to as unknown as string)" target="_blank">
         <span
           :class="`content-box-overlay${$props.disabled ? ' disabled' : ''}`"
         />
