@@ -2,9 +2,7 @@
   <h1>File Details</h1>
   <h2>See the specifics of a file.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard/files')" title="Go back!"
-      >Back</button
-    >
+    <BackButton fallback="/dashboard/files" />
     <button @click="$refs.deleteFileModal.show()" title="Delete this file!"
       >Delete</button
     >
@@ -57,6 +55,7 @@
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import Loading from '@/components/Loading.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   function formatBytes(bytes: number, decimals = 2) {
@@ -72,7 +71,7 @@
   }
 
   @Options({
-    components: { ContentBox, ConfirmModal, Loading },
+    components: { ContentBox, ConfirmModal, Loading, BackButton },
     data() {
       return {
         file: null,

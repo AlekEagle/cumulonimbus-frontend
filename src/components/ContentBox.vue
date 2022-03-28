@@ -27,10 +27,18 @@
         </slot>
       </div>
     </div>
+    <router-link
+      v-if="$props.to !== undefined && $props.to !== null && !$props.disabled"
+      :to="$props.to"
+    >
+      <span
+        :class="`content-box-overlay${$props.disabled ? ' disabled' : ''}`"
+        v-if="$props.span"
+      />
+    </router-link>
     <span
+      v-else-if="$props.span"
       :class="`content-box-overlay${$props.disabled ? ' disabled' : ''}`"
-      v-if="$props.span"
-      @click.self="handleContentTo"
     />
   </div>
 </template>
@@ -96,18 +104,6 @@
         cb: (data?: string | boolean) => void
       ) => void;
     };
-    handleContentTo() {
-      if (this.$props.to !== undefined && !this.$props.disabled) {
-        if (this.$props.newTab)
-          window.open(
-            typeof this.$props.to === 'string'
-              ? this.$props.to
-              : this.$props.to.path,
-            '_blank'
-          );
-        else this.$router.push(this.$props.to);
-      }
-    }
   }
 </script>
 

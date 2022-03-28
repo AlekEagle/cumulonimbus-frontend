@@ -2,9 +2,7 @@
   <h1>Your Profile</h1>
   <h2>Make yourself feel at home.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard')" title="Go back!"
-      >Back</button
-    >
+    <BackButton fallback="/dashboard" />
   </div>
   <div class="content-box-group-container" v-if="$store.state.loadComplete">
     <ContentBox title="You" class="profile" selectable>
@@ -257,7 +255,12 @@
       <input type="submit" />
     </form>
   </ConfirmModal>
-  <DomainModal ref="changeDomainModal" :domain="$store.state.user?.domain" :subdomain="$store.state.user?.subdomain" @confirm="changeDomain" />
+  <DomainModal
+    ref="changeDomainModal"
+    :domain="$store.state.user?.domain"
+    :subdomain="$store.state.user?.subdomain"
+    @confirm="changeDomain"
+  />
   <ConfirmModal
     ref="clearCacheModal"
     title="Clear preview cache"
@@ -407,6 +410,7 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import ToggleSwitch from '@/components/ToggleSwitch.vue';
   import DomainModal from '@/components/DomainModal.vue';
+  import BackButton from '@/components/BackButton.vue';
 
   @Options({
     components: {
@@ -416,7 +420,8 @@
       FullscreenLoading,
       ConfirmModal,
       ToggleSwitch,
-      DomainModal
+      DomainModal,
+      BackButton
     },
     data() {
       return {

@@ -2,9 +2,7 @@
   <h1>User Information</h1>
   <h2>Here's everything we know about this person.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="back" title="Back to cool town resident directory."
-      >Back</button
-    >
+    <BackButton fallback="/admin/users" title="Back to cool town resident directory." />
   </div>
 
   <div v-if="!$data.loading" class="content-box-group-container">
@@ -303,6 +301,7 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
   import DomainModal from '@/components/DomainModal.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   @Options({
@@ -312,7 +311,8 @@
       ContentBox,
       ConfirmModal,
       DomainModal,
-      FormModal
+      FormModal,
+      BackButton
     },
     data() {
       return {
@@ -358,11 +358,6 @@
 
       await (this.$parent?.$parent as App).isLoggedIn();
       await this.getUser();
-
-      window.addEventListener(
-        'beforeunload',
-        this.saveSelectedItemsBeforeUnload
-      );
     }
 
     async getUser() {
@@ -417,38 +412,6 @@
         }
       } finally {
         this.$data.loading = false;
-      }
-    }
-
-    back() {
-      window.removeEventListener(
-        'beforeunload',
-        this.saveSelectedItemsBeforeUnload
-      );
-      if (this.$store.state.adminSelectedFileID) {
-        this.$router.push({
-          path: '/admin/file',
-          query: {
-            id: this.$store.state.adminSelectedFileID
-          }
-        });
-        this.$store.commit('setAdminSelectedFileID', null);
-        this.$store.commit('setAdminSelectedUserID', this.$data.user.id);
-      } else this.$router.push('/admin/users');
-    }
-
-    saveSelectedItemsBeforeUnload() {
-      if (this.$store.state.adminSelectedUserID) {
-        window.localStorage.setItem(
-          'adminSelectedUserID',
-          this.$store.state.adminSelectedUserID
-        );
-      }
-      if (this.$store.state.adminSelectedFileID) {
-        window.localStorage.setItem(
-          'adminSelectedFileID',
-          this.$store.state.adminSelectedFileID
-        );
       }
     }
 

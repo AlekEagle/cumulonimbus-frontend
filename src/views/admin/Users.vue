@@ -5,14 +5,7 @@
     {{ $data.userCount }} of them, to be exact.
   </h2>
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $refs.paginator.reset();
-        $router.push('/admin');
-      "
-      title="Back to cool town square."
-      >Back</button
-    >
+    <BackButton fallback="/admin" title="Back to cool town square." />
     <button
       v-if="!$data.bulkDeleteMode"
       @click="$data.bulkDeleteMode = true"
@@ -42,6 +35,11 @@
             : '/assets/images/profile.svg'
         "
         span
+        :to="
+          !$data.bulkDeleteMode
+            ? { path: '/admin/user', query: { uid: user.id } }
+            : null
+        "
         @click="handleClickEvent(user.id)"
         theme-safe
       >
@@ -79,6 +77,7 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FullscreenLoading from '@/components/FullscreenLoading.vue';
   import ContentBox from '@/components/ContentBox.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   @Options({
@@ -87,7 +86,8 @@
       Loading,
       ConfirmModal,
       FullscreenLoading,
-      ContentBox
+      ContentBox,
+      BackButton
     },
     data() {
       return {
@@ -192,24 +192,19 @@
     }
 
     handleClickEvent(u: string) {
-      if (!this.$data.bulkDeleteMode) {
-        this.$router.push({
-          path: '/admin/user',
-          query: { uid: u }
-        });
+      if (!this.$data.bulkDeleteMode) return;
+
+      if (this.isSelected(u)) {
+        this.$data.selectedUsers = this.$data.selectedUsers.filter(
+          user => user !== u
+        );
       } else {
-        if (this.isSelected(u)) {
-          this.$data.selectedUsers = this.$data.selectedUsers.filter(
-            user => user !== u
+        if (this.$data.selectedUsers.length >= 100) {
+          (this.$parent?.$parent as App).temporaryToast(
+            'You cannot select more than 100 users at once.',
+            5000
           );
-        } else {
-          if (this.$data.selectedUsers.length >= 100) {
-            (this.$parent?.$parent as App).temporaryToast(
-              'You cannot select more than 100 users at once.',
-              5000
-            );
-          } else this.$data.selectedUsers.push(u);
-        }
+        } else this.$data.selectedUsers.push(u);
       }
     }
 

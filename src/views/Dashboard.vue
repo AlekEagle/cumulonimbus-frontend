@@ -10,13 +10,15 @@
     <button @click="signOut" title="This button will sign you out, who knew!?"
       >Sign Out</button
     >
-    <button
+    <router-link
       v-if="$store.state.user?.staff"
-      @click="$router.push('/admin')"
-      title="This button will take you to cool town square."
+      @click.prevent="alert(1)"
+      to="/admin"
     >
-      Admin Dashboard
-    </button>
+      <button title="This button will take you to cool town square.">
+        Admin Dashboard
+      </button>
+    </router-link>
   </div>
   <div class="content-box-group-container">
     <ContentBox

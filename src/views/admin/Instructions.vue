@@ -5,14 +5,7 @@
     {{ $data.instructionCount }} of them, to be exact.
   </h2>
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $refs.paginator.reset();
-        $router.push('/admin');
-      "
-      title="Back to cool town square."
-      >Back</button
-    >
+    <BackButton fallback="/admin" title="Back to cool town square." />
     <button
       v-if="!$data.bulkDeleteMode"
       @click="$refs.newInstructionModal.show()"
@@ -48,6 +41,11 @@
             : '/assets/images/info.svg'
         "
         span
+        :to="
+          !$data.bulkDeleteMode
+            ? { path: '/admin/instruction', query: { name: instruction.name } }
+            : null
+        "
         @click="handleClickEvent(instruction.name)"
         theme-safe
       >
@@ -91,6 +89,7 @@
   import Paginator from '@/components/Paginator.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   @Options({
@@ -99,7 +98,8 @@
       Loading,
       Paginator,
       ContentBox,
-      FormModal
+      FormModal,
+      BackButton
     },
     data() {
       return {
@@ -213,8 +213,6 @@
         } else {
           this.$data.selectedInstructions.push(name);
         }
-      } else {
-        this.$router.push({ path: '/admin/instruction', query: { name } });
       }
     }
 

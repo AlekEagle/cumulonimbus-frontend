@@ -2,7 +2,7 @@
   <h1>File Information</h1>
   <h2>Information about a specific file.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="back" title="Back to previous page"> Back </button>
+    <BackButton fallback="/admin/files" />
     <button @click="$refs.deleteFileModal.show()" title="Delete this file!"
       >Delete</button
     >
@@ -48,6 +48,7 @@
       </p>
     </ContentBox>
   </div>
+  <Loading v-else />
 
   <ConfirmModal
     ref="deleteFileModal"
@@ -70,6 +71,7 @@
   import Loading from '@/components/Loading.vue';
   import FullscreenLoading from '@/components/FullscreenLoading.vue';
   import { Cumulonimbus, Client } from '../../../../cumulonimbus-wrapper';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   function formatBytes(bytes: number, decimals = 2) {
@@ -89,7 +91,8 @@
       ContentBox,
       ConfirmModal,
       Loading,
-      FullscreenLoading
+      FullscreenLoading,
+      BackButton
     },
     data() {
       return {
@@ -135,41 +138,6 @@
       }
       if (!this.$route.query.id) this.$router.back();
       await this.loadFile();
-
-      window.addEventListener(
-        'beforeunload',
-        this.saveSelectedItemsBeforeUnload
-      );
-    }
-
-    back() {
-      window.removeEventListener(
-        'beforeunload',
-        this.saveSelectedItemsBeforeUnload
-      );
-      this.$router.push({
-        path: '/admin/files',
-        query: {
-          uid: this.$store.state.adminSelectedUserID
-            ? this.$store.state.adminSelectedUserID
-            : undefined
-        }
-      });
-    }
-
-    saveSelectedItemsBeforeUnload() {
-      if (this.$store.state.adminSelectedUserID) {
-        window.localStorage.setItem(
-          'adminSelectedUserID',
-          this.$store.state.adminSelectedUserID
-        );
-      }
-      if (this.$store.state.adminSelectedFileID) {
-        window.localStorage.setItem(
-          'adminSelectedFileID',
-          this.$store.state.adminSelectedFileID
-        );
-      }
     }
 
     navigateToUser() {

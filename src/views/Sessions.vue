@@ -14,8 +14,7 @@
   <div class="quick-action-buttons-container">
     <button
       @click="
-        $refs.paginator.reset();
-        $router.replace('/dashboard/profile');
+        $router.back();
       "
       title="Go back!"
       >Back</button
@@ -43,7 +42,7 @@
     </template>
   </div>
   <Paginator :max="$data.maxPage" ref="paginator" @change="getSessions">
-    <div class="content-box-group-container">
+    <div class="content-box-group-container" v-if="$data.loaded">
       <ContentBox
         span
         theme-safe
@@ -68,6 +67,7 @@
         /></p>
       </ContentBox>
     </div>
+    <Loading v-else />
   </Paginator>
 
   <ConfirmModal

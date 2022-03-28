@@ -53,7 +53,16 @@
   import { Options, Vue } from 'vue-class-component';
   import ThemeToggle from '@/components/ThemeToggle.vue';
   import Toast from '@/components/Toast.vue';
-  import { Client, Cumulonimbus } from '../../cumulonimbus-wrapper';
+  import { Cumulonimbus } from '../../cumulonimbus-wrapper';
+  import {
+    LocationAsPath,
+    RouteLocationOptions,
+    RouteQueryAndHash
+  } from 'vue-router';
+
+  type RouteLocationRaw = RouteQueryAndHash &
+    LocationAsPath &
+    RouteLocationOptions;
 
   const months = [
       'January',
@@ -263,6 +272,14 @@
         }${seconds} second(s) before trying again.`,
         7500
       );
+    }
+
+    back(fallbackPath?: RouteLocationRaw) {
+      if (window.history.state.back !== null) {
+        this.$router.back();
+      } else {
+        this.$router.replace(fallbackPath || '/');
+      }
     }
 
     handleInvalidSession() {

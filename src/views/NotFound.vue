@@ -3,9 +3,12 @@
   <h2>Um, I think we took a wrong turn somewhere.</h2>
   <h2>404 not found! The page you're looking for probably doesn't exist!</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.push('/')" title="Lets go home!"
-      >I wanna go home.</button
-    >
+    <button @click="$router.push('/')" title="Lets go home!">
+      I wanna go home.
+    </button>
+    <BackButton fallback="/" title="Retrace your steps. duh.">
+      Retrace my steps.
+    </BackButton>
   </div>
   <div class="funny-padding">
     <transition name="fade">
@@ -89,8 +92,12 @@
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
+  import BackButton from '@/components/BackButton.vue';
 
   @Options({
+    components: {
+      BackButton
+    },
     data() {
       return {
         line: -1,

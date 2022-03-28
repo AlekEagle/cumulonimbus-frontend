@@ -14,7 +14,7 @@
     }}.</h2
   >
   <div class="quick-action-buttons-container">
-    <button title="Go Back!" @click="goBack">Back</button>
+    <BackButton fallback="/dashboard" />
     <button
       title="Delete a bunch of files!"
       v-if="!$data.bulkDeleteMode"
@@ -49,7 +49,7 @@
         :title="file.filename"
         span
         lazy-load
-        @click="handleClickEvent(file.filename)"
+        @mouseup="(e: MouseEvent) => handleClickEvent(e, file.filename)"
         :theme-safe="
           isSelected(file.filename) ||
           $data.noPreviewFiles.includes(file.filename)
@@ -101,6 +101,7 @@
   import Paginator from '../components/Paginator.vue';
   import FullscreenLoading from '../components/FullscreenLoading.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import BackButton from '@/components/BackButton.vue';
 
   @Options({
     components: {
@@ -108,7 +109,8 @@
       Loading,
       Paginator,
       FullscreenLoading,
-      ConfirmModal
+      ConfirmModal,
+      BackButton
     },
     title: 'Your Files',
     data() {
@@ -213,20 +215,20 @@
       }
     }
 
-    goBack() {
-      this.$refs.paginator.reset();
-      this.$router.replace('/dashboard');
-    }
-
     clearSelection() {
       this.$data.selectedFiles = [];
       this.$data.bulkDeleteMode = false;
     }
 
-    handleClickEvent(filename: string) {
-      if (!this.$data.bulkDeleteMode)
-        this.$router.push({ path: '/dashboard/file', query: { id: filename } });
-      else {
+    handleClickEvent(e: MouseEvent, filename: string) {
+      if (!this.$data.bulkDeleteMode) {
+        if (e.button === 1) window.open(`/dashboard/file?id=${filename}`);
+        else
+          this.$router.push({
+            path: '/dashboard/file',
+            query: { id: filename }
+          });
+      } else {
         if (this.$data.selectedFiles.includes(filename))
           this.$data.selectedFiles = this.$data.selectedFiles.filter(
             a => a !== filename

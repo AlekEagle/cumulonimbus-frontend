@@ -6,7 +6,7 @@
     }}. There's {{ $data.fileCount }} files in total.
   </h2>
   <div class="quick-action-buttons-container">
-    <button @click="goBack" title="Back to cool town square."> Back </button>
+    <BackButton fallback="/admin" title="Back to cool town square." />
     <button
       title="Bulk delete files."
       v-if="!$data.bulkDeleteMode"
@@ -40,6 +40,11 @@
         :title="file.filename"
         span
         lazy-load
+        :to="
+          !$data.bulkDeleteMode
+            ? { path: '/admin/file', query: { id: file.filename } }
+            : null
+        "
         @click="handleClickEvent(file.filename)"
         :theme-safe="
           isSelected(file.filename) ||
@@ -86,9 +91,9 @@
   import ContentBox from '@/components/ContentBox.vue';
   import Loading from '@/components/Loading.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-
   import Paginator from '@/components/Paginator.vue';
   import FullscreenLoading from '@/components/FullscreenLoading.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
   import { Client, Cumulonimbus } from '../../../../cumulonimbus-wrapper';
 
@@ -98,7 +103,8 @@
       Loading,
       ConfirmModal,
       Paginator,
-      FullscreenLoading
+      FullscreenLoading,
+      BackButton
     },
     title: 'All Files',
     data() {
@@ -141,9 +147,6 @@
         this.$router.replace('/');
       }
       await this.getFiles();
-
-      if (this.$route.query.uid && !this.$store.state.adminSelectedUserID)
-        this.$store.commit('setAdminSelectedUserID', this.$route.query.uid);
     }
 
     async getFiles() {
@@ -299,17 +302,6 @@
       }
     }
 
-    goBack() {
-      this.$refs.paginator.reset();
-      if (this.$route.query.uid) {
-        this.$router.push({
-          path: '/admin/user',
-          query: { uid: this.$route.query.uid }
-        });
-        this.$store.commit('setAdminSelectedUserID', null);
-      } else this.$router.push('/admin');
-    }
-
     clearSelection() {
       this.$data.selectedFiles = [];
       this.$data.bulkDeleteMode = false;
@@ -386,22 +378,21 @@
     }
 
     handleClickEvent(f: string) {
-      if (!this.$data.bulkDeleteMode) this.$router.push(`/admin/file/?id=${f}`);
+      if (!this.$data.bulkDeleteMode) return;
+
+      if (this.$data.selectedFiles.includes(f))
+        this.$data.selectedFiles = this.$data.selectedFiles.filter(
+          a => a !== f
+        );
       else {
-        if (this.$data.selectedFiles.includes(f))
-          this.$data.selectedFiles = this.$data.selectedFiles.filter(
-            a => a !== f
+        if (this.$data.selectedFiles.length >= 100) {
+          (this.$parent?.$parent as App).temporaryToast(
+            'You can only select up to 100 files at a time.',
+            5000
           );
-        else {
-          if (this.$data.selectedFiles.length >= 100) {
-            (this.$parent?.$parent as App).temporaryToast(
-              'You can only select up to 100 files at a time.',
-              5000
-            );
-            return;
-          }
-          this.$data.selectedFiles.push(f);
+          return;
         }
+        this.$data.selectedFiles.push(f);
       }
     }
 

@@ -48,10 +48,6 @@
       max: {
         type: Number,
         default: -1
-      },
-      noStore: {
-        type: Boolean,
-        default: false
       }
     },
     emits: ['change'],
@@ -65,7 +61,6 @@
     declare $props: {
       min: number;
       max: number;
-      noStore: boolean;
     };
     declare $data: {
       __page: number;
@@ -106,8 +101,6 @@
         this.$router.replace({
           query: { ...this.$route.query, page: undefined }
         });
-        if (!this.$props.noStore)
-          this.$store.commit('removePage', this.$route.path);
         if (emit) {
           this.$emit('change', this.$data.__page);
         }
@@ -121,11 +114,6 @@
       this.$router.replace({
         query: { ...this.$route.query, page: this.$data.__page + 1 }
       });
-      if (!this.$props.noStore)
-        this.$store.commit('setPage', {
-          pageID: this.$route.path,
-          page: this.$data.__page
-        });
       if (emit) {
         this.$emit('change', this.$data.__page);
       }

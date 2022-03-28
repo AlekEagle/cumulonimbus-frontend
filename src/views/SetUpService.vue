@@ -76,7 +76,8 @@
         newIdentity: undefined,
         os: undefined
       };
-    }
+    },
+    title: 'Lets Get Setup'
   })
   export default class SetUpService extends Vue {
     declare $data: {

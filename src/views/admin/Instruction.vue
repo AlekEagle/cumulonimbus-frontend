@@ -6,11 +6,7 @@
     specifically.</h2
   >
   <div class="quick-action-buttons-container">
-    <button
-      @click="$router.push('/admin/instructions')"
-      title="Back to instructions."
-      >Back</button
-    >
+    <BackButton fallback="/admin/instructions" title="Back to instructions." />
     <button
       @click="$refs.confirmDeleteModal.show()"
       title="Delete this instruction."
@@ -121,6 +117,7 @@
   import Loading from '@/components/Loading.vue';
   import FormModal from '@/components/FormModal.vue';
   import ContentBox from '@/components/ContentBox.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   @Options({
@@ -128,7 +125,8 @@
       ConfirmModal,
       Loading,
       FormModal,
-      ContentBox
+      ContentBox,
+      BackButton
     },
     data() {
       return {

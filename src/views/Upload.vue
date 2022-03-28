@@ -2,9 +2,7 @@
   <h1>Upload</h1>
   <h2>Do the upload things.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard')" title="Go back!"
-      >Back</button
-    >
+    <BackButton fallback="/dashboard" />
   </div>
   <div class="upload-box-container">
     <div class="upload-box">
@@ -34,18 +32,15 @@
       >
     </div>
   </div>
-  <transition name="upload-animation-container">
-    <div v-if="$data.upload" class="upload-animation-container"
-      ><Loading
-    /></div>
-  </transition>
+  <FullscreenLoading ref="fullscreenLoading" />
 </template>
 
 <script lang="ts">
   import { Options, Vue } from 'vue-class-component';
   import App from '@/App.vue';
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
-  import Loading from '@/components/Loading.vue';
+  import BackButton from '@/components/BackButton.vue';
+  import FullscreenLoading from '@/components/FullscreenLoading.vue';
 
   const labelText = {
     dragover: 'Drop it right here!',
@@ -100,7 +95,7 @@
   }
 
   @Options({
-    components: { Loading },
+    components: { FullscreenLoading, BackButton },
     data() {
       return {
         state: 'default',
@@ -122,6 +117,7 @@
     };
     declare $refs: {
       fileForm: HTMLFormElement;
+      fullscreenLoading: FullscreenLoading;
     };
     async mounted() {
       if (!navigator.onLine) {
@@ -195,11 +191,11 @@
     async uploadFile() {
       this.$data.link = undefined;
       this.$data.upload = true;
+      this.$refs.fullscreenLoading.show();
       try {
         let success = await (this.$store.state.client as Client).uploadData(
           this.$data.file
         );
-        this.$data.upload = false;
         this.$data.file = undefined;
         this.$data.link = success.url;
         this.$refs.fileForm.reset();
@@ -212,7 +208,6 @@
           this.$router.push(window.location.pathname);
         }
       } catch (error) {
-        this.$data.upload = false;
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
             case 'RATELIMITED_ERROR':
@@ -259,6 +254,9 @@
           );
           console.error(error);
         }
+      } finally {
+        this.$refs.fullscreenLoading.hide();
+        this.$data.upload = false;
       }
     }
     copyToClipboard(fromUpload: boolean) {

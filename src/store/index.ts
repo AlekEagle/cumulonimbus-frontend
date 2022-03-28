@@ -12,9 +12,7 @@ export default createStore({
     user: null,
     session: null,
     page: {},
-    loadComplete: false,
-    adminSelectedUserID: null,
-    adminSelectedFileID: null
+    loadComplete: false
   },
   mutations: {
     setClient(state, client) {
@@ -36,12 +34,6 @@ export default createStore({
     },
     clientLoadComplete(state) {
       state.loadComplete = true;
-    },
-    setAdminSelectedUserID(state, userID) {
-      state.adminSelectedUserID = userID;
-    },
-    setAdminSelectedFileID(state, fileID) {
-      state.adminSelectedFileID = fileID;
     }
   },
   actions: {
@@ -148,17 +140,7 @@ export default createStore({
     },
     async restoreSession({ commit }) {
       const tokenFromStorage = localStorage.getItem('token');
-      const selectedUserID = localStorage.getItem('adminSelectedUserID');
-      const selectedFileID = localStorage.getItem('adminSelectedFileID');
       try {
-        if (selectedUserID !== null) {
-          commit('setAdminSelectedUserID', selectedUserID);
-          localStorage.removeItem('adminSelectedUserID');
-        }
-        if (selectedFileID !== null) {
-          commit('setAdminSelectedFileID', selectedFileID);
-          localStorage.removeItem('adminSelectedFileID');
-        }
         if (tokenFromStorage === null) return false;
         else {
           const client = new Client(tokenFromStorage, clientOptions),
