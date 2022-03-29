@@ -12,13 +12,7 @@
     for your account.</h2
   >
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $router.back();
-      "
-      title="Go back!"
-      >Back</button
-    >
+    <button @click="$router.back()" title="Go back!">Back</button>
     <button
       title="Invalidate a bunch of sessions!"
       v-if="!$data.bulkInvalidateMode"
@@ -74,6 +68,7 @@
     ref="invalidateSessionModal"
     @confirm="invalidateSession"
     @deny="$data.session = undefined"
+    deny-closes-modal
     cancelable
   >
     <p v-if="$data.session?.iat === $store.state.session?.iat">
