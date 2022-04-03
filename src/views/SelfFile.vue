@@ -2,9 +2,7 @@
   <h1>File Details</h1>
   <h2>See the specifics of a file.</h2>
   <div class="quick-action-buttons-container">
-    <button @click="$router.replace('/dashboard/files')" title="Go back!"
-      >Back</button
-    >
+    <BackButton fallback="/dashboard/files" />
     <button @click="$refs.deleteFileModal.show()" title="Delete this file!"
       >Delete</button
     >
@@ -17,8 +15,10 @@
       span
       lazy-load
       new-tab
+      :theme-safe="$data.noPreview"
       :to="`https://${$data.hostname}/${$data.file?.filename}`"
       :src="`https://previews.${$data.hostname}/${$data.file?.filename}`"
+      :thumbnail-error-handler="thumbErrorHandler"
     >
       <p
         >Filename: <code>{{ $data.file?.filename }}</code></p
@@ -55,6 +55,7 @@
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import Loading from '@/components/Loading.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   function formatBytes(bytes: number, decimals = 2) {
@@ -70,14 +71,15 @@
   }
 
   @Options({
-    components: { ContentBox, ConfirmModal, Loading },
+    components: { ContentBox, ConfirmModal, Loading, BackButton },
     data() {
       return {
         file: null,
         hostname: null,
         loaded: false,
         hFileSize: null,
-        canShare: false
+        canShare: false,
+        noPreview: false
       };
     },
     title: 'File Details'
@@ -89,6 +91,7 @@
       loaded: boolean;
       hFileSize: string | null;
       canShare: boolean;
+      noPreview: boolean;
     };
     declare $refs: {
       deleteFileModal: ConfirmModal;
@@ -246,6 +249,24 @@
             console.error(err);
           }
         );
+    }
+
+    async thumbErrorHandler(
+      res: Response | Error,
+      cb: (data?: string | boolean) => Promise<void>
+    ) {
+      if (res instanceof Response) {
+        switch (res.status) {
+          case 415:
+            await cb('/assets/images/no-preview.svg');
+            this.$data.noPreview = true;
+            break;
+          default:
+            await cb();
+        }
+      } else {
+        cb();
+      }
     }
   }
 </script>

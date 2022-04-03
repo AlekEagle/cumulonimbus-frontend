@@ -12,8 +12,7 @@ export default createStore({
     user: null,
     session: null,
     page: {},
-    loadComplete: false,
-    adminSelectedUserID: null
+    loadComplete: false
   },
   mutations: {
     setClient(state, client) {
@@ -35,9 +34,6 @@ export default createStore({
     },
     clientLoadComplete(state) {
       state.loadComplete = true;
-    },
-    setAdminSelectedUserID(state, userID) {
-      state.adminSelectedUserID = userID;
     }
   },
   actions: {
@@ -153,18 +149,17 @@ export default createStore({
           commit('setClient', client);
           commit('setSession', currentSession);
           commit('setUser', currentUser);
-          commit('clientLoadComplete');
           return true;
         }
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
-          commit('clientLoadComplete');
           throw error;
         } else {
           console.error(error);
-          commit('clientLoadComplete');
           return false;
         }
+      } finally {
+        commit('clientLoadComplete');
       }
     }
   },

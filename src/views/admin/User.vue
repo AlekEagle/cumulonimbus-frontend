@@ -2,14 +2,7 @@
   <h1>User Information</h1>
   <h2>Here's everything we know about this person.</h2>
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $store.commit('setAdminSelectedUserID', null);
-        $router.push('/admin/users');
-      "
-      title="Back to cool town resident directory."
-      >Back</button
-    >
+    <BackButton fallback="/admin/users" title="Back to cool town resident directory." />
   </div>
 
   <div v-if="!$data.loading" class="content-box-group-container">
@@ -197,7 +190,13 @@
     deny-resets-form
     confirm-resets-form
   >
-    <input name="email" placeholder="New Email" autocomplete="off" autofocus />
+    <input
+      name="email"
+      type="email"
+      placeholder="New Email"
+      autocomplete="off"
+      autofocus
+    />
   </FormModal>
   <FormModal
     ref="changePasswordModal"
@@ -210,6 +209,7 @@
   >
     <input
       name="password"
+      type="password"
       placeholder="New Password"
       autocomplete="new-password"
       autofocus
@@ -217,6 +217,7 @@
     <br />
     <input
       name="passwordConfirm"
+      type="password"
       placeholder="Confirm New Password"
       autocomplete="new-password"
     />
@@ -224,7 +225,7 @@
   <DomainModal
     ref="changeDomainModal"
     @confirm="updateDomain"
-    @error="updateDomainError"
+    @error="(error: unknown) => updateDomainError(error as Error)"
     title="Change Domain"
     :domain="$data.user?.domain"
     :subdomain="$data.user?.subdomain"
@@ -300,6 +301,7 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
   import DomainModal from '@/components/DomainModal.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   @Options({
@@ -309,7 +311,8 @@
       ContentBox,
       ConfirmModal,
       DomainModal,
-      FormModal
+      FormModal,
+      BackButton
     },
     data() {
       return {

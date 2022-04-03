@@ -1,6 +1,5 @@
 const URLSToCache = [
   '/service-worker.js',
-  '/manifest.json',
   ...self.__precacheManifest.map(a => a.url)
 ];
 
@@ -82,7 +81,7 @@ self.addEventListener('fetch', async e => {
                 return new Response('', { status: 404 });
               } else {
                 console.debug(
-                  `[CacheManager] Page not found: ${url}, returning 404 page`
+                  `[CacheManager] Page not found: ${url}, serving default page`
                 );
                 let cachedIndex = await (
                   await caches.open('offline-cache')
@@ -92,7 +91,10 @@ self.addEventListener('fetch', async e => {
             }
             if (
               !response ||
-              !response.ok ||
+              (!response.ok && !url.host.startsWith('previews')) ||
+              (!response.ok &&
+                url.host.startsWith('previews') &&
+                response.status !== 415) ||
               response.type === 'opaque' ||
               url.pathname.startsWith('/api') ||
               (response.headers.get('Cache-Control') === 'no-cache' &&

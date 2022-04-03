@@ -76,7 +76,8 @@
         newIdentity: undefined,
         os: undefined
       };
-    }
+    },
+    title: 'Lets Get Setup'
   })
   export default class SetUpService extends Vue {
     declare $data: {
@@ -220,7 +221,7 @@
             ? formTName
             : `${this.$data.instruction?.displayName} on ${this.$data.os}`;
       try {
-        let newSession = await fetch(Cumulonimbus.BASE_URL + '/user/session', {
+        let newSession = await fetch('/api/user/session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

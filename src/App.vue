@@ -53,7 +53,16 @@
   import { Options, Vue } from 'vue-class-component';
   import ThemeToggle from '@/components/ThemeToggle.vue';
   import Toast from '@/components/Toast.vue';
-  import { Client, Cumulonimbus } from '../../cumulonimbus-wrapper';
+  import { Cumulonimbus } from '../../cumulonimbus-wrapper';
+  import {
+    LocationAsPath,
+    RouteLocationOptions,
+    RouteQueryAndHash
+  } from 'vue-router';
+
+  type RouteLocationRaw = RouteQueryAndHash &
+    LocationAsPath &
+    RouteLocationOptions;
 
   const months = [
       'January',
@@ -309,6 +318,7 @@
         'message',
         this.serviceWorkerListener
       );
+      this.loadPagesFromStorage();
       if (!navigator.onLine) return;
     }
 
@@ -350,6 +360,31 @@
           }
         } else next();
       });
+
+      window.addEventListener('beforeunload', this.savePagesBeforeReload);
+    }
+
+    savePagesBeforeReload() {
+      window.localStorage.setItem(
+        'pages',
+        JSON.stringify(this.$store.state.page)
+      );
+    }
+
+    loadPagesFromStorage() {
+      let pagesRaw = window.localStorage.getItem('pages');
+      let pages;
+      if (pagesRaw) {
+        try {
+          pages = JSON.parse(pagesRaw);
+        } catch (e) {
+          pages = {};
+        }
+      } else pages = {};
+      Object.entries(pages).forEach(([key, value]) => {
+        this.$store.commit('setPage', { pageID: key, page: value });
+      });
+      window.localStorage.removeItem('pages');
     }
   }
 </script>

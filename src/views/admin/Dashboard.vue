@@ -8,7 +8,7 @@
   </h2>
   <div class="quick-action-buttons-container">
     <button
-      @click="$router.push('/dashboard')"
+      @click="$router.replace('/dashboard')"
       title="Back to normal town square."
     >
       Return to Dashboard

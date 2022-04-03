@@ -12,14 +12,7 @@
     for your account.</h2
   >
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $refs.paginator.reset();
-        $router.replace('/dashboard/profile');
-      "
-      title="Go back!"
-      >Back</button
-    >
+    <button @click="$router.back()" title="Go back!">Back</button>
     <button
       title="Invalidate a bunch of sessions!"
       v-if="!$data.bulkInvalidateMode"
@@ -43,7 +36,7 @@
     </template>
   </div>
   <Paginator :max="$data.maxPage" ref="paginator" @change="getSessions">
-    <div class="content-box-group-container">
+    <div class="content-box-group-container" v-if="$data.loaded">
       <ContentBox
         span
         theme-safe
@@ -68,12 +61,14 @@
         /></p>
       </ContentBox>
     </div>
+    <Loading v-else />
   </Paginator>
 
   <ConfirmModal
     ref="invalidateSessionModal"
     @confirm="invalidateSession"
     @deny="$data.session = undefined"
+    deny-closes-modal
     cancelable
   >
     <p v-if="$data.session?.iat === $store.state.session?.iat">

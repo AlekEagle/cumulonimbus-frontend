@@ -5,7 +5,10 @@
     {{ $data.total }} sessions in total for this user.</h2
   >
   <div class="quick-action-buttons-container">
-    <button @click="goBack" title="Back to cool town square.">Back</button>
+    <BackButton
+      :fallback="`/admin/user?uid=${$data.user?.id}`"
+      title="Back to cool town resident entry."
+    />
   </div>
 
   <Paginator ref="paginator" :max="$data.maxPage" @change="loadSessions">
@@ -33,6 +36,7 @@
         </p>
       </ContentBox>
     </div>
+    <Loading v-else />
   </Paginator>
   <ConfirmModal
     cancelable
@@ -71,6 +75,7 @@
   import { Cumulonimbus, Client } from '../../../../cumulonimbus-wrapper';
   import Paginator from '@/components/Paginator.vue';
   import Loading from '@/components/Loading.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   @Options({
@@ -78,7 +83,8 @@
       ConfirmModal,
       ContentBox,
       Paginator,
-      Loading
+      Loading,
+      BackButton
     },
     data() {
       return {
@@ -315,14 +321,6 @@
       } finally {
         this.$data.loading = false;
       }
-    }
-
-    goBack() {
-      this.$refs.paginator.reset();
-      this.$router.push({
-        path: '/admin/user',
-        query: { uid: this.$route.query.uid }
-      });
     }
   }
 </script>

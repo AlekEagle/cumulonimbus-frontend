@@ -14,7 +14,7 @@
     }}.</h2
   >
   <div class="quick-action-buttons-container">
-    <button title="Go Back!" @click="goBack">Back</button>
+    <BackButton fallback="/dashboard" />
     <button
       title="Delete a bunch of files!"
       v-if="!$data.bulkDeleteMode"
@@ -37,7 +37,11 @@
       >
     </template>
   </div>
-  <Paginator :max="$data.maxPage" ref="paginator" @change="getFiles">
+  <Paginator
+    :max="$data.maxPage"
+    ref="paginator"
+    @change="(page: unknown) => getFiles(page as number)"
+  >
     <div v-if="$data.loaded" class="content-box-group-container">
       <ContentBox
         v-for="file in $data.files"
@@ -45,13 +49,17 @@
         :title="file.filename"
         span
         lazy-load
-        @click="handleClickEvent(file.filename)"
-        :theme-safe="isSelected(file.filename)"
+        @mouseup="(e: MouseEvent) => handleClickEvent(e, file.filename)"
+        :theme-safe="
+          isSelected(file.filename) ||
+          $data.noPreviewFiles.includes(file.filename)
+        "
         :src="
           isSelected(file.filename)
             ? '/assets/images/checkmark.svg'
             : `https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`
         "
+        :thumbnail-error-handler="(res: any,cb: any) =>thumbErrorHandler(res,cb, file.filename)"
         ><p
           v-text="
             $data.bulkDeleteMode
@@ -68,6 +76,10 @@
     ref="confirmBulkDeleteModal"
     title="Delete these files?"
     cancelable
+    confirm-closes-modal
+    deny-closes-modal
+    @confirm="bulkDelete"
+    @deny="clearSelection"
   >
     <p>
       Are you sure you want to delete the
@@ -89,6 +101,7 @@
   import Paginator from '../components/Paginator.vue';
   import FullscreenLoading from '../components/FullscreenLoading.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import BackButton from '@/components/BackButton.vue';
 
   @Options({
     components: {
@@ -96,7 +109,8 @@
       Loading,
       Paginator,
       FullscreenLoading,
-      ConfirmModal
+      ConfirmModal,
+      BackButton
     },
     title: 'Your Files',
     data() {
@@ -106,7 +120,8 @@
         fileCount: undefined,
         maxPage: -1,
         bulkDeleteMode: false,
-        selectedFiles: []
+        selectedFiles: [],
+        noPreviewFiles: []
       };
     }
   })
@@ -118,6 +133,7 @@
       maxPage: number;
       bulkDeleteMode: boolean;
       selectedFiles: string[];
+      noPreviewFiles: string[];
     };
     declare $refs: {
       confirmBulkDeleteModal: ConfirmModal;
@@ -199,15 +215,20 @@
       }
     }
 
-    goBack() {
-      this.$refs.paginator.reset();
-      this.$router.replace('/dashboard');
+    clearSelection() {
+      this.$data.selectedFiles = [];
+      this.$data.bulkDeleteMode = false;
     }
 
-    handleClickEvent(filename: string) {
-      if (!this.$data.bulkDeleteMode)
-        this.$router.push({ path: '/dashboard/file', query: { id: filename } });
-      else {
+    handleClickEvent(e: MouseEvent, filename: string) {
+      if (!this.$data.bulkDeleteMode) {
+        if (e.button === 1) window.open(`/dashboard/file?id=${filename}`);
+        else
+          this.$router.push({
+            path: '/dashboard/file',
+            query: { id: filename }
+          });
+      } else {
         if (this.$data.selectedFiles.includes(filename))
           this.$data.selectedFiles = this.$data.selectedFiles.filter(
             a => a !== filename
@@ -293,6 +314,25 @@
         this.$data.bulkDeleteMode = false;
         this.$data.selectedFiles = [];
         this.$refs.confirmBulkDeleteModal.hide();
+      }
+    }
+
+    async thumbErrorHandler(
+      res: Response | Error,
+      cb: (data?: string | boolean) => Promise<void>,
+      file: string
+    ) {
+      if (res instanceof Response) {
+        switch (res.status) {
+          case 415:
+            await cb('/assets/images/no-preview.svg');
+            this.$data.noPreviewFiles.push(file);
+            break;
+          default:
+            await cb();
+        }
+      } else {
+        cb();
       }
     }
   }

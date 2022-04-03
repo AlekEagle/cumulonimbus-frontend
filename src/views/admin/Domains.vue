@@ -5,8 +5,12 @@
     {{ $data.domainCount }} to be exact.</h2
   >
   <div class="quick-action-buttons-container">
-    <button @click="$router.back()" title="Back to cool town square."
-      >Back</button
+    <BackButton fallback="/admin" title="Back to cool town square." />
+    <button
+      v-if="!$data.bulkDeleteMode"
+      @click="$refs.createDomainModal.show()"
+      title="Create a new domain."
+      >Create</button
     >
     <button
       v-if="!$data.bulkDeleteMode"
@@ -23,12 +27,6 @@
       </button>
       <button @click="clearSelection" title="Nevermind"> Nevermind.. </button>
     </template>
-    <button
-      v-if="!$data.bulkDeleteMode"
-      @click="$refs.createDomainModal.show()"
-      title="Create a new domain."
-      >Create Domain</button
-    >
   </div>
   <Paginator :max="$data.maxPage" ref="paginator" @change="getDomains">
     <div v-if="!$data.loading" class="content-box-group-container">
@@ -150,6 +148,7 @@
   import Modal from '@/components/Modal.vue';
   import ToggleSwitch from '@/components/ToggleSwitch.vue';
   import { Cumulonimbus, Client } from '../../../../cumulonimbus-wrapper';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   @Options({
@@ -160,7 +159,8 @@
       FormModal,
       Loading,
       Modal,
-      ToggleSwitch
+      ToggleSwitch,
+      BackButton
     },
     data() {
       return {
@@ -390,10 +390,9 @@
     async setAllowsSubdomains(checked: boolean) {
       try {
         this.$data.loading = true;
-        await (this.$store.state.client as Client).editDomainByID(
-          this.$data.selectedDomain?.domain as string,
-          checked
-        );
+        this.$data.selectedDomain = await (
+          this.$store.state.client as Client
+        ).editDomainByID(this.$data.selectedDomain?.domain as string, checked);
         (this.$parent?.$parent as App).temporaryToast(
           'Domain updated successfully.',
           5000

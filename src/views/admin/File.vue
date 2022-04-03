@@ -2,21 +2,7 @@
   <h1>File Information</h1>
   <h2>Information about a specific file.</h2>
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $router.push({
-          path: '/admin/files',
-          query: {
-            uid: $store.state.adminSelectedUserID
-              ? $store.state.adminSelectedUserID
-              : undefined
-          }
-        })
-      "
-      title="Back to previous page"
-    >
-      Back
-    </button>
+    <BackButton fallback="/admin/files" />
     <button @click="$refs.deleteFileModal.show()" title="Delete this file!"
       >Delete</button
     >
@@ -28,9 +14,11 @@
       class="file-info-box"
       span
       lazy-load
+      :theme-safe="$data.noPreview"
       new-tab
       :to="`https://${$data.hostname}/${$data.file?.filename}`"
       :src="`https://previews.${$data.hostname}/${$data.file?.filename}`"
+      :thumbnail-error-handler="thumbErrorHandler"
     >
       <p
         >Filename: <code>{{ $data.file?.filename }}</code></p
@@ -48,7 +36,19 @@
         >Size: <code>{{ $data.hFileSize }}</code></p
       >
     </ContentBox>
+    <ContentBox
+      title="Uploaded By"
+      span
+      theme-safe
+      @click="navigateToUser"
+      src="/assets/images/profile.svg"
+    >
+      <p>
+        <code v-text="`${$data.user.displayName} (${$data.user.username})`" />
+      </p>
+    </ContentBox>
   </div>
+  <Loading v-else />
 
   <ConfirmModal
     ref="deleteFileModal"
@@ -71,6 +71,7 @@
   import Loading from '@/components/Loading.vue';
   import FullscreenLoading from '@/components/FullscreenLoading.vue';
   import { Cumulonimbus, Client } from '../../../../cumulonimbus-wrapper';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
 
   function formatBytes(bytes: number, decimals = 2) {
@@ -90,7 +91,8 @@
       ContentBox,
       ConfirmModal,
       Loading,
-      FullscreenLoading
+      FullscreenLoading,
+      BackButton
     },
     data() {
       return {
@@ -99,7 +101,8 @@
         user: null,
         canShare: false,
         hostname: null,
-        hFileSize: null
+        hFileSize: null,
+        noPreview: false
       };
     },
     title: 'File Information'
@@ -112,6 +115,7 @@
       canShare: boolean;
       hostname: string;
       hFileSize: string;
+      noPreview: boolean;
     };
 
     declare $refs: {
@@ -134,6 +138,16 @@
       }
       if (!this.$route.query.id) this.$router.back();
       await this.loadFile();
+    }
+
+    navigateToUser() {
+      this.$store.commit('setAdminSelectedFileID', this.$data.file.filename);
+      this.$router.push({
+        path: '/admin/user',
+        query: {
+          uid: this.$data.user.id
+        }
+      });
     }
 
     async loadFile() {
@@ -333,6 +347,24 @@
             console.error(err);
           }
         );
+    }
+
+    async thumbErrorHandler(
+      res: Response | Error,
+      cb: (data?: string | boolean) => Promise<void>
+    ) {
+      if (res instanceof Response) {
+        switch (res.status) {
+          case 415:
+            await cb('/assets/images/no-preview.svg');
+            this.$data.noPreview = true;
+            break;
+          default:
+            await cb();
+        }
+      } else {
+        cb();
+      }
     }
   }
 </script>

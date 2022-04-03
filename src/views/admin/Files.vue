@@ -6,7 +6,7 @@
     }}. There's {{ $data.fileCount }} files in total.
   </h2>
   <div class="quick-action-buttons-container">
-    <button @click="goBack" title="Back to cool town square."> Back </button>
+    <BackButton fallback="/admin" title="Back to cool town square." />
     <button
       title="Bulk delete files."
       v-if="!$data.bulkDeleteMode"
@@ -40,13 +40,22 @@
         :title="file.filename"
         span
         lazy-load
+        :to="
+          !$data.bulkDeleteMode
+            ? { path: '/admin/file', query: { id: file.filename } }
+            : null
+        "
         @click="handleClickEvent(file.filename)"
-        :theme-safe="isSelected(file.filename)"
+        :theme-safe="
+          isSelected(file.filename) ||
+          $data.noPreviewFiles.includes(file.filename)
+        "
         :src="
           isSelected(file.filename)
             ? '/assets/images/checkmark.svg'
             : `https://previews.${$el.ownerDocument.location.hostname}/${file.filename}`
         "
+        :thumbnail-error-handler="(res: any,cb: any) =>thumbErrorHandler(res,cb, file.filename)"
       >
         <p
           v-text="
@@ -82,9 +91,9 @@
   import ContentBox from '@/components/ContentBox.vue';
   import Loading from '@/components/Loading.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-
   import Paginator from '@/components/Paginator.vue';
   import FullscreenLoading from '@/components/FullscreenLoading.vue';
+  import BackButton from '@/components/BackButton.vue';
   import App from '@/App.vue';
   import { Client, Cumulonimbus } from '../../../../cumulonimbus-wrapper';
 
@@ -94,7 +103,8 @@
       Loading,
       ConfirmModal,
       Paginator,
-      FullscreenLoading
+      FullscreenLoading,
+      BackButton
     },
     title: 'All Files',
     data() {
@@ -104,7 +114,8 @@
         fileCount: 0,
         maxPage: -1,
         bulkDeleteMode: false,
-        selectedFiles: []
+        selectedFiles: [],
+        noPreviewFiles: []
       };
     }
   })
@@ -116,6 +127,7 @@
       maxPage: number;
       bulkDeleteMode: boolean;
       selectedFiles: string[];
+      noPreviewFiles: string[];
     };
     declare $refs: {
       paginator: Paginator;
@@ -290,16 +302,6 @@
       }
     }
 
-    goBack() {
-      this.$refs.paginator.reset();
-      if (this.$route.query.uid)
-        this.$router.push({
-          path: '/admin/user',
-          query: { uid: this.$route.query.uid }
-        });
-      else this.$router.push('/admin');
-    }
-
     clearSelection() {
       this.$data.selectedFiles = [];
       this.$data.bulkDeleteMode = false;
@@ -376,22 +378,40 @@
     }
 
     handleClickEvent(f: string) {
-      if (!this.$data.bulkDeleteMode) this.$router.push(`/admin/file/?id=${f}`);
+      if (!this.$data.bulkDeleteMode) return;
+
+      if (this.$data.selectedFiles.includes(f))
+        this.$data.selectedFiles = this.$data.selectedFiles.filter(
+          a => a !== f
+        );
       else {
-        if (this.$data.selectedFiles.includes(f))
-          this.$data.selectedFiles = this.$data.selectedFiles.filter(
-            a => a !== f
+        if (this.$data.selectedFiles.length >= 100) {
+          (this.$parent?.$parent as App).temporaryToast(
+            'You can only select up to 100 files at a time.',
+            5000
           );
-        else {
-          if (this.$data.selectedFiles.length >= 100) {
-            (this.$parent?.$parent as App).temporaryToast(
-              'You can only select up to 100 files at a time.',
-              5000
-            );
-            return;
-          }
-          this.$data.selectedFiles.push(f);
+          return;
         }
+        this.$data.selectedFiles.push(f);
+      }
+    }
+
+    async thumbErrorHandler(
+      res: Response | Error,
+      cb: (data?: string | boolean) => Promise<void>,
+      file: string
+    ) {
+      if (res instanceof Response) {
+        switch (res.status) {
+          case 415:
+            await cb('/assets/images/no-preview.svg');
+            this.$data.noPreviewFiles.push(file);
+            break;
+          default:
+            await cb();
+        }
+      } else {
+        cb();
       }
     }
   }

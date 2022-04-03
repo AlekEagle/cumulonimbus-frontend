@@ -5,17 +5,10 @@
     use with only a few simple steps!
   </h2>
   <div class="quick-action-buttons-container">
-    <button
-      @click="
-        $refs.paginator.reset();
-        $router.replace('/dashboard');
-      "
-      title="Go back!"
-      >Back</button
-    >
+    <button @click="$router.back()" title="Go back!">Back</button>
   </div>
   <Paginator :max="$data.maxPage" ref="paginator" @change="getInstructions">
-    <div class="content-box-group-container">
+    <div class="content-box-group-container" v-if="!$data.loading">
       <ContentBox
         v-for="service in $data.services"
         :key="service.name"
@@ -29,6 +22,7 @@
         <p>{{ service.description }}</p>
       </ContentBox>
     </div>
+    <Loading v-else />
   </Paginator>
 </template>
 
@@ -45,7 +39,8 @@
     data() {
       return {
         services: [],
-        maxPage: -1
+        maxPage: -1,
+        loading: false
       };
     },
     title: 'Officially Supported Services'
@@ -54,6 +49,7 @@
     declare $data: {
       services: Cumulonimbus.Data.Instruction[];
       maxPage: number;
+      loading: boolean;
     };
     declare $refs: {
       paginator: Paginator;
@@ -72,12 +68,14 @@
 
     async getInstructions() {
       try {
+        this.$data.loading = true;
         await (this.$parent?.$parent as App).isLoggedIn();
         let services = await (
           this.$store.state.client as Client
         ).getInstructions(50, 50 * this.$refs.paginator.pageZeroIndexed);
         this.$data.services = services.items;
-        this.$data.maxPage = services.count;
+        this.$data.maxPage = Math.floor(services.count / 50);
+        this.$data.loading = false;
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
