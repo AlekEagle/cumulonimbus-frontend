@@ -113,7 +113,7 @@
           let u = await this.$store.state.client.getSelfUser();
           this.$store.commit('setUser', u);
         }
-        if (!urlSearchParams.has('id')) this.$router.push('/dashboard/files');
+        if (!urlSearchParams.has('id')) this.$router.back();
         this.$data.file = await this.$store.state.client.getSelfFileByID(
           urlSearchParams.get('id')
         );
@@ -131,7 +131,7 @@
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'INVALID_FILE_ERROR':
-              this.$router.push('/dashboard/files');
+              this.$router.back();
               break;
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).handleBannedUser();
@@ -167,7 +167,7 @@
         console.log(res);
         (this.$parent?.$parent as App).temporaryToast('Done!', 2000);
         this.$refs.deleteFileModal.hide();
-        this.$router.push('/dashboard/files');
+        this.$router.back();
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
           switch (error.code) {
@@ -175,7 +175,7 @@
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'INVALID_FILE_ERROR':
-              this.$router.push('/dashboard/files');
+              this.$router.back();
               (this.$parent?.$parent as App).temporaryToast(
                 'Sometime between when you got here and now this file has been deleted.',
                 5000
