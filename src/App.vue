@@ -110,133 +110,98 @@
       hostname?: string;
     };
 
-    async isLoggedIn() {
+    async isLoggedIn(): Promise<boolean | undefined> {
       if (!this.$store.state.loadComplete) {
         try {
-          if (!(await this.$store.dispatch('restoreSession'))) return false;
+          let sessionRestoreResult: boolean = await this.$store.dispatch(
+            'restoreSession'
+          );
+          if (sessionRestoreResult) return true;
+          else return false;
         } catch (error) {
           if (error instanceof Cumulonimbus.ResponseError) {
             switch (error.code) {
+              case 'BANNED_ERROR':
+                this.handleBannedUser();
+                return false;
+              case 'INVALID_SESSION_ERROR':
+                this.handleInvalidSession();
+                return false;
               case 'RATELIMITED_ERROR':
                 this.ratelimitToast(error.ratelimit.resetsAt);
-                break;
-              case 'INVALID_SESSION_ERROR':
-                if (window.location.pathname.includes('/dashboard'))
-                  this.redirectIfNotLoggedIn(
-                    window.location.pathname + window.location.search
-                  );
-                localStorage.removeItem('token');
-                break;
-              case 'BANNED_ERROR':
-                this.temporaryToast(
-                  "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                  5000
-                );
-                localStorage.removeItem('token');
-                break;
+                return undefined;
               case 'INTERNAL_ERROR':
                 this.temporaryToast(
                   'The server did something weird, lets try again later.',
                   5000
                 );
-                break;
+                return undefined;
               default:
                 this.temporaryToast(
-                  'Something weird happened, lets try again later.'
+                  'I did something weird, lets try again later.',
+                  5000
                 );
-                break;
+                console.error(error);
+                return undefined;
             }
           } else {
             this.temporaryToast(
-              'Something weird happened, lets try again later.'
+              'I did something weird, lets try again later.',
+              5000
             );
+            console.error('how');
+            return undefined;
           }
         }
-      }
-      try {
-        if (!!this.$store.state.client) {
-          let authCheck = await this.$store.dispatch('checkClientAuth');
-          if (typeof authCheck === 'boolean') return authCheck;
-          else return false;
-        } else return false;
-      } catch (error) {
-        if (error instanceof Cumulonimbus.ResponseError) {
-          switch (error.code) {
-            case 'RATELIMITED_ERROR':
-              this.ratelimitToast(error.ratelimit.resetsAt);
-              return true;
-            case 'BANNED_ERROR':
-              this.temporaryToast(
-                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              localStorage.removeItem('token');
-              return false;
-            case 'INTERNAL_ERROR':
-              this.temporaryToast(
-                'The server did something weird, lets try again later.',
-                5000
-              );
-              return true;
-            default:
-              this.temporaryToast(
-                'Something weird happened, lets try again later.'
-              );
-              return true;
-          }
-        } else {
-          this.temporaryToast(
-            'Something weird happened, lets try again later.'
-          );
-          return true;
-        }
-      }
+      } else return !!this.$store.state.user;
     }
 
-    async isStaff() {
+    async isStaff(): Promise<boolean | undefined> {
       //check if logged in first, no bother checking staff if they aren't logged in
-      if (!(await this.isLoggedIn())) return false;
-      return this.$store.state.user?.staff as boolean;
+      let loggedInResult = await this.isLoggedIn();
+      if (loggedInResult === undefined) return undefined;
+      else if (!loggedInResult) return false;
+      else return this.$store.state.user?.staff as boolean;
     }
 
-    async redirectIfNotLoggedIn(path: string): Promise<boolean> {
-      if (!(await this.isLoggedIn())) {
-        if (!path.startsWith('/dashboard')) return false;
-        this.$router.push(`/auth/?redirect=${path}`);
+    async redirectIfNotLoggedIn(path: string): Promise<boolean | undefined> {
+      let loggedInResult = await this.isLoggedIn();
+      if (loggedInResult === undefined) return undefined;
+      if (!loggedInResult) {
+        if (!path.startsWith('/dashboard') && !path.startsWith('/admin'))
+          return false;
+        this.$router.replace(`/auth/?redirect=${path}`);
         return true;
       } else return false;
     }
 
-    mobileMenu() {
+    mobileMenu(): void {
       this.$refs.navMenu.classList.toggle('active');
       this.$refs.hamburger.classList.toggle('active');
     }
 
-    hideMobileMenu() {
+    hideMobileMenu(): void {
       this.$refs.navMenu.classList.remove('active');
       this.$refs.hamburger.classList.remove('active');
     }
 
-    showToast(time?: number | boolean) {
+    showToast(time?: number | boolean): void {
       this.$refs.toast.show(time);
     }
 
-    hideToast() {
+    hideToast(): void {
       this.$refs.toast.hide();
     }
 
-    temporaryToast(text: string, time?: number) {
+    temporaryToast(text: string, time?: number): void {
       this.$refs.toast.toastTemporary(text, time);
     }
 
-    permanentToast(text: string) {
+    permanentToast(text: string): void {
       this.$refs.toast.toastPermanent(text);
     }
 
-    toDateString(date: Date) {
+    toDateString(date: Date): string {
       let timeOffset = date.getTimezoneOffset();
       return `${months[date.getMonth()]} ${
         days[date.getDay()]
@@ -257,7 +222,7 @@
         .padStart(2, '0')})`;
     }
 
-    ratelimitToast(reset: number) {
+    ratelimitToast(reset: number): void {
       let timeLeftMills = reset * 1000 - Date.now();
       let hours = Math.floor(timeLeftMills / (1000 * 60 * 60));
       timeLeftMills = timeLeftMills % (1000 * 60 * 60);
@@ -274,32 +239,33 @@
       );
     }
 
-    handleInvalidSession() {
+    handleInvalidSession(): void {
       this.temporaryToast(
         'Your session has expired, please log in again.',
         5000
       );
-      this.$store.commit('setUser', null);
-      this.$store.commit('setSession', null);
-      this.$store.commit('setClient', null);
-      localStorage.removeItem('token');
-      (this.$parent?.$parent as App).redirectIfNotLoggedIn(
+      this.logOut();
+      this.redirectIfNotLoggedIn(
         window.location.pathname + window.location.search
       );
     }
 
-    handleBannedUser() {
+    handleBannedUser(): void {
       this.temporaryToast(
         "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
         5000
       );
+      this.logOut();
+      this.redirectIfNotLoggedIn(
+        window.location.pathname + window.location.search
+      );
+    }
+
+    logOut() {
       this.$store.commit('setUser', null);
       this.$store.commit('setSession', null);
       this.$store.commit('setClient', null);
       localStorage.removeItem('token');
-      (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-        window.location.pathname + window.location.search
-      );
     }
 
     async beforeMount() {

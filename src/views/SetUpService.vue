@@ -134,16 +134,7 @@
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleBannedUser();
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -248,16 +239,7 @@
               );
               break;
             case 'BANNED_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                5000
-              );
-              this.$store.commit('setUser', null);
-              this.$store.commit('setSession', null);
-              this.$store.commit('setClient', null);
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleBannedUser();
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(

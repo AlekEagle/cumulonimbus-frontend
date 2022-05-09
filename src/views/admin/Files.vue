@@ -183,7 +183,7 @@
                 error.ratelimit.resetsAt
               );
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':
@@ -262,20 +262,14 @@
               );
               this.$router.replace('/admin/users');
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                5000
-              );
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleBannedUser();
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -330,20 +324,14 @@
                 error.ratelimit.resetsAt
               );
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                5000
-              );
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleBannedUser();
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(

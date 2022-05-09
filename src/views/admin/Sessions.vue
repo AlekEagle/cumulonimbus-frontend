@@ -164,7 +164,7 @@
             case 'BANNED_ERROR':
               (this.$parent?.$parent as App).handleBannedUser();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'INVALID_USER_ERROR':
@@ -251,6 +251,22 @@
                 5000
               );
               this.$router.replace('/admin/users');
+              break;
+            case 'INTERNAL_ERROR':
+              (this.$parent?.$parent as App).temporaryToast(
+                'The server did something weird, lets try again later.',
+                5000
+              );
+              break;
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
+            default:
+              (this.$parent?.$parent as App).temporaryToast(
+                'I did something weird, lets try again later.',
+                5000
+              );
+              console.error(error);
           }
         } else {
           (this.$parent?.$parent as App).temporaryToast(
@@ -304,6 +320,10 @@
                 'The server did something weird, lets try again later.',
                 5000
               );
+              break;
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',

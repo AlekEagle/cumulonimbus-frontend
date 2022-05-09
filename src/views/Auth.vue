@@ -233,11 +233,9 @@
 
     authedRedir() {
       const urlSearchParams = new URLSearchParams(window.location.search);
-      this.$router.push(
-        urlSearchParams.has('redirect')
-          ? (urlSearchParams.get('redirect') as string)
-          : '/dashboard'
-      );
+      if (urlSearchParams.has('redirect'))
+        this.$router.replace(urlSearchParams.get('redirect') as string);
+      else this.$router.push('/dashboard');
     }
 
     async mounted() {
@@ -255,11 +253,9 @@
 
     success() {
       const urlSearchParams = new URLSearchParams(window.location.search);
-      this.$router.push(
-        urlSearchParams.has('redirect')
-          ? (urlSearchParams.get('redirect') as string)
-          : '/dashboard'
-      );
+      if (urlSearchParams.has('redirect'))
+        this.$router.replace(urlSearchParams.get('redirect') as string);
+      else this.$router.push('/dashboard');
     }
   }
 </script>

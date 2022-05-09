@@ -219,13 +219,7 @@
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                5000
-              );
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleBannedUser();
               break;
             case 'BODY_TOO_LARGE_ERROR':
               (this.$parent?.$parent as App).temporaryToast(

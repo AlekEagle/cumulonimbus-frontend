@@ -314,6 +314,9 @@
                 5000
               );
               break;
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird. Lets try again later.',
@@ -357,7 +360,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -368,6 +371,9 @@
                 'The server did something weird. Lets try again later.',
                 5000
               );
+              break;
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
+              this.$router.replace('/');
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
@@ -410,7 +416,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -429,6 +435,9 @@
                 'The server did something weird. Lets try again later.',
                 5000
               );
+              break;
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
+              this.$router.replace('/');
               break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
@@ -473,7 +482,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':

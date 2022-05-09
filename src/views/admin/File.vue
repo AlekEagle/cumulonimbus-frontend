@@ -169,7 +169,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -235,6 +235,9 @@
                 5000
               );
               break;
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
@@ -262,7 +265,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':

@@ -10,11 +10,7 @@
     <button @click="signOut" title="This button will sign you out, who knew!?"
       >Sign Out</button
     >
-    <router-link
-      v-if="$store.state.user?.staff"
-      @click.prevent="alert(1)"
-      to="/admin"
-    >
+    <router-link v-if="$store.state.user?.staff" to="/admin">
       <button title="This button will take you to cool town square.">
         Admin Dashboard
       </button>
@@ -108,13 +104,7 @@
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
             case 'BANNED_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                "Uh oh, looks like you've been banned from Cumulonimbus, sorry for the inconvenience.",
-                5000
-              );
-              (this.$parent?.$parent as App).redirectIfNotLoggedIn(
-                window.location.pathname
-              );
+              (this.$parent?.$parent as App).handleBannedUser();
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(

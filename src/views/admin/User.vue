@@ -2,7 +2,10 @@
   <h1>User Information</h1>
   <h2>Here's everything we know about this person.</h2>
   <div class="quick-action-buttons-container">
-    <BackButton fallback="/admin/users" title="Back to cool town resident directory." />
+    <BackButton
+      fallback="/admin/users"
+      title="Back to cool town resident directory."
+    />
   </div>
 
   <div v-if="!$data.loading" class="content-box-group-container">
@@ -377,7 +380,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -433,7 +436,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -445,12 +448,6 @@
                 5000
               );
               this.$router.replace('/admin/users');
-              break;
-            case 'INVALID_USER_ERROR':
-              (this.$parent?.$parent as App).temporaryToast(
-                'This username is invalid.',
-                5000
-              );
               break;
             case 'USER_EXISTS_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
@@ -502,7 +499,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -575,7 +572,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -632,7 +629,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -744,7 +741,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -803,7 +800,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -861,7 +858,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -922,7 +919,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':
@@ -983,7 +980,7 @@
             case 'INVALID_SESSION_ERROR':
               (this.$parent?.$parent as App).handleInvalidSession();
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'BANNED_ERROR':

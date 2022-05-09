@@ -251,6 +251,9 @@
                 5000
               );
               break;
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
+              this.$router.replace('/');
+              break;
             default:
               (this.$parent?.$parent as App).temporaryToast(
                 'I did something weird, lets try again later.',
@@ -285,7 +288,7 @@
                 error.ratelimit.resetsAt
               );
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':

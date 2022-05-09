@@ -153,7 +153,7 @@
                 error.ratelimit.resetsAt
               );
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':
@@ -227,7 +227,7 @@
                 error.ratelimit.resetsAt
               );
               break;
-            case 'PERMISSIONS_ERROR':
+            case 'INSUFFICIENT_PERMISSIONS_ERROR':
               this.$router.replace('/');
               break;
             case 'INVALID_SESSION_ERROR':
