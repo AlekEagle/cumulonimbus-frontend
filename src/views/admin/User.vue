@@ -160,7 +160,6 @@
       title="View User's Content"
       :to="{ path: '/admin/files', query: { uid: $data.user?.id } }"
       span
-      @click="$store.commit('setAdminSelectedUserID', $data.user?.id)"
       src="/assets/images/file.svg"
       theme-safe
     >

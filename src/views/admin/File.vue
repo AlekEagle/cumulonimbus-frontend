@@ -141,7 +141,6 @@
     }
 
     navigateToUser() {
-      this.$store.commit('setAdminSelectedFileID', this.$data.file.filename);
       this.$router.push({
         path: '/admin/user',
         query: {
