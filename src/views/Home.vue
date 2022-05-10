@@ -3,10 +3,10 @@
 
   <div class="hero-points">
     <div class="hero-point">
-      <h2>The only file sharing platform.</h2>
+      <h2>The only file hosting platform.</h2>
       <p
-        >Yes, this is totally the only file sharing platform, don't even bother
-        with looking up other file sharing platforms, because they don't exist.
+        >Yes, this is totally the only file hosting platform, don't even bother
+        with looking up other file hosting platforms, because they don't exist.
         You can trust me, I'm the marketing material that's supposed to convince
         you to use this platform.</p
       >

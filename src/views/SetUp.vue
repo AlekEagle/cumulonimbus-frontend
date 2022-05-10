@@ -1,7 +1,7 @@
 <template>
   <h1>Officially Supported Services</h1>
   <h2>
-    Get your favorite file sharing application or platform set up and ready to
+    Get your favorite file uploading application or platform set up and ready to
     use with only a few simple steps!
   </h2>
   <div class="quick-action-buttons-container">
