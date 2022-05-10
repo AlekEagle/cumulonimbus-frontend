@@ -26,6 +26,7 @@
             v-for="domain in $data.domains"
             :key="domain.domain"
             :name="domain.domain"
+            :title="domain.domain"
             v-text="domain.domain"
           />
         </select>
@@ -123,6 +124,11 @@
       );
     }
 
+    resizeDomain(text: string) {
+      const size = this.getInputSize(text);
+      document.documentElement.style.setProperty('--domain-input-width', size);
+    }
+
     resetSubdomainSize() {
       document.documentElement.style.setProperty(
         '--subdomain-input-width',
@@ -130,9 +136,17 @@
       );
     }
 
+    resetDomainSize() {
+      document.documentElement.style.setProperty(
+        '--domain-input-width',
+        this.getInputSize('Domain')
+      );
+    }
+
     allowsSubdomains(event: Event) {
       const select = event.target as HTMLSelectElement;
       const domain = select.value;
+      this.resizeDomain(domain);
       const domainObject = this.$data.domains.find(d => d.domain === domain);
       this.$data.subdomainCompatible =
         domainObject?.allowsSubdomains as boolean;
@@ -146,6 +160,8 @@
     }
 
     async show() {
+      this.resetDomainSize();
+      this.resetSubdomainSize();
       this.$refs.modal.show();
       try {
         await (this.$parent?.$parent?.$parent as App).isLoggedIn();
@@ -164,6 +180,7 @@
       const domainObject = this.$data.domains.find(
         d => d.domain === this.$props.domain
       );
+      this.resizeDomain(domainObject?.domain as string);
       this.$data.subdomainCompatible =
         domainObject?.allowsSubdomains as boolean;
       if (this.$props.subdomain) {
@@ -244,21 +261,22 @@
     margin: 0;
     width: var(--subdomain-input-width, 9ch);
     min-width: 10vw;
-  }
-
-  .fancy-domain-selector-container .fancy-subdomain + select {
-    padding-left: 0;
+    text-align: right;
   }
 
   .fancy-domain-selector-container .fancy-subdomain,
   .fancy-domain-selector-container select {
-    width: fit-content;
     min-width: 10vw;
     margin: 0;
   }
 
-  .fancy-domain-selector-container .fancy-subdomain input {
-    text-align: right;
+  .fancy-domain-selector-container select {
+    width: calc(var(--domain-input-width, 6ch) + 30px);
+    padding-left: 0;
+  }
+
+  .fancy-domain-selector-container select:nth-child(1) {
+    margin-left: 10px;
   }
 
   .fancy-domain-selector-container .fancy-subdomain input,
