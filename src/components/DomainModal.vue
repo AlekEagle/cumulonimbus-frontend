@@ -9,25 +9,30 @@
   >
     <p>Select your choice below!</p>
     <form ref="form" @submit.prevent="confirmDomain">
-      <input
-        name="subdomain"
-        type="text"
-        maxlength="63"
-        @beforeinput="validateSubdomain"
-        placeholder="Subdomain"
-        :disabled="!$data.subdomainCompatible"
-      />
-      <p>.</p>
-      <select name="domain" @change="allowsSubdomains">
-        <option
-          v-for="domain in $data.domains"
-          :key="domain.domain"
-          :name="domain.domain"
-          v-text="domain.domain"
-        />
-      </select>
+      <div class="fancy-domain-selector-container">
+        <div v-if="$data.subdomainCompatible" class="fancy-subdomain">
+          <input
+            name="subdomain"
+            type="text"
+            maxlength="63"
+            @input="subdomainInputHandler"
+            placeholder="Subdomain"
+            :disabled="!$data.subdomainCompatible"
+          />
+          <p>.</p>
+        </div>
+        <select name="domain" @change="allowsSubdomains">
+          <option
+            v-for="domain in $data.domains"
+            :key="domain.domain"
+            :name="domain.domain"
+            v-text="domain.domain"
+          />
+        </select>
+      </div>
     </form>
   </ConfirmModal>
+  <div class="input-fit-content-shim" ref="inputFitContentShim"></div>
 </template>
 
 <script lang="ts">
@@ -43,7 +48,7 @@
     data() {
       return {
         domains: [],
-        subdomainCompatible: false
+        subdomainCompatible: true
       };
     },
     props: {
@@ -71,6 +76,7 @@
     declare $refs: {
       modal: ConfirmModal;
       form: HTMLFormElement;
+      inputFitContentShim: HTMLDivElement;
     };
 
     async getDomains() {
@@ -86,20 +92,42 @@
       this.$emit('confirm', this.selection);
     }
 
+    subdomainInputHandler(event: Event) {
+      const input = event.target as HTMLInputElement;
+      this.resizeSubdomain((input.value || input.placeholder) + '_');
+      this.validateSubdomain(event);
+    }
+
     validateSubdomain(event: Event) {
       if ((event as InputEvent).data === null) return;
       const input = event.target as HTMLInputElement;
-      const r = /[a-z0-9-]+/;
       if (input.value.length >= 63) {
         event.preventDefault();
         return;
       }
-      if (!r.test((event as InputEvent).data as string)) event.preventDefault();
-      if ((event as InputEvent).data === ' ') {
-        let curPos = input.selectionStart as number + 1;
-        input.value = input.value.substring(0, curPos - 1) + '-' + input.value.substring(curPos - 1, input.value.length);
-        input.setSelectionRange(curPos, curPos);
-      }
+      const cursorPos = input.selectionStart;
+      input.value = input.value.replace(/[^a-z0-9-]/gi, '-');
+      input.selectionStart = cursorPos;
+    }
+
+    getInputSize(text: string) {
+      this.$refs.inputFitContentShim.innerText = text;
+      return window.getComputedStyle(this.$refs.inputFitContentShim).width;
+    }
+
+    resizeSubdomain(text: string) {
+      const size = this.getInputSize(text);
+      document.documentElement.style.setProperty(
+        '--subdomain-input-width',
+        size
+      );
+    }
+
+    resetSubdomainSize() {
+      document.documentElement.style.setProperty(
+        '--subdomain-input-width',
+        this.getInputSize('Subdomain')
+      );
     }
 
     allowsSubdomains(event: Event) {
@@ -108,11 +136,13 @@
       const domainObject = this.$data.domains.find(d => d.domain === domain);
       this.$data.subdomainCompatible =
         domainObject?.allowsSubdomains as boolean;
-      if (!this.$data.subdomainCompatible)
+      if (!this.$data.subdomainCompatible) {
         (this.$parent?.$parent?.$parent as App).temporaryToast(
           'This domain does not allow subdomains.',
           5000
         );
+        this.resetSubdomainSize();
+      }
     }
 
     async show() {
@@ -130,15 +160,16 @@
           '[name="subdomain"]'
         ) as HTMLInputElement;
 
-      if (this.$props.subdomain) {
-        subdomainField.value = this.$props.subdomain;
-      }
       domainField.value = this.$props.domain;
       const domainObject = this.$data.domains.find(
         d => d.domain === this.$props.domain
       );
       this.$data.subdomainCompatible =
         domainObject?.allowsSubdomains as boolean;
+      if (this.$props.subdomain) {
+        subdomainField.value = this.$props.subdomain;
+        this.resizeSubdomain(this.$props.subdomain);
+      }
     }
 
     hide() {
@@ -159,19 +190,138 @@
 </script>
 
 <style>
-  input[type='text'][name='subdomain'] {
+  .fancy-domain-selector-container {
+    padding: 0;
+    width: fit-content;
+    border-radius: 10px;
+    background-color: #f3f3f3;
+    transition: border 0.25s, background-color 0.25s, color 0.25s;
+    border: 1px solid #9a9a9a;
+    outline: none;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0 auto;
+  }
+
+  .fancy-domain-selector-container:hover,
+  .fancy-domain-selector-container:focus,
+  .fancy-domain-selector-container:active,
+  .fancy-domain-selector-container:focus-within {
+    background-color: #d6d6d6;
+  }
+
+  html.dark-theme .fancy-domain-selector-container {
+    background-color: #272727;
+    color: #fff;
+    border: 1px solid #000000;
+  }
+
+  html.dark-theme .fancy-domain-selector-container:hover,
+  html.dark-theme .fancy-domain-selector-container:focus,
+  html.dark-theme .fancy-domain-selector-container:active,
+  html.dark-theme .fancy-domain-selector-container:focus-within {
+    background-color: #202020;
+  }
+
+  .fancy-domain-selector-container .fancy-subdomain {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: baseline;
+  }
+
+  .fancy-domain-selector-container .fancy-subdomain p {
+    margin: 0;
+    font-weight: 900;
+  }
+
+  .fancy-domain-selector-container .fancy-subdomain input {
+    padding-right: 4px;
+    margin: 0;
+    width: var(--subdomain-input-width, 9ch);
+    min-width: 10vw;
+  }
+
+  .fancy-domain-selector-container .fancy-subdomain + select {
+    padding-left: 0;
+  }
+
+  .fancy-domain-selector-container .fancy-subdomain,
+  .fancy-domain-selector-container select {
+    width: fit-content;
+    min-width: 10vw;
+    margin: 0;
+  }
+
+  .fancy-domain-selector-container .fancy-subdomain input {
     text-align: right;
   }
 
-  select[name='domain'],
-  input[type='text'][name='subdomain'] {
-    width: 30vw;
+  .fancy-domain-selector-container .fancy-subdomain input,
+  .fancy-domain-selector-container select {
+    border: none;
   }
 
-  input[type='text'][name='subdomain'] + p {
-    display: inline;
-    font-weight: 900;
-    font-size: xx-large;
-    margin: 0 5px;
+  .fancy-domain-selector-container .fancy-subdomain input,
+  .fancy-domain-selector-container .fancy-subdomain input:hover,
+  .fancy-domain-selector-container .fancy-subdomain input:focus,
+  html.dark-theme .fancy-domain-selector-container .fancy-subdomain input,
+  html.dark-theme .fancy-domain-selector-container .fancy-subdomain input:hover,
+  html.dark-theme
+    .fancy-domain-selector-container
+    .fancy-subdomain
+    input:focus {
+    background-color: inherit;
+  }
+
+  .fancy-domain-selector-container .fancy-subdomain input:hover,
+  .fancy-domain-selector-container .fancy-subdomain input:focus,
+  .fancy-domain-selector-container select:hover,
+  .fancy-domain-selector-container select:focus {
+    border: none;
+  }
+
+  .fancy-domain-selector-container:hover select,
+  .fancy-domain-selector-container:focus select,
+  .fancy-domain-selector-container:active select,
+  .fancy-domain-selector-container:focus-within select {
+    background-color: #d6d6d6;
+  }
+
+  html.dark-theme .fancy-domain-selector-container .fancy-subdomain input,
+  html.dark-theme .fancy-domain-selector-container select {
+    border: none;
+  }
+
+  html.dark-theme .fancy-domain-selector-container .fancy-subdomain input:hover,
+  html.dark-theme .fancy-domain-selector-container .fancy-subdomain input:focus,
+  html.dark-theme .fancy-domain-selector-container select:hover,
+  html.dark-theme .fancy-domain-selector-container select:focus {
+    border: none;
+  }
+
+  html.dark-theme .fancy-domain-selector-container:hover select,
+  html.dark-theme .fancy-domain-selector-container:focus select,
+  html.dark-theme .fancy-domain-selector-container:active select,
+  html.dark-theme .fancy-domain-selector-container:focus-within select {
+    background-color: #202020;
+  }
+
+  .input-fit-content-shim {
+    position: absolute;
+    top: 0;
+    left: -9999px;
+    overflow: hidden;
+    visibility: hidden;
+    white-space: nowrap;
+    height: 0;
+    font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', Arial,
+      sans-serif;
+    font-weight: 600;
+    font-size: calc(13.3px + 0.5vw);
   }
 </style>
