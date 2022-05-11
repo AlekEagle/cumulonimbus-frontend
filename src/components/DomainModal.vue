@@ -44,6 +44,19 @@
   import Loading from '@/components/Loading.vue';
   import App from '@/App.vue';
 
+  function setCursorPos(e: HTMLInputElement | HTMLTextAreaElement, pos: number) {
+    if (e.createTextRange) {
+      const r = e.createTextRange();
+      r.move('character', pos);
+      r.select();
+    else if (e.selectionStart) {
+      e.focus();
+      e.setSelectionRange(pos, pos);
+    else {
+      e.focus();
+    }
+  }
+
   @Options({
     components: {
       ConfirmModal,
@@ -114,7 +127,7 @@
       }
       const cursorPos = input.selectionStart;
       input.value = input.value.replace(/[^a-z0-9-]/gi, '-');
-      input.selectionStart = cursorPos;
+      setCursorPos(input, cursorPos);
     }
 
     getInputSize(text: string) {
