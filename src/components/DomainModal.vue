@@ -44,17 +44,12 @@
   import Loading from '@/components/Loading.vue';
   import App from '@/App.vue';
 
-  function setCursorPos(e: HTMLInputElement | HTMLTextAreaElement, pos: number) {
-    if (e.createTextRange) {
-      const r = e.createTextRange();
-      r.move('character', pos);
-      r.select();
-    } else if (e.selectionStart) {
-      e.focus();
-      e.setSelectionRange(pos, pos);
-    } else {
-      e.focus();
-    }
+  function setCursorPos(
+    e: HTMLInputElement | HTMLTextAreaElement,
+    pos: number
+  ) {
+    e.focus();
+    e.setSelectionRange(pos, pos);
   }
 
   @Options({
@@ -125,7 +120,7 @@
         event.preventDefault();
         return;
       }
-      const cursorPos = input.selectionStart;
+      const cursorPos = input.selectionStart as number;
       input.value = input.value.replace(/[^a-z0-9-]/gi, '-');
       setCursorPos(input, cursorPos);
     }
