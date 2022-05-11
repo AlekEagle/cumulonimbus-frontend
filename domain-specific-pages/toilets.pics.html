@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Toilets!</title>
+    <meta name="title" content="Toilets!" />
+    <meta name="og:title" content="Toilets!" />
+    <meta name="description" content="toi let" />
+    <meta name="og:description" content="toi let" />
+    <script>
+      const toilets = [
+        '/dbclwDY02s.png',
+        '/hURNQQQk16.png',
+        '/EJS4WoDtJK.png',
+        '/g6baBxwmfX.png',
+        '/0a_H0COqX7.png',
+        '/bihCyIuJDm.png',
+        '/tU6LXF_-6v.png',
+        '/Yw2blH0cKl.png',
+        '/Kf2dxjV5Rj.png',
+        '/ApLDiRcCy5.png',
+        '/BitXUL4qKJ.png'
+      ];
+
+      const randomToilet = toilets[Math.floor(Math.random() * toilets.length)];
+
+      const style = document.createElement('style');
+      style.innerHTML = `
+        body {
+          background-image: url('${randomToilet}');
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+          background-attachment: fixed;
+        }
+      `;
+      document.head.appendChild(style);
+      const metaImage = document.createElement('meta');
+      metaImage.setAttribute('property', 'og:image');
+      metaImage.setAttribute('content', randomToilet);
+      document.head.appendChild(metaImage);
+    </script>
+  </head>
+  <body></body>
+</html>
