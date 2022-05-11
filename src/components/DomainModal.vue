@@ -49,10 +49,10 @@
       const r = e.createTextRange();
       r.move('character', pos);
       r.select();
-    else if (e.selectionStart) {
+    } else if (e.selectionStart) {
       e.focus();
       e.setSelectionRange(pos, pos);
-    else {
+    } else {
       e.focus();
     }
   }
