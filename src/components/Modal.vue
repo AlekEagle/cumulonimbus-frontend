@@ -122,6 +122,7 @@
     margin: 25px;
     cursor: default;
     border-radius: 20px;
+    max-width: 75vw;
   }
 
   html.dark-theme .modal {
@@ -154,6 +155,7 @@
   .modal-content {
     margin: 15px 0 10px;
     padding: 0 5px 10px;
+    overflow-x: auto;
     overflow-y: auto;
     max-height: 50vh;
     line-height: 1.5;

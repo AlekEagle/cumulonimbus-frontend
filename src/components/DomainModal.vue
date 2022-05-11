@@ -7,8 +7,8 @@
     deny-closes-modal
     cancelable
   >
-    <p>Select your choice below!</p>
-    <form ref="form" @submit.prevent="confirmDomain">
+    <p>Customize your domain here!</p>
+    <form ref="form" @submit.prevent="confirmDomain" v-if="$data.loaded">
       <div class="fancy-domain-selector-container">
         <div v-if="$data.subdomainCompatible" class="fancy-subdomain">
           <input
@@ -32,6 +32,7 @@
         </select>
       </div>
     </form>
+    <Loading v-else />
   </ConfirmModal>
   <div class="input-fit-content-shim" ref="inputFitContentShim"></div>
 </template>
@@ -40,16 +41,19 @@
   import { Options, Vue } from 'vue-class-component';
   import { Client, Cumulonimbus } from '../../../cumulonimbus-wrapper';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import Loading from '@/components/Loading.vue';
   import App from '@/App.vue';
 
   @Options({
     components: {
-      ConfirmModal
+      ConfirmModal,
+      Loading
     },
     data() {
       return {
         domains: [],
-        subdomainCompatible: true
+        subdomainCompatible: false,
+        loaded: false
       };
     },
     props: {
@@ -68,6 +72,7 @@
     declare $data: {
       domains: Cumulonimbus.Data.Domain[];
       subdomainCompatible: boolean;
+      loaded: boolean;
     };
     declare $props: {
       domain: string;
@@ -83,6 +88,7 @@
     async getDomains() {
       const domains = await (this.$store.state.client as Client).getDomains();
       this.$data.domains = domains.items;
+      this.$data.loaded = true;
     }
 
     denyDomain() {
@@ -169,24 +175,58 @@
       } catch (error) {
         this.$emit('error', error);
       }
-      const domainField = this.$refs.form.querySelector(
-          '[name="domain"]'
-        ) as HTMLSelectElement,
-        subdomainField = this.$refs.form.querySelector(
-          '[name="subdomain"]'
-        ) as HTMLInputElement;
+      await this.initFormInputs();
+    }
 
-      domainField.value = this.$props.domain;
-      const domainObject = this.$data.domains.find(
-        d => d.domain === this.$props.domain
-      );
-      this.resizeDomain(domainObject?.domain as string);
-      this.$data.subdomainCompatible =
-        domainObject?.allowsSubdomains as boolean;
-      if (this.$props.subdomain) {
-        subdomainField.value = this.$props.subdomain;
-        this.resizeSubdomain(this.$props.subdomain);
-      }
+    initFormInputs(): Promise<void> {
+      return new Promise((resolve, reject) => {
+        // check if the domain selector is ready
+        const interval = setInterval(() => {
+          if (this.$refs.form) {
+            const domainField = this.$refs.form.querySelector(
+              'select'
+            ) as HTMLSelectElement | null;
+            if (domainField) {
+              clearInterval(interval);
+              domainField.value = this.$props.domain;
+              const domainObject = this.$data.domains.find(
+                d => d.domain === this.$props.domain
+              );
+              if (!domainObject) {
+                (this.$parent?.$parent?.$parent as App).temporaryToast(
+                  'Domain not found.',
+                  5000
+                );
+                reject(new Error('Domain not found'));
+                return;
+              }
+              this.resizeDomain(domainObject.domain);
+              this.$data.subdomainCompatible =
+                domainObject.allowsSubdomains as boolean;
+              if (!this.$data.subdomainCompatible) {
+                resolve();
+              }
+              const interval2 = setInterval(() => {
+                if (this.$refs.form) {
+                  const subdomainField = this.$refs.form.querySelector(
+                    '.fancy-subdomain input'
+                  ) as HTMLInputElement | null;
+                  if (subdomainField) {
+                    clearInterval(interval2);
+                    if (this.$props.subdomain) {
+                      subdomainField.value = this.$props.subdomain;
+                      this.resizeSubdomain(this.$props.subdomain);
+                      resolve();
+                    } else {
+                      resolve();
+                    }
+                  }
+                }
+              }, 100);
+            }
+          }
+        });
+      });
     }
 
     hide() {
