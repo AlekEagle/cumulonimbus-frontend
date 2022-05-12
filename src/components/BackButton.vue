@@ -54,6 +54,7 @@
         window.history.pushState(window.history.state, '', current);
         this.$router.back();
         window.history.state.current = this.$props.fallback;
+        window.history.state.next = current;
       }
     }
   }
