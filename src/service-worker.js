@@ -178,7 +178,7 @@ self.addEventListener('fetch', async e => {
       }
     } else {
       console.debug(
-        `[CacheManager] UA is offline or ${url} is not cached, unnessary to check for updates`
+        `[CacheManager] UA is offline or ${url} is not cached, unnecessary to check for updates`
       );
     }
   }
@@ -187,7 +187,7 @@ self.addEventListener('message', async e => {
   switch (e.data.op) {
     case 0:
       let shareCache = await caches.open('shared-files');
-      await shareCache.delete(e.data.d);
+      await shareCache.delete(`/shared-files/${e.data.d}`);
       break;
     case 2:
       console.debug('[MessageManager] Deleting preview thumbnail cache!');

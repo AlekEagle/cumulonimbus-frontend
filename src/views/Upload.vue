@@ -53,7 +53,9 @@
     if (!qs) return parsed;
     qs.split(sep || '&').forEach(p => {
       let ps = p.split(eq || '=');
-      parsed[unescape(ps[0])] = ps[1] ? unescape(ps[1]) : true;
+      parsed[decodeURIComponent(ps[0])] = ps[1]
+        ? decodeURIComponent(ps[1])
+        : true;
     });
     return parsed;
   }
@@ -162,9 +164,13 @@
             this.uploadFile();
           }
         } catch (error) {
-          this.$router.push(window.location.pathname);
+          this.$router.replace(window.location.pathname);
         }
       }
+    }
+    resetForm() {
+      this.$refs.fileForm.reset();
+      this.$data.file = undefined;
     }
     drop(e: DragEvent) {
       if ((e.dataTransfer as DataTransfer).files.length > 1) {
@@ -196,16 +202,15 @@
         let success = await (this.$store.state.client as Client).uploadData(
           this.$data.file
         );
-        this.$data.file = undefined;
+        this.resetForm();
         this.$data.link = success.url;
-        this.$refs.fileForm.reset();
         this.copyToClipboard(true);
         if (parseQueryString(window.location.href.split('?')[1]).file) {
           navigator.serviceWorker.controller?.postMessage({
             op: 0,
             d: parseQueryString(window.location.href.split('?')[1]).file
           });
-          this.$router.push(window.location.pathname);
+          this.$router.replace(window.location.pathname);
         }
       } catch (error) {
         if (error instanceof Cumulonimbus.ResponseError) {
@@ -226,7 +231,7 @@
                 'Your file is too big! Sorry!',
                 5000
               );
-              this.$data.file = undefined;
+              this.resetForm();
               break;
             case 'INTERNAL_ERROR':
               (this.$parent?.$parent as App).temporaryToast(
