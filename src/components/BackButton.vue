@@ -46,15 +46,9 @@
         this.$router.back();
       } else {
         let current = window.location.pathname;
-        window.history.replaceState(
-          window.history.state,
-          '',
-          this.$props.fallback
-        );
-        window.history.pushState(window.history.state, '', current);
+        await this.$router.replace(this.$props.fallback);
+        await this.$router.push(current);
         this.$router.back();
-        window.history.state.current = this.$props.fallback;
-        window.history.state.next = current;
       }
     }
   }

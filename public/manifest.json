@@ -58,7 +58,7 @@
     }
   ],
   "share_target": {
-    "action": "/dashboard/upload/",
+    "action": "/dashboard/upload",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
