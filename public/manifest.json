@@ -7,7 +7,7 @@
   "display": "standalone",
   "scope": "/",
   "gcm_sender_id": "267615612426",
-  "start_url": "/dashboard/",
+  "start_url": "/dashboard",
   "id": "/dashboard/",
   "icons": [
     {

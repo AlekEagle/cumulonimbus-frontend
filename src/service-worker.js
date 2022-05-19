@@ -35,7 +35,10 @@ self.addEventListener('install', async e => {
 
 self.addEventListener('fetch', async e => {
   const url = new URL(e.request.url);
-  if (e.request.method === 'POST' && url.pathname === '/dashboard/upload') {
+  if (
+    e.request.method === 'POST' &&
+    url.pathname.startsWith('/dashboard/upload')
+  ) {
     console.debug('[ExternalShareManager] External share request detected...');
     e.respondWith(
       (async () => {
