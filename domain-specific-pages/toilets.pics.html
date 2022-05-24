@@ -9,22 +9,44 @@
     <meta name="og:description" content="toi let" />
     <script>
       const toilets = [
-        '/dbclwDY02s.png',
-        '/hURNQQQk16.png',
-        '/EJS4WoDtJK.png',
-        '/g6baBxwmfX.png',
-        '/0a_H0COqX7.png',
-        '/bihCyIuJDm.png',
-        '/tU6LXF_-6v.png',
-        '/Yw2blH0cKl.png',
-        '/Kf2dxjV5Rj.png',
-        '/ApLDiRcCy5.png',
-        '/BitXUL4qKJ.png'
+        "/dbclwDY02s.png",
+        "/hURNQQQk16.png",
+        "/EJS4WoDtJK.png",
+        "/g6baBxwmfX.png",
+        "/0a_H0COqX7.png",
+        "/bihCyIuJDm.png",
+        "/tU6LXF_-6v.png",
+        "/Yw2blH0cKl.png",
+        "/Kf2dxjV5Rj.png",
+        "/ApLDiRcCy5.png",
+        "/BitXUL4qKJ.png",
+        "/HdTZryhBUc.jpg",
+        "/4O3I6AbtoJ.jpg",
+        "/MoWyjA25is.jpg",
+        "/3uC83OFXO6.jpg",
+        "/pIzpHbixWq.jpg",
+        "/pNFkx7Q75G.jpg",
+        "/4nkmswaIy8.jpg",
+        "/KYvXtH_WVV.jpg",
+        "/c66yAwh0NS.jpg",
+        "/reqklh_Ovc.jpg",
+        "/IJydoDmcot.jpg",
+        "/u4VHK7s7Py.jpg",
+        "/6tW3t5S3Do.jpg",
+        "/e-96wHloMQ.jpg",
+        "/OiSFW70zBv.jpg",
+        "/c2fBRkN1Rq.jpg",
+        "/9579sF1Dm5.jpg",
+        "/POHvJeYmrd.jpg",
+        "/fyR3vSKGxz.jpg",
+        "/zLsikEsu7A.jpg",
+        "/771jL6bhkK.png",
+        "/mUyUywcehi.jpg",
       ];
 
       const randomToilet = toilets[Math.floor(Math.random() * toilets.length)];
 
-      const style = document.createElement('style');
+      const style = document.createElement("style");
       style.innerHTML = `
         body {
           background-image: url('${randomToilet}');
@@ -35,9 +57,9 @@
         }
       `;
       document.head.appendChild(style);
-      const metaImage = document.createElement('meta');
-      metaImage.setAttribute('property', 'og:image');
-      metaImage.setAttribute('content', randomToilet);
+      const metaImage = document.createElement("meta");
+      metaImage.setAttribute("property", "og:image");
+      metaImage.setAttribute("content", randomToilet);
       document.head.appendChild(metaImage);
     </script>
   </head>
