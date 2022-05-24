@@ -28,7 +28,7 @@
       <ContentBox
         v-for="user in $data.users"
         :key="user.id"
-        :title="user.displayName"
+        :title="user.username"
         :src="
           isSelected(user.id)
             ? '/assets/images/checkmark.svg'

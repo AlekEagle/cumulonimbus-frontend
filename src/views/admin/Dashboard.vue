@@ -3,7 +3,7 @@
   <h2>
     Welcome to the Cool Zone,
     {{
-      $store.state.user ? `${$store.state.user.displayName}!` : 'uhh, hang on..'
+      $store.state.user ? `${$store.state.user.username}!` : 'uhh, hang on..'
     }}
   </h2>
   <div class="quick-action-buttons-container">

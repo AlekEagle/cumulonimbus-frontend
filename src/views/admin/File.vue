@@ -30,7 +30,7 @@
         }}</code></p
       >
       <p
-        >Uploaded by: <code>{{ $data.user.displayName }}</code></p
+        >Uploaded by: <code>{{ $data.user.username }}</code></p
       >
       <p
         >Size: <code>{{ $data.hFileSize }}</code></p
@@ -44,7 +44,7 @@
       src="/assets/images/profile.svg"
     >
       <p>
-        <code v-text="`${$data.user.displayName} (${$data.user.username})`" />
+        <code v-text="`${$data.user.username}`" />
       </p>
     </ContentBox>
   </div>
