@@ -34,9 +34,10 @@ import ContentBox from "@/components/ContentBox.vue";
 import App from "@/App.vue";
 import Paginator from "../components/Paginator.vue";
 import BackButton from "@/components/BackButton.vue";
+import Loading from "@/components/Loading.vue";
 
 @Options({
-  components: { Modal, ContentBox, Paginator, BackButton },
+  components: { Modal, ContentBox, Paginator, BackButton, Loading },
   data() {
     return {
       services: [],
