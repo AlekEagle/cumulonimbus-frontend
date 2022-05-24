@@ -33,9 +33,10 @@ import { Client, Cumulonimbus } from "../../../cumulonimbus-wrapper";
 import ContentBox from "@/components/ContentBox.vue";
 import App from "@/App.vue";
 import Paginator from "../components/Paginator.vue";
+import BackButton from "@/components/BackButton.vue";
 
 @Options({
-  components: { Modal, ContentBox, Paginator },
+  components: { Modal, ContentBox, Paginator, BackButton },
   data() {
     return {
       services: [],
