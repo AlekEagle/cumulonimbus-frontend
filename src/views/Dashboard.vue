@@ -8,6 +8,19 @@
       :disabled="processing"
     />
   </div>
+  <div class="content-box-container">
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+    <ContentBox></ContentBox>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -15,6 +28,7 @@ import { userStore } from "@/stores/user";
 import { toastStore } from "@/stores/toast";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import ContentBox from "@/components/ContentBox.vue";
 
 const user = userStore(),
   toast = toastStore(),

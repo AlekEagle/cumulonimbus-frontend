@@ -589,6 +589,9 @@ html {
   --ui-background-disabled: #b8b8b8;
   --ui-foreground-disabled: #000;
   --ui-border-disabled: #9e9e9e;
+  --font-heading: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
+    sans-serif;
+  --font-body: "Ubuntu", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 html.dark-theme {
@@ -644,8 +647,7 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
-    sans-serif;
+  font-family: var(--font-heading);
 
   transition: background-color 0.25s;
 }
@@ -722,7 +724,7 @@ p {
   font-size: 18px;
   font-weight: 400;
   color: var(--foreground);
-  font-family: "Ubuntu", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-body);
   transition: background-color 0.25s, color 0.25s;
 }
 
@@ -732,8 +734,7 @@ header nav ul li {
 
 header nav ul li a {
   height: fit-content;
-  font-family: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
-    sans-serif;
+  font-family: var(--font-heading);
   margin: 0 5px;
   font-size: 19px;
   font-weight: 600;
@@ -760,8 +761,7 @@ header a div.logo p {
   height: fit-content;
   margin: 0 0 0 10px;
   padding: 0;
-  font-family: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
-    sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 28px;
   color: var(--foreground);
@@ -869,8 +869,7 @@ button {
   border-radius: 10px;
   font-size: calc(13.3px + 0.5vw);
   margin: 5px 0;
-  font-family: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
-    sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   cursor: pointer;
   border: 1px solid var(--ui-border);
@@ -914,8 +913,7 @@ button:focus {
 input {
   padding: 10px;
   border-radius: 10px;
-  font-family: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
-    sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   margin: 5px 0;
   transition: border 0.25s, background-color 0.25s, color 0.25s;
@@ -933,8 +931,7 @@ input[type="number"] {
 }
 
 textarea {
-  font-family: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
-    sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   border-radius: 10px;
   padding: 10px;
@@ -1009,7 +1006,7 @@ option {
   background-color: var(--ui-background);
   color: var(--ui-foreground);
   font-size: calc(13.3px + 0.5vw);
-  font-family: "Ubuntu", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-body);
   transition: background-color 0.25s, color 0.25s;
   overflow-y: hidden;
   margin-left: 35px;
@@ -1030,5 +1027,11 @@ option {
 .toast-enter-to,
 .toast-leave-from {
   bottom: 35px;
+}
+
+.content-box-container {
+  display: grid;
+  height: fit-content;
+  grid: auto / repeat(3, 1fr);
 }
 </style>

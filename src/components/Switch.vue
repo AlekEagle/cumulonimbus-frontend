@@ -64,7 +64,7 @@ html.dark-theme {
 }
 
 .switch-container label .label {
-  font-family: "Ubuntu", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--body-heading);
   color: var(--foreground);
   margin-left: 0.5rem;
   font-size: calc(15.3px + 0.5vw);
