@@ -1,0 +1,23 @@
+{
+  "name": "cumulonimbus-frontend-v4",
+  "private": true,
+  "version": "4.0.0",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vueuse/core": "^8.6.0",
+    "cumulonimbus-wrapper": "file:/Users/alekeagle/Documents/cumulonimbus-wrapper",
+    "pinia": "^2.0.14",
+    "vue": "^3.2.25",
+    "vue-router": "4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.3.3",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.9",
+    "vue-tsc": "^0.34.7"
+  }
+}
