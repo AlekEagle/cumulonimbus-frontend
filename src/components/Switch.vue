@@ -29,7 +29,7 @@ const props = defineProps<{
 
 const __checked = ref<boolean>(false);
 
-__checked.value = props?.checked ?? false;
+__checked.value = props!.checked ?? false;
 
 defineExpose({
   checked: __checked,
@@ -64,7 +64,8 @@ html.dark-theme {
 }
 
 .switch-container label .label {
-  font-family: var(--body-heading);
+  font-family: var(--font-heading);
+  font-weight: 600;
   color: var(--foreground);
   margin-left: 0.5rem;
   font-size: calc(15.3px + 0.5vw);

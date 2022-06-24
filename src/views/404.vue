@@ -1,5 +1,11 @@
 <template>
-  <h1>This doesn't look like the right place...</h1>
+  <h1>
+    This doesn't look like the right place<router-link
+      class="h1-link"
+      to="/testing/hush/dont/touch"
+      >...</router-link
+    >
+  </h1>
   <h2>Um, I think we took a wrong turn somewhere.</h2>
   <h2>404 not found! The page you're looking for probably doesn't exist!</h2>
   <div class="quick-action-buttons-container">
@@ -90,7 +96,7 @@
 
 <script lang="ts" setup>
 import { useRouter } from "vue-router";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import BackButton from "@/components/BackButton.vue";
 
 const router = useRouter(),
@@ -110,6 +116,7 @@ function displayNextLine() {
 }
 
 onMounted(() => setTimeout(displayNextLine, 1000));
+onBeforeUnmount(() => clearTimeout(nextLineTimeout.value));
 </script>
 
 <style>
@@ -130,5 +137,10 @@ onMounted(() => setTimeout(displayNextLine, 1000));
 
 .funny-padding {
   padding: 1em;
+}
+
+h1 a.h1-link {
+  color: var(--foreground);
+  cursor: initial;
 }
 </style>

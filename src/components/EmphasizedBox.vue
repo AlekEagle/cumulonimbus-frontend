@@ -10,9 +10,9 @@
 .box {
   width: fit-content;
   min-width: 5rem;
-  max-width: 50rem;
+  max-width: 80vw;
   padding: 1rem 5vw;
-  margin: 10vh auto 0;
+  margin: 10vh auto 20px;
   border-radius: 1rem;
   background-color: var(--background);
   border: 1px solid var(--ui-border);

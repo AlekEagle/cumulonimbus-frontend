@@ -49,7 +49,7 @@
 <script lang="ts" setup>
 import ThemeManager from "@/components/ThemeManager.vue";
 import { userStore } from "./stores/user";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { toastStore } from "./stores/toast";
 import { useRouter, useRoute } from "vue-router";
 
@@ -81,6 +81,14 @@ const menuItems = [
   },
 ];
 const mobileMenu = ref(false);
+
+watch(mobileMenu, (val) => {
+  if (val) {
+    document.body.classList.add("no-scroll");
+  } else {
+    document.body.classList.remove("no-scroll");
+  }
+});
 
 // use the beforeEach hook on the router to check if the user is logged in when navigating to a route that requires authentication
 router.beforeEach(async (to, from, next) => {
@@ -619,6 +627,10 @@ body {
   color: var(--foreground);
 }
 
+main.content {
+  padding-bottom: 15px;
+}
+
 body.no-scroll {
   overflow-y: hidden;
 }
@@ -690,6 +702,7 @@ header nav ul {
   transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out,
     background-color 0.25s;
   background-color: var(--foreground);
+  border-radius: 2px;
 }
 
 a {
@@ -818,8 +831,10 @@ header a div.logo img {
     display: block;
     cursor: pointer;
     margin-right: 10px;
-    position: relative;
     z-index: 10;
+    right: 10px;
+    top: 20.8px;
+    position: fixed;
   }
 
   header nav.active .bar:nth-child(2) {
@@ -899,7 +914,7 @@ button:focus {
 .quick-action-buttons-container {
   display: flex;
   justify-content: space-around;
-  margin: 0 auto;
+  margin: 0 auto 15px;
   width: 40%;
   flex-wrap: wrap;
 }
@@ -1005,11 +1020,14 @@ option {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   background-color: var(--ui-background);
   color: var(--ui-foreground);
+  border: 1px solid var(--ui-border);
   font-size: calc(13.3px + 0.5vw);
   font-family: var(--font-body);
-  transition: background-color 0.25s, color 0.25s;
+  transition: background-color 0.25s, color 0.25s, border 0.25s;
   overflow-y: hidden;
   margin-left: 35px;
+  max-width: calc(100% - 35px * 3);
+  overflow-wrap: break-word;
   z-index: 100;
 }
 
@@ -1032,6 +1050,13 @@ option {
 .content-box-container {
   display: grid;
   height: fit-content;
-  grid: auto / repeat(3, 1fr);
+  grid: auto / repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 10px;
+  width: calc(100% - 20px);
+  margin: 0 auto;
+}
+
+.content-box-container + .content-box-container {
+  margin-top: 15px;
 }
 </style>

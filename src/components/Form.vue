@@ -27,8 +27,9 @@ const props = defineProps({
     default: false,
   },
 });
-function submit(event: Event) {
-  const formElements = (event.target as HTMLFormElement).elements;
+function submit() {
+  if (!form.value!.reportValidity()) return;
+  const formElements = form.value!.elements as HTMLFormControlsCollection;
   const data: {
     [key: string]: string | number | boolean;
   } = {};
@@ -69,12 +70,13 @@ function submit(event: Event) {
     }
   }
   if (props.reset) {
-    (event.target as HTMLFormElement).reset();
+    form.value!.reset();
   }
   emit("submit", data);
 }
 
 defineExpose({
   form,
+  submit,
 });
 </script>

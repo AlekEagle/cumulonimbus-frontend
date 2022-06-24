@@ -4,8 +4,7 @@
       type="checkbox"
       id="theme-switch"
       ref="themeSwitch"
-      @change="setThemeFromCheckbox"
-      :checked="theme.enabled"
+      v-model="theme.enabled"
     />
     <label for="theme-switch">
       <span />
@@ -14,51 +13,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
 import { darkThemeStore } from "@/stores/darkTheme";
+
 let theme = darkThemeStore();
-const themeSwitch = ref<HTMLInputElement>(),
-  themeTransitionTimeout = ref(-1),
-  html = document.documentElement;
-
-onMounted(() => {
-  setTheme(theme.enabled);
-  setTimeout(() => html.classList.remove("no-theme"), 500);
-});
-
-function enableTransition() {
-  if (themeTransitionTimeout.value !== -1) {
-    clearTimeout(themeTransitionTimeout.value);
-  } else {
-    html.classList.add("dark-theme-transition");
-  }
-  themeTransitionTimeout.value = setTimeout(() => {
-    html.classList.remove("dark-theme-transition");
-    themeTransitionTimeout.value = -1;
-  }, 0);
-}
-
-function setTheme(newThemeVal: boolean = !theme.enabled) {
-  if (newThemeVal === html.classList.contains("dark-theme")) return;
-
-  const metaThemeColor = document.querySelector(
-    "meta[name=theme-color]"
-  ) as HTMLMetaElement;
-  enableTransition();
-  if (newThemeVal) {
-    html.classList.add("dark-theme");
-    metaThemeColor.setAttribute("content", "#212121");
-    theme.enabled = true;
-  } else {
-    html.classList.remove("dark-theme");
-    metaThemeColor.setAttribute("content", "#ffffff");
-    theme.enabled = false;
-  }
-}
-
-function setThemeFromCheckbox(checkbox: Event) {
-  setTheme((checkbox.target as HTMLInputElement).checked);
-}
 </script>
 
 <style scoped>

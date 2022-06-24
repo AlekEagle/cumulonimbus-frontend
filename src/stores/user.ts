@@ -68,7 +68,7 @@ export const userStore = defineStore("user", () => {
           case "INVALID_PASSWORD_ERROR":
             return "Invalid password.";
           case "RATELIMITED_ERROR":
-            return e.ratelimit?.reset as number;
+            return e.ratelimit!.reset as number;
           case "GENERIC_ERROR":
           case "INTERNAL_ERROR":
           default:
@@ -111,7 +111,7 @@ export const userStore = defineStore("user", () => {
           case "INVALID_PASSWORD_ERROR":
             return "These passwords don't match.";
           case "RATELIMITED_ERROR":
-            return e.ratelimit?.reset as number;
+            return e.ratelimit!.reset as number;
           case "GENERIC_ERROR":
           case "INTERNAL_ERROR":
           default:
@@ -125,7 +125,7 @@ export const userStore = defineStore("user", () => {
 
   async function logout(): Promise<boolean | string | number> {
     try {
-      await client?.deleteSelfSession(session.value.iat.toString());
+      await client!.deleteSelfSession(session.value.iat.toString());
       resetStore();
       return true;
     } catch (e) {
@@ -135,7 +135,7 @@ export const userStore = defineStore("user", () => {
             resetStore();
             return true;
           case "RATELIMITED_ERROR":
-            return e.ratelimit?.reset as number;
+            return e.ratelimit!.reset as number;
           case "GENERIC_ERROR":
           case "INTERNAL_ERROR":
           default:

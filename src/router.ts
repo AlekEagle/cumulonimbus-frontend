@@ -32,6 +32,16 @@ export const router = createRouter({
         requiresAdmin: true,
       },
     }, */
+    {
+      path: "/testing/hush/dont/touch",
+      name: "testing",
+      component: () => import("./views/Testing.vue"),
+    },
+    {
+      path: "/testing/hush/dont/touch/sink",
+      name: "testing-link-sink",
+      component: () => import("./views/TestingLinkSink.vue"),
+    },
     // soft 404
     {
       path: "/:pathMatch(.*)*",
