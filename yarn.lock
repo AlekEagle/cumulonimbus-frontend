@@ -179,7 +179,7 @@ csstype@^2.6.8:
   resolved "https://registry.npmjs.org/csstype/-/csstype-2.6.20.tgz"
   integrity sha512-/WwNkdXfckNgw6S5R125rrW8ez139lBHWouiBvX8dfMFtcn6V81REDqnH7+CRpRipfYlyU1CmOnOxrmGcFOjeA==
 
-"cumulonimbus-wrapper@file:/Users/alekeagle/Documents/cumulonimbus-wrapper":
+"cumulonimbus-wrapper@file:../cumulonimbus-wrapper-v2":
   version "1.2.0"
   dependencies:
     form-data "^4.0.0"
