@@ -104,6 +104,7 @@ defineExpose({
   grid: auto 1fr auto / 1fr 40px;
   cursor: initial;
   margin: 50px 0;
+  gap: 10px 5px;
 }
 
 .modal h1.modal-title {
@@ -113,12 +114,15 @@ defineExpose({
   align-self: center;
   justify-self: center;
   user-select: none;
-  margin-right: 45px;
+}
+
+.modal-container.dismissible .modal h1.modal-title {
+  grid-column: 1 / span 1;
 }
 
 .modal img.modal-close {
   grid-row: 1 / span 1;
-  grid-column: 2 / span 2;
+  grid-colu~mn: 2 / span 2;
   width: 40px;
   height: 40px;
   align-self: stretch;
@@ -139,7 +143,7 @@ html.dark-theme .modal img.modal-close {
   justify-self: stretch;
   font-family: var(--font-body);
   font-size: 18px;
-  padding: 10px 5px;
+  padding: 0 5px;
 }
 
 .modal .modal-content p {

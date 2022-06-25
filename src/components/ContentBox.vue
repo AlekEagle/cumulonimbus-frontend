@@ -75,7 +75,7 @@ const linkToDisplay = computed(() => {
 
 const span = computed(() => {
   return (
-    !!getCurrentInstance()!.vnode.props!.onClick ||
+    !!getCurrentInstance()?.vnode?.props?.onClick ||
     displayLink.value ||
     props.disabled
   );

@@ -882,8 +882,8 @@ header a div.logo img {
 button {
   padding: 10px;
   border-radius: 10px;
-  font-size: calc(13.3px + 0.5vw);
   margin: 5px 0;
+  font-size: 18px;
   font-family: var(--font-heading);
   font-weight: 600;
   cursor: pointer;
@@ -963,7 +963,7 @@ select {
   border: 1px solid var(--ui-border);
   background-color: var(--ui-background);
   color: var(--ui-foreground);
-  font-size: calc(13.3px + 0.5vw);
+  font-size: 18px;
   transition: border 0.25s, background-color 0.25s, color 0.25s;
 }
 
@@ -1021,7 +1021,7 @@ option {
   background-color: var(--ui-background);
   color: var(--ui-foreground);
   border: 1px solid var(--ui-border);
-  font-size: calc(13.3px + 0.5vw);
+  font-size: 18px;
   font-family: var(--font-body);
   transition: background-color 0.25s, color 0.25s, border 0.25s;
   overflow-y: hidden;

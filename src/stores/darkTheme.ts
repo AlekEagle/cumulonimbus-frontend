@@ -30,8 +30,6 @@ export const darkThemeStore = defineStore("darkTheme", () => {
   }
 
   function setTheme(newThemeVal: boolean = !enabled.value) {
-    if (newThemeVal === html.classList.contains("dark-theme")) return;
-
     const metaThemeColor = document.querySelector(
       "meta[name=theme-color]"
     ) as HTMLMetaElement;
@@ -52,6 +50,8 @@ export const darkThemeStore = defineStore("darkTheme", () => {
       enabled.value = newVal;
     });
   }, 500);
+
+  setTheme(enabled.value);
 
   return {
     enabled,

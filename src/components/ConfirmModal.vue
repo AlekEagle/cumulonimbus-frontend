@@ -4,8 +4,8 @@
       <slot name="default" />
     </template>
     <template v-slot:footer>
-      <button @click="submit(false)">Nevermind</button>
-      <button @click="submit(true)">I'm sure</button>
+      <button @click="submit(false)" v-text="props.denyButton" />
+      <button @click="submit(true)" v-text="props.confirmButton" />
     </template>
   </Modal>
 </template>
@@ -21,6 +21,14 @@ const emit = defineEmits<{
     title: {
       type: String,
       default: "Imagine leaving the title empty",
+    },
+    confirmButton: {
+      type: String,
+      default: "I'm sure"
+    },
+    denyButton: {
+      type: String,
+      default: "Nevermind"
     },
     closeOnSubmit: Boolean,
   }),

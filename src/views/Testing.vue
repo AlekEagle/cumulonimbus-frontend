@@ -7,14 +7,6 @@
     </router-link>
   </div>
 
-  <video
-    autoplay
-    loop
-    style="width: 80%"
-    @click="e => (e.target as HTMLVideoElement).play()"
-    src="https://cdn.discordapp.com/attachments/798261585521016842/989157081452015646/math.mp4"
-  />
-
   <div class="test-select">
     <select v-model="currentItem">
       <option v-for="(name, id) in Items" :value="id" v-text="name" />
@@ -66,7 +58,7 @@
       Content Box w/ title, content & theme safe external icon
     </ContentBox>
     <ContentBox
-      title="Content Box w/ title, content & local icon & link"
+      title="Content Box w/ title, content & link"
       to="/testing/hush/dont/touch/sink"
     >
       Content Box w/ title, content & link
@@ -168,6 +160,8 @@
   (choice: boolean) => { toast.show(`you do${choice ? '' : 'n\'t'} like men`) }
       "
       close-on-submit
+      deny-button="No"
+      confirm-button="Yes"
     >
       do you like men?
     </ConfirmModal>
@@ -312,6 +306,6 @@ function meowMeow(choice: boolean) {
 
 <style>
 .test-select {
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
 }
 </style>
