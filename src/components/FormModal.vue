@@ -59,6 +59,7 @@ function hide() {
 }
 
 defineExpose({
+  form,
   show,
   hide,
 });

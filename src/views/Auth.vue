@@ -165,17 +165,37 @@ async function login(data: {
   processing.value = true;
   try {
     const res = await user.login(data.username, data.password, data.remember);
-    if (typeof res === "string") {
-      toast.show(res);
-    } else if (typeof res === "number") {
-      toast.rateLimit(res);
-    } else if (res) {
-      await redirect();
+    if (typeof res === "boolean") {
+      if (res) {
+        await redirect();
+      } else {
+        toast.show("This should not be seen");
+      }
     } else {
-      toast.show("Something went wrong.");
+      switch (res.code) {
+        case "BANNED_ERROR":
+          toast.banned();
+          break;
+        case "RATELIMITED_ERROR":
+          toast.rateLimit(res);
+          break;
+        case "INVALID_USER_ERROR":
+          toast.show("I can't find anyone with that username or email!");
+          break;
+        case "INVALID_PASSWORD_ERROR":
+          toast.show("No, that is not the password.");
+          break;
+        case "INTERNAL_ERROR":
+          toast.serverError();
+        case "GENERIC_ERROR":
+        default:
+          toast.clientError();
+          break;
+      }
     }
   } catch (e) {
-    toast.show((e as Cumulonimbus.ResponseError).message);
+    toast.clientError();
+    console.error(e);
   } finally {
     processing.value = false;
   }
@@ -197,14 +217,30 @@ async function register(data: {
       data.confirmPassword,
       data.remember
     );
-    if (typeof res === "string") {
-      toast.show(res);
-    } else if (typeof res === "number") {
-      toast.rateLimit(res);
-    } else if (res) {
-      await redirect();
+    if (typeof res === "boolean") {
+      if (res) {
+        await redirect();
+      } else {
+        toast.show("This should not be seen");
+      }
     } else {
-      toast.show("Something went wrong.");
+      switch (res.code) {
+        case "USER_EXISTS_ERROR":
+          toast.show("There's already someone with that username or email!");
+          break;
+        case "RATELIMITED_ERROR":
+          toast.rateLimit(res);
+          break;
+        case "INVALID_PASSWORD_ERROR":
+          toast.show("These passwords do not match!");
+          break;
+        case "INTERNAL_ERROR":
+          toast.serverError();
+        case "GENERIC_ERROR":
+        default:
+          toast.clientError();
+          break;
+      }
     }
   } catch (e) {
     toast.show((e as Cumulonimbus.ResponseError).message);

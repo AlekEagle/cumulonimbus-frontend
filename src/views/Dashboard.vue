@@ -1,6 +1,6 @@
 <template>
   <h1>Dashboard</h1>
-  <h2>Welcome to your dashboard, {{ user.user.username }}.</h2>
+  <h2>Welcome to your dashboard, {{ user.user?.username }}.</h2>
   <div class="quick-action-buttons-container">
     <button
       @click="logout"
@@ -77,17 +77,28 @@ async function logout() {
   processing.value = true;
   try {
     let res = await user.logout();
-    if (typeof res === "string") {
-      toast.show(res);
-    } else if (typeof res === "number") {
-      toast.rateLimit(res);
-    } else if (res) {
-      router.replace("/");
+    if (typeof res === "boolean") {
+      router.push("/");
     } else {
-      toast.show("Something went wrong.");
+      switch (res.code) {
+        case "BANNED_ERROR":
+          toast.banned();
+          break;
+        case "INVALID_SESSION_ERROR":
+          router.push("/");
+          break;
+        case "INTERNAL_ERROR":
+          toast.serverError();
+          break;
+        case "GENERIC_ERROR":
+        default:
+          toast.clientError();
+          console.error(res);
+          break;
+      }
     }
   } catch (e) {
-    toast.show("Something went wrong.");
+    toast.clientError();
     console.error(e);
   } finally {
     processing.value = false;

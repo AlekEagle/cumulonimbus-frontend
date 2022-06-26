@@ -118,7 +118,7 @@ router.beforeEach(async (to, from, next) => {
       // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
       if (to.meta.requiresStaff) {
         // if so, check if the user is staff
-        if (user.user.staff) {
+        if (user.user!.staff) {
           // if so, continue to the route
           next();
         } else {
@@ -172,7 +172,7 @@ onMounted(() => {
       // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
       if (route.meta.requiresStaff) {
         // if so, check if the user is staff
-        if (user.user.staff) {
+        if (user.user!.staff) {
           // if so, continue to the route
           return;
         } else {

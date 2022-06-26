@@ -233,6 +233,15 @@
       <br />
       <Switch name="switch">A switch</Switch>
     </FormModal>
+    <ContentBox title="Display domain modal" @click="domainModal!.show()">
+      Display domain modal
+    </ContentBox>
+    <DomainModal
+      ref="domainModal"
+      @submit="(data:any) => toast.show(JSON.stringify(data))"
+      @cancel="toast.show('cancelled domain modal')"
+      domain="alekeagle.me"
+    />
   </div>
 </template>
 
@@ -246,6 +255,7 @@ import Switch from "@/components/Switch.vue";
 import Modal from "@/components/Modal.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import FormModal from "@/components/FormModal.vue";
+import DomainModal from "@/components/DomainModal.vue";
 
 enum CurrentItem {
   CONTENT_BOXES,
@@ -266,7 +276,8 @@ const Items = computed(() => {
   basicDismissibleModal = ref<typeof Modal>(),
   confirmModal = ref<typeof ConfirmModal>(),
   meow = ref<typeof ConfirmModal>(),
-  formModal = ref<typeof FormModal>();
+  formModal = ref<typeof FormModal>(),
+  domainModal = ref<typeof DomainModal>();
 
 function meowMeow(choice: boolean) {
   function* allNodes(node: Node): Generator<Node> {
