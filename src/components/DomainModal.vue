@@ -1,19 +1,20 @@
 <template>
-  <FormModal ref="formModal" @cancel="cancel" title="Select Domain">
+  <ConfirmModal ref="confirmModal" @submit="submit" title="Select Domain">
     <template v-if="user.loggedIn">
       <Loading v-if="slimDomains.loading" />
       <div class="domain-container" v-if="slimDomains.domains">
-        <div class="subdomain-container">
+        <div class="subdomain-container" v-if="allowsSubdomains">
           <input
             name="subdomain"
             type="text"
             placeholder="Subdomain"
             maxlength="63"
-            :value="props.subdomain"
+            ref="subdomainInput"
+            @input="onSubdomainInput"
           />
           <p>.</p>
         </div>
-        <select name="domain" :value="props.domain">
+        <select name="domain" ref="domainSelect" @change="onDomainSelect">
           <option
             v-for="domain in slimDomains.domains.items"
             :value="domain.domain"
@@ -30,13 +31,14 @@
       <h1>You must be logged in to select a domain.</h1>
       <button @click="cancel">Cancel</button>
     </template>
-  </FormModal>
+  </ConfirmModal>
+  <div class="input-fit-content-shim" ref="inputFitContentShim" />
 </template>
 
 <script lang="ts" setup>
 import Loading from "@/components/Loading.vue";
-import FormModal from "@/components/FormModal.vue";
-import { ref, onMounted } from "vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import { ref, onMounted, watch } from "vue";
 import { slimDomainStore } from "@/stores/slimDomains";
 import { toastStore } from "@/stores/toast";
 import { userStore } from "@/stores/user";
@@ -46,28 +48,92 @@ const emit = defineEmits<{
     (event: "cancel"): void;
   }>(),
   props = defineProps({
-    domain: String,
+    domain: {
+      type: String,
+      required: true,
+    },
     subdomain: {
       type: String,
       default: "",
     },
   }),
-  formModal = ref<typeof FormModal>(),
+  confirmModal = ref<typeof ConfirmModal>(),
   slimDomains = slimDomainStore(),
   toast = toastStore(),
-  user = userStore();
+  user = userStore(),
+  inputFitContentShim = ref<HTMLDivElement>(),
+  domainSelect = ref<HTMLSelectElement>(),
+  subdomainInput = ref<HTMLInputElement>(),
+  allowsSubdomains = ref(false);
+
+function onSubdomainInput(event: Event) {
+  const input = event.target as HTMLInputElement;
+  validateSubdomain(event as InputEvent);
+  setSubdomainWidth(input.value || input.placeholder);
+}
+
+function onDomainSelect(event: Event) {
+  const select = event.target as HTMLSelectElement;
+  setDomainWidth(select.value);
+  allowsSubdomains.value = slimDomains.domains!.items.find(
+    (domain) => domain.domain === select.value
+  )!.allowsSubdomains;
+}
+
+function validateSubdomain(event: InputEvent) {
+  // Validate the subdomain input
+  if (event.data === null) return;
+  const input = event.target as HTMLInputElement;
+  // Check if the subdomain is too long
+  if (input.value.length >= 63) {
+    event.preventDefault();
+    return;
+  }
+  // Save cursor position
+  const cursorPos = input.selectionStart as number;
+  // Check if the subdomain contains invalid characters and replace them with a dash
+  input.value = input.value.replace(/[^a-z0-9-]/g, "-");
+  // Restore cursor position
+  setCursorPos(input, cursorPos);
+}
+
+watch(allowsSubdomains, (newValue) => {
+  if (newValue) {
+    setTimeout(() => (subdomainInput.value!.value = props.subdomain), 10);
+  }
+});
 
 function show() {
-  formModal.value!.show();
+  confirmModal.value!.show();
+  setDomainWidth(props.domain);
+  if (props.subdomain) {
+    setTimeout(() => (subdomainInput.value!.value = props.subdomain), 10);
+    setSubdomainWidth(props.subdomain);
+  }
+  setTimeout(() => (domainSelect.value!.value = props.domain), 10);
 }
 
 function hide() {
-  formModal.value!.hide();
+  confirmModal.value!.hide();
 }
 
-function cancel() {
-  emit("cancel");
-  hide();
+function submit(choice: boolean) {
+  if (!choice) {
+    emit("cancel");
+    hide();
+  } else {
+    const response: {
+      domain: string;
+      subdomain?: string;
+    } = {
+      domain: domainSelect.value!.value,
+    };
+    if (allowsSubdomains.value) {
+      response.subdomain = subdomainInput.value!.value;
+    }
+    emit("submit", response);
+    hide();
+  }
 }
 
 async function reloadDomains() {
@@ -81,12 +147,42 @@ async function reloadDomains() {
   }
 }
 
+function getWidth(text: string): string {
+  inputFitContentShim.value!.innerText = text;
+  return window.getComputedStyle(inputFitContentShim.value!).width;
+}
+
+function setSubdomainWidth(subdomain: string) {
+  const width = getWidth(subdomain);
+  document.documentElement.style.setProperty("--subdomain-width", width);
+}
+
+function setDomainWidth(domain: string) {
+  const width = getWidth(domain);
+  document.documentElement.style.setProperty("--domain-width", width);
+}
+
+function unsetSubdomainWidth() {
+  document.documentElement.style.removeProperty("--subdomain-width");
+}
+
+function unsetDomainWidth() {
+  document.documentElement.style.removeProperty("--domain-width");
+}
+
+function setCursorPos(e: HTMLInputElement | HTMLTextAreaElement, pos: number) {
+  e.focus();
+  e.setSelectionRange(pos, pos);
+}
+
 defineExpose({
   show,
   hide,
 });
 
-onMounted(reloadDomains);
+onMounted(() => {
+  reloadDomains();
+});
 </script>
 
 <style>
@@ -97,6 +193,7 @@ onMounted(reloadDomains);
   border: 1px solid var(--ui-border);
   background-color: var(--ui-background);
   transition: background-color 0.25s, border 0.25s;
+  margin: 0 auto;
 }
 
 .domain-container:focus-within,
@@ -150,5 +247,19 @@ onMounted(reloadDomains);
 .domain-container select:hover {
   border: none;
   background-color: transparent;
+}
+
+.input-fit-content-shim {
+  position: absolute;
+  top: 0;
+  left: -9999px;
+  z-index: -9999;
+  overflow: hidden;
+  visibility: hidden;
+  white-space: nowrap;
+  height: 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 18px;
 }
 </style>

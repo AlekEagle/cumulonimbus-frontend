@@ -122,7 +122,7 @@ defineExpose({
 
 .modal img.modal-close {
   grid-row: 1 / span 1;
-  grid-colu~mn: 2 / span 2;
+  grid-column: 2 / span 2;
   width: 40px;
   height: 40px;
   align-self: stretch;
