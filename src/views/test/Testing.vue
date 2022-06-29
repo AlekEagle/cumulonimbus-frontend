@@ -101,7 +101,7 @@
   <EmphasizedBox v-if="currentItem === CurrentItem.FORM_EMPHASIZED_BOX">
     <h2>I am a box that is emphasized with a form inside.</h2>
     <Form
-      @submit="(data) => toast.show(JSON.stringify(data))"
+      @submit="data => toast.show(JSON.stringify(data))"
       ref="emphasizedForm"
     >
       <input type="text" placeholder="A text box" name="text" />
@@ -219,7 +219,7 @@
     <FormModal
       ref="formModal"
       title="I am a form modal"
-      @submit="(data) => toast.show(JSON.stringify(data))"
+      @submit="data => toast.show(JSON.stringify(data))"
       @cancel="toast.show('cancelled form modal')"
       close-on-submit
     >
@@ -243,80 +243,121 @@
       domain="alekeagle.me"
     />
   </div>
+  <!--    PREVIEW_CONTENT_BOXES    -->
+  <div
+    class="content-box-container"
+    v-if="currentItem === CurrentItem.PREVIEW_CONTENT_BOXES"
+  >
+    <PreviewContentBox
+      title="Preview Content Box"
+      src="@/assets/images/Cumulonimbus.svg"
+    >
+      Preview Content Box
+    </PreviewContentBox>
+    <PreviewContentBox
+      title="Preview Content Box With External Image"
+      src="https://alekeagle.com/alerkpog.png"
+    >
+      Preview Content Box With External Image
+    </PreviewContentBox>
+    <PreviewContentBox
+      title="Preview Content Box With Unsupported Image"
+      src="https://httpstat.us/415"
+    >
+      Preview Content Box With Unsupported Image
+    </PreviewContentBox>
+  </div>
+
+  <!--  PAGINATOR  -->
+  <template v-if="currentItem === CurrentItem.PAGINATOR">
+    <div class="paginator-container">
+      <Paginator
+        v-model="paginatorPage"
+        :min="0"
+        :max="4"
+        @page-change="toast.show('User changed page')"
+      />
+    </div>
+  </template>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
-import { toastStore } from "@/stores/toast";
-import ContentBox from "@/components/ContentBox.vue";
-import EmphasizedBox from "@/components/EmphasizedBox.vue";
-import Form from "@/components/Form.vue";
-import Switch from "@/components/Switch.vue";
-import Modal from "@/components/Modal.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import FormModal from "@/components/FormModal.vue";
-import DomainModal from "@/components/DomainModal.vue";
+  import { ref, computed } from 'vue';
+  import { toastStore } from '@/stores/toast';
+  import ContentBox from '@/components/ContentBox.vue';
+  import EmphasizedBox from '@/components/EmphasizedBox.vue';
+  import Form from '@/components/Form.vue';
+  import Switch from '@/components/Switch.vue';
+  import Modal from '@/components/Modal.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import FormModal from '@/components/FormModal.vue';
+  import DomainModal from '@/components/DomainModal.vue';
+  import PreviewContentBox from '@/components/PreviewContentBox.vue';
+  import Paginator from '@/components/Paginator.vue';
 
-enum CurrentItem {
-  CONTENT_BOXES,
-  BASIC_EMPHASIZED_BOX,
-  FORM_EMPHASIZED_BOX,
-  MODALS,
-}
-
-const Items = computed(() => {
-    return Object.keys(CurrentItem).filter((item) => {
-      return isNaN(Number(item));
-    });
-  }),
-  currentItem = ref<CurrentItem>(CurrentItem.CONTENT_BOXES),
-  toast = toastStore(),
-  emphasizedForm = ref<typeof Form>(),
-  basicModal = ref<typeof Modal>(),
-  basicDismissibleModal = ref<typeof Modal>(),
-  confirmModal = ref<typeof ConfirmModal>(),
-  meow = ref<typeof ConfirmModal>(),
-  formModal = ref<typeof FormModal>(),
-  domainModal = ref<typeof DomainModal>();
-
-function meowMeow(choice: boolean) {
-  function* allNodes(node: Node): Generator<Node> {
-    for (const child of Array.from(node.childNodes)) {
-      yield child;
-      yield* allNodes(child);
-    }
+  enum CurrentItem {
+    CONTENT_BOXES,
+    BASIC_EMPHASIZED_BOX,
+    FORM_EMPHASIZED_BOX,
+    MODALS,
+    PREVIEW_CONTENT_BOXES,
+    PAGINATOR
   }
 
-  function hehe() {
-    let count = 0;
-    for (const node of allNodes(document)) {
-      if (node instanceof Text) {
-        let text = node.textContent ?? "";
-        let match;
-        while ((match = text.match(/  /))) {
-          // this needs to be put in a museum for copilot
-          //console.log(`Replaced ${match[0]} with ${choice ? "meow" : "nyah"}`);
-          count++;
+  const Items = computed(() => {
+      return Object.keys(CurrentItem).filter(item => {
+        return isNaN(Number(item));
+      });
+    }),
+    currentItem = ref<CurrentItem>(CurrentItem.CONTENT_BOXES),
+    toast = toastStore(),
+    emphasizedForm = ref<typeof Form>(),
+    basicModal = ref<typeof Modal>(),
+    basicDismissibleModal = ref<typeof Modal>(),
+    confirmModal = ref<typeof ConfirmModal>(),
+    meow = ref<typeof ConfirmModal>(),
+    formModal = ref<typeof FormModal>(),
+    domainModal = ref<typeof DomainModal>(),
+    paginatorPage = ref<number>(0);
 
-          node.textContent = text = `${text.substring(
-            0,
-            match.index
-          )}\t${text.substring(match.index! + match[0].length)}`;
-        }
+  function meowMeow(choice: boolean) {
+    function* allNodes(node: Node): Generator<Node> {
+      for (const child of Array.from(node.childNodes)) {
+        yield child;
+        yield* allNodes(child);
       }
     }
-    alert(
-      `Replaced ${count} space-tabs with real tabs.\nTabs are superior, don't @ me. - danii\nSilence fuckboy - alek`
-    );
-  }
 
-  toast.show(choice ? "dumb fucking catboy" : "i don't know what to put here");
-  if (choice) hehe();
-}
+    function hehe() {
+      let count = 0;
+      for (const node of allNodes(document)) {
+        if (node instanceof Text) {
+          let text = node.textContent ?? '';
+          let match;
+          while ((match = text.match(/  /))) {
+            // this needs to be put in a museum for copilot
+            //console.log(`Replaced ${match[0]} with ${choice ? "meow" : "nyah"}`);
+            count++;
+
+            node.textContent = text = `${text.substring(
+              0,
+              match.index
+            )}\t${text.substring(match.index! + match[0].length)}`;
+          }
+        }
+      }
+      toast.show(
+        `Replaced ${count} space-tabs with real tabs.\nTabs are superior, don't @ me. - danii\nSilence fuckboy - alek`
+      );
+    }
+
+    if (choice) hehe();
+    else toast.show('Good job! you avoided hell!');
+  }
 </script>
 
 <style>
-.test-select {
-  margin: 0 0 1rem;
-}
+  .test-select {
+    margin: 0 0 1rem;
+  }
 </style>

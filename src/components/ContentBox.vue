@@ -9,10 +9,9 @@
       :class="`${props.themeSafe ? 'theme-safe' : ''}`"
       v-if="props.src"
       :src="imgSrc"
-      width="64"
-      height="64"
+      width="80"
+      height="80"
     />
-    <!--seggs-->
     <div class="content-box-content">
       <slot>
         <p>Imagine leaving a content box empty</p>
@@ -27,160 +26,162 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, getCurrentInstance } from "vue";
-import { useRouter } from "vue-router";
+  import { computed, getCurrentInstance } from 'vue';
+  import { useRouter } from 'vue-router';
 
-const emit = defineEmits(["click"]),
-  router = useRouter();
+  const emit = defineEmits(['click']),
+    router = useRouter();
 
-const props = defineProps({
-  title: {
-    type: String,
-    default: "Imagine leaving the title empty",
-  },
-  src: {
-    type: String,
-    default: undefined,
-  },
-  disabled: Boolean,
-  to: {
-    type: null,
-    default: undefined,
-  },
-  themeSafe: Boolean,
-});
+  const props = defineProps({
+    title: {
+      type: String,
+      default: 'Imagine leaving the title empty'
+    },
+    src: {
+      type: String,
+      default: undefined
+    },
+    disabled: Boolean,
+    to: {
+      type: null,
+      default: undefined
+    },
+    themeSafe: Boolean
+  });
 
-const imgSrc = computed(() => {
-  // check if src is cross-origin
-  const srcStr = (props.src as string).replace(/^@/, "/src");
-  const src = new URL(srcStr, window.location.origin);
-  if (src.origin !== window.location.origin) {
-    return props.src;
-  } else return new URL(srcStr, import.meta.url).href;
-});
+  const imgSrc = computed(() => {
+    // check if src is cross-origin
+    const srcStr = (props.src as string).replace(/^@/, '/src');
+    const src = new URL(srcStr, window.location.origin);
+    if (src.origin !== window.location.origin) {
+      return props.src;
+    } else return new URL(srcStr, import.meta.url).href;
+  });
 
-const displayLink = computed(() => {
-  return props.to !== undefined && props.to !== null && !props.disabled;
-});
+  const displayLink = computed(() => {
+    return props.to !== undefined && props.to !== null && !props.disabled;
+  });
 
-const linkToDisplay = computed(() => {
-  if (props.to === undefined || props.to === null) {
-    return undefined;
-  } else if (typeof props.to === "string") {
-    return props.to;
-  } else {
-    return router.resolve(props.to).href;
+  const linkToDisplay = computed(() => {
+    if (props.to === undefined || props.to === null) {
+      return undefined;
+    } else if (typeof props.to === 'string') {
+      return props.to;
+    } else {
+      return router.resolve(props.to).href;
+    }
+  });
+
+  const span = computed(() => {
+    return (
+      !!getCurrentInstance()?.vnode?.props?.onClick ||
+      displayLink.value ||
+      props.disabled
+    );
+  });
+
+  async function linkClicked() {
+    if (props.disabled) return;
+    await router.push(props.to);
   }
-});
 
-const span = computed(() => {
-  return (
-    !!getCurrentInstance()?.vnode?.props?.onClick ||
-    displayLink.value ||
-    props.disabled
-  );
-});
-
-async function linkClicked() {
-  if (props.disabled) return;
-  await router.push(props.to);
-}
-
-async function spanClicked() {
-  if (props.disabled) return;
-  emit("click");
-}
+  async function spanClicked() {
+    if (props.disabled) return;
+    emit('click');
+  }
 </script>
 
 <style>
-.content-box {
-  display: grid;
-  position: relative;
-  grid: auto 1fr / 64px 4fr;
-  gap: 5px;
-  padding: 15px;
-  border-radius: 10px;
-  background-color: var(--ui-background);
-  border: 1px solid var(--ui-border);
-  transition: background-color 0.25s, border 0.25s;
-}
+  .content-box {
+    display: grid;
+    position: relative;
+    grid: auto 1fr / 80px 4fr;
+    gap: 5px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: var(--ui-background);
+    border: 1px solid var(--ui-border);
+    transition: background-color 0.25s, border 0.25s;
+  }
 
-.content-box.disabled {
-  background-color: var(--ui-background-disabled);
-  border: 1px solid var(--ui-border-disabled);
-}
+  .content-box.disabled {
+    background-color: var(--ui-background-disabled);
+    border: 1px solid var(--ui-border-disabled);
+  }
 
-.content-box.no-select {
-  user-select: none;
-}
+  .content-box.no-select {
+    user-select: none;
+  }
 
-.content-box:hover {
-  border-color: var(--ui-border-hover);
-  background-color: var(--ui-background-hover);
-}
+  .content-box:hover {
+    border-color: var(--ui-border-hover);
+    background-color: var(--ui-background-hover);
+  }
 
-.content-box .title {
-  justify-self: left;
-  text-align: left;
-  grid-row: 1 / span 1;
-  grid-column: 1 / span 2;
-  margin: 0;
-}
+  .content-box .title {
+    justify-self: left;
+    text-align: left;
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 2;
+    margin: 0;
+  }
 
-.content-box > img {
-  align-self: center;
-  justify-self: left;
-  grid-row: 2 / span 2;
-  grid-column: 1 / 2;
-  user-select: none;
-  transition: filter 0.25s;
-  margin-bottom: 5px;
-}
+  .content-box > img,
+  .content-box > div.lds-default {
+    align-self: center;
+    justify-self: left;
+    grid-row: 2 / span 2;
+    grid-column: 1 / 2;
+    user-select: none;
+    transition: filter 0.25s;
+    margin-bottom: 5px;
+  }
 
-html.dark-theme .content-box > img.theme-safe {
-  filter: invert(100%);
-}
+  html.dark-theme .content-box > img.theme-safe {
+    filter: invert(100%);
+  }
 
-.content-box .content-box-content {
-  grid-row: 2 / span 2;
-  grid-column: 1 / span 3;
-  text-align: left;
-  justify-self: left;
-  align-self: center;
-  margin-bottom: 5px;
-  font-family: var(--font-body);
-  font-size: 18px;
-}
+  .content-box .content-box-content {
+    grid-row: 2 / span 2;
+    grid-column: 1 / span 3;
+    text-align: left;
+    justify-self: left;
+    align-self: center;
+    margin-bottom: 5px;
+    font-family: var(--font-body);
+    font-size: 18px;
+  }
 
-.content-box .content-box-content p {
-  margin: 0;
-}
+  .content-box .content-box-content p {
+    margin: 0;
+  }
 
-.content-box img + .content-box-content {
-  grid-column: 2 / span 3;
-  margin-left: 5px;
-}
+  .content-box > img + .content-box-content,
+  .content-box > div.lds-default + .content-box-content {
+    grid-column: 2 / span 3;
+    margin-left: 5px;
+  }
 
-.content-box .content-box-overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  border-radius: 10px;
-  transition: backdrop-filter 0.25s, background-color 0.25s;
-  cursor: pointer;
-  z-index: 1;
-  background-image: url("@/assets/images/empty.gif");
-}
+  .content-box .content-box-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: 10px;
+    transition: backdrop-filter 0.25s, background-color 0.25s;
+    cursor: pointer;
+    z-index: 1;
+    background-image: url('@/assets/images/empty.gif');
+  }
 
-.content-box.disabled .content-box-overlay {
-  backdrop-filter: blur(2px);
-  cursor: not-allowed;
-}
+  .content-box.disabled .content-box-overlay {
+    backdrop-filter: blur(2px);
+    cursor: not-allowed;
+  }
 
-.content-box .content-box-overlay a div {
-  width: 100%;
-  height: 100%;
-}
+  .content-box .content-box-overlay a div {
+    width: 100%;
+    height: 100%;
+  }
 </style>

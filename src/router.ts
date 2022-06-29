@@ -1,27 +1,27 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory } from 'vue-router';
 
-import Home from "./views/Home.vue";
+import Home from './views/Home.vue';
 
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: "/",
-      name: "home",
-      component: Home,
+      path: '/',
+      name: 'home',
+      component: Home
     },
     {
-      path: "/auth",
-      name: "auth",
-      component: () => import("./views/Auth.vue"),
+      path: '/auth',
+      name: 'auth',
+      component: () => import('./views/Auth.vue')
     },
     {
-      path: "/dashboard",
-      name: "dashboard",
-      component: () => import("./views/Dashboard.vue"),
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('./views/user-space/Dashboard.vue'),
       meta: {
-        requiresAuth: true,
-      },
+        requiresAuth: true
+      }
     },
     /* {
       path: "/admin",
@@ -33,20 +33,20 @@ export const router = createRouter({
       },
     }, */
     {
-      path: "/testing/hush/dont/touch",
-      name: "testing",
-      component: () => import("./views/Testing.vue"),
+      path: '/testing/hush/dont/touch',
+      name: 'testing',
+      component: () => import('./views/test/Testing.vue')
     },
     {
-      path: "/testing/hush/dont/touch/sink",
-      name: "testing-link-sink",
-      component: () => import("./views/TestingLinkSink.vue"),
+      path: '/testing/hush/dont/touch/sink',
+      name: 'testing-link-sink',
+      component: () => import('./views/test/TestingLinkSink.vue')
     },
     // soft 404
     {
-      path: "/:pathMatch(.*)*",
-      name: "404",
-      component: () => import("./views/404.vue"),
-    },
-  ],
+      path: '/:pathMatch(.*)*',
+      name: '404',
+      component: () => import('./views/404.vue')
+    }
+  ]
 });

@@ -1,18 +1,18 @@
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import persistPiniaStore from "@/utils/persistPinia";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import persistPiniaStore from '@/utils/persistPinia';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
 const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
   baseURL: import.meta.env.DEV
-    ? "http://localhost:8000/api"
+    ? 'http://localhost:8000/api'
     : `${window.location.protocol}//${window.location.host}/api`,
   baseThumbnailURL: import.meta.env.DEV
-    ? "http://localhost:8001"
-    : `${window.location.protocol}//previews.${window.location.host}`,
+    ? 'http://localhost:8001'
+    : `${window.location.protocol}//previews.${window.location.host}`
 };
 
-export const userStore = defineStore("user", () => {
+export const userStore = defineStore('user', () => {
   const user = ref<Cumulonimbus.Data.User | null>(null);
   const session = ref<
     (Cumulonimbus.Data.SuccessfulAuth & Cumulonimbus.Data.Session) | null
@@ -20,8 +20,8 @@ export const userStore = defineStore("user", () => {
   const client = ref<Cumulonimbus | null>(null);
   const loggedIn = computed(() => !!session.value && !!user.value && !!client);
 
-  persistPiniaStore(user, "user", { immediate: true, deep: true });
-  persistPiniaStore(session, "session", { immediate: true, deep: true });
+  persistPiniaStore(user, 'user', { immediate: true, deep: true });
+  persistPiniaStore(session, 'session', { immediate: true, deep: true });
 
   async function login(
     username: string,
@@ -38,7 +38,7 @@ export const userStore = defineStore("user", () => {
 
       session.value = {
         ...(await client.value.getSelfSession()).result,
-        token: (client as any).token,
+        token: (client.value as any).token
       };
       user.value = (await client.value.getSelf()).result;
       return true;
@@ -70,7 +70,7 @@ export const userStore = defineStore("user", () => {
 
       session.value = {
         ...(await client.value.getSelfSession()).result,
-        token: (client as any).token,
+        token: (client as any).token
       };
       user.value = (await client.value.getSelf()).result;
       return true;
@@ -102,10 +102,7 @@ export const userStore = defineStore("user", () => {
 
   function restoreClient(): void {
     if (session.value?.token) {
-      client.value = new Cumulonimbus(
-        session.value!.token,
-        cumulonimbusOptions
-      );
+      client.value = new Cumulonimbus(session.value.token, cumulonimbusOptions);
     }
   }
 
@@ -117,6 +114,6 @@ export const userStore = defineStore("user", () => {
     login,
     register,
     logout,
-    restoreClient,
+    restoreClient
   };
 });
