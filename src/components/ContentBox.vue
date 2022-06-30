@@ -113,9 +113,17 @@
     user-select: none;
   }
 
-  .content-box:hover {
+  .content-box:hover:not(.disabled),
+  .content-box:focus:not(.disabled),
+  .content-box:focus-within:not(.disabled) {
     border-color: var(--ui-border-hover);
     background-color: var(--ui-background-hover);
+  }
+
+  .content-box:focus,
+  .content-box:focus-within,
+  .content-box:focus-within * {
+    outline: none;
   }
 
   .content-box .title {

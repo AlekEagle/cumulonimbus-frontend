@@ -8,7 +8,7 @@ const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
     ? 'http://localhost:8000/api'
     : `${window.location.protocol}//${window.location.host}/api`,
   baseThumbnailURL: import.meta.env.DEV
-    ? 'http://localhost:8001'
+    ? 'http://localhost:8100'
     : `${window.location.protocol}//previews.${window.location.host}`
 };
 

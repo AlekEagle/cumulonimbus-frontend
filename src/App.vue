@@ -896,7 +896,8 @@
     user-select: none;
   }
 
-  button:hover:not(:disabled) {
+  button:hover:not(:disabled),
+  button:focus:not(:disabled) {
     border: 1px solid var(--ui-border-hover);
     background-color: var(--ui-background-hover);
     color: var(--ui-foreground-hover);
@@ -1063,5 +1064,20 @@
 
   .content-box-container + .content-box-container {
     margin-top: 15px;
+  }
+
+  .animated-ellipsis:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: '\2026';
+    animation: ellipsis steps(4, end) 2s infinite;
+    width: 0px;
+  }
+
+  @keyframes ellipsis {
+    to {
+      width: 1.55ch;
+    }
   }
 </style>

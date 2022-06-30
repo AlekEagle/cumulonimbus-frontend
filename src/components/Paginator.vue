@@ -1,15 +1,24 @@
 <template>
   <div class="paginator-controls">
-    <button @click="prevPage" :disabled="props.min >= props.modelValue">
+    <button
+      @click="prevPage"
+      :disabled="props.min >= props.modelValue || props.disabled"
+    >
       Prev
     </button>
     <input
+      type="number"
       :value="props.modelValue + 1"
-      :min="props.min"
-      :max="props.max"
+      :min="props.min + 1"
+      :max="props.max + 1"
+      :disabled="props.disabled"
       @change="onInputChange"
+      @input="validateInput"
     />
-    <button @click="nextPage" :disabled="props.max <= props.modelValue">
+    <button
+      @click="nextPage"
+      :disabled="props.max <= props.modelValue || props.disabled"
+    >
       Next
     </button>
   </div>
@@ -22,16 +31,26 @@
   </slot>
 
   <div class="paginator-controls">
-    <button @click="prevPage" :disabled="props.min >= props.modelValue">
+    <button
+      @click="prevPage"
+      :disabled="props.min >= props.modelValue || props.disabled"
+    >
       Prev
     </button>
     <input
+      type="number"
       :value="props.modelValue + 1"
-      :min="props.min"
-      :max="props.max"
+      :min="props.min + 1"
+      :max="props.max + 1"
+      step="1"
+      :disabled="props.disabled"
       @change="onInputChange"
+      @input="validateInput"
     />
-    <button @click="nextPage" :disabled="props.max <= props.modelValue">
+    <button
+      @click="nextPage"
+      :disabled="props.max <= props.modelValue || props.disabled"
+    >
       Next
     </button>
   </div>
@@ -54,7 +73,8 @@
       max: {
         type: Number,
         default: 0
-      }
+      },
+      disabled: Boolean
     }),
     router = useRouter();
 
@@ -70,6 +90,10 @@
 
   function onInputChange(event: Event) {
     const input = event.target as HTMLInputElement;
+    if (input.value === '') {
+      input.value = props.modelValue + 1 + '';
+      return;
+    }
     if (Number(input.value) <= props.min) {
       emit('update:modelValue', props.min);
     } else if (Number(input.value) >= props.max) {
@@ -98,6 +122,16 @@
       );
     }
   });
+
+  function validateInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.value === '') return;
+    if (Number(input.value) < props.min + 1) {
+      input.value = props.min + 1 + '';
+    } else if (Number(input.value) > props.max + 1) {
+      input.value = props.max + 1 + '';
+    }
+  }
 </script>
 
 <style>

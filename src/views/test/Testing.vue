@@ -243,31 +243,6 @@
       domain="alekeagle.me"
     />
   </div>
-  <!--    PREVIEW_CONTENT_BOXES    -->
-  <div
-    class="content-box-container"
-    v-if="currentItem === CurrentItem.PREVIEW_CONTENT_BOXES"
-  >
-    <PreviewContentBox
-      title="Preview Content Box"
-      src="@/assets/images/Cumulonimbus.svg"
-    >
-      Preview Content Box
-    </PreviewContentBox>
-    <PreviewContentBox
-      title="Preview Content Box With External Image"
-      src="https://alekeagle.com/alerkpog.png"
-    >
-      Preview Content Box With External Image
-    </PreviewContentBox>
-    <PreviewContentBox
-      title="Preview Content Box With Unsupported Image"
-      src="https://httpstat.us/415"
-    >
-      Preview Content Box With Unsupported Image
-    </PreviewContentBox>
-  </div>
-
   <!--  PAGINATOR  -->
   <template v-if="currentItem === CurrentItem.PAGINATOR">
     <div class="paginator-container">
@@ -278,6 +253,33 @@
         @page-change="toast.show('User changed page')"
       />
     </div>
+  </template>
+  <!--  LOADING  -->
+  <template v-if="currentItem === CurrentItem.LOADING">
+    <EmphasizedBox>
+      <Loading />
+    </EmphasizedBox>
+  </template>
+  <!--  LOADING_BLURB  -->
+  <template v-if="currentItem === CurrentItem.LOADING_BLURB">
+    <EmphasizedBox>
+      <LoadingBlurb />
+    </EmphasizedBox>
+  </template>
+  <!--  FULLSCREEN_LOADING_BLURB  -->
+  <template v-if="currentItem === CurrentItem.FULLSCREEN_LOADING_BLURB">
+    <div class="content-box-container">
+      <ContentBox title="Show fullscreen loading blurb for 5s" @click="fsb">
+        Show fullscreen loading blurb for 5s
+      </ContentBox>
+      <ContentBox
+        title="Show fullscreen loading blurb forever"
+        @click="fullscreenLoadingBlurb!.show()"
+      >
+        Show fullscreen loading blurb forever
+      </ContentBox>
+    </div>
+    <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
   </template>
 </template>
 
@@ -292,16 +294,21 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
   import DomainModal from '@/components/DomainModal.vue';
-  import PreviewContentBox from '@/components/PreviewContentBox.vue';
   import Paginator from '@/components/Paginator.vue';
+  import Loading from '@/components/Loading.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import { wait } from '@/utils/wait';
 
   enum CurrentItem {
     CONTENT_BOXES,
     BASIC_EMPHASIZED_BOX,
     FORM_EMPHASIZED_BOX,
     MODALS,
-    PREVIEW_CONTENT_BOXES,
-    PAGINATOR
+    PAGINATOR,
+    LOADING,
+    LOADING_BLURB,
+    FULLSCREEN_LOADING_BLURB
   }
 
   const Items = computed(() => {
@@ -318,7 +325,8 @@
     meow = ref<typeof ConfirmModal>(),
     formModal = ref<typeof FormModal>(),
     domainModal = ref<typeof DomainModal>(),
-    paginatorPage = ref<number>(0);
+    paginatorPage = ref<number>(0),
+    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
 
   function meowMeow(choice: boolean) {
     function* allNodes(node: Node): Generator<Node> {
@@ -353,6 +361,12 @@
 
     if (choice) hehe();
     else toast.show('Good job! you avoided hell!');
+  }
+
+  async function fsb() {
+    await fullscreenLoadingBlurb.value!.show();
+    await wait(5000);
+    fullscreenLoadingBlurb.value!.hide();
   }
 </script>
 

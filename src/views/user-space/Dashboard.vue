@@ -7,7 +7,6 @@
       v-text="processing ? 'Logging out...' : 'Logout'"
       :disabled="processing"
     />
-    <button @click="modal!.show" v-text="'Open Modal'" />
   </div>
   <div class="content-box-container">
     <ContentBox
@@ -44,68 +43,49 @@
       program.
     </ContentBox>
   </div>
-
-  <Modal dismissible ref="modal" @close="modalClosed">
-    <template v-slot:default>
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quibusdam
-      voluptatum, debitis dignissimos dolore rem, non ipsum aliquid id molestias
-      repellendus, similique sapiente quasi? Totam esse recusandae quam fugit
-      pariatur labore.
-    </template>
-    <template v-slot:footer>
-      <button @click="modal!.hide" v-text="'Close'" />
-      <button @click="modal!.hide" v-text="'Close again'" />
-    </template>
-  </Modal>
 </template>
 
 <script lang="ts" setup>
-import { userStore } from "@/stores/user";
-import { toastStore } from "@/stores/toast";
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import ContentBox from "@/components/ContentBox.vue";
-import Modal from "@/components/Modal.vue";
+  import { userStore } from '@/stores/user';
+  import { toastStore } from '@/stores/toast';
+  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  import ContentBox from '@/components/ContentBox.vue';
 
-const user = userStore(),
-  toast = toastStore(),
-  processing = ref<boolean>(false),
-  router = useRouter(),
-  modal = ref<typeof Modal>();
+  const user = userStore(),
+    toast = toastStore(),
+    processing = ref<boolean>(false),
+    router = useRouter();
 
-async function logout() {
-  processing.value = true;
-  try {
-    let res = await user.logout();
-    if (typeof res === "boolean") {
-      router.push("/");
-    } else {
-      switch (res.code) {
-        case "BANNED_ERROR":
-          toast.banned();
-          break;
-        case "INVALID_SESSION_ERROR":
-          router.push("/");
-          break;
-        case "INTERNAL_ERROR":
-          toast.serverError();
-          break;
-        case "GENERIC_ERROR":
-        default:
-          toast.clientError();
-          console.error(res);
-          break;
+  async function logout() {
+    processing.value = true;
+    try {
+      let res = await user.logout();
+      if (typeof res === 'boolean') {
+        router.push('/');
+      } else {
+        switch (res.code) {
+          case 'BANNED_ERROR':
+            toast.banned();
+            break;
+          case 'INVALID_SESSION_ERROR':
+            router.push('/');
+            break;
+          case 'INTERNAL_ERROR':
+            toast.serverError();
+            break;
+          case 'GENERIC_ERROR':
+          default:
+            toast.clientError();
+            console.error(res);
+            break;
+        }
       }
+    } catch (e) {
+      toast.clientError();
+      console.error(e);
+    } finally {
+      processing.value = false;
     }
-  } catch (e) {
-    toast.clientError();
-    console.error(e);
-  } finally {
-    processing.value = false;
   }
-}
-
-function modalClosed() {
-  toast.show("Modal closed.");
-}
 </script>

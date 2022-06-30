@@ -7,6 +7,7 @@
         v-model="__checked"
         :disabled="props.disabled"
         :name="props.name"
+        @click="($event.target as HTMLInputElement).blur()"
       />
       <div class="toggle">
         <div class="indicator" />
@@ -85,7 +86,8 @@
   }
 
   .switch-container label .toggle-state {
-    display: none;
+    opacity: 0;
+    position: absolute;
   }
 
   .switch-container label .toggle-state + .toggle .indicator {
@@ -109,12 +111,18 @@
     box-shadow: none;
   }
 
-  .switch-container label:active:hover .toggle-state + .toggle .indicator {
+  .switch-container label:active:hover .toggle-state + .toggle .indicator,
+  .switch-container label:focus-within .toggle-state + .toggle .indicator {
     transform: translate3d(-65%, 0, 0);
   }
 
   .switch-container
     label:active:hover
+    .toggle-state:checked
+    + .toggle
+    .indicator,
+  .switch-container
+    label:focus-within
     .toggle-state:checked
     + .toggle
     .indicator {
