@@ -1,6 +1,16 @@
 <template>
   <h1>Your Files</h1>
   <h2>Check out everything you've uploaded.</h2>
+  <template v-if="selfFiles.data">
+    <h2>
+      Showing page {{ page + 1 }} of
+      {{ (selfFiles.data ? Math.floor(selfFiles.data?.count / 50) : 0) + 1 }}
+    </h2>
+    <h2> {{ selfFiles.data?.count || 'some number of' }} files in total. </h2>
+  </template>
+  <h2 class="animated-ellipsis" v-else
+    >Alek is individually counting your files</h2
+  >
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
     <button

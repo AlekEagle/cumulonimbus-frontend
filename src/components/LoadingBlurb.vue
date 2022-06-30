@@ -25,7 +25,25 @@
     'Finding four leaf clovers',
     'Finding a unicorn',
     'Building suspense',
-    'Not not loading'
+    'Not not loading',
+    'Deleting .minecraft',
+    'Deleting system32',
+    'Running rm -rf /*',
+    'Guessing your password',
+    'Solving the riddle',
+    'Browsing r/programmerhumor',
+    'Speedrunning Calculator',
+    'Mining crypto',
+    '(╯°□°)╯︵ ┻━┻',
+    "Solving the Rubik's Cube",
+    '(Creating unresolved tension',
+    'Downloading more RAM',
+    'Importing data from the future',
+    'Downloading Club Penguin',
+    'Downloading Minecraft',
+    '/gamemode creative',
+    'Mining diamonds',
+    'Minting NFTs'
   ];
 
   const message = ref<string>();
