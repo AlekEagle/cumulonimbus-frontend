@@ -1073,11 +1073,13 @@
     content: '\2026';
     animation: ellipsis steps(4, end) 2s infinite;
     width: 0px;
+    margin-right: 1.55ch;
   }
 
   @keyframes ellipsis {
     to {
       width: 1.55ch;
+      margin-right: 0;
     }
   }
 </style>
