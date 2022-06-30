@@ -11,23 +11,18 @@
   <div class="content-box-container">
     <ContentBox
       title="Account"
-      src="@/assets/images/profile.svg"
+      :src="profileIcon"
       theme-safe
       to="/dashboard/account"
     >
       See and edit your account.
     </ContentBox>
-    <ContentBox
-      title="Files"
-      src="@/assets/images/file.svg"
-      theme-safe
-      to="/dashboard/files"
-    >
+    <ContentBox title="Files" :src="fileIcon" theme-safe to="/dashboard/files">
       See and manage all of the files you've uploaded.
     </ContentBox>
     <ContentBox
       title="Quick Setup"
-      src="@/assets/images/info.svg"
+      :src="infoIcon"
       theme-safe
       to="/dashboard/quick-setup"
     >
@@ -35,7 +30,7 @@
     </ContentBox>
     <ContentBox
       title="Upload"
-      src="@/assets/images/upload.svg"
+      :src="uploadIcon"
       theme-safe
       to="/dashboard/upload"
     >
@@ -51,6 +46,10 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import ContentBox from '@/components/ContentBox.vue';
+  import profileIcon from '@/assets/images/profile.svg';
+  import fileIcon from '@/assets/images/file.svg';
+  import infoIcon from '@/assets/images/info.svg';
+  import uploadIcon from '@/assets/images/upload.svg';
 
   const user = userStore(),
     toast = toastStore(),

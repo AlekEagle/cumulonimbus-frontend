@@ -33,13 +33,13 @@
     </ContentBox>
     <ContentBox
       title="Content Box w/ title, content & local icon"
-      src="@/assets/images/Cumulonimbus.svg"
+      :src="cumulonimbusIcon"
     >
       Content Box w/ title, content & local icon
     </ContentBox>
     <ContentBox
       title="Content Box w/ title, content & theme safe local icon"
-      src="@/assets/images/Cumulonimbus.svg"
+      :src="cumulonimbusIcon"
       theme-safe
     >
       Content Box w/ title, content & theme safe local icon
@@ -299,6 +299,7 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
   import { wait } from '@/utils/wait';
+  import cumulonimbusIcon from '@/assets/images/cumulonimbus.svg';
 
   enum CurrentItem {
     CONTENT_BOXES,

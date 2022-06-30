@@ -8,7 +8,7 @@
     <img
       :class="`${props.themeSafe ? 'theme-safe' : ''}`"
       v-if="props.src"
-      :src="imgSrc"
+      :src="props.src"
       width="80"
       height="80"
     />
@@ -47,15 +47,6 @@
       default: undefined
     },
     themeSafe: Boolean
-  });
-
-  const imgSrc = computed(() => {
-    // check if src is cross-origin
-    const srcStr = (props.src as string).replace(/^@/, '/src');
-    const src = new URL(srcStr, window.location.origin);
-    if (src.origin !== window.location.origin) {
-      return props.src;
-    } else return new URL(srcStr, import.meta.url).href;
   });
 
   const displayLink = computed(() => {
