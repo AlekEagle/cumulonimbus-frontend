@@ -35,7 +35,7 @@
     'Speedrunning Calculator',
     'Mining crypto',
     '(╯°□°)╯︵ ┻━┻',
-    "Solving the Rubik's Cube",
+    "Solving a Rubik's Cube",
     '(Creating unresolved tension',
     'Downloading more RAM',
     'Importing data from the future',
