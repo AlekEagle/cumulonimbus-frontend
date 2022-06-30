@@ -299,7 +299,7 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
   import { wait } from '@/utils/wait';
-  import cumulonimbusIcon from '@/assets/images/cumulonimbus.svg';
+  import cumulonimbusIcon from '@/assets/images/Cumulonimbus.svg';
 
   enum CurrentItem {
     CONTENT_BOXES,
