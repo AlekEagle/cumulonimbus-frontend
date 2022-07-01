@@ -141,6 +141,7 @@
     grid-column: 1 / span 2;
     align-self: stretch;
     justify-self: stretch;
+    text-align: center;
     font-family: var(--font-body);
     font-size: 18px;
     padding: 0 5px;

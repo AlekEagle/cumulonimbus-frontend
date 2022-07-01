@@ -8,9 +8,10 @@ export const selfFilesStore = defineStore('selfFiles', () => {
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.File> | null>(null);
   const errored = ref(false);
+  const page = ref(0);
 
   async function getFiles(
-    page: number
+    p: number
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (user.client === null) return false;
     errored.value = false;
@@ -18,8 +19,9 @@ export const selfFilesStore = defineStore('selfFiles', () => {
     try {
       const result = await (user.client as Cumulonimbus).getSelfFiles(
         50,
-        50 * page
+        50 * p
       );
+      page.value = p;
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -59,6 +61,7 @@ export const selfFilesStore = defineStore('selfFiles', () => {
     data,
     loading,
     errored,
+    page,
     getFiles,
     deleteFiles
   };

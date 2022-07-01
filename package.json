@@ -4,8 +4,9 @@
   "version": "4.0.0",
   "scripts": {
     "dev": "vite --host",
-    "build": "vue-tsc --noEmit && vite build",
-    "build-dev": "vue-tsc --noEmit && vite build -m development --sourcemap",
+    "build-prod": "vue-tsc --noEmit && vite build",
+    "build-prod-preview": "vue-tsc --noEmit && vite build -c vite.config.prod_preview.ts",
+    "build-dev": "vue-tsc --noEmit && vite build -c vite.config.development.ts",
     "preview": "vite preview"
   },
   "dependencies": {

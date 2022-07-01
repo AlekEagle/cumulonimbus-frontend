@@ -5,6 +5,13 @@ import { NavigationRoute, registerRoute, Route } from 'workbox-routing';
 import { ManualHandlerCallbackOptions } from 'workbox-core';
 import { CacheFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
+
+const BaseThumbnailURLs: { [key: string]: string } = {
+  production: `previews.${self.location.hostname}`,
+  prod_preview: 'previews.alekeagle.me',
+  development: 'localhost:8100'
+};
 
 declare const self: ServiceWorkerGlobalScope;
 
@@ -27,13 +34,16 @@ registerRoute(
 // Preview thumbnails are requested from "previews.${hostname}/filename" URLs.
 const previewThumbnailRoute = new Route(
   ({ request }) =>
-    new URL(request.url).hostname === `previews.${self.location.hostname}`,
+    new URL(request.url).hostname === BaseThumbnailURLs[import.meta.env.MODE],
   new CacheFirst({
     cacheName: 'preview-thumbnails',
     plugins: [
       new ExpirationPlugin({
         maxAgeSeconds: 24 * 60 * 60,
         purgeOnQuotaError: true
+      }),
+      new CacheableResponsePlugin({
+        statuses: [200, 304, 415]
       })
     ]
   })

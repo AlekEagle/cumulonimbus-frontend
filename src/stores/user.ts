@@ -3,13 +3,21 @@ import { ref, computed } from 'vue';
 import persistPiniaStore from '@/utils/persistPinia';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
+const BaseAPIURLs: { [key: string]: string } = {
+  production: `${window.location.protocol}//${window.location.host}/api`,
+  prod_preview: 'https://alekeagle.me/api',
+  development: 'http://localhost:3000/api'
+};
+
+const BaseThumbnailURLs: { [key: string]: string } = {
+  production: `${window.location.protocol}//previews.${window.location.host}`,
+  prod_preview: 'https://previews.alekeagle.me',
+  development: 'http://localhost:8100'
+};
+
 const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
-  baseURL: import.meta.env.DEV
-    ? 'http://localhost:8000/api'
-    : `${window.location.protocol}//${window.location.host}/api`,
-  baseThumbnailURL: import.meta.env.DEV
-    ? 'http://localhost:8100'
-    : `${window.location.protocol}//previews.${window.location.host}`
+  baseURL: BaseAPIURLs[import.meta.env.MODE],
+  baseThumbnailURL: BaseThumbnailURLs[import.meta.env.MODE]
 };
 
 export const userStore = defineStore('user', () => {

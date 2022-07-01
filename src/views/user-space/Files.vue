@@ -145,7 +145,7 @@
     if (!online.value) {
       const unwatchOnline = watch(online, () => {
         if (online.value) {
-          if (!selfFiles.data) {
+          if (!selfFiles.data || selfFiles.page !== page.value) {
             fetchFiles();
           }
           unwatchOnline();
@@ -153,7 +153,7 @@
       });
       return;
     }
-    if (!selfFiles.data) {
+    if (!selfFiles.data || selfFiles.page !== page.value) {
       fetchFiles();
     }
   });

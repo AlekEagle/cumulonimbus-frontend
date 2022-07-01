@@ -41,6 +41,25 @@
   <main class="content">
     <RouterView />
   </main>
+  <Modal ref="prodPreviewWarningModal" title="Warning">
+    <template v-slot:default>
+      This is the preview of the v4 frontend of Cumulonimbus, it may be
+      unstable, there are features that are not yet implemented, and it will be
+      revised in the future.
+      <br />
+      <br />
+      If you are aware of the risks of using this preview, please click the
+      button below to continue. Otherwise, you can click the other button to be
+      taken to the stable version. If you don't know what this means, please go
+      to the stable version. You will only be shown this message once if you
+      continue.
+    </template>
+    <template v-slot:footer>
+      <button @click="acceptProdPreviewWarning">Continue</button>
+
+      <button @click="goToStableProd">Go to stable version</button>
+    </template>
+  </Modal>
   <transition name="toast">
     <div class="toast-box" v-text="toast.text" v-if="toast.visible" />
   </transition>
@@ -53,12 +72,15 @@
   import { toastStore } from './stores/toast';
   import { useRouter, useRoute } from 'vue-router';
   import { useNetwork } from '@vueuse/core';
+  import { prodPreviewStore } from '@/stores/prodPreview';
+  import Modal from '@/components/Modal.vue';
 
   const user = userStore();
   const toast = toastStore();
   const router = useRouter();
   const route = useRoute();
   const { isOnline: online } = useNetwork();
+  const prodPreview = prodPreviewStore();
   const host = window.location.host;
   const menuItems = [
     {
@@ -83,6 +105,7 @@
     }
   ];
   const mobileMenu = ref(false);
+  const prodPreviewWarningModal = ref<typeof Modal>();
 
   watch(mobileMenu, val => {
     if (val) {
@@ -159,7 +182,18 @@
     }
   });
 
+  function acceptProdPreviewWarning() {
+    prodPreview.shownWarning = true;
+    prodPreviewWarningModal.value!.hide();
+  }
+
+  function goToStableProd() {
+    window.location.href = 'https://alekeagle.me';
+  }
+
   onMounted(() => {
+    if (prodPreview.isProdPreview && !prodPreview.shownWarning)
+      prodPreviewWarningModal.value!.show();
     // check if the user is on the soft 404 page
     if (route.name === '404') {
       // if so, do nothing
