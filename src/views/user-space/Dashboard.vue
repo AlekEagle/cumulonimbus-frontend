@@ -68,6 +68,7 @@
             toast.banned();
             break;
           case 'INVALID_SESSION_ERROR':
+            user.logout(true);
             router.push('/');
             break;
           case 'INTERNAL_ERROR':
