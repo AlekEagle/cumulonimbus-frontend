@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vueuse/components": "^8.7.5",
     "@vueuse/core": "^8.6.0",
     "cumulonimbus-wrapper": "file:../cumulonimbus-wrapper-v2",
     "pinia": "^2.0.14",

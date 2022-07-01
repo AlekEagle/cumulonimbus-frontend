@@ -1,5 +1,5 @@
 <template>
-  <div class="content-box no-select">
+  <div class="content-box no-select" v-intersection-observer="onInView">
     <h2 class="title" v-text="props.file.filename" />
     <template v-if="!props.selected">
       <img
@@ -42,6 +42,7 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import noPreviewIcon from '@/assets/images/no-preview.svg';
   import exclamationMarkIcon from '@/assets/images/exclamation-mark.svg';
+  import { vIntersectionObserver } from '@vueuse/components';
 
   const emit = defineEmits<{
     (event: 'click', file: Cumulonimbus.Data.File): void;
@@ -73,7 +74,8 @@
     });
   });
 
-  const imgBlobSrc = ref<string>();
+  const imgBlobSrc = ref<string>(),
+    isObjectURL = ref(false);
 
   async function linkClicked() {
     if (props.selecting) return;
@@ -83,6 +85,13 @@
   async function spanClicked() {
     if (!props.selecting) return;
     emit('click', props.file);
+  }
+
+  async function onInView([{ isIntersecting }]: [{ isIntersecting: boolean }]) {
+    if (!isIntersecting) return;
+    if (imgBlobSrc.value) return;
+    if (noPreview.value) return;
+    loadImage();
   }
 
   async function loadImage(tryCount: number = 0) {
@@ -97,6 +106,7 @@
       const blob = new Blob([thumbArrayBuf], {
         type: 'image/webp'
       });
+      isObjectURL.value = true;
       imgBlobSrc.value = URL.createObjectURL(blob);
     } catch (error) {
       if (error instanceof Cumulonimbus.ThumbnailError) {
@@ -120,10 +130,7 @@
   }
 
   onUnmounted(() => {
+    if (!isObjectURL.value) return;
     URL.revokeObjectURL(imgBlobSrc.value!);
-  });
-
-  onMounted(() => {
-    loadImage();
   });
 </script>
