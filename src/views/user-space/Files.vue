@@ -33,37 +33,46 @@
     v-model="page"
     @page-change="onPageChange"
     :max="selfFiles.data ? Math.floor(selfFiles.data?.count / 50) : 0"
-    :disabled="selfFiles.loading"
+    :disabled="selfFiles.loading || !online"
   >
-    <template v-if="!selfFiles.loading">
-      <template v-if="!selfFiles.errored">
-        <div
-          v-if="selfFiles.data && selfFiles.data.count > 0"
-          class="content-box-container"
-        >
-          <PreviewContentBox
-            v-for="file in selfFiles.data.items"
-            :file="file"
-            :selecting="selecting"
-            :selected="selected.includes(file.filename)"
-            @click="onFileClick(file)"
-          />
-        </div>
-        <div v-else class="no-content-container">
-          <h1>There isn't anything here yet...</h1>
-          <h2>Go try uploading a file!</h2>
-          <router-link to="/dashboard/upload">
-            <button>Upload</button>
-          </router-link>
+    <template v-if="online || !!selfFiles.data">
+      <template v-if="!selfFiles.loading">
+        <template v-if="!selfFiles.errored">
+          <div
+            v-if="selfFiles.data && selfFiles.data.count > 0"
+            class="content-box-container"
+          >
+            <PreviewContentBox
+              v-for="file in selfFiles.data.items"
+              :file="file"
+              :selecting="selecting"
+              :selected="selected.includes(file.filename)"
+              @click="onFileClick(file)"
+            />
+          </div>
+          <div v-else class="no-content-container">
+            <h1>There isn't anything here yet...</h1>
+            <h2>Go try uploading a file!</h2>
+            <router-link to="/dashboard/upload">
+              <button>Upload</button>
+            </router-link>
+          </div>
+        </template>
+        <div class="no-content-container" v-else>
+          <h1>Something went wrong.</h1>
+          <button @click="fetchFiles">Retry</button>
         </div>
       </template>
       <div class="no-content-container" v-else>
-        <h1>Something went wrong.</h1>
-        <button @click="fetchFiles">Retry</button>
+        <LoadingBlurb />
       </div>
     </template>
     <div class="no-content-container" v-else>
-      <LoadingBlurb />
+      <h1>Offline</h1>
+      <h2
+        >You are currently offline. Please connect to the internet to
+        continue.</h2
+      >
     </div>
   </Paginator>
 </template>
@@ -75,23 +84,29 @@
   import BackButton from '@/components/BackButton.vue';
   import { selfFilesStore } from '@/stores/selfFiles';
   import { toastStore } from '@/stores/toast';
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, watch } from 'vue';
   import toLogin from '@/utils/toLogin';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useRouter } from 'vue-router';
+  import { useNetwork } from '@vueuse/core';
 
   const selfFiles = selfFilesStore(),
     page = ref(0),
     toast = toastStore(),
     router = useRouter(),
     selecting = ref(false),
-    selected = ref<string[]>([]);
+    selected = ref<string[]>([]),
+    { isOnline: online } = useNetwork();
 
   async function onPageChange() {
     fetchFiles();
   }
 
   async function fetchFiles() {
+    if (!online) {
+      toast.connectivity();
+      return;
+    }
     try {
       const status = await selfFiles.getFiles(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
@@ -122,12 +137,27 @@
   }
 
   onMounted(async () => {
+    if (!online.value) {
+      const unwatchOnline = watch(online, () => {
+        if (online.value) {
+          if (!selfFiles.data) {
+            fetchFiles();
+          }
+          unwatchOnline();
+        }
+      });
+      return;
+    }
     if (!selfFiles.data) {
-      await selfFiles.getFiles(page.value);
+      fetchFiles();
     }
   });
 
   async function deleteSelected() {
+    if (!online) {
+      toast.connectivity();
+      return;
+    }
     try {
       const status = await selfFiles.deleteFiles(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {

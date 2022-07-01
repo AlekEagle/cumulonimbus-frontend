@@ -52,11 +52,13 @@
   import { ref, onMounted, watch } from 'vue';
   import { toastStore } from './stores/toast';
   import { useRouter, useRoute } from 'vue-router';
+  import { useNetwork } from '@vueuse/core';
 
   const user = userStore();
   const toast = toastStore();
   const router = useRouter();
   const route = useRoute();
+  const { isOnline: online } = useNetwork();
   const host = window.location.host;
   const menuItems = [
     {
@@ -87,6 +89,18 @@
       document.body.classList.add('no-scroll');
     } else {
       document.body.classList.remove('no-scroll');
+    }
+  });
+
+  watch(online, val => {
+    if (!val) {
+      toast.show(
+        'You just went offline! Some things may not work as expected.'
+      );
+    } else {
+      toast.show(
+        'You just went online! Everything should be working as expected.'
+      );
     }
   });
 

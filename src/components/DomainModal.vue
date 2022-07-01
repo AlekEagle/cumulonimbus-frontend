@@ -1,38 +1,47 @@
 <template>
   <ConfirmModal ref="confirmModal" @submit="submit" title="Select Your Domain">
-    <template v-if="user.loggedIn">
-      <Loading v-if="slimDomains.loading" />
-      <div class="domain-container" v-if="slimDomains.domains">
-        <div class="subdomain-container" v-if="allowsSubdomains">
-          <input
-            name="subdomain"
-            type="text"
-            placeholder="Subdomain"
-            maxlength="63"
-            ref="subdomainInput"
-            @input="onSubdomainInput"
-          />
-          <p>.</p>
+    <template v-if="online || !!slimDomains.domains">
+      <template v-if="user.loggedIn">
+        <Loading v-if="slimDomains.loading" />
+        <div class="domain-container" v-if="slimDomains.domains">
+          <div class="subdomain-container" v-if="allowsSubdomains">
+            <input
+              name="subdomain"
+              type="text"
+              placeholder="Subdomain"
+              maxlength="63"
+              ref="subdomainInput"
+              @input="onSubdomainInput"
+            />
+            <p>.</p>
+          </div>
+          <select name="domain" ref="domainSelect" @change="onDomainSelect">
+            <option
+              v-for="domain in slimDomains.domains.items"
+              :value="domain.domain"
+              v-text="domain.domain"
+            />
+          </select>
         </div>
-        <select name="domain" ref="domainSelect" @change="onDomainSelect">
-          <option
-            v-for="domain in slimDomains.domains.items"
-            :value="domain.domain"
-            v-text="domain.domain"
-          />
-        </select>
-      </div>
-      <div v-else-if="!slimDomains.loading">
-        <h1>I wasn't able to get the available domains.</h1>
-        <button @click="reloadDomains">Retry</button>
-      </div>
+        <div v-else-if="!slimDomains.loading">
+          <h1>I wasn't able to get the available domains.</h1>
+          <button @click="reloadDomains">Retry</button>
+        </div>
+      </template>
+      <template v-else>
+        <h1>You must be logged in to select a domain.</h1>
+        <h2>
+          Technically you aren't supposed to be able to see this, dumb
+          developer.
+        </h2>
+        <button @click="submit(false)">Cancel</button>
+      </template>
     </template>
     <template v-else>
-      <h1>You must be logged in to select a domain.</h1>
+      <h1>Offline</h1>
       <h2>
-        Technically you aren't supposed to be able to see this, dumb developer.
+        You are currently offline. Please connect to the internet to continue.
       </h2>
-      <button @click="submit(false)">Cancel</button>
     </template>
   </ConfirmModal>
   <div class="input-fit-content-shim" ref="inputFitContentShim" />
@@ -45,6 +54,8 @@
   import { slimDomainStore } from '@/stores/slimDomains';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
+  import { useNetwork } from '@vueuse/core';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
 
   const emit = defineEmits<{
       (event: 'submit', data: { domain: string; subdomain?: string }): void;
@@ -67,7 +78,8 @@
     inputFitContentShim = ref<HTMLDivElement>(),
     domainSelect = ref<HTMLSelectElement>(),
     subdomainInput = ref<HTMLInputElement>(),
-    allowsSubdomains = ref(false);
+    allowsSubdomains = ref(false),
+    { isOnline: online } = useNetwork();
 
   function onSubdomainInput(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -142,12 +154,25 @@
   }
 
   async function reloadDomains() {
+    if (!online) {
+      toast.connectivity();
+      return;
+    }
     const res = await slimDomains.sync();
-    if (typeof res === 'boolean') {
-      if (res) {
-        return;
-      } else {
-        toast.session();
+    if (res instanceof Cumulonimbus.ResponseError) {
+      switch (res.code) {
+        case 'INVALID_SESSION_ERROR':
+          toast.session();
+          break;
+        case 'BANNED_ERROR':
+          toast.banned();
+          break;
+        case 'INTERNAL_ERROR':
+          toast.serverError();
+          break;
+        case 'GENERIC_ERROR':
+        default:
+          toast.clientError();
       }
     }
   }

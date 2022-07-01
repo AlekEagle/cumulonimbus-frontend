@@ -83,8 +83,16 @@ export const userStore = defineStore('user', () => {
     }
   }
 
-  async function logout(): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function logout(
+    force: boolean = false
+  ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (!loggedIn.value) return true;
+    if (force) {
+      session.value = null;
+      user.value = null;
+      client.value = null;
+      return true;
+    }
     try {
       await client.value!.deleteSelfSession(session.value!.iat.toString());
       session.value = null;
