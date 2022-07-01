@@ -1,16 +1,21 @@
 <template>
   <h1>Your Files</h1>
   <h2>Check out everything you've uploaded.</h2>
-  <template v-if="selfFiles.data">
-    <h2>
-      Showing page {{ page + 1 }} of
-      {{ (selfFiles.data ? Math.floor(selfFiles.data?.count / 50) : 0) + 1 }}
-    </h2>
-    <h2> {{ selfFiles.data?.count || 'some number of' }} files in total. </h2>
+  <template v-if="online || !!selfFiles.data">
+    <template v-if="selfFiles.data">
+      <h2>
+        Showing page {{ page + 1 }} of
+        {{ (selfFiles.data ? Math.floor(selfFiles.data?.count / 50) : 0) + 1 }}
+      </h2>
+      <h2> {{ selfFiles.data?.count || 'some number of' }} files in total. </h2>
+    </template>
+    <h2 class="animated-ellipsis" v-else
+      >Alek is individually counting your files</h2
+    >
   </template>
-  <h2 class="animated-ellipsis" v-else
-    >Alek is individually counting your files</h2
-  >
+  <template v-else>
+    <h2>Alek can't count your files becase you are offline :(</h2>
+  </template>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
     <button

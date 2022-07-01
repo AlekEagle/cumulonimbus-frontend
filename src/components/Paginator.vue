@@ -1,5 +1,5 @@
 <template>
-  <div class="paginator-controls">
+  <div class="paginator-controls paginator-controls-top">
     <button
       @click="prevPage"
       :disabled="props.min >= props.modelValue || props.disabled"
@@ -30,7 +30,7 @@
     <p> We're on page {{ props.modelValue + 1 }} of {{ props.max + 1 }} </p>
   </slot>
 
-  <div class="paginator-controls">
+  <div class="paginator-controls paginator-controls-bottom">
     <button
       @click="prevPage"
       :disabled="props.min >= props.modelValue || props.disabled"
@@ -143,5 +143,13 @@
   .paginator-controls input {
     width: 6ch;
     margin: 0 0.5ch;
+  }
+
+  .paginator-controls.paginator-controls-top {
+    margin-bottom: 5px;
+  }
+
+  .paginator-controls.paginator-controls-bottom {
+    margin-top: 5px;
   }
 </style>
