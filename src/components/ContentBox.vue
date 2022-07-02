@@ -73,7 +73,19 @@
 
   async function linkClicked() {
     if (props.disabled) return;
-    await router.push(props.to);
+    // if the link is a string
+    if (typeof props.to === 'string') {
+      // if it is, check if its relative or absolute
+      if (props.to.startsWith('/')) {
+        // if it is, use the router to navigate to it
+        await router.push(props.to);
+      } else {
+        // if it is not, use window.open to open it in a new tab
+        window.open(props.to, '_blank');
+      }
+    } else {
+      await router.push(props.to);
+    }
   }
 
   async function spanClicked() {

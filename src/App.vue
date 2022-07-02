@@ -964,10 +964,17 @@
 
   .quick-action-buttons-container {
     display: flex;
-    justify-content: space-around;
+    padding: 0 5px;
+    justify-content: space-evenly;
+    flex-direction: row;
+    flex-wrap: wrap;
     margin: 0 auto 15px;
     width: 40%;
-    flex-wrap: wrap;
+  }
+
+  .quick-action-buttons-container button {
+    margin-left: 5px;
+    margin-right: 5px;
   }
 
   @media screen and (max-width: 781px) {
@@ -1058,11 +1065,6 @@
     border: 1px solid var(--ui-border);
     background-color: var(--ui-background);
     color: var(--ui-foreground);
-  }
-
-  .page-number-box {
-    width: 65px;
-    margin: 0 5px;
   }
 
   .toast-box {

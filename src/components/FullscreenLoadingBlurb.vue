@@ -40,7 +40,7 @@
     backdrop-filter: blur(3px);
     z-index: 20;
     display: grid;
-    grid: auto auto / auto;
+    grid: auto / auto;
     justify-content: center;
     align-content: center;
     justify-items: center;

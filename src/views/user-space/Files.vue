@@ -1,7 +1,7 @@
 <template>
   <h1>Your Files</h1>
   <h2>Check out everything you've uploaded.</h2>
-  <template v-if="online || !!selfFiles.data">
+  <template v-if="online || selfFiles.data">
     <template v-if="selfFiles.data">
       <h2>
         Showing page {{ page + 1 }} of
@@ -14,7 +14,7 @@
     >
   </template>
   <template v-else>
-    <h2>Alek can't count your files becase you are offline :(</h2>
+    <h2>Alek can't count your files because you are offline :(</h2>
   </template>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
@@ -29,7 +29,7 @@
       <button @click="selecting = false" :disabled="selfFiles.loading">
         Cancel
       </button>
-      <button @click="deleteSelected" :disabled="selfFiles.loading">
+      <button @click="displayModal" :disabled="selfFiles.loading">
         Delete Selected
       </button>
     </template>
@@ -40,7 +40,7 @@
     :max="selfFiles.data ? Math.floor(selfFiles.data?.count / 50) : 0"
     :disabled="selfFiles.loading || !online"
   >
-    <template v-if="online || !!selfFiles.data">
+    <template v-if="online || selfFiles.data">
       <template v-if="!selfFiles.loading">
         <template v-if="!selfFiles.errored">
           <div
@@ -80,6 +80,14 @@
       >
     </div>
   </Paginator>
+  <ConfirmModal
+    ref="confirmModal"
+    title="Are you sure?"
+    @submit="deleteSelected"
+  >
+    <p>Are you sure you want to delete these {{ selected.length }} files?</p>
+    <p>They will be lost forever! (A long time!)</p>
+  </ConfirmModal>
 </template>
 
 <script lang="ts" setup>
@@ -87,6 +95,7 @@
   import PreviewContentBox from '@/components/PreviewContentBox.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import BackButton from '@/components/BackButton.vue';
+  import { userStore } from '@/stores/user';
   import { selfFilesStore } from '@/stores/selfFiles';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
@@ -94,14 +103,17 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useRouter } from 'vue-router';
   import { useNetwork } from '@vueuse/core';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
 
   const selfFiles = selfFilesStore(),
+    user = userStore(),
     page = ref(0),
     toast = toastStore(),
     router = useRouter(),
     selecting = ref(false),
     selected = ref<string[]>([]),
-    { isOnline: online } = useNetwork();
+    { isOnline: online } = useNetwork(),
+    confirmModal = ref<typeof ConfirmModal>();
 
   async function onPageChange() {
     fetchFiles();
@@ -112,10 +124,16 @@
       toast.connectivity();
       return;
     }
+    window.scrollTo(0, 0);
     try {
       const status = await selfFiles.getFiles(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
+          case 'BANNED_ERROR':
+            toast.banned();
+            user.logout(true);
+            router.push('/');
+            break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
@@ -158,7 +176,20 @@
     }
   });
 
-  async function deleteSelected() {
+  function displayModal() {
+    if (selected.value.length > 0) {
+      confirmModal.value!.show();
+    } else {
+      toast.show('You must select at least one file to delete.');
+    }
+  }
+
+  async function deleteSelected(choice: boolean) {
+    if (!choice) {
+      selected.value = [];
+      selecting.value = false;
+      return;
+    }
     if (!online) {
       toast.connectivity();
       return;

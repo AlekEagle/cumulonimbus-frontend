@@ -6,7 +6,7 @@ import Cumulonimbus from 'cumulonimbus-wrapper';
 const BaseAPIURLs: { [key: string]: string } = {
   production: `${window.location.protocol}//${window.location.host}/api`,
   prod_preview: 'https://alekeagle.me/api',
-  development: 'http://localhost:3000/api'
+  development: 'http://localhost:8000/api'
 };
 
 const BaseThumbnailURLs: { [key: string]: string } = {

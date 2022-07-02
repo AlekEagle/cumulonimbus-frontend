@@ -1,6 +1,8 @@
 <template>
-  <h1 class="animated-ellipsis" v-text="message" />
-  <Loading />
+  <div class="loading-blurb-container">
+    <h1 class="animated-ellipsis" v-text="message" />
+    <Loading />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -52,3 +54,13 @@
     message.value = messages[Math.floor(Math.random() * messages.length)];
   });
 </script>
+
+<style>
+  .loading-blurb-container {
+    display: grid;
+    grid: auto auto / auto;
+    justify-content: center;
+    align-content: center;
+    justify-items: center;
+  }
+</style>

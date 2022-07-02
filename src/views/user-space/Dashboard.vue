@@ -66,6 +66,8 @@
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
+            user.logout(true);
+            router.push('/');
             break;
           case 'INVALID_SESSION_ERROR':
             user.logout(true);
