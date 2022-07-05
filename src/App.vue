@@ -1132,4 +1132,8 @@
       margin-right: 0;
     }
   }
+
+  .no-content-container {
+    padding: 30px 0;
+  }
 </style>

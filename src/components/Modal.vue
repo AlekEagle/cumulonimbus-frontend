@@ -28,6 +28,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { wait } from '@/utils/wait';
   import { ref, onBeforeUnmount } from 'vue';
 
   const emit = defineEmits(['close']);
@@ -51,14 +52,18 @@
   }
 
   // A hide function exposed that doesn't emit the closed event.
-  function hide() {
+  async function hide() {
     visible.value = false;
     document.body.classList.remove('no-scroll');
+    await wait(400);
+    return;
   }
 
-  function show() {
+  async function show() {
     visible.value = true;
     document.body.classList.add('no-scroll');
+    await wait(400);
+    return;
   }
 
   onBeforeUnmount(__hide);
@@ -147,8 +152,10 @@
     padding: 0 5px;
   }
 
-  .modal .modal-content p {
+  .modal .modal-content p,
+  .modal .modal-content code {
     margin: 0;
+    line-height: 1.5;
   }
 
   .modal .modal-footer {

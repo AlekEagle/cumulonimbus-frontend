@@ -50,12 +50,12 @@
     }
   }
 
-  function show() {
-    modal.value!.show();
+  async function show() {
+    await modal.value!.show();
   }
 
-  function hide() {
-    modal.value!.hide();
+  async function hide() {
+    await modal.value!.hide();
   }
 
   defineExpose({

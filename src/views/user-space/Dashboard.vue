@@ -21,10 +21,10 @@
       See and manage all of the files you've uploaded.
     </ContentBox>
     <ContentBox
-      title="Quick Setup"
+      title="Setup Guides"
       :src="infoIcon"
       theme-safe
-      to="/dashboard/quick-setup"
+      to="/dashboard/setup-guides"
     >
       Quickly setup and connect a service to Cumulonimbus and your account.
     </ContentBox>

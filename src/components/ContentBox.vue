@@ -105,6 +105,7 @@
     background-color: var(--ui-background);
     border: 1px solid var(--ui-border);
     transition: background-color 0.25s, border 0.25s;
+    overflow-y: hidden;
   }
 
   .content-box.disabled {
@@ -161,10 +162,13 @@
     margin-bottom: 5px;
     font-family: var(--font-body);
     font-size: 18px;
+    overflow-y: scroll;
   }
 
-  .content-box .content-box-content p {
-    margin: 5px 0;
+  .content-box .content-box-content p,
+  .content-box .content-box-content code {
+    margin: 0;
+    line-height: 1.5;
   }
 
   .content-box > img + .content-box-content,
@@ -191,7 +195,8 @@
     cursor: not-allowed;
   }
 
-  .content-box .content-box-overlay a div {
+  .content-box .content-box-overlay a div,
+  .content-box .content-box-overlay div {
     width: 100%;
     height: 100%;
   }

@@ -55,6 +55,30 @@ export const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/dashboard/account/sessions',
+      name: 'user-space-account-sessions',
+      component: () => import('./views/user-space/AccountSessions.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/dashboard/setup-guides',
+      name: 'user-space-setup-guides',
+      component: () => import('./views/user-space/SetupGuides.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/dashboard/setup-guide',
+      name: 'user-space-setup-guide',
+      component: () => import('./views/user-space/SetupGuide.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
     /* {
       path: "/staff",
       name: "staff",

@@ -3,7 +3,10 @@
     <template v-if="online || !!slimDomains.domains">
       <template v-if="user.loggedIn">
         <Loading v-if="slimDomains.loading" />
-        <div class="domain-container" v-if="slimDomains.domains">
+        <div
+          :class="`domain-container${props.disabled ? ' disabled' : ''}`"
+          v-if="slimDomains.domains"
+        >
           <div class="subdomain-container" v-if="allowsSubdomains">
             <input
               name="subdomain"
@@ -69,6 +72,7 @@
   const emit = defineEmits<{
       (event: 'submit', data: { domain: string; subdomain?: string }): void;
       (event: 'cancel'): void;
+      (event: 'no-session'): void;
     }>(),
     props = defineProps({
       domain: {
@@ -170,6 +174,7 @@
       switch (res.code) {
         case 'INVALID_SESSION_ERROR':
           toast.session();
+          emit('no-session');
           break;
         case 'BANNED_ERROR':
           toast.banned();
@@ -242,10 +247,16 @@
     margin: 0 auto;
   }
 
-  .domain-container:focus-within,
-  .domain-container:hover {
+  .domain-container:focus-within:not(.disabled),
+  .domain-container:hover:not(.disabled) {
     border: 1px solid var(--ui-border-hover);
     background-color: var(--ui-background-hover);
+  }
+
+  .domain-container.disabled {
+    cursor: not-allowed;
+    border: 1px solid var(--ui-border-disabled);
+    background-color: var(--ui-background-disabled);
   }
 
   .subdomain-container {

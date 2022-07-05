@@ -56,12 +56,12 @@
     if (props.closeOnSubmit) confirmModal.value!.hide();
   }
 
-  function show() {
-    confirmModal.value!.show();
+  async function show() {
+    await confirmModal.value!.show();
   }
 
-  function hide() {
-    confirmModal.value!.hide();
+  async function hide() {
+    await confirmModal.value!.hide();
   }
 
   defineExpose({

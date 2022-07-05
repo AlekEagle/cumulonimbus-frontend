@@ -63,6 +63,14 @@
         Update your domain selection.
       </ContentBox>
       <ContentBox
+        title="Manage Signed In Devices"
+        :src="gearIcon"
+        theme-safe
+        to="/dashboard/account/sessions"
+      >
+        Manage your signed in devices.
+      </ContentBox>
+      <ContentBox
         title="Sign Out Everywhere"
         :src="gearIcon"
         theme-safe
@@ -180,13 +188,14 @@
     :subdomain="user.user!.subdomain"
     :disabled="user.loading"
     @submit="updateDomain"
+    @no-session="toLogin(router)"
   />
   <FormModal
     ref="deleteSessionsModal"
     title="Delete all Sessions"
     @submit="deleteSessions"
   >
-    <p>This is going to sign you out of:</p>
+    <p>This is going to sign you out of: </p>
     <p><strong>Browsers</strong></p>
     <p><strong>Services</strong></p>
     <p><strong>3rd Party Apps</strong></p>

@@ -106,7 +106,10 @@
     online = useOnline(),
     fileUrl = computed(() => {
       if (selfFile.data) {
-        return `${window.location.protocol}//${window.location.host}/${selfFile.data.filename}`;
+        if (import.meta.env.MODE === 'prod_preview')
+          return `https://alekeagle.me/${selfFile.data.filename}`;
+        else
+          return `${window.location.protocol}//${window.location.host}/${selfFile.data.filename}`;
       }
       return '';
     }),
@@ -161,6 +164,7 @@
       }
     } catch (e) {
       console.error(e);
+      toast.clientError();
     }
   }
 
