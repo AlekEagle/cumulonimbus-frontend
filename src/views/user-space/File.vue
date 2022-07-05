@@ -34,8 +34,9 @@
         <template v-if="selfFile.data">
           <ContentBox
             :title="selfFile.data.filename"
-            :src="fileIconUrl"
+            :src="fileIcon"
             :to="fileUrl"
+            theme-safe
           >
             <p>
               Uploaded at:
@@ -90,24 +91,19 @@
   import toLogin from '@/utils/toLogin';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useRouter } from 'vue-router';
-  import { useNetwork, useShare, useClipboard } from '@vueuse/core';
+  import { useOnline, useShare, useClipboard } from '@vueuse/core';
+  import fileIcon from '@/assets/images/file.svg';
   import backWithFallback from '@/utils/routerBackWithFallback';
   import toDateString from '@/utils/dateString';
   import size from '@/utils/size';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-
-  const BaseThumbnailURLs: { [key: string]: string } = {
-    production: `${window.location.protocol}//previews.${window.location.host}`,
-    prod_preview: 'https://previews.alekeagle.me',
-    development: 'http://localhost:8100'
-  };
 
   const toast = toastStore(),
     user = userStore(),
     selfFile = selfFileStore(),
     selfFiles = selfFilesStore(),
     router = useRouter(),
-    { isOnline: online } = useNetwork(),
+    online = useOnline(),
     fileUrl = computed(() => {
       if (selfFile.data) {
         return `${window.location.protocol}//${window.location.host}/${selfFile.data.filename}`;
@@ -121,15 +117,7 @@
       copied,
       text: clipboardText
     } = useClipboard(),
-    { share, isSupported: shareIsSupported } = useShare(),
-    fileIconUrl = computed(() => {
-      if (selfFile.data) {
-        return `${BaseThumbnailURLs[import.meta.env.MODE]}/${
-          selfFile.data.filename
-        }`;
-      }
-      return '';
-    });
+    { share, isSupported: shareIsSupported } = useShare();
 
   async function fetchFile() {
     if (!online) {

@@ -3,15 +3,16 @@
     This doesn't look like the right place<router-link
       class="h1-link"
       to="/testing/hush/dont/touch"
+      tabindex="-1"
       >...</router-link
     >
   </h1>
   <h2>Um, I think we took a wrong turn somewhere.</h2>
   <h2>404 not found! The page you're looking for probably doesn't exist!</h2>
   <div class="quick-action-buttons-container">
-    <button @click="router.push('/')" title="Lets go home!">
-      I wanna go home.
-    </button>
+    <router-link to="/">
+      <button title="Lets go home!"> I wanna go home. </button>
+    </router-link>
     <BackButton fallback="/" title="Retrace your steps. duh.">
       Retrace my steps.
     </BackButton>
@@ -112,6 +113,11 @@
     } else {
       setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 1);
       nextLineTimeout.value = setTimeout(displayNextLine, 5000);
+    }
+    if (line.value === 10) {
+      throw new Error(
+        'Page redirection was not allowed. It must be preformed after a user gesture on the page.'
+      );
     }
   }
 

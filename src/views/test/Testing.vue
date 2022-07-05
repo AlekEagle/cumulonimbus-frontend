@@ -284,7 +284,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import { toastStore } from '@/stores/toast';
   import ContentBox from '@/components/ContentBox.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
@@ -356,7 +356,7 @@
         }
       }
       toast.show(
-        `Replaced ${count} space-tabs with real tabs.\nTabs are superior, don't @ me. - danii\nSilence fuckboy - alek`
+        `Replaced ${count} space-tabs with real tabs.\nTabs are superior, don't @ me. - danii\nSilence - alek`
       );
     }
 

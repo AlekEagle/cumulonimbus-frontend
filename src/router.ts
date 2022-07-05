@@ -39,6 +39,22 @@ export const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/dashboard/upload',
+      name: 'user-space-upload',
+      component: () => import('./views/user-space/Upload.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/dashboard/account',
+      name: 'user-space-account',
+      component: () => import('./views/user-space/Account.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
     /* {
       path: "/staff",
       name: "staff",

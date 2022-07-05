@@ -846,7 +846,7 @@
       padding: 10px 0;
       position: fixed;
       justify-content: center;
-      left: -100%;
+      left: 100%;
       top: 0;
       flex-direction: column;
       margin: 0;

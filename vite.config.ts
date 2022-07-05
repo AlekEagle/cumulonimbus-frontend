@@ -18,7 +18,7 @@ export default defineConfig({
         start_url: '/dashboard',
         display: 'standalone',
         scope: '/',
-        background_color: '#000000',
+        background_color: '#808080',
         icons: [
           {
             src: 'icons/72x72.png',
@@ -79,7 +79,9 @@ export default defineConfig({
           params: {
             files: [{ name: 'file', accept: ['*/*', '.*'] }]
           }
-        }
+        },
+        theme_color: '#808080',
+        id: 'cumulonimbus'
       },
       srcDir: 'src',
       filename: 'sw.ts',

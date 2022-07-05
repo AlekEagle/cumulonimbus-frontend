@@ -102,7 +102,7 @@
   import toLogin from '@/utils/toLogin';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useRouter } from 'vue-router';
-  import { useNetwork } from '@vueuse/core';
+  import { useOnline } from '@vueuse/core';
   import ConfirmModal from '@/components/ConfirmModal.vue';
 
   const selfFiles = selfFilesStore(),
@@ -112,7 +112,7 @@
     router = useRouter(),
     selecting = ref(false),
     selected = ref<string[]>([]),
-    { isOnline: online } = useNetwork(),
+    online = useOnline(),
     confirmModal = ref<typeof ConfirmModal>();
 
   async function onPageChange() {
@@ -198,6 +198,11 @@
       const status = await selfFiles.deleteFiles(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
+          case 'BANNED_ERROR':
+            toast.banned();
+            user.logout(true);
+            router.push('/');
+            break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
@@ -230,6 +235,8 @@
     } catch (e) {
       console.error(e);
       toast.clientError();
+    } finally {
+      confirmModal.value!.hide();
     }
   }
 

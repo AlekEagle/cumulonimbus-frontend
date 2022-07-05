@@ -4,53 +4,62 @@
       <slot name="default" />
     </template>
     <template v-slot:footer>
-      <button @click="submit(false)" v-text="props.denyButton" />
-      <button @click="submit(true)" v-text="props.confirmButton" />
+      <button
+        @click="submit(false)"
+        v-text="props.denyButton"
+        :disabled="props.disabled"
+      />
+      <button
+        @click="submit(true)"
+        v-text="props.confirmButton"
+        :disabled="props.disabled"
+      />
     </template>
   </Modal>
 </template>
 
 <script lang="ts" setup>
-import Modal from "@/components/Modal.vue";
-import { ref } from "vue";
+  import Modal from '@/components/Modal.vue';
+  import { ref } from 'vue';
 
-const emit = defineEmits<{
-    (event: "submit", choice: boolean): void;
-  }>(),
-  props = defineProps({
-    title: {
-      type: String,
-      default: "Imagine leaving the title empty",
-    },
-    confirmButton: {
-      type: String,
-      default: "I'm sure"
-    },
-    denyButton: {
-      type: String,
-      default: "Nevermind"
-    },
-    closeOnSubmit: Boolean,
-  }),
-  modal = ref<typeof Modal>();
+  const emit = defineEmits<{
+      (event: 'submit', choice: boolean): void;
+    }>(),
+    props = defineProps({
+      title: {
+        type: String,
+        default: 'Imagine leaving the title empty'
+      },
+      confirmButton: {
+        type: String,
+        default: "I'm sure"
+      },
+      denyButton: {
+        type: String,
+        default: 'Nevermind'
+      },
+      closeOnSubmit: Boolean,
+      disabled: Boolean
+    }),
+    modal = ref<typeof Modal>();
 
-function submit(choice: boolean) {
-  emit("submit", choice);
-  if (props.closeOnSubmit) {
+  function submit(choice: boolean) {
+    emit('submit', choice);
+    if (props.closeOnSubmit) {
+      modal.value!.hide();
+    }
+  }
+
+  function show() {
+    modal.value!.show();
+  }
+
+  function hide() {
     modal.value!.hide();
   }
-}
 
-function show() {
-  modal.value!.show();
-}
-
-function hide() {
-  modal.value!.hide();
-}
-
-defineExpose({
-  show,
-  hide,
-});
+  defineExpose({
+    show,
+    hide
+  });
 </script>

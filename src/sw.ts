@@ -65,8 +65,10 @@ async function shareTargetHandler(
   }
   // Add file to share-target-cache.
   const cache = await caches.open('share-target-cache');
-  const now = Date.now();
-  await cache.put(now + '', new Response(file));
+  await cache.put(
+    'shared-file',
+    new Response(file, { headers: { Filename: (file as File).name } })
+  );
   // Redirect to upload page with the file.
-  return Response.redirect(`/dashboard/upload?file=${now}`);
+  return Response.redirect(`/dashboard/upload?shared-file`);
 }

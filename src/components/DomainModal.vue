@@ -12,10 +12,18 @@
               maxlength="63"
               ref="subdomainInput"
               @input="onSubdomainInput"
+              :disabled="props.disabled"
+              v-model="subdomain"
             />
             <p>.</p>
           </div>
-          <select name="domain" ref="domainSelect" @change="onDomainSelect">
+          <select
+            name="domain"
+            ref="domainSelect"
+            @change="onDomainSelect"
+            :disabled="props.disabled"
+            v-model="domain"
+          >
             <option
               v-for="domain in slimDomains.domains.items"
               :value="domain.domain"
@@ -56,6 +64,7 @@
   import { userStore } from '@/stores/user';
   import { useNetwork } from '@vueuse/core';
   import Cumulonimbus from 'cumulonimbus-wrapper';
+  import { waitUntil } from '@/utils/wait';
 
   const emit = defineEmits<{
       (event: 'submit', data: { domain: string; subdomain?: string }): void;
@@ -69,7 +78,8 @@
       subdomain: {
         type: String,
         default: ''
-      }
+      },
+      disabled: Boolean
     }),
     confirmModal = ref<typeof ConfirmModal>(),
     slimDomains = slimDomainStore(),
@@ -78,6 +88,8 @@
     inputFitContentShim = ref<HTMLDivElement>(),
     domainSelect = ref<HTMLSelectElement>(),
     subdomainInput = ref<HTMLInputElement>(),
+    domain = ref<string>(),
+    subdomain = ref<string>(),
     allowsSubdomains = ref(false),
     { isOnline: online } = useNetwork();
 
@@ -118,20 +130,16 @@
     }
   });
 
-  function show() {
+  async function show() {
     confirmModal.value!.show();
+    domain.value = props.domain;
+    subdomain.value = props.subdomain;
     setDomainWidth(props.domain);
-    if (props.subdomain) {
-      setTimeout(() => (subdomainInput.value!.value = props.subdomain), 10);
-      setSubdomainWidth(props.subdomain);
-    }
-    setTimeout(() => (domainSelect.value!.value = props.domain), 10);
+    setSubdomainWidth(props.subdomain);
   }
 
   function hide() {
     confirmModal.value!.hide();
-    unsetDomainWidth();
-    unsetSubdomainWidth();
   }
 
   function submit(choice: boolean) {
@@ -149,7 +157,6 @@
         response.subdomain = subdomainInput.value!.value;
       }
       emit('submit', response);
-      hide();
     }
   }
 
@@ -210,11 +217,17 @@
 
   defineExpose({
     show,
-    hide
+    hide,
+    reloadDomains
   });
 
-  onMounted(() => {
-    reloadDomains();
+  onMounted(async () => {
+    await reloadDomains();
+    domain.value = props.domain;
+    subdomain.value = props.subdomain;
+    allowsSubdomains.value = slimDomains.domains!.items.find(
+      domain => domain.domain === props.domain
+    )!.allowsSubdomains;
   });
 </script>
 

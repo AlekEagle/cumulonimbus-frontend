@@ -17,8 +17,8 @@ export default defineConfig({
     VitePWA({
       strategies: 'injectManifest',
       manifest: {
-        name: 'Cumulonimbus',
-        short_name: 'Cumulonimbus',
+        name: 'Cumulonimbus Production Preview',
+        short_name: 'Cumulonimbus Prod Preview',
         start_url: '/dashboard',
         display: 'standalone',
         scope: '/',
@@ -83,7 +83,9 @@ export default defineConfig({
           params: {
             files: [{ name: 'file', accept: ['*/*', '.*'] }]
           }
-        }
+        },
+        theme_color: '#808080',
+        id: 'cumulonimbus-prod-preview'
       },
       srcDir: 'src',
       filename: 'sw.ts',

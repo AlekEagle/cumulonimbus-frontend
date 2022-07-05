@@ -22,11 +22,18 @@ const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
 
 export const userStore = defineStore('user', () => {
   const user = ref<Cumulonimbus.Data.User | null>(null);
+  const domain = computed(() => {
+    if (!user.value) return '';
+    return `${user.value.subdomain ? `${user.value.subdomain}.` : ''}${
+      user.value.domain
+    }`;
+  });
   const session = ref<
     (Cumulonimbus.Data.SuccessfulAuth & Cumulonimbus.Data.Session) | null
   >(null);
   const client = ref<Cumulonimbus | null>(null);
   const loggedIn = computed(() => !!session.value && !!user.value && !!client);
+  const loading = ref(false);
 
   persistPiniaStore(user, 'user', { immediate: true, deep: true });
   persistPiniaStore(session, 'session', { immediate: true, deep: true });
@@ -78,7 +85,7 @@ export const userStore = defineStore('user', () => {
 
       session.value = {
         ...(await client.value.getSelfSession()).result,
-        token: (client as any).token
+        token: (client.value as any).token
       };
       user.value = (await client.value.getSelf()).result;
       return true;
@@ -122,14 +129,157 @@ export const userStore = defineStore('user', () => {
     }
   }
 
+  async function updateUsername(
+    username: string,
+    password: string
+  ): Promise<boolean | Cumulonimbus.ResponseError> {
+    if (!loggedIn.value) return false;
+    loading.value = true;
+    try {
+      user.value = (
+        await client.value!.editSelf(password, { username })
+      ).result;
+      return true;
+    } catch (error) {
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function updateEmail(
+    email: string,
+    password: string
+  ): Promise<boolean | Cumulonimbus.ResponseError> {
+    if (!loggedIn.value) return false;
+    loading.value = true;
+    try {
+      user.value = (await client.value!.editSelf(password, { email })).result;
+      return true;
+    } catch (error) {
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function updatePassword(
+    newPassword: string,
+    password: string
+  ): Promise<boolean | Cumulonimbus.ResponseError> {
+    if (!loggedIn.value) return false;
+    loading.value = true;
+    try {
+      user.value = (
+        await client.value!.editSelf(password, { newPassword })
+      ).result;
+      return true;
+    } catch (error) {
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function updateDomain(domain: string, subdomain?: string) {
+    if (!loggedIn.value) return false;
+    loading.value = true;
+    try {
+      user.value = (
+        await client.value!.editSelfDomain(domain, subdomain)
+      ).result;
+      return true;
+    } catch (error) {
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function deleteAllSessions(allButSelf: boolean) {
+    if (!loggedIn.value) return false;
+    loading.value = true;
+    try {
+      await client.value!.deleteAllSelfSessions(allButSelf);
+      return true;
+    } catch (error) {
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function deleteAllFiles() {
+    if (!loggedIn.value) return false;
+    loading.value = true;
+    try {
+      const res = await client.value!.deleteAllSelfFiles();
+      return res.result.count;
+    } catch (error) {
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function deleteAccount(username: string, password: string) {
+    if (!loggedIn.value) return false;
+    loading.value = true;
+    try {
+      await client.value!.deleteSelf(username, password);
+      return true;
+    } catch (error) {
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     user,
+    domain,
     session,
     client,
     loggedIn,
+    loading,
     login,
     register,
     logout,
-    restoreClient
+    restoreClient,
+    updateUsername,
+    updateEmail,
+    updatePassword,
+    updateDomain,
+    deleteAllSessions,
+    deleteAllFiles,
+    deleteAccount
   };
 });

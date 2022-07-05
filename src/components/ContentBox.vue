@@ -164,7 +164,7 @@
   }
 
   .content-box .content-box-content p {
-    margin: 0;
+    margin: 5px 0;
   }
 
   .content-box > img + .content-box-content,
