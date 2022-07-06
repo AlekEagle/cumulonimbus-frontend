@@ -1,17 +1,16 @@
 <template>
   <h1>Setup Guides</h1>
-  <template v-if="online || userInstructions.data">
-    <template v-if="userInstructions.data">
+  <template v-if="online || instructions.data">
+    <template v-if="instructions.data">
       <h2>
         Showing page {{ page + 1 }} of
         {{
-          (userInstructions.data
-            ? Math.floor(userInstructions.data?.count / 50)
-            : 0) + 1
+          (instructions.data ? Math.floor(instructions.data?.count / 50) : 0) +
+          1
         }}
       </h2>
       <h2>
-        {{ userInstructions.data?.count || 'some number of' }} setup guides in
+        {{ instructions.data?.count || 'some number of' }} setup guides in
         total.
       </h2>
     </template>
@@ -28,20 +27,18 @@
   <Paginator
     v-model="page"
     @page-change="onPageChange"
-    :max="
-      userInstructions.data ? Math.floor(userInstructions.data?.count / 50) : 0
-    "
-    :disabled="userInstructions.loading || !online"
+    :max="instructions.data ? Math.floor(instructions.data?.count / 50) : 0"
+    :disabled="instructions.loading || !online"
   >
-    <template v-if="online || userInstructions.data">
-      <template v-if="!userInstructions.loading">
-        <template v-if="!userInstructions.errored">
+    <template v-if="online || instructions.data">
+      <template v-if="!instructions.loading">
+        <template v-if="!instructions.errored">
           <div
-            v-if="userInstructions.data && userInstructions.data.count > 0"
+            v-if="instructions.data && instructions.data.count > 0"
             class="content-box-container"
           >
             <ContentBox
-              v-for="instruction in userInstructions.data.items"
+              v-for="instruction in instructions.data.items"
               :title="instruction.displayName"
               :src="infoIcon"
               theme-safe
@@ -81,7 +78,7 @@
   import BackButton from '@/components/BackButton.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import { userStore } from '@/stores/user';
-  import { userInstructionsStore } from '@/stores/user-space/userInstructions';
+  import { instructionsStore } from '@/stores/user-space/instructions';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
   import toLogin from '@/utils/toLogin';
@@ -91,7 +88,7 @@
   import infoIcon from '@/assets/images/info.svg';
 
   const user = userStore(),
-    userInstructions = userInstructionsStore(),
+    instructions = instructionsStore(),
     toast = toastStore(),
     router = useRouter(),
     online = useOnline(),
@@ -108,7 +105,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await userInstructions.getInstructions(page.value);
+      const status = await instructions.getInstructions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
           case 'BANNED_ERROR':
@@ -145,7 +142,7 @@
     if (!online.value) {
       const unwatchOnline = watch(online, () => {
         if (online.value) {
-          if (!userInstructions.data || userInstructions.page !== page.value) {
+          if (!instructions.data || instructions.page !== page.value) {
             fetchInstructions();
           }
           unwatchOnline();
@@ -153,7 +150,7 @@
       });
       return;
     }
-    if (!userInstructions.data || userInstructions.page !== page.value) {
+    if (!instructions.data || instructions.page !== page.value) {
       fetchInstructions();
     }
   });
