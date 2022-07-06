@@ -67,7 +67,7 @@
   import { userStore } from '@/stores/user';
   import { useNetwork } from '@vueuse/core';
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { waitUntil } from '@/utils/wait';
+  import { waitUntil, wait } from '@/utils/wait';
 
   const emit = defineEmits<{
       (event: 'submit', data: { domain: string; subdomain?: string }): void;
@@ -187,6 +187,7 @@
           toast.clientError();
       }
     }
+    return;
   }
 
   function getWidth(text: string): string {
@@ -230,6 +231,7 @@
     await reloadDomains();
     domain.value = props.domain;
     subdomain.value = props.subdomain;
+    await wait(100);
     allowsSubdomains.value = slimDomains.domains!.items.find(
       domain => domain.domain === props.domain
     )!.allowsSubdomains;

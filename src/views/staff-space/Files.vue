@@ -1,6 +1,11 @@
 <template>
   <h1>Your Files</h1>
-  <h2>Check out everything you've uploaded.</h2>
+  <h2
+    >Check out everything
+    {{
+      files.selectedUser ? `${files.selectedUser.username} has ` : ''
+    }}uploaded.</h2
+  >
   <template v-if="online || files.data">
     <template v-if="files.data">
       <h2>
@@ -10,11 +15,11 @@
       <h2> {{ files.data?.count || 'some number of' }} files in total. </h2>
     </template>
     <h2 class="animated-ellipsis" v-else
-      >Alek is individually counting your files</h2
+      >Alek is individually counting the files</h2
     >
   </template>
   <template v-else>
-    <h2>Alek can't count your files because you are offline :(</h2>
+    <h2>Alek can't count the files because you are offline :(</h2>
   </template>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
@@ -34,6 +39,7 @@
       </button>
     </template>
   </div>
+
   <Paginator
     v-model="page"
     @page-change="fetchFiles"
@@ -57,10 +63,11 @@
           </div>
           <div v-else class="no-content-container">
             <h1>There isn't anything here yet...</h1>
-            <h2>Go try uploading a file!</h2>
-            <router-link to="/dashboard/upload">
-              <button>Upload</button>
-            </router-link>
+            <h2>{{
+              files.selectedUser
+                ? `${files.selectedUser.username} hasn't uploaded anything yet.`
+                : 'No one has uploaded anything yet.'
+            }}</h2>
           </div>
         </template>
         <div class="no-content-container" v-else>
@@ -91,29 +98,75 @@
 </template>
 
 <script lang="ts" setup>
-  import Paginator from '@/components/Paginator.vue';
   import PreviewContentBox from '@/components/PreviewContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import Paginator from '@/components/Paginator.vue';
   import BackButton from '@/components/BackButton.vue';
-  import { userStore } from '@/stores/user';
-  import { filesStore } from '@/stores/user-space/files';
-  import { toastStore } from '@/stores/toast';
-  import { ref, onMounted, watch } from 'vue';
-  import toLogin from '@/utils/toLogin';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { useRouter } from 'vue-router';
-  import { useOnline } from '@vueuse/core';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import { filesStore } from '@/stores/staff-space/files';
+  import { userStore } from '@/stores/user';
+  import { toastStore } from '@/stores/toast';
+  import { useOnline } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
+  import { ref, watch, onMounted } from 'vue';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import toLogin from '@/utils/toLogin';
+  import backWithFallback from '@/utils/routerBackWithFallback';
 
-  const files = filesStore(),
-    user = userStore(),
-    page = ref(0),
-    toast = toastStore(),
+  const online = useOnline(),
     router = useRouter(),
-    selecting = ref(false),
+    files = filesStore(),
+    user = userStore(),
+    toast = toastStore(),
     selected = ref<string[]>([]),
-    online = useOnline(),
+    selecting = ref(false),
+    page = ref(0),
     confirmModal = ref<typeof ConfirmModal>();
+
+  onMounted(async () => {
+    if (!online.value) {
+      const unwatchOnline = watch(online, async () => {
+        if (online.value) {
+          if (
+            !files.data ||
+            files.page !== page.value ||
+            (files.selectedUser &&
+              files.selectedUser.id !== router.currentRoute.value.query.user)
+          ) {
+            if (router.currentRoute.value.query.user) {
+              files.selectedUser = (
+                await user.client!.getUser(
+                  router.currentRoute.value.query.user as string
+                )
+              ).result;
+            } else {
+              files.selectedUser = null;
+            }
+            fetchFiles();
+          }
+          unwatchOnline();
+        }
+      });
+      return;
+    }
+    if (
+      !files.data ||
+      files.page !== page.value ||
+      (files.selectedUser &&
+        files.selectedUser.id !== router.currentRoute.value.query.user)
+    ) {
+      if (router.currentRoute.value.query.user) {
+        files.selectedUser = (
+          await user.client!.getUser(
+            router.currentRoute.value.query.user as string
+          )
+        ).result;
+      } else {
+        files.selectedUser = null;
+      }
+      fetchFiles();
+    }
+  });
 
   async function fetchFiles() {
     if (!online.value) {
@@ -137,6 +190,13 @@
             toast.session();
             await toLogin(router);
             break;
+          case 'INSUFFICIENT_PERMISSIONS_ERROR':
+            await user.getSelf();
+            router.replace('/');
+            break;
+          case 'INVALID_USER_ERROR':
+            toast.show('Invalid user.');
+            backWithFallback(router, '/staff/users');
           case 'INTERNAL_ERROR':
             toast.serverError();
             break;
@@ -155,22 +215,15 @@
     }
   }
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (!files.data || files.page !== page.value) {
-            fetchFiles();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
+  function onFileClick(file: Cumulonimbus.Data.File) {
+    if (selecting.value) {
+      if (selected.value.includes(file.filename)) {
+        selected.value = selected.value.filter(f => f !== file.filename);
+      } else {
+        selected.value.push(file.filename);
+      }
     }
-    if (!files.data || files.page !== page.value) {
-      fetchFiles();
-    }
-  });
+  }
 
   function displayModal() {
     if (selected.value.length > 0) {
@@ -180,12 +233,7 @@
     }
   }
 
-  async function deleteSelected(choice: boolean) {
-    if (!choice) {
-      selected.value = [];
-      selecting.value = false;
-      return;
-    }
+  async function deleteSelected() {
     if (!online.value) {
       toast.connectivity();
       return;
@@ -206,13 +254,17 @@
             toast.session();
             await toLogin(router);
             break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
           case 'MISSING_FIELDS_ERROR':
             if (selected.value.length > 0)
               toast.show('You can only select up to 100 files at once.');
             else toast.show('You must select at least one file to delete.');
+            break;
+          case 'INSUFFICIENT_PERMISSIONS_ERROR':
+            await user.getSelf();
+            router.replace('/');
+            break;
+          case 'INTERNAL_ERROR':
+            toast.serverError();
             break;
           case 'GENERIC_ERROR':
           default:
@@ -220,27 +272,12 @@
             toast.clientError();
             break;
         }
-      } else if (status < 0) {
+      } else if (!status) {
         toast.clientError();
-      } else {
-        toast.show(`Deleted ${status} file${status === 1 ? '' : 's'}.`);
-        selected.value = [];
-        selecting.value = false;
-        await fetchFiles();
       }
     } catch (e) {
       console.error(e);
       toast.clientError();
-    } finally {
-      confirmModal.value!.hide();
-    }
-  }
-
-  function onFileClick(file: Cumulonimbus.Data.File) {
-    if (selected.value.includes(file.filename)) {
-      selected.value = selected.value.filter(f => f !== file.filename);
-    } else {
-      selected.value.push(file.filename);
     }
   }
 </script>

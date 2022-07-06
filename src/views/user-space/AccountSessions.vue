@@ -37,7 +37,7 @@
 
   <Paginator
     v-model="page"
-    @page-change="onPageChange"
+    @page-change="fetchSessions"
     :max="sessions.data ? Math.floor(sessions.data?.count / 50) : 0"
     :disabled="sessions.loading || !online"
   >
@@ -188,10 +188,6 @@
       selectedSession.value = session;
       manageSessionModal.value!.show();
     }
-  }
-
-  async function onPageChange() {
-    await fetchSessions();
   }
 
   onMounted(async () => {

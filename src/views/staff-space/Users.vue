@@ -38,7 +38,7 @@
 
   <Paginator
     v-model="page"
-    @page-change="onPageChange"
+    @page-change="fetchUsers"
     :max="users.data ? Math.floor(users.data?.count / 50) : 0"
     :disabled="users.loading || !online"
   >
@@ -135,10 +135,6 @@
     }
   });
 
-  function onPageChange() {
-    fetchUsers();
-  }
-
   async function onUserClick(user: Cumulonimbus.Data.User) {
     if (selecting.value) {
       if (selected.value.includes(user.id)) {
@@ -214,6 +210,7 @@
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
             await user.getSelf();
             router.replace('/');
+            break;
           case 'INTERNAL_ERROR':
             toast.serverError();
             break;

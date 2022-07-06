@@ -65,6 +65,23 @@
       continue.</h2
     >
   </div>
+  <template v-if="!file.loading">
+    <template v-if="!file.errored">
+      <template v-if="file.uploader">
+        <div class="content-box-container">
+          <ContentBox
+            title="Uploaded by"
+            :src="profileIcon"
+            :to="`/staff/user?id=${file.uploader.id}`"
+            theme-safe
+          >
+            {{ file.uploader.username }} (<code>{{ file.uploader.id }}</code
+            >)
+          </ContentBox>
+        </div>
+      </template>
+    </template>
+  </template>
   <ConfirmModal ref="confirmModal" @submit="deleteFile" title="Are you sure?">
     <p>Are you sure you want to delete this file?</p>
     <p>
@@ -75,23 +92,24 @@
 </template>
 
 <script lang="ts" setup>
-  import ContentBox from '@/components/ContentBox.vue';
   import BackButton from '@/components/BackButton.vue';
+  import ContentBox from '@/components/ContentBox.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import { fileStore } from '@/stores/user-space/file';
-  import { filesStore } from '@/stores/user-space/files';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
-  import { ref, onMounted, watch, computed } from 'vue';
-  import toLogin from '@/utils/toLogin';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { useRouter } from 'vue-router';
-  import { useOnline, useShare, useClipboard } from '@vueuse/core';
-  import fileIcon from '@/assets/images/file.svg';
-  import backWithFallback from '@/utils/routerBackWithFallback';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
   import toDateString from '@/utils/dateString';
   import size from '@/utils/size';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import toLogin from '@/utils/toLogin';
+  import backWithFallback from '@/utils/routerBackWithFallback';
+  import { ref, watch, onMounted, computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { fileStore } from '@/stores/staff-space/file';
+  import { filesStore } from '@/stores/staff-space/files';
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+  import { useOnline, useClipboard, useShare } from '@vueuse/core';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import fileIcon from '@/assets/images/file.svg';
+  import profileIcon from '@/assets/images/profile.svg';
 
   const toast = toastStore(),
     user = userStore(),
@@ -143,7 +161,11 @@
           case 'INVALID_FILE_ERROR':
             toast.show('This file does not exist.');
             await files.getFiles(files.page);
-            await backWithFallback(router, '/dashboard/files');
+            await backWithFallback(router, '/staff/files');
+            break;
+          case 'INSUFFICIENT_PERMISSIONS_ERROR':
+            await user.getSelf();
+            router.replace('/');
             break;
           case 'INTERNAL_ERROR':
             toast.serverError();
@@ -163,23 +185,19 @@
     }
   }
 
-  onMounted(() => {
+  onMounted(async () => {
     if (!online.value) {
-      const unwatchOnline = watch(online, () => {
+      const unwatchOnline = watch(online, async () => {
         if (online.value) {
-          if (
-            !file.data ||
-            file.data.filename !== router.currentRoute.value.query.id
-          ) {
+          if (!file.data) {
             fetchFile();
           }
           unwatchOnline();
         }
       });
-    } else if (
-      !file.data ||
-      file.data.filename !== router.currentRoute.value.query.id
-    ) {
+      return;
+    }
+    if (!file.data) {
       fetchFile();
     }
   });
@@ -212,7 +230,11 @@
           case 'INVALID_FILE_ERROR':
             toast.show('This file does not exist.');
             await files.getFiles(files.page);
-            await backWithFallback(router, '/dashboard/files');
+            await backWithFallback(router, '/staff/files');
+            break;
+          case 'INSUFFICIENT_PERMISSIONS_ERROR':
+            await user.getSelf();
+            router.replace('/');
             break;
           case 'INTERNAL_ERROR':
             toast.serverError();
@@ -229,7 +251,7 @@
         toast.show('File deleted.');
         await confirmModal.value!.hide();
         await files.getFiles(files.page);
-        await backWithFallback(router, '/dashboard/files');
+        await backWithFallback(router, '/staff/files');
       }
     } catch (e) {
       console.error(e);

@@ -26,7 +26,7 @@
   </div>
   <Paginator
     v-model="page"
-    @page-change="onPageChange"
+    @page-change="fetchInstructions"
     :max="instructions.data ? Math.floor(instructions.data?.count / 50) : 0"
     :disabled="instructions.loading || !online"
   >
@@ -93,10 +93,6 @@
     router = useRouter(),
     online = useOnline(),
     page = ref(0);
-
-  async function onPageChange() {
-    console.log('lol');
-  }
 
   async function fetchInstructions() {
     if (!online.value) {

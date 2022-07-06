@@ -110,6 +110,24 @@ export const router = createRouter({
         requiresStaff: true
       }
     },
+    {
+      path: '/staff/files',
+      name: 'staff-space-files',
+      component: () => import('./views/staff-space/Files.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true
+      }
+    },
+    {
+      path: '/staff/file',
+      name: 'staff-space-file',
+      component: () => import('./views/staff-space/File.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true
+      }
+    },
     // Testing routes
     {
       path: '/testing/hush/dont/touch',
