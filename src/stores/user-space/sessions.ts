@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import { userStore } from './user';
+import { userStore } from '../user';
 import { ref } from 'vue';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const selfSessionsStore = defineStore('selfSessions', () => {
+export const sessionsStore = defineStore('user-space-sessions', () => {
   const user = userStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(

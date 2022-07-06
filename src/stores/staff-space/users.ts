@@ -1,22 +1,24 @@
 import { defineStore } from 'pinia';
-import { userStore } from './user';
-import { ref, computed } from 'vue';
+import { userStore } from '../user';
+import { ref } from 'vue';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const selfFileStore = defineStore('selfFile', () => {
+export const usersStore = defineStore('staff-space-users', () => {
   const user = userStore();
   const loading = ref(false);
-  const data = ref<Cumulonimbus.Data.File | null>(null);
+  const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.User> | null>(null);
   const errored = ref(false);
+  const page = ref(0);
 
-  async function getFile(
-    fileId: string
+  async function getUsers(
+    p: number
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getSelfFile(fileId);
+      const result = await (user.client as Cumulonimbus).getUsers(50, 50 * p);
+      page.value = p;
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -31,22 +33,20 @@ export const selfFileStore = defineStore('selfFile', () => {
     return true;
   }
 
-  async function deleteFile(): Promise<boolean | Cumulonimbus.ResponseError> {
-    if (data.value === null) return false;
-    if (user.client === null) return false;
+  async function deleteUsers(
+    users: string[]
+  ): Promise<number | Cumulonimbus.ResponseError> {
+    if (user.client === null) return -1;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteSelfFile(
-        data.value.filename
-      );
-      data.value = null;
-      return true;
+      const result = await (user.client as Cumulonimbus).deleteUsers(users);
+      return result.result.count;
     } catch (error) {
-      errored.value = true;
       if (error instanceof Cumulonimbus.ResponseError) {
         return error;
       } else {
+        errored.value = true;
         throw error;
       }
     } finally {
@@ -58,7 +58,8 @@ export const selfFileStore = defineStore('selfFile', () => {
     loading,
     data,
     errored,
-    getFile,
-    deleteFile
+    page,
+    getUsers,
+    deleteUsers
   };
 });

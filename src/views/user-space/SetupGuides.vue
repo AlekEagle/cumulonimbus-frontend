@@ -81,7 +81,7 @@
   import BackButton from '@/components/BackButton.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import { userStore } from '@/stores/user';
-  import { userInstructionsStore } from '@/stores/userInstructions';
+  import { userInstructionsStore } from '@/stores/user-space/userInstructions';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
   import toLogin from '@/utils/toLogin';

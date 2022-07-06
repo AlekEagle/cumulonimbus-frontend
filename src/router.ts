@@ -5,19 +5,22 @@ import Home from './views/Home.vue';
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
+    // Home page route
     {
       path: '/',
       name: 'home',
       component: Home
     },
+    // Auth page route
     {
       path: '/auth',
       name: 'auth',
       component: () => import('./views/Auth.vue')
     },
+    // User space routes
     {
       path: '/dashboard',
-      name: 'dashboard',
+      name: 'user-space-dashboard',
       component: () => import('./views/user-space/Dashboard.vue'),
       meta: {
         requiresAuth: true
@@ -79,15 +82,26 @@ export const router = createRouter({
         requiresAuth: true
       }
     },
-    /* {
-      path: "/staff",
-      name: "staff",
-      component: () => import("./views/staff-space/index.vue"),
+    // Staff space routes
+    {
+      path: '/staff',
+      name: 'staff-space-dashboard',
+      component: () => import('./views/staff-space/Dashboard.vue'),
       meta: {
         requiresAuth: true,
-        requiresStaff: true,
-      },
-    }, */
+        requiresStaff: true
+      }
+    },
+    {
+      path: '/staff/users',
+      name: 'staff-space-users',
+      component: () => import('./views/staff-space/Users.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true
+      }
+    },
+    // Testing routes
     {
       path: '/testing/hush/dont/touch',
       name: 'testing',

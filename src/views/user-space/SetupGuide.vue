@@ -1,7 +1,7 @@
 <template>
   <h1>Setup Guide</h1>
-  <template v-if="online || userInstruction.data">
-    <h2 v-if="userInstruction.data">
+  <template v-if="online || instruction.data">
+    <h2 v-if="instruction.data">
       It won't take you more than a few minutes to set this up.
     </h2>
     <h2 class="animated-ellipsis" v-else>Alek is reading the setup guide</h2>
@@ -10,12 +10,12 @@
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard/setup-guides" />
   </div>
-  <div class="content-box-container" v-if="online || userInstruction.data">
-    <template v-if="!userInstruction.loading">
-      <template v-if="!userInstruction.errored">
-        <template v-if="userInstruction.data">
+  <div class="content-box-container" v-if="online || instruction.data">
+    <template v-if="!instruction.loading">
+      <template v-if="!instruction.errored">
+        <template v-if="instruction.data">
           <ContentBox
-            v-for="(step, index) in userInstruction.data.steps"
+            v-for="(step, index) in instruction.data.steps"
             :title="`Step ${index + 1}`"
             @click="index === 0 ? getSetupFile() : undefined"
           >
@@ -49,13 +49,13 @@
       <p> Please login again to verify your identity. </p>
       <p>
         Name what your new
-        {{ userInstruction.data ? userInstruction.data.displayName : 'thing' }}
+        {{ instruction.data ? instruction.data.displayName : 'thing' }}
         will be called.</p
       >
       <input
         type="text"
         :placeholder="`${
-          userInstruction.data ? userInstruction.data.displayName : 'thing'
+          instruction.data ? instruction.data.displayName : 'thing'
         } on ${OS}`"
         autocomplete="off"
         name="displayName"
@@ -87,8 +87,8 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import BackButton from '@/components/BackButton.vue';
   import FormModal from '@/components/FormModal.vue';
-  import { userInstructionStore } from '@/stores/userInstruction';
-  import { userInstructionsStore } from '@/stores/userInstructions';
+  import { instructionStore } from '@/stores/user-space/instruction';
+  import { instructionsStore } from '@/stores/user-space/instructions';
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
   import { useRouter } from 'vue-router';
@@ -104,8 +104,8 @@
     development: 'http://localhost:8000/api'
   };
 
-  const userInstruction = userInstructionStore(),
-    userInstructions = userInstructionsStore(),
+  const instruction = instructionStore(),
+    instructions = instructionsStore(),
     user = userStore(),
     toast = toastStore(),
     router = useRouter(),
@@ -126,7 +126,7 @@
       return;
     }
     try {
-      const status = await userInstruction.getInstruction(
+      const status = await instruction.getInstruction(
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
@@ -145,7 +145,7 @@
             break;
           case 'INVALID_INSTRUCTION_ERROR':
             toast.show('This setup guide does not exist.');
-            await userInstructions.getInstructions(userInstructions.page);
+            await instructions.getInstructions(instructions.page);
             await backWithFallback(router, '/dashboard/setup-guides');
             break;
           case 'INTERNAL_ERROR':
@@ -172,8 +172,8 @@
       const unwatchOnline = watch(online, () => {
         if (online.value) {
           if (
-            !userInstruction.data ||
-            userInstruction.data.name !== router.currentRoute.value.query.id
+            !instruction.data ||
+            instruction.data.name !== router.currentRoute.value.query.id
           ) {
             fetchInstruction();
           }
@@ -181,8 +181,8 @@
         }
       });
     } else if (
-      !userInstruction.data ||
-      userInstruction.data.name !== router.currentRoute.value.query.id
+      !instruction.data ||
+      instruction.data.name !== router.currentRoute.value.query.id
     ) {
       fetchInstruction();
     }
@@ -194,18 +194,18 @@
   }
 
   async function getSetupFile() {
-    if (!userInstruction.data) return;
-    const setupFileData = userInstruction.data.fileContent.replace(
+    if (!instruction.data) return;
+    const setupFileData = instruction.data.fileContent.replace(
       '{{token}}',
       session.value!.token
     );
-    if (userInstruction.data.filename) {
+    if (instruction.data.filename) {
       // generate a new setup file and download it
       const blob = new Blob([setupFileData], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = userInstruction.data.filename;
+      a.download = instruction.data.filename;
       a.click();
       URL.revokeObjectURL(url);
     } else {
@@ -234,9 +234,7 @@
               'X-Token-Name':
                 data.displayName ||
                 `${
-                  userInstruction.data
-                    ? userInstruction.data.displayName
-                    : 'thing'
+                  instruction.data ? instruction.data.displayName : 'thing'
                 } on ${OS}`
             },
             body: JSON.stringify({

@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import { userStore } from './user';
+import { userStore } from '../user';
 import { ref } from 'vue';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const userInstructionsStore = defineStore('userInstructions', () => {
+export const instructionsStore = defineStore('user-space-instructions', () => {
   const user = userStore();
   const loading = ref(false);
   const data =

@@ -263,6 +263,23 @@ export const userStore = defineStore('user', () => {
     }
   }
 
+  async function getSelf(): Promise<boolean | Cumulonimbus.ResponseError> {
+    if (!loggedIn.value) return false;
+    loading.value = true;
+    try {
+      user.value = (await client.value!.getSelf()).result;
+      return true;
+    } catch (error) {
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     user,
     domain,
@@ -280,6 +297,7 @@ export const userStore = defineStore('user', () => {
     updateDomain,
     deleteAllSessions,
     deleteAllFiles,
-    deleteAccount
+    deleteAccount,
+    getSelf
   };
 });

@@ -7,6 +7,9 @@
       v-text="processing ? 'Logging out...' : 'Logout'"
       :disabled="processing"
     />
+    <router-link to="/staff" v-if="user.user?.staff">
+      <button v-text="'Staff Dashboard'" />
+    </router-link>
   </div>
   <div class="content-box-container">
     <ContentBox

@@ -121,7 +121,7 @@
     }
   }
 
-  onMounted(() => setTimeout(displayNextLine, 1000));
+  onMounted(() => (nextLineTimeout.value = setTimeout(displayNextLine, 1000)));
   onBeforeUnmount(() => clearTimeout(nextLineTimeout.value));
 </script>
 

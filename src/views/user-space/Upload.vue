@@ -62,7 +62,7 @@
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
   import { useOnline, useClipboard, useDropZone } from '@vueuse/core';
   import { useRouter } from 'vue-router';
-  import { ref, onMounted, watch } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
   import toLogin from '@/utils/toLogin';

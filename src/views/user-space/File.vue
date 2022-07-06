@@ -1,7 +1,7 @@
 <template>
   <h1>File Details</h1>
-  <template v-if="online || selfFile.data">
-    <template v-if="selfFile.data">
+  <template v-if="online || file.data">
+    <template v-if="file.data">
       <h2>View and manage this file.</h2>
     </template>
     <template v-else>
@@ -15,7 +15,7 @@
     <BackButton fallback="/dashboard/files" />
     <button
       @click="confirmModal!.show()"
-      :disabled="selfFile.loading || selfFile.errored"
+      :disabled="file.loading || file.errored"
     >
       Delete
     </button>
@@ -24,27 +24,27 @@
       :disabled="!shareIsSupported && !clipboardIsSupported"
       >Share</button
     >
-    <button @click="download" :disabled="selfFile.loading || selfFile.errored">
+    <button @click="download" :disabled="file.loading || file.errored">
       Download
     </button>
   </div>
-  <div class="content-box-container" v-if="online || selfFile.data">
-    <template v-if="!selfFile.loading">
-      <template v-if="!selfFile.errored">
-        <template v-if="selfFile.data">
+  <div class="content-box-container" v-if="online || file.data">
+    <template v-if="!file.loading">
+      <template v-if="!file.errored">
+        <template v-if="file.data">
           <ContentBox
-            :title="selfFile.data.filename"
+            :title="file.data.filename"
             :src="fileIcon"
             :to="fileUrl"
             theme-safe
           >
             <p>
               Uploaded at:
-              <code>{{ toDateString(new Date(selfFile.data.createdAt)) }}</code>
+              <code>{{ toDateString(new Date(file.data.createdAt)) }}</code>
             </p>
             <p>
               Size:
-              <code>{{ size(selfFile.data.size) }}</code>
+              <code>{{ size(file.data.size) }}</code>
             </p>
             <p> Click me to open the file in a new tab. </p>
           </ContentBox>
@@ -73,7 +73,7 @@
   >
     <p>Are you sure you want to delete this file?</p>
     <p>
-      <code>{{ selfFile.data!.filename }}</code> will be lost forever! (A long
+      <code>{{ file.data!.filename }}</code> will be lost forever! (A long
       time!)
     </p>
   </ConfirmModal>
@@ -83,8 +83,8 @@
   import ContentBox from '@/components/ContentBox.vue';
   import BackButton from '@/components/BackButton.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import { selfFileStore } from '@/stores/selfFile';
-  import { selfFilesStore } from '@/stores/selfFiles';
+  import { fileStore } from '@/stores/user-space/file';
+  import { filesStore } from '@/stores/user-space/files';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
   import { ref, onMounted, watch, computed } from 'vue';
@@ -100,16 +100,16 @@
 
   const toast = toastStore(),
     user = userStore(),
-    selfFile = selfFileStore(),
-    selfFiles = selfFilesStore(),
+    file = fileStore(),
+    files = filesStore(),
     router = useRouter(),
     online = useOnline(),
     fileUrl = computed(() => {
-      if (selfFile.data) {
+      if (file.data) {
         if (import.meta.env.MODE === 'prod_preview')
-          return `https://alekeagle.me/${selfFile.data.filename}`;
+          return `https://alekeagle.me/${file.data.filename}`;
         else
-          return `${window.location.protocol}//${window.location.host}/${selfFile.data.filename}`;
+          return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
       }
       return '';
     }),
@@ -128,7 +128,7 @@
       return;
     }
     try {
-      const status = await selfFile.getFile(
+      const status = await file.getFile(
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
@@ -147,7 +147,7 @@
             break;
           case 'INVALID_FILE_ERROR':
             toast.show('This file does not exist.');
-            await selfFiles.getFiles(selfFiles.page);
+            await files.getFiles(files.page);
             await backWithFallback(router, '/dashboard/files');
             break;
           case 'INTERNAL_ERROR':
@@ -173,8 +173,8 @@
       const unwatchOnline = watch(online, () => {
         if (online.value) {
           if (
-            !selfFile.data ||
-            selfFile.data.filename !== router.currentRoute.value.query.id
+            !file.data ||
+            file.data.filename !== router.currentRoute.value.query.id
           ) {
             fetchFile();
           }
@@ -182,8 +182,8 @@
         }
       });
     } else if (
-      !selfFile.data ||
-      selfFile.data.filename !== router.currentRoute.value.query.id
+      !file.data ||
+      file.data.filename !== router.currentRoute.value.query.id
     ) {
       fetchFile();
     }
@@ -198,7 +198,7 @@
       return;
     }
     try {
-      const status = await selfFile.deleteFile();
+      const status = await file.deleteFile();
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
           case 'BANNED_ERROR':
@@ -215,7 +215,7 @@
             break;
           case 'INVALID_FILE_ERROR':
             toast.show('This file does not exist.');
-            await selfFiles.getFiles(selfFiles.page);
+            await files.getFiles(files.page);
             await backWithFallback(router, '/dashboard/files');
             break;
           case 'INTERNAL_ERROR':
@@ -231,7 +231,7 @@
         toast.clientError();
       } else {
         toast.show('File deleted.');
-        await selfFiles.getFiles(selfFiles.page);
+        await files.getFiles(files.page);
         await backWithFallback(router, '/dashboard/files');
       }
     } catch (e) {
@@ -246,14 +246,14 @@
         text: 'Check out this file!',
         url: `https://${user.user?.subdomain ? `${user.user.subdomain}.` : ''}${
           user.user?.domain
-        }/${selfFile.data!.filename}`
+        }/${file.data!.filename}`
       });
     } else {
       if (clipboardIsSupported) {
         await copy(
           `https://${user.user?.subdomain ? `${user.user.subdomain}.` : ''}${
             user.user?.domain
-          }/${selfFile.data!.filename}`
+          }/${file.data!.filename}`
         );
         toast.show('Copied to clipboard.');
       } else {
@@ -267,10 +267,10 @@
       toast.connectivity();
       return;
     }
-    if (selfFile.data) {
+    if (file.data) {
       const a = document.createElement('a');
       a.href = fileUrl.value;
-      a.download = selfFile.data.filename;
+      a.download = file.data.filename;
       a.click();
     }
   }

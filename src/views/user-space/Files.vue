@@ -1,13 +1,13 @@
 <template>
   <h1>Your Files</h1>
   <h2>Check out everything you've uploaded.</h2>
-  <template v-if="online || selfFiles.data">
-    <template v-if="selfFiles.data">
+  <template v-if="online || files.data">
+    <template v-if="files.data">
       <h2>
         Showing page {{ page + 1 }} of
-        {{ (selfFiles.data ? Math.floor(selfFiles.data?.count / 50) : 0) + 1 }}
+        {{ (files.data ? Math.floor(files.data?.count / 50) : 0) + 1 }}
       </h2>
-      <h2> {{ selfFiles.data?.count || 'some number of' }} files in total. </h2>
+      <h2> {{ files.data?.count || 'some number of' }} files in total. </h2>
     </template>
     <h2 class="animated-ellipsis" v-else
       >Alek is individually counting your files</h2
@@ -21,15 +21,15 @@
     <button
       v-if="!selecting"
       @click="selecting = true"
-      :disabled="selfFiles.loading"
+      :disabled="files.loading"
     >
       Bulk Delete
     </button>
     <template v-else>
-      <button @click="selecting = false" :disabled="selfFiles.loading">
+      <button @click="selecting = false" :disabled="files.loading">
         Cancel
       </button>
-      <button @click="displayModal" :disabled="selfFiles.loading">
+      <button @click="displayModal" :disabled="files.loading">
         Delete Selected
       </button>
     </template>
@@ -37,18 +37,18 @@
   <Paginator
     v-model="page"
     @page-change="onPageChange"
-    :max="selfFiles.data ? Math.floor(selfFiles.data?.count / 50) : 0"
-    :disabled="selfFiles.loading || !online"
+    :max="files.data ? Math.floor(files.data?.count / 50) : 0"
+    :disabled="files.loading || !online"
   >
-    <template v-if="online || selfFiles.data">
-      <template v-if="!selfFiles.loading">
-        <template v-if="!selfFiles.errored">
+    <template v-if="online || files.data">
+      <template v-if="!files.loading">
+        <template v-if="!files.errored">
           <div
-            v-if="selfFiles.data && selfFiles.data.count > 0"
+            v-if="files.data && files.data.count > 0"
             class="content-box-container"
           >
             <PreviewContentBox
-              v-for="file in selfFiles.data.items"
+              v-for="file in files.data.items"
               :file="file"
               :selecting="selecting"
               :selected="selected.includes(file.filename)"
@@ -96,7 +96,7 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import BackButton from '@/components/BackButton.vue';
   import { userStore } from '@/stores/user';
-  import { selfFilesStore } from '@/stores/selfFiles';
+  import { filesStore } from '@/stores/user-space/files';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
   import toLogin from '@/utils/toLogin';
@@ -105,7 +105,7 @@
   import { useOnline } from '@vueuse/core';
   import ConfirmModal from '@/components/ConfirmModal.vue';
 
-  const selfFiles = selfFilesStore(),
+  const files = filesStore(),
     user = userStore(),
     page = ref(0),
     toast = toastStore(),
@@ -126,7 +126,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await selfFiles.getFiles(page.value);
+      const status = await files.getFiles(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
           case 'BANNED_ERROR':
@@ -163,7 +163,7 @@
     if (!online.value) {
       const unwatchOnline = watch(online, () => {
         if (online.value) {
-          if (!selfFiles.data || selfFiles.page !== page.value) {
+          if (!files.data || files.page !== page.value) {
             fetchFiles();
           }
           unwatchOnline();
@@ -171,7 +171,7 @@
       });
       return;
     }
-    if (!selfFiles.data || selfFiles.page !== page.value) {
+    if (!files.data || files.page !== page.value) {
       fetchFiles();
     }
   });
@@ -195,7 +195,7 @@
       return;
     }
     try {
-      const status = await selfFiles.deleteFiles(selected.value);
+      const status = await files.deleteFiles(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
           case 'BANNED_ERROR':

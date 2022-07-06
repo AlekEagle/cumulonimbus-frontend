@@ -1,16 +1,13 @@
 <template>
   <h1>Active Sessions</h1>
-  <template v-if="online || selfSessions.data">
-    <template v-if="selfSessions.data">
+  <template v-if="online || sessions.data">
+    <template v-if="sessions.data">
       <h2>
         Showing page {{ page + 1 }} of
-        {{
-          (selfSessions.data ? Math.floor(selfSessions.data?.count / 50) : 0) +
-          1
-        }}
+        {{ (sessions.data ? Math.floor(sessions.data?.count / 50) : 0) + 1 }}
       </h2>
       <h2>
-        {{ selfSessions.data?.count || 'some number of' }} logged in sessions in
+        {{ sessions.data?.count || 'some number of' }} logged in sessions in
         total.
       </h2>
     </template>
@@ -24,18 +21,15 @@
     <button
       v-if="!selecting"
       @click="selecting = true"
-      :disabled="selfSessions.loading"
+      :disabled="sessions.loading"
     >
       Bulk Delete
     </button>
     <template v-else>
-      <button @click="selecting = false" :disabled="selfSessions.loading">
+      <button @click="selecting = false" :disabled="sessions.loading">
         Cancel
       </button>
-      <button
-        @click="confirmDeleteModal!.show()"
-        :disabled="selfSessions.loading"
-      >
+      <button @click="confirmDeleteModal!.show()" :disabled="sessions.loading">
         Delete Selected
       </button>
     </template>
@@ -44,17 +38,17 @@
   <Paginator
     v-model="page"
     @page-change="onPageChange"
-    :max="selfSessions.data ? Math.floor(selfSessions.data?.count / 50) : 0"
-    :disabled="selfSessions.loading || !online"
+    :max="sessions.data ? Math.floor(sessions.data?.count / 50) : 0"
+    :disabled="sessions.loading || !online"
   >
-    <template v-if="!selfSessions.loading">
-      <template v-if="!selfSessions.errored">
+    <template v-if="!sessions.loading">
+      <template v-if="!sessions.errored">
         <div
-          v-if="selfSessions.data && selfSessions.data.count > 0"
+          v-if="sessions.data && sessions.data.count > 0"
           class="content-box-container"
         >
           <SelectableContentBox
-            v-for="session in selfSessions.data.items"
+            v-for="session in sessions.data.items"
             :title="session.name"
             :selecting="selecting"
             :src="infoIcon"
@@ -127,13 +121,13 @@
   import { useOnline } from '@vueuse/core';
   import { ref, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import { selfSessionsStore } from '@/stores/selfSessions';
+  import { sessionsStore } from '@/stores/user-space/sessions';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
 
   const router = useRouter(),
     online = useOnline(),
-    selfSessions = selfSessionsStore(),
+    sessions = sessionsStore(),
     user = userStore(),
     toast = toastStore(),
     selecting = ref(false),
@@ -150,7 +144,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await selfSessions.getSessions(page.value);
+      const status = await sessions.getSessions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
           case 'BANNED_ERROR':
@@ -204,7 +198,7 @@
     if (!online.value) {
       const unwatchOnline = watch(online, () => {
         if (online.value) {
-          if (!selfSessions.data || selfSessions.page !== page.value) {
+          if (!sessions.data || sessions.page !== page.value) {
             fetchSessions();
           }
           unwatchOnline();
@@ -212,14 +206,14 @@
       });
       return;
     }
-    if (!selfSessions.data || selfSessions.page !== page.value) {
+    if (!sessions.data || sessions.page !== page.value) {
       fetchSessions();
     }
   });
 
   async function onManageSessionChoice(choice: boolean) {
     if (choice) {
-      const status = await selfSessions.deleteSession(
+      const status = await sessions.deleteSession(
         selectedSession.value!.iat + ''
       );
       if (status instanceof Cumulonimbus.ResponseError) {
