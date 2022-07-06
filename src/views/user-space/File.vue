@@ -123,7 +123,7 @@
     { share, isSupported: shareIsSupported } = useShare();
 
   async function fetchFile() {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -193,7 +193,7 @@
     if (!choice) {
       return;
     }
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -263,7 +263,7 @@
   }
 
   function download() {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }

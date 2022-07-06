@@ -120,7 +120,7 @@
   }
 
   async function fetchFiles() {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -190,7 +190,7 @@
       selecting.value = false;
       return;
     }
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }

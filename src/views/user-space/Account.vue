@@ -273,7 +273,7 @@
     online = useOnline();
 
   async function updateUsername(data: { username: string; password: string }) {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -321,7 +321,7 @@
   }
 
   async function updateEmail(data: { email: string; password: string }) {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -373,7 +373,7 @@
     repeatNewPassword: string;
     password: string;
   }) {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -422,7 +422,7 @@
   }
 
   async function updateDomain(data: { domain: string; subdomain?: string }) {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -474,7 +474,7 @@
   }
 
   async function deleteSessions(data: { allButSelf: boolean }) {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -522,7 +522,7 @@
       deleteFilesModal.value!.hide();
       return;
     }
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -562,7 +562,7 @@
   }
 
   async function deleteAccount(data: { username: string; password: string }) {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }

@@ -138,7 +138,7 @@
     selectedSession = ref<Cumulonimbus.Data.Session | null>(null);
 
   async function fetchSessions() {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }

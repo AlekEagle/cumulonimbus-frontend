@@ -99,7 +99,7 @@
   }
 
   async function fetchInstructions() {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }

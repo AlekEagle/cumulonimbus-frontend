@@ -101,6 +101,15 @@ export const router = createRouter({
         requiresStaff: true
       }
     },
+    {
+      path: '/staff/user',
+      name: 'staff-space-user',
+      component: () => import('./views/staff-space/User.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true
+      }
+    },
     // Testing routes
     {
       path: '/testing/hush/dont/touch',

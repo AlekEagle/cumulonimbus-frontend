@@ -121,7 +121,7 @@
     );
 
   async function fetchInstruction() {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }

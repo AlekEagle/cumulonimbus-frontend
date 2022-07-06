@@ -173,7 +173,7 @@
     password: string;
     remember: boolean;
   }) {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
@@ -223,7 +223,7 @@
     confirmPassword: string;
     remember: boolean;
   }) {
-    if (!online) {
+    if (!online.value) {
       toast.connectivity();
       return;
     }
