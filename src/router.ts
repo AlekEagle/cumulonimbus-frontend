@@ -111,6 +111,15 @@ export const router = createRouter({
       }
     },
     {
+      path: '/staff/user/sessions',
+      name: 'staff-space-user-sessions',
+      component: () => import('./views/staff-space/UserSessions.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true
+      }
+    },
+    {
       path: '/staff/files',
       name: 'staff-space-files',
       component: () => import('./views/staff-space/Files.vue'),
@@ -123,6 +132,15 @@ export const router = createRouter({
       path: '/staff/file',
       name: 'staff-space-file',
       component: () => import('./views/staff-space/File.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true
+      }
+    },
+    {
+      path: '/staff/domains',
+      name: 'staff-space-domains',
+      component: () => import('./views/staff-space/Domains.vue'),
       meta: {
         requiresAuth: true,
         requiresStaff: true

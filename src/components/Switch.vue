@@ -8,6 +8,7 @@
         :disabled="props.disabled"
         :name="props.name"
         @click="($event.target as HTMLInputElement).blur()"
+        @change="emit('change', __checked)"
       />
       <div class="toggle">
         <div class="indicator" />
@@ -21,6 +22,10 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+
+  const emit = defineEmits<{
+    (event: 'change', value: boolean): void;
+  }>();
 
   const props = defineProps<{
     disabled?: boolean;

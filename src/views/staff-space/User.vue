@@ -137,6 +137,15 @@
       >'s ban status.
     </ContentBox>
     <ContentBox
+      title="Manage User Sessions"
+      :src="gearIcon"
+      theme-safe
+      :to="`/staff/user/sessions?id=${otherUser.data.id}`"
+    >
+      Manage <code>{{ otherUser.data.username }}</code
+      >'s sessions.
+    </ContentBox>
+    <ContentBox
       title="Sign User Out Everywhere"
       :src="gearIcon"
       theme-safe

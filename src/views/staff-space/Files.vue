@@ -134,11 +134,48 @@
               files.selectedUser.id !== router.currentRoute.value.query.user)
           ) {
             if (router.currentRoute.value.query.user) {
-              files.selectedUser = (
-                await user.client!.getUser(
-                  router.currentRoute.value.query.user as string
-                )
-              ).result;
+              try {
+                files.selectedUser = (
+                  await user.client!.getUser(
+                    router.currentRoute.value.query.user as string
+                  )
+                ).result;
+              } catch (e) {
+                if (e instanceof Cumulonimbus.ResponseError) {
+                  switch (e.code) {
+                    case 'BANNED_ERROR':
+                      toast.banned();
+                      user.logout(true);
+                      router.push('/');
+                      break;
+                    case 'RATELIMITED_ERROR':
+                      toast.rateLimit(e);
+                      break;
+                    case 'INVALID_SESSION_ERROR':
+                      toast.session();
+                      await toLogin(router);
+                      break;
+                    case 'INSUFFICIENT_PERMISSIONS_ERROR':
+                      await user.getSelf();
+                      router.replace('/');
+                      break;
+                    case 'INVALID_USER_ERROR':
+                      toast.show('User not found.');
+                      backWithFallback(router, '/staff/users');
+                    case 'INTERNAL_ERROR':
+                      toast.serverError();
+                      break;
+                    case 'GENERIC_ERROR':
+                    default:
+                      console.error(e);
+                      toast.clientError();
+                      break;
+                  }
+                } else {
+                  console.error(e);
+                  toast.clientError();
+                }
+              }
             } else {
               files.selectedUser = null;
             }
@@ -156,11 +193,48 @@
         files.selectedUser.id !== router.currentRoute.value.query.user)
     ) {
       if (router.currentRoute.value.query.user) {
-        files.selectedUser = (
-          await user.client!.getUser(
-            router.currentRoute.value.query.user as string
-          )
-        ).result;
+        try {
+          files.selectedUser = (
+            await user.client!.getUser(
+              router.currentRoute.value.query.user as string
+            )
+          ).result;
+        } catch (e) {
+          if (e instanceof Cumulonimbus.ResponseError) {
+            switch (e.code) {
+              case 'BANNED_ERROR':
+                toast.banned();
+                user.logout(true);
+                router.push('/');
+                break;
+              case 'RATELIMITED_ERROR':
+                toast.rateLimit(e);
+                break;
+              case 'INVALID_SESSION_ERROR':
+                toast.session();
+                await toLogin(router);
+                break;
+              case 'INSUFFICIENT_PERMISSIONS_ERROR':
+                await user.getSelf();
+                router.replace('/');
+                break;
+              case 'INVALID_USER_ERROR':
+                toast.show('User not found.');
+                backWithFallback(router, '/staff/users');
+              case 'INTERNAL_ERROR':
+                toast.serverError();
+                break;
+              case 'GENERIC_ERROR':
+              default:
+                console.error(e);
+                toast.clientError();
+                break;
+            }
+          } else {
+            console.error(e);
+            toast.clientError();
+          }
+        }
       } else {
         files.selectedUser = null;
       }
