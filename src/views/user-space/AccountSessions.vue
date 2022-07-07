@@ -77,7 +77,11 @@
       <LoadingBlurb />
     </div>
   </Paginator>
-  <ConfirmModal ref="confirmDeleteModal" title="Are you sure?">
+  <ConfirmModal
+    ref="confirmDeleteModal"
+    title="Are you sure?"
+    @submit="onDeleteSessionsChoice"
+  >
     <p>
       Are you sure you want to delete these {{ selected.length }} sessions?
     </p>
@@ -249,5 +253,61 @@
       }
     }
     await manageSessionModal.value!.hide();
+  }
+
+  async function onDeleteSessionsChoice(choice: boolean) {
+    if (!online.value) {
+      toast.connectivity();
+      return;
+    }
+    if (!choice) {
+      await confirmDeleteModal.value!.hide();
+      selected.value = [];
+      selecting.value = false;
+      return;
+    }
+    try {
+      const status = await sessions.deleteSessions(selected.value);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        switch (status.code) {
+          case 'BANNED_ERROR':
+            toast.banned();
+            user.logout(true);
+            router.push('/');
+            break;
+          case 'RATELIMITED_ERROR':
+            toast.rateLimit(status);
+            break;
+          case 'INVALID_SESSION_ERROR':
+            toast.show("It appears that session doesn't exist anymore.");
+            await fetchSessions();
+            selected.value = [];
+            selecting.value = false;
+            break;
+          case 'INTERNAL_ERROR':
+            toast.serverError();
+            break;
+          case 'GENERIC_ERROR':
+          default:
+            console.error(status);
+            toast.clientError();
+            break;
+        }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        if (selected.value.includes(user.session!.iat + '')) {
+          await user.logout(true);
+        } else {
+          selected.value = [];
+          selecting.value = false;
+          toast.show(`Deleted ${status} sessions.`);
+          await fetchSessions();
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
   }
 </script>
