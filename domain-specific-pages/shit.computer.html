@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shit Computers</title>
+    <meta property="og:title" content="Shit Computers here!" />
+    <meta property="og:description" content="VERY SHIT COMPUTERS AHEAD!!!!" />
+    <meta
+      property="og:video:url"
+      content="https://shit.computer/q6FmoPAhBI.mp4"
+    />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:site" content="@snavEkelA" />
+    <meta property="twitter:title" content="Shit Computers here!" />
+    <meta
+      property="twitter:description"
+      content="VERY SHIT COMPUTERS AHEAD!!!!"
+    />
+    <style>
+      body {
+        overflow: hidden;
+      }
+      .content {
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        text-align: center;
+        flex-wrap: wrap;
+        width: fit-content;
+        height: 100vh;
+        flex-direction: row;
+        margin: auto;
+      }
+
+      video {
+        width: 100px;
+      }
+
+      .wrongplacetext {
+        font-size: 30px;
+        font-family: 'Lato', sans-serif;
+        color: gray;
+        font-weight: bold;
+      }
+
+      a {
+        text-decoration: none;
+        color: #0078a7;
+      }
+
+      @-moz-keyframes scroll-left {
+        0% {
+          -moz-transform: translateX(100%);
+        }
+        100% {
+          -moz-transform: translateX(-100%);
+        }
+      }
+
+      @-webkit-keyframes scroll-left {
+        0% {
+          -webkit-transform: translateX(100%);
+        }
+        100% {
+          -webkit-transform: translateX(-100%);
+        }
+      }
+
+      @keyframes scroll-left {
+        0% {
+          -moz-transform: translateX(100%);
+          -webkit-transform: translateX(100%);
+          transform: translateX(100%);
+        }
+        100% {
+          -moz-transform: translateX(-100%);
+          -webkit-transform: translateX(-100%);
+          transform: translateX(-100%);
+        }
+      }
+
+      .marquee {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        line-height: 50px;
+        text-align: center;
+        -moz-transform: translateX(100%);
+        -webkit-transform: translateX(100%);
+        transform: translateX(100%);
+        -moz-animation: scroll-left 2s linear infinite;
+        -webkit-animation: scroll-left 2s linear infinite;
+        animation: scroll-left 20s linear infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content"
+      ><video loop muted src="https://shit.computer/q6FmoPAhBI.mp4"></video
+    ></div>
+
+    <script defer>
+      let count = 1;
+      let div = document.querySelector('.content');
+      let adf = document.querySelector('video');
+
+      function hell() {
+        if (adf.paused) adf.play();
+        let vid = document.createElement('audio');
+        vid.autoplay = true;
+        vid.loop = true;
+        vid.src = 'https://shit.computer/q6FmoPAhBI.mp4';
+        div.appendChild(vid);
+        vid.addEventListener('play', hell);
+      }
+      document.addEventListener('mousedown', hell);
+      document.addEventListener('keydown', hell);
+      document.addEventListener('ready', hell);
+    </script>
+  </body>
+</html>
