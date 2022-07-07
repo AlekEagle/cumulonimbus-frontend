@@ -1,6 +1,10 @@
 /// <reference lib="WebWorker" />
 import { skipWaiting, clientsClaim } from 'workbox-core';
-import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
+import {
+  precacheAndRoute,
+  createHandlerBoundToURL,
+  cleanupOutdatedCaches
+} from 'workbox-precaching';
 import { NavigationRoute, registerRoute, Route } from 'workbox-routing';
 import { ManualHandlerCallbackOptions } from 'workbox-core';
 import { CacheFirst } from 'workbox-strategies';
@@ -14,6 +18,8 @@ const BaseThumbnailURLs: { [key: string]: string } = {
 };
 
 declare const self: ServiceWorkerGlobalScope;
+
+cleanupOutdatedCaches();
 
 precacheAndRoute(self.__WB_MANIFEST);
 skipWaiting();
