@@ -12,7 +12,7 @@
   "dependencies": {
     "@vueuse/components": "^8.7.5",
     "@vueuse/core": "^8.6.0",
-    "cumulonimbus-wrapper": "file:../cumulonimbus-wrapper-v2",
+    "cumulonimbus-wrapper": "^2.0.0",
     "pinia": "^2.0.14",
     "vue": "^3.2.25",
     "vue-router": "4"

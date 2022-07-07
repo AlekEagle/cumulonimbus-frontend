@@ -1438,8 +1438,10 @@ csstype@^2.6.8:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-2.6.20.tgz#9229c65ea0b260cf4d3d997cb06288e36a8d6dda"
   integrity sha512-/WwNkdXfckNgw6S5R125rrW8ez139lBHWouiBvX8dfMFtcn6V81REDqnH7+CRpRipfYlyU1CmOnOxrmGcFOjeA==
 
-"cumulonimbus-wrapper@file:../cumulonimbus-wrapper-v2":
-  version "1.2.0"
+cumulonimbus-wrapper@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/cumulonimbus-wrapper/-/cumulonimbus-wrapper-2.0.0.tgz#dfc201cefb7568f3843b4d561987efeeb78a1d2d"
+  integrity sha512-9a2W3pa6Qp2TcMVBmUXAJc+Doroix6BYJLOhs2fJAvNJ5wvvopUnTIjK++QBFQTrfBa+PUb9zaS/o48zhnrccQ==
   dependencies:
     form-data "^4.0.0"
     isomorphic-fetch "^3.0.0"
