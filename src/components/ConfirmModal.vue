@@ -14,6 +14,7 @@
         v-text="props.confirmButton"
         :disabled="props.disabled"
       />
+      <slot name="additional-buttons" />
     </template>
   </Modal>
 </template>

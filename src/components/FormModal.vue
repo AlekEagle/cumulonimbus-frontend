@@ -4,11 +4,16 @@
     @submit="modalSubmit"
     :title="props.title"
     :disabled="props.disabled"
+    :confirm-button="props.confirmButton"
+    :deny-button="props.denyButton"
   >
     <template v-slot:default>
       <Form ref="form" @submit="formSubmit">
         <slot name="default" />
       </Form>
+    </template>
+    <template v-slot:additional-buttons>
+      <slot name="additional-buttons" />
     </template>
   </ConfirmModal>
 </template>
@@ -39,7 +44,15 @@
         default: false
       },
       closeOnSubmit: Boolean,
-      disabled: Boolean
+      disabled: Boolean,
+      confirmButton: {
+        type: String,
+        default: "I'm sure"
+      },
+      denyButton: {
+        type: String,
+        default: 'Nevermind'
+      }
     }),
     confirmModal = ref<typeof ConfirmModal>(),
     form = ref<typeof Form>();
