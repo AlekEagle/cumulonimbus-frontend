@@ -124,15 +124,16 @@
     confirmModal = ref<typeof ConfirmModal>();
 
   onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, async () => {
-        if (online.value) {
-          if (
-            !files.data ||
-            files.page !== page.value ||
-            (files.selectedUser &&
-              files.selectedUser.id !== router.currentRoute.value.query.user)
-          ) {
+    if (
+      !files.data ||
+      files.page !== page.value ||
+      (files.selectedUser &&
+        files.selectedUser.id !== router.currentRoute.value.query.user) ||
+      (!files.selectedUser && router.currentRoute.value.query.user)
+    ) {
+      if (!online.value) {
+        const unwatchOnline = watch(online, async () => {
+          if (online.value) {
             if (router.currentRoute.value.query.user) {
               try {
                 files.selectedUser = (
@@ -180,18 +181,12 @@
               files.selectedUser = null;
             }
             fetchFiles();
+
+            unwatchOnline();
           }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (
-      !files.data ||
-      files.page !== page.value ||
-      (files.selectedUser &&
-        files.selectedUser.id !== router.currentRoute.value.query.user)
-    ) {
+        });
+        return;
+      }
       if (router.currentRoute.value.query.user) {
         try {
           files.selectedUser = (

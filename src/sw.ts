@@ -26,10 +26,25 @@ skipWaiting();
 clientsClaim();
 
 // Make SPA available offline
+// Register a route to serve /index.html from the cache when the user is offline or the webserver returns a 404.
 registerRoute(
-  new NavigationRoute(createHandlerBoundToURL('/index.html'), {
-    denylist: [/^\/api\/?.*/]
-  })
+  async options => {
+    if (
+      options.request.method === 'GET' ||
+      !options.url.pathname.match(/^\/api\/?/) ||
+      !(await caches.match(options.url))
+    )
+      return false;
+    return true;
+  },
+  async options => {
+    const cachedResponse = await caches.match(options.request);
+    const indexHTML = (await caches.match('/index.html')) as Response;
+    if (cachedResponse) return cachedResponse;
+    if (!self.navigator.onLine) return indexHTML;
+    if ((await fetch(options.request)).status === 404) return indexHTML;
+    return await fetch(options.request);
+  }
 );
 
 // Register a route for preview thumbnails.

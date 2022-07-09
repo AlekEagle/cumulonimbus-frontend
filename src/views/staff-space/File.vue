@@ -186,18 +186,19 @@
   }
 
   onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, async () => {
-        if (online.value) {
-          if (!file.data) {
+    if (
+      !file.data ||
+      file.data.filename !== router.currentRoute.value.query.id
+    ) {
+      if (!online.value) {
+        const unwatchOnline = watch(online, async () => {
+          if (online.value) {
             fetchFile();
+            unwatchOnline();
           }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (!file.data) {
+        });
+        return;
+      }
       fetchFile();
     }
   });
