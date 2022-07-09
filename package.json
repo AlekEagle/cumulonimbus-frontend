@@ -1,7 +1,7 @@
 {
   "name": "cumulonimbus-frontend-v4",
   "private": true,
-  "version": "4.0.2",
+  "version": "4.0.3",
   "scripts": {
     "dev": "vite --host",
     "build-prod": "vue-tsc --noEmit && vite build",
