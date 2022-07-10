@@ -302,10 +302,15 @@
     }
   }
 
-  async function deleteSelected() {
+  async function deleteSelected(choice: boolean) {
     if (!online.value) {
       toast.connectivity();
       return;
+    }
+    if (!choice) {
+      selecting.value = false;
+      selected.value = [];
+      confirmModal.value!.hide();
     }
     try {
       const status = await files.deleteFiles(selected.value);
@@ -343,6 +348,11 @@
         }
       } else if (!status) {
         toast.clientError();
+      } else {
+        selecting.value = false;
+        selected.value = [];
+        confirmModal.value!.hide();
+        fetchFiles();
       }
     } catch (e) {
       console.error(e);
