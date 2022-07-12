@@ -184,6 +184,7 @@
     if (!choice) {
       selected.value = [];
       selecting.value = false;
+      confirmModal.value!.hide();
       return;
     }
     if (!online.value) {
