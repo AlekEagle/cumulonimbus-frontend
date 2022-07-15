@@ -30,7 +30,7 @@
           />
         </li>
       </ul>
-      <div @click="mobileMenu = !mobileMenu">
+      <div @click="mobileMenu = !mobileMenu" :tabindex="mobileMenuTabIndex">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -68,10 +68,10 @@
 <script lang="ts" setup>
   import ThemeManager from '@/components/ThemeManager.vue';
   import { userStore } from './stores/user';
-  import { ref, onMounted, watch } from 'vue';
+  import { ref, onMounted, watch, computed } from 'vue';
   import { toastStore } from './stores/toast';
   import { useRouter, useRoute } from 'vue-router';
-  import { useNetwork } from '@vueuse/core';
+  import { useNetwork, useMediaQuery } from '@vueuse/core';
   import { prodPreviewStore } from '@/stores/prodPreview';
   import Modal from '@/components/Modal.vue';
 
@@ -82,6 +82,9 @@
   const { isOnline: online } = useNetwork();
   const prodPreview = prodPreviewStore();
   const host = window.location.host;
+  const mobileMenuTabIndex = computed(() => {
+    return useMediaQuery('only screen and (max-width: 840px)') ? '-1' : '0';
+  });
   const menuItems = [
     {
       name: 'Home',
