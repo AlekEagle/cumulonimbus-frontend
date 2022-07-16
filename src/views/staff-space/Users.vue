@@ -1,13 +1,15 @@
 <template>
   <h1>All Users</h1>
-  <h2>All users registered on Cumulonimbus.</h2>
   <template v-if="online || users.data">
     <template v-if="users.data">
       <h2>
+        All users registered on Cumulonimbus.
+        <br />
         Showing page {{ page + 1 }} of
         {{ (users.data ? Math.floor(users.data?.count / 50) : 0) + 1 }}
+        <br />
+        {{ users.data?.count || 'some number of' }} users in total.
       </h2>
-      <h2> {{ users.data?.count || 'some number of' }} users in total. </h2>
     </template>
     <h2 class="animated-ellipsis" v-else
       >Alek is individually counting the users</h2

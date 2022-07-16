@@ -4,7 +4,7 @@
       span ? ' no-select' : ''
     }`"
   >
-    <h2 class="title" v-text="props.title" />
+    <h3 class="title" v-text="props.title" />
     <img
       :class="`${props.themeSafe ? 'theme-safe' : ''}`"
       v-if="props.src"

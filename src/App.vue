@@ -41,7 +41,7 @@
   <main class="content">
     <RouterView />
   </main>
-  <Modal ref="prodPreviewWarningModal" title="Warning">
+  <Modal ref="ptbWarningModal" title="Warning">
     <template v-slot:default>
       This is the preview of the v4 frontend of Cumulonimbus, it may be
       unstable, there are features that are not yet implemented, and it will be
@@ -55,9 +55,9 @@
       continue.
     </template>
     <template v-slot:footer>
-      <button @click="acceptProdPreviewWarning">Continue</button>
+      <button @click="acceptPtbhWarning">Continue</button>
 
-      <button @click="goToStableProd">Go to stable version</button>
+      <button @click="gotoStable">Go to stable version</button>
     </template>
   </Modal>
   <transition name="toast">
@@ -72,7 +72,7 @@
   import { toastStore } from './stores/toast';
   import { useRouter, useRoute } from 'vue-router';
   import { useNetwork, useMediaQuery } from '@vueuse/core';
-  import { prodPreviewStore } from '@/stores/prodPreview';
+  import { ptbStore } from '@/stores/ptb';
   import Modal from '@/components/Modal.vue';
 
   const user = userStore();
@@ -80,7 +80,7 @@
   const router = useRouter();
   const route = useRoute();
   const { isOnline: online } = useNetwork();
-  const prodPreview = prodPreviewStore();
+  const ptb = ptbStore();
   const host = window.location.host;
   const mobileMenuTabIndex = computed(() => {
     return useMediaQuery('only screen and (max-width: 840px)') ? '-1' : '0';
@@ -108,7 +108,7 @@
     }
   ];
   const mobileMenu = ref(false);
-  const prodPreviewWarningModal = ref<typeof Modal>();
+  const ptbWarningModal = ref<typeof Modal>();
 
   watch(mobileMenu, val => {
     if (val) {
@@ -185,18 +185,17 @@
     }
   });
 
-  function acceptProdPreviewWarning() {
-    prodPreview.shownWarning = true;
-    prodPreviewWarningModal.value!.hide();
+  function acceptPtbhWarning() {
+    ptb.shownWarning = true;
+    ptbWarningModal.value!.hide();
   }
 
-  function goToStableProd() {
+  function gotoStable() {
     window.location.href = 'https://alekeagle.me';
   }
 
   onMounted(() => {
-    if (prodPreview.isProdPreview && !prodPreview.shownWarning)
-      prodPreviewWarningModal.value!.show();
+    if (ptb.isPtb && !ptb.shownWarning) ptbWarningModal.value!.show();
     // check if the user is on the soft 404 page
     if (route.name === '404') {
       // if so, do nothing
@@ -697,9 +696,11 @@
     font-weight: 700;
   }
 
-  h2 {
+  h2,
+  h3 {
     font-size: 1.35em;
     font-weight: 600;
+    line-height: 1.5;
   }
 
   .content > h1,

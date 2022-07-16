@@ -1,18 +1,18 @@
 <template>
   <h1>Your Files</h1>
-  <h2
-    >Check out everything
-    {{
-      files.selectedUser ? `${files.selectedUser.username} has ` : ''
-    }}uploaded.</h2
-  >
   <template v-if="online || files.data">
     <template v-if="files.data">
       <h2>
+        Check out everything
+        {{
+          files.selectedUser ? `${files.selectedUser.username} has ` : ''
+        }}uploaded.
+        <br />
         Showing page {{ page + 1 }} of
         {{ (files.data ? Math.floor(files.data?.count / 50) : 0) + 1 }}
+        <br />
+        {{ files.data?.count || 'some number of' }} files in total.
       </h2>
-      <h2> {{ files.data?.count || 'some number of' }} files in total. </h2>
     </template>
     <h2 class="animated-ellipsis" v-else
       >Alek is individually counting the files</h2

@@ -2,14 +2,14 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import persistPiniaStore from '@/utils/persistPinia';
 
-export const prodPreviewStore = defineStore('prodPreview', () => {
+export const ptbStore = defineStore('ptb', () => {
   const shownWarning = ref(false);
-  const isProdPreview = computed(() => import.meta.env.MODE === 'prod_preview');
+  const isPtb = computed(() => import.meta.env.MODE === 'ptb');
 
   persistPiniaStore(shownWarning, 'shownWarning', { immediate: true });
 
   return {
     shownWarning,
-    isProdPreview
+    isPtb
   };
 });

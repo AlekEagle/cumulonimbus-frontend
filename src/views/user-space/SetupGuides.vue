@@ -8,8 +8,7 @@
           (instructions.data ? Math.floor(instructions.data?.count / 50) : 0) +
           1
         }}
-      </h2>
-      <h2>
+        <br />
         {{ instructions.data?.count || 'some number of' }} setup guides in
         total.
       </h2>

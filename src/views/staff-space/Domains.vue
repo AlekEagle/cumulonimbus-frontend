@@ -5,8 +5,9 @@
       <h2>
         Showing page {{ page + 1 }} of
         {{ (domains.data ? Math.floor(domains.data?.count / 50) : 0) + 1 }}
+        <br />
+        {{ domains.data?.count || 'some number of' }} domains in total.
       </h2>
-      <h2> {{ domains.data?.count || 'some number of' }} domains in total. </h2>
     </template>
     <h2 v-else class="animated-ellipsis"
       >Alek is remembering what domains there are</h2

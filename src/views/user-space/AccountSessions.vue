@@ -5,8 +5,7 @@
       <h2>
         Showing page {{ page + 1 }} of
         {{ (sessions.data ? Math.floor(sessions.data?.count / 50) : 0) + 1 }}
-      </h2>
-      <h2>
+        <br />
         {{ sessions.data?.count || 'some number of' }} logged in sessions in
         total.
       </h2>
