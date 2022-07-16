@@ -1,11 +1,11 @@
 {
   "name": "cumulonimbus-frontend-v4",
   "private": true,
-  "version": "4.0.5",
+  "version": "4.0.6",
   "scripts": {
     "dev": "vite --host",
     "build-prod": "vue-tsc --noEmit && vite build",
-    "build-prod-preview": "vue-tsc --noEmit && vite build -c vite.config.prod_preview.ts",
+    "build-ptb": "vue-tsc --noEmit && vite build -c vite.config.ptb.ts",
     "build-dev": "vue-tsc --noEmit && vite build -c vite.config.development.ts",
     "preview": "vite preview"
   },
