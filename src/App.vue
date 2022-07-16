@@ -7,9 +7,19 @@
       </div>
     </RouterLink>
     <nav :class="mobileMenu ? 'active' : ''">
+      <div
+        @click="mobileMenu = !mobileMenu"
+        :tabindex="showHamburger ? '0' : '-1'"
+      >
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
       <ul @click.self="mobileMenu = false">
         <li>
-          <ThemeManager />
+          <ThemeManager
+            :no-tab-index="!showHamburger || (showHamburger && mobileMenu)"
+          />
         </li>
         <li
           v-for="(item, index) in menuItems"
@@ -20,6 +30,9 @@
             v-if="!item.external"
             :to="item.path"
             v-text="item.name"
+            :tabindex="
+              !showHamburger || (showHamburger && mobileMenu) ? '0' : '-1'
+            "
           />
           <a
             v-else
@@ -27,14 +40,12 @@
             v-text="item.name"
             rel="noopener"
             target="_blank"
+            :tabindex="
+              !showHamburger || (showHamburger && mobileMenu) ? '0' : '-1'
+            "
           />
         </li>
       </ul>
-      <div @click="mobileMenu = !mobileMenu" :tabindex="mobileMenuTabIndex">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </div>
     </nav>
   </header>
 
@@ -82,9 +93,7 @@
   const { isOnline: online } = useNetwork();
   const ptb = ptbStore();
   const host = window.location.host;
-  const mobileMenuTabIndex = computed(() => {
-    return useMediaQuery('only screen and (max-width: 840px)') ? '-1' : '0';
-  });
+  const showHamburger = useMediaQuery('only screen and (max-width: 840px)');
   const menuItems = [
     {
       name: 'Home',
@@ -724,10 +733,16 @@
 
   header {
     display: flex;
-    width: calc(100vw - (10px * 2));
+    width: calc(100vw - 20px);
     justify-content: space-between;
-    margin: 10px 10px 0;
+    padding: 10px 10px 0;
     align-items: center;
+    top: 0;
+    position: sticky;
+    background: var(--background);
+    transition: background-color 0.25s, box-shadow 0.25s;
+    z-index: 10;
+    box-shadow: 0px 10px 10px var(--background);
   }
 
   .nav-links {
@@ -881,11 +896,11 @@
       left: 0;
     }
 
-    header nav ul + div {
+    header nav > div {
       display: block;
       cursor: pointer;
       margin-right: 10px;
-      z-index: 10;
+      z-index: 11;
       right: 10px;
       top: 20.8px;
       position: fixed;

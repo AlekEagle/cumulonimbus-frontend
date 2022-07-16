@@ -2,9 +2,9 @@
   <h1>Staff Dashboard</h1>
   <h2>Welcome, {{ user.user ? user.user.username : 'person' }}!</h2>
   <div class="quick-action-buttons-container">
-    <router-link to="/dashboard">
-      <button v-text="'User Dashboard'" />
-    </router-link>
+    <RouterButton to="/dashboard" title="Go to User Dashboard">
+      User Dashboard
+    </RouterButton>
   </div>
   <div class="content-box-container">
     <ContentBox title="Users" :src="profileIcon" theme-safe to="/staff/users">
@@ -28,6 +28,7 @@
 </template>
 
 <script lang="ts" setup>
+  import RouterButton from '@/components/RouterButton.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import profileIcon from '@/assets/images/profile.svg';
   import fileIcon from '@/assets/images/file.svg';

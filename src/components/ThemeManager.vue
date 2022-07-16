@@ -5,6 +5,7 @@
       id="theme-switch"
       ref="themeSwitch"
       v-model="theme.enabled"
+      :tabindex="props.noTabIndex ? '0' : '-1'"
     />
     <label for="theme-switch">
       <span />
@@ -15,6 +16,10 @@
 <script lang="ts" setup>
   import { darkThemeStore } from '@/stores/darkTheme';
 
+  const props = defineProps({
+    noTabIndex: Boolean
+  });
+
   let theme = darkThemeStore();
 </script>
 
@@ -22,10 +27,16 @@
   .theme-switch {
     display: table;
     margin-right: 0.75em;
+    line-height: 0;
   }
 
   #theme-switch {
-    display: none;
+    position: relative;
+    top: 27px;
+    left: 28px;
+    height: 0;
+    padding: 0;
+    margin: 0;
   }
 
   #theme-switch + label {
@@ -82,5 +93,9 @@
     transform: translateX(calc(100%)) scale(0.65);
     box-shadow: inset -0.1875em -0.1875em 0 0 #fbe7ef,
       inset -0.5625em -0.5625em 0 0 #fffff7;
+  }
+
+  #theme-switch:focus + label {
+    outline: 1px solid white;
   }
 </style>

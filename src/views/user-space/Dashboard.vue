@@ -7,9 +7,13 @@
       v-text="processing ? 'Logging out...' : 'Logout'"
       :disabled="processing"
     />
-    <router-link to="/staff" v-if="user.user?.staff">
-      <button v-text="'Staff Dashboard'" />
-    </router-link>
+    <RouterButton
+      to="/staff"
+      title="Go to Staff Dashboard"
+      v-if="user.user?.staff"
+    >
+      Staff Dashboard
+    </RouterButton>
   </div>
   <div class="content-box-container">
     <ContentBox
@@ -49,6 +53,7 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import ContentBox from '@/components/ContentBox.vue';
+  import RouterButton from '@/components/RouterButton.vue';
   import profileIcon from '@/assets/images/profile.svg';
   import fileIcon from '@/assets/images/file.svg';
   import infoIcon from '@/assets/images/info.svg';

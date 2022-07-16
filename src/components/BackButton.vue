@@ -1,5 +1,5 @@
 <template>
-  <a :href="displayLink" @click.prevent="navigate">
+  <a :href="displayLink" @click.prevent="navigate" tabindex="-1">
     <button :title="props.title">
       <slot>Back</slot>
     </button>
