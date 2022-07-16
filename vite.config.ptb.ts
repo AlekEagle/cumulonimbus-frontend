@@ -9,7 +9,7 @@ export default defineConfig({
       '@': '/src'
     }
   },
-  mode: 'prod_preview',
+  mode: 'ptb',
   build: {
     sourcemap: true
   },
