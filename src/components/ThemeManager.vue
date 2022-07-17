@@ -6,6 +6,7 @@
       ref="themeSwitch"
       v-model="theme.enabled"
       :tabindex="props.noTabIndex ? '0' : '-1'"
+      @click="($event.target as HTMLInputElement).blur()"
     />
     <label for="theme-switch">
       <span />
