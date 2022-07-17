@@ -750,7 +750,7 @@
     float: right;
   }
 
-  header nav ul + div {
+  header nav > div {
     display: none;
   }
 
@@ -794,10 +794,6 @@
     background-color: var(--code-background);
     border-radius: 4px;
     transition: background-color 0.25s;
-  }
-
-  html.dark-theme code {
-    background-color: var(--code-background);
   }
 
   h5,
