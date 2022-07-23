@@ -1,5 +1,5 @@
 <template>
-  <h1>Your Files</h1>
+  <h1>All Files</h1>
   <template v-if="online || files.data">
     <template v-if="files.data">
       <h2>
