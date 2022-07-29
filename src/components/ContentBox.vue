@@ -162,7 +162,7 @@
     margin-bottom: 5px;
     font-family: var(--font-body);
     font-size: 18px;
-    overflow-y: scroll;
+    overflow: auto hidden;
   }
 
   .content-box .content-box-content p,
