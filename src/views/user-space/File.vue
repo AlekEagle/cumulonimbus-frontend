@@ -21,7 +21,7 @@
     </button>
     <button
       @click="onShare"
-      :disabled="!shareIsSupported && !clipboardIsSupported"
+      :disabled="(!shareIsSupported && !clipboardIsSupported) || (file.loading || file.errored)"
       >Share</button
     >
     <button @click="download" :disabled="file.loading || file.errored">
