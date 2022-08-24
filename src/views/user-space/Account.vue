@@ -6,7 +6,12 @@
   </div>
   <template v-if="!user.loading && !!user.user">
     <div class="content-box-container">
-      <ContentBox :title="user.user!.username" theme-safe :src="profileIcon">
+      <ContentBox
+        :title="user.user!.username"
+        theme-safe
+        :src="profileIcon"
+        nowrap
+      >
         <p
           >User ID: <code>{{ user.user!.id }}</code></p
         >

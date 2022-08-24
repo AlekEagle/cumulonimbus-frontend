@@ -31,6 +31,40 @@
     <ContentBox title="Content Box w/ title & content">
       Content Box w/ title & content
     </ContentBox>
+    <ContentBox title="Content Box w/ title & long content">
+      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ullam aliquam
+      error ducimus dicta officiis velit nulla ipsa minima repellendus expedita,
+      atque unde iure aut veniam dolore necessitatibus corrupti, blanditiis
+      repellat!
+    </ContentBox>
+    <ContentBox title="Content Box w/ title, nowrap & long content" nowrap>
+      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ullam aliquam
+      error ducimus dicta officiis velit nulla ipsa minima repellendus expedita,
+      atque unde iure aut veniam dolore necessitatibus corrupti, blanditiis
+      repellat!
+    </ContentBox>
+    <ContentBox
+      title="Content Box w/ title, p + code tags, nowrap & long content"
+      nowrap
+    >
+      <p> Name: <code> Joe Mana </code> </p>
+      <p> Age: <code> 25 </code> </p>
+      <p>
+        Email:
+        <code>
+          somereallylong@randomstuffthisprobablydoesntexist.hopefully.biz
+        </code>
+      </p>
+      <p>
+        More long content:
+        <code>
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ullam
+          aliquam error ducimus dicta officiis velit nulla ipsa minima
+          repellendus expedita, atque unde iure aut veniam dolore necessitatibus
+          corrupti, blanditiis repellat!
+        </code>
+      </p>
+    </ContentBox>
     <ContentBox
       title="Content Box w/ title, content & local icon"
       :src="cumulonimbusIcon"

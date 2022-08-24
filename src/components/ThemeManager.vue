@@ -32,9 +32,9 @@
   }
 
   #theme-switch {
-    position: relative;
-    top: 27px;
-    left: 28px;
+    position: absolute;
+    top: -100px;
+    left: -100px;
     height: 0;
     padding: 0;
     margin: 0;

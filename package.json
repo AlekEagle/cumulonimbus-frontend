@@ -7,7 +7,7 @@
     "build-prod": "vue-tsc --noEmit && vite build",
     "build-ptb": "vue-tsc --noEmit && vite build -c vite.config.ptb.ts",
     "build-dev": "vue-tsc --noEmit && vite build -c vite.config.development.ts",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "@vueuse/components": "^8.7.5",

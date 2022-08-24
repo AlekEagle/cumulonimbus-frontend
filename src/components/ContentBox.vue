@@ -2,20 +2,22 @@
   <div
     :class="`content-box${props.disabled ? ' disabled' : ''}${
       span ? ' no-select' : ''
-    }`"
+    }${props.nowrap ? ' nowrap' : ''}`"
   >
-    <h3 class="title" v-text="props.title" />
-    <img
-      :class="`${props.themeSafe ? 'theme-safe' : ''}`"
-      v-if="props.src"
-      :src="props.src"
-      width="80"
-      height="80"
-    />
-    <div class="content-box-content">
-      <slot>
-        <p>Imagine leaving a content box empty</p>
-      </slot>
+    <div class="content-box-inner">
+      <h3 class="title" v-text="props.title" />
+      <img
+        :class="`${props.themeSafe ? 'theme-safe' : ''}`"
+        v-if="props.src"
+        :src="props.src"
+        width="80"
+        height="80"
+      />
+      <div class="content-box-content">
+        <slot>
+          <p>Imagine leaving a content box empty</p>
+        </slot>
+      </div>
     </div>
     <span class="content-box-overlay" v-if="span" @click="spanClicked">
       <a v-if="displayLink" :href="linkToDisplay" @click.prevent="linkClicked">
@@ -46,7 +48,8 @@
       type: null,
       default: undefined
     },
-    themeSafe: Boolean
+    themeSafe: Boolean,
+    nowrap: Boolean
   });
 
   const displayLink = computed(() => {
@@ -96,16 +99,19 @@
 
 <style>
   .content-box {
-    display: grid;
     position: relative;
-    grid: auto 1fr / 80px 4fr;
-    gap: 5px;
     padding: 15px;
     border-radius: 10px;
     background-color: var(--ui-background);
     border: 1px solid var(--ui-border);
     transition: background-color 0.25s, border 0.25s;
     overflow-y: hidden;
+  }
+
+  .content-box-inner {
+    display: grid;
+    grid: auto 1fr / 80px 4fr;
+    gap: 5px;
   }
 
   .content-box.disabled {
@@ -115,6 +121,8 @@
 
   .content-box.no-select {
     user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
   }
 
   .content-box:hover:not(.disabled),
@@ -130,7 +138,7 @@
     outline: none;
   }
 
-  .content-box .title {
+  .content-box > .content-box-inner .title {
     justify-self: left;
     text-align: left;
     grid-row: 1 / span 1;
@@ -138,41 +146,50 @@
     margin: 0;
   }
 
-  .content-box > img,
-  .content-box > div.lds-default {
+  .content-box > .content-box-inner > img,
+  .content-box > .content-box-inner > div.lds-default {
     align-self: center;
     justify-self: left;
     grid-row: 2 / span 2;
     grid-column: 1 / 2;
     user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
     transition: filter 0.25s;
     margin-bottom: 5px;
   }
 
-  html.dark-theme .content-box > img.theme-safe {
+  html.dark-theme .content-box > .content-box-inner > img.theme-safe {
     filter: invert(100%);
   }
 
-  .content-box .content-box-content {
+  .content-box > .content-box-inner .content-box-content {
     grid-row: 2 / span 2;
     grid-column: 1 / span 3;
     text-align: left;
     justify-self: left;
     align-self: center;
     margin-bottom: 5px;
+    padding-right: 15px;
     font-family: var(--font-body);
     font-size: 18px;
     overflow: auto hidden;
   }
 
-  .content-box .content-box-content p,
-  .content-box .content-box-content code {
+  .content-box > .content-box-inner .content-box-content p,
+  .content-box > .content-box-inner .content-box-content code,
+  .content-box > .content-box-inner .content-box-content {
     margin: 0;
     line-height: 1.5;
   }
 
-  .content-box > img + .content-box-content,
-  .content-box > div.lds-default + .content-box-content {
+  .content-box > .content-box-inner .content-box-content code,
+  .content-box.nowrap > .content-box-inner .content-box-content {
+    white-space: nowrap;
+  }
+
+  .content-box > .content-box-inner > img + .content-box-content,
+  .content-box > .content-box-inner > div.lds-default + .content-box-content {
     grid-column: 2 / span 3;
     margin-left: 5px;
   }
