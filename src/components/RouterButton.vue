@@ -34,7 +34,7 @@ async function navigate() {
 </script>
 
 <style>
-.quick-action-buttons-container {
+.quick-action-buttons-container a.router-button-link {
   margin-left: 5px;
   margin-right: 5px;
 }
