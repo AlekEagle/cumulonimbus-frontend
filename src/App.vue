@@ -661,6 +661,7 @@
     --font-heading: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow',
       Arial, sans-serif;
     --font-body: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-code: 'Source Code Pro', monospace;
   }
 
   html.dark-theme {
@@ -790,6 +791,7 @@
   }
 
   code {
+    font-family: var(--font-code);
     padding: 2px;
     background-color: var(--code-background);
     border-radius: 4px;
