@@ -32,3 +32,17 @@
     await router.push(props.to);
   }
 </script>
+
+<style>
+  .quick-action-buttons-container {
+    margin-left: 5px;
+    margin-right: 5px;s
+  }
+
+  a.router-button-link {
+    margin: 5px 0;
+  }
+
+  a.router-button-link button {
+    margin: 0;
+  }
