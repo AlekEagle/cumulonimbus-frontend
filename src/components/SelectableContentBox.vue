@@ -66,6 +66,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
+import { useRouter } from "vue-router";
 import "./ContentBox.vue";
 
 const emit = defineEmits<{
@@ -73,22 +74,23 @@ const emit = defineEmits<{
 }>();
 
 const props = defineProps({
-  title: {
-    type: String,
-    default: "Imagine leaving the title empty",
-  },
-  src: {
-    type: String,
-    default: undefined,
-  },
-  selecting: Boolean,
-  selected: Boolean,
-  themeSafe: Boolean,
-  to: {
-    type: String,
-    default: undefined,
-  },
-});
+    title: {
+      type: String,
+      default: "Imagine leaving the title empty",
+    },
+    src: {
+      type: String,
+      default: undefined,
+    },
+    selecting: Boolean,
+    selected: Boolean,
+    themeSafe: Boolean,
+    to: {
+      type: String,
+      default: undefined,
+    },
+  }),
+  router = useRouter();
 
 const location = computed(() => {
   return props.to
