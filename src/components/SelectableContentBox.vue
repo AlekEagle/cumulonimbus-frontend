@@ -97,7 +97,7 @@ const location = computed(() => {
 });
 
 async function spanClicked() {
-  if (!props.selecting || location.value) return;
+  if (!props.selecting && location.value) return;
   emit("click");
 }
 
