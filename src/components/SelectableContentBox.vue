@@ -93,11 +93,7 @@ const props = defineProps({
   router = useRouter();
 
 const location = computed(() => {
-  return props.to
-    ? router.resolve({
-        path: props.to,
-      })
-    : null;
+  return props.to ? router.resolve(props.to) : null;
 });
 
 async function spanClicked() {
