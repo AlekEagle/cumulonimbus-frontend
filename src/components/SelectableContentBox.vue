@@ -106,7 +106,7 @@ async function spanClicked() {
 }
 
 async function linkClicked() {
-  if (props.selecting) return;
+  if (props.selecting || !location.value) return;
   await router.push(location.value);
 }
 </script>
