@@ -21,6 +21,7 @@
   position: relative;
   width: 80px;
   height: 80px;
+  cursor: progress;
 }
 .lds-default div {
   position: absolute;
