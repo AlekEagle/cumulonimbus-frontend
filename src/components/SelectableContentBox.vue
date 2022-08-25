@@ -1,5 +1,5 @@
 <template>
-  <div class="content-box no-select">
+  <div class="content-box no-select click-target" @click="spanClicked">
     <div class="content-box-inner">
       <h2 class="title" v-text="props.title" />
       <template v-if="!props.selected">
@@ -25,9 +25,6 @@
         Click me to select or deselect this item.
       </div>
     </div>
-    <span class="content-box-overlay" @click="spanClicked">
-      <div />
-    </span>
   </div>
 </template>
 

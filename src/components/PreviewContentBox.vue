@@ -1,5 +1,11 @@
 <template>
-  <div class="content-box no-select" v-intersection-observer="onInView">
+  <div
+    class="content-box no-select click-target"
+    v-intersection-observer="onInView"
+    :href="location.href"
+    v-if="selecting"
+    @click="spanClicked"
+  >
     <div class="content-box-inner">
       <h3 class="title" v-text="props.file.filename" />
       <template v-if="!props.selected">
@@ -26,12 +32,41 @@
         Click me to select or deselect this file.
       </div>
     </div>
-    <span class="content-box-overlay" @click="spanClicked">
-      <a :href="location.href" @click.prevent="linkClicked">
-        <div />
-      </a>
-    </span>
   </div>
+  <a
+    class="content-box no-select"
+    v-intersection-observer="onInView"
+    :href="location.href"
+    @click.prevent="linkClicked"
+    v-else
+  >
+    <div class="content-box-inner">
+      <h3 class="title" v-text="props.file.filename" />
+      <template v-if="!props.selected">
+        <img
+          :class="`${noPreview ? 'theme-safe' : ''}`"
+          v-if="imgBlobSrc"
+          :src="imgBlobSrc"
+          width="80"
+          height="80"
+        />
+        <Loading v-else />
+      </template>
+      <img
+        v-else
+        class="theme-safe"
+        src="@/assets/images/checkmark.svg"
+        width="80"
+        height="80"
+      />
+      <div class="content-box-content" v-if="!props.selecting">
+        Click here to see more information about {{ props.file.filename }}.
+      </div>
+      <div class="content-box-content" v-else>
+        Click me to select or deselect this file.
+      </div>
+    </div>
+  </a>
 </template>
 
 <script lang="ts" setup>

@@ -27,7 +27,7 @@
       </button>
     </template>
     <template v-else>
-      <button @click="selecting = false" :disabled="domains.loading">
+      <button @click="cancelSelection" :disabled="domains.loading">
         Cancel
       </button>
       <button
@@ -487,5 +487,10 @@
       console.error(e);
       toast.clientError();
     }
+  }
+
+  function cancelSelection() {
+    selected.value = [];
+    selecting.value = false;
   }
 </script>

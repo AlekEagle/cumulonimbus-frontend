@@ -31,7 +31,7 @@
       Bulk Delete
     </button>
     <template v-else>
-      <button @click="selecting = false" :disabled="files.loading">
+      <button @click="cancelSelection" :disabled="files.loading">
         Cancel
       </button>
       <button @click="displayModal" :disabled="files.loading">
@@ -358,5 +358,10 @@
       console.error(e);
       toast.clientError();
     }
+  }
+
+  function cancelSelection() {
+    selecting.value = false;
+    selected.value = [];
   }
 </script>

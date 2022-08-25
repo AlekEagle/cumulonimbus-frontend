@@ -21,7 +21,11 @@
     </button>
     <button
       @click="onShare"
-      :disabled="(!shareIsSupported && !clipboardIsSupported) || (file.loading || file.errored)"
+      :disabled="
+        (!shareIsSupported && !clipboardIsSupported) ||
+        file.loading ||
+        file.errored
+      "
       >Share</button
     >
     <button @click="download" :disabled="file.loading || file.errored">
@@ -37,6 +41,7 @@
             :src="fileIcon"
             :to="fileUrl"
             theme-safe
+            nowrap
           >
             <p>
               Uploaded at:

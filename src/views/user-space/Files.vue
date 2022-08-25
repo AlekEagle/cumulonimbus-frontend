@@ -28,7 +28,7 @@
       Bulk Delete
     </button>
     <template v-else>
-      <button @click="selecting = false" :disabled="files.loading">
+      <button @click="cancelSelection" :disabled="files.loading">
         Cancel
       </button>
       <button @click="displayModal" :disabled="files.loading">
@@ -245,5 +245,10 @@
     } else {
       selected.value.push(file.filename);
     }
+  }
+
+  function cancelSelection() {
+    selecting.value = false;
+    selected.value = [];
   }
 </script>

@@ -1,8 +1,10 @@
 <template>
   <div
     :class="`content-box${props.disabled ? ' disabled' : ''}${
-      span ? ' no-select' : ''
+      isClickTarget ? ' click-target' : ''
     }${props.nowrap ? ' nowrap' : ''}`"
+    v-if="!displayLink"
+    @click="contentBoxClicked"
   >
     <div class="content-box-inner">
       <h3 class="title" v-text="props.title" />
@@ -19,12 +21,31 @@
         </slot>
       </div>
     </div>
-    <span class="content-box-overlay" v-if="span" @click="spanClicked">
-      <a v-if="displayLink" :href="linkToDisplay" @click.prevent="linkClicked">
-        <div />
-      </a>
-    </span>
   </div>
+  <a
+    v-else
+    :class="`content-box${props.disabled ? ' disabled' : ''}${
+      isClickTarget ? ' click-target' : ''
+    }${props.nowrap ? ' nowrap' : ''}`"
+    :href="linkToDisplay"
+    @click.prevent="linkClicked"
+  >
+    <div class="content-box-inner">
+      <h3 class="title" v-text="props.title" />
+      <img
+        :class="`${props.themeSafe ? 'theme-safe' : ''}`"
+        v-if="props.src"
+        :src="props.src"
+        width="80"
+        height="80"
+      />
+      <div class="content-box-content">
+        <slot>
+          <p>Imagine leaving a content box empty</p>
+        </slot>
+      </div>
+    </div>
+  </a>
 </template>
 
 <script lang="ts" setup>
@@ -66,7 +87,7 @@
     }
   });
 
-  const span = computed(() => {
+  const isClickTarget = computed(() => {
     return (
       !!getCurrentInstance()?.vnode?.props?.onClick ||
       displayLink.value ||
@@ -91,7 +112,7 @@
     }
   }
 
-  async function spanClicked() {
+  async function contentBoxClicked() {
     if (props.disabled) return;
     emit('click');
   }
@@ -117,12 +138,17 @@
   .content-box.disabled {
     background-color: var(--ui-background-disabled);
     border: 1px solid var(--ui-border-disabled);
+    cursor: not-allowed;
   }
 
-  .content-box.no-select {
+  .content-box.click-target {
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
+  }
+
+  .content-box.click-target:not(.disabled) {
+    cursor: pointer;
   }
 
   .content-box:hover:not(.disabled),
@@ -144,6 +170,11 @@
     grid-row: 1 / span 1;
     grid-column: 1 / span 2;
     margin: 0;
+    color: var(--ui-foreground);
+  }
+
+  .content-box.disabled > .content-box-inner .title {
+    color: var(--ui-foreground-disabled);
   }
 
   .content-box > .content-box-inner > img,
@@ -174,6 +205,11 @@
     font-family: var(--font-body);
     font-size: 18px;
     overflow: auto hidden;
+    color: var(--ui-foreground);
+  }
+
+  .content-box.disabled > .content-box-inner .content-box-content {
+    color: var(--ui-foreground-disabled);
   }
 
   .content-box > .content-box-inner .content-box-content p,
@@ -192,29 +228,5 @@
   .content-box > .content-box-inner > div.lds-default + .content-box-content {
     grid-column: 2 / span 3;
     margin-left: 5px;
-  }
-
-  .content-box .content-box-overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    border-radius: 10px;
-    transition: backdrop-filter 0.25s, background-color 0.25s;
-    cursor: pointer;
-    z-index: 1;
-    background-image: url('@/assets/images/empty.gif');
-  }
-
-  .content-box.disabled .content-box-overlay {
-    backdrop-filter: blur(2px);
-    cursor: not-allowed;
-  }
-
-  .content-box .content-box-overlay a div,
-  .content-box .content-box-overlay div {
-    width: 100%;
-    height: 100%;
   }
 </style>
