@@ -34,7 +34,7 @@
     v-else
     class="content-box no-select click-target"
     @click.prevent="linkClicked"
-    :href="location.value"
+    :href="location.href"
   >
     <div class="content-box-inner">
       <h2 class="title" v-text="props.title" />
