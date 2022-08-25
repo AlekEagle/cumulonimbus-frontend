@@ -56,7 +56,7 @@
               :selected="selected.includes(user.id)"
               :src="profileIcon"
               theme-safe
-              :to="`/staff/user?id=${user.id}`"
+              :to="{ path: '/staff/user', query: { id: user.id } }"
               @click="onUserClick(user)"
             >
               {{ user.id }}

@@ -86,7 +86,7 @@ const props = defineProps({
     selected: Boolean,
     themeSafe: Boolean,
     to: {
-      type: String,
+      type: null,
       default: undefined,
     },
   }),
