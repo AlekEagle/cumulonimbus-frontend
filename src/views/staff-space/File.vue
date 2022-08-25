@@ -21,9 +21,14 @@
     </button>
     <button
       @click="onShare"
-      :disabled="(!shareIsSupported && !clipboardIsSupported) || (file.loading || file.errored)"
-      >Share</button
+      :disabled="
+        (!shareIsSupported && !clipboardIsSupported) ||
+        file.loading ||
+        file.errored
+      "
     >
+      Share
+    </button>
     <button @click="download" :disabled="file.loading || file.errored">
       Download
     </button>
@@ -37,6 +42,7 @@
             :src="fileIcon"
             :to="fileUrl"
             theme-safe
+            nowrap
           >
             <p>
               Uploaded at:
@@ -46,7 +52,7 @@
               Size:
               <code>{{ size(file.data.size) }}</code>
             </p>
-            <p> Click me to open the file in a new tab. </p>
+            <p>Click me to open the file in a new tab.</p>
           </ContentBox>
         </template>
         <LoadingBlurb v-else />
@@ -60,10 +66,9 @@
   </div>
   <div v-else>
     <h1>Offline</h1>
-    <h2
-      >You are currently offline. Please connect to the internet to
-      continue.</h2
-    >
+    <h2>
+      You are currently offline. Please connect to the internet to continue.
+    </h2>
   </div>
   <template v-if="!file.loading">
     <template v-if="!file.errored">
@@ -92,206 +97,203 @@
 </template>
 
 <script lang="ts" setup>
-  import BackButton from '@/components/BackButton.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import toDateString from '@/utils/dateString';
-  import size from '@/utils/size';
-  import toLogin from '@/utils/toLogin';
-  import backWithFallback from '@/utils/routerBackWithFallback';
-  import { ref, watch, onMounted, computed } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { fileStore } from '@/stores/staff-space/file';
-  import { filesStore } from '@/stores/staff-space/files';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
-  import { useOnline, useClipboard, useShare } from '@vueuse/core';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import fileIcon from '@/assets/images/file.svg';
-  import profileIcon from '@/assets/images/profile.svg';
+import BackButton from "@/components/BackButton.vue";
+import ContentBox from "@/components/ContentBox.vue";
+import LoadingBlurb from "@/components/LoadingBlurb.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import toDateString from "@/utils/dateString";
+import size from "@/utils/size";
+import toLogin from "@/utils/toLogin";
+import backWithFallback from "@/utils/routerBackWithFallback";
+import { ref, watch, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+import { fileStore } from "@/stores/staff-space/file";
+import { filesStore } from "@/stores/staff-space/files";
+import { toastStore } from "@/stores/toast";
+import { userStore } from "@/stores/user";
+import { useOnline, useClipboard, useShare } from "@vueuse/core";
+import Cumulonimbus from "cumulonimbus-wrapper";
+import fileIcon from "@/assets/images/file.svg";
+import profileIcon from "@/assets/images/profile.svg";
 
-  const toast = toastStore(),
-    user = userStore(),
-    file = fileStore(),
-    files = filesStore(),
-    router = useRouter(),
-    online = useOnline(),
-    fileUrl = computed(() => {
-      if (file.data) {
-        if (import.meta.env.MODE === 'prod_preview')
-          return `https://alekeagle.me/${file.data.filename}`;
-        else
-          return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
-      }
-      return '';
-    }),
-    confirmModal = ref<typeof ConfirmModal>(),
-    {
-      isSupported: clipboardIsSupported,
-      copy,
-      copied,
-      text: clipboardText
-    } = useClipboard(),
-    { share, isSupported: shareIsSupported } = useShare();
-
-  async function fetchFile() {
-    if (!online.value) {
-      toast.connectivity();
-      return;
+const toast = toastStore(),
+  user = userStore(),
+  file = fileStore(),
+  files = filesStore(),
+  router = useRouter(),
+  online = useOnline(),
+  fileUrl = computed(() => {
+    if (file.data) {
+      if (import.meta.env.MODE === "prod_preview")
+        return `https://alekeagle.me/${file.data.filename}`;
+      else
+        return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
     }
-    try {
-      const status = await file.getFile(
-        router.currentRoute.value.query.id as string
-      );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout(true);
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_FILE_ERROR':
-            toast.show('This file does not exist.');
-            await files.getFiles(files.page);
-            await backWithFallback(router, '/staff/files');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
-        }
-      } else if (!status) {
-        toast.clientError();
+    return "";
+  }),
+  confirmModal = ref<typeof ConfirmModal>(),
+  {
+    isSupported: clipboardIsSupported,
+    copy,
+    copied,
+    text: clipboardText,
+  } = useClipboard(),
+  { share, isSupported: shareIsSupported } = useShare();
+
+async function fetchFile() {
+  if (!online.value) {
+    toast.connectivity();
+    return;
+  }
+  try {
+    const status = await file.getFile(
+      router.currentRoute.value.query.id as string
+    );
+    if (status instanceof Cumulonimbus.ResponseError) {
+      switch (status.code) {
+        case "BANNED_ERROR":
+          toast.banned();
+          user.logout(true);
+          router.push("/");
+          break;
+        case "RATELIMITED_ERROR":
+          toast.rateLimit(status);
+          break;
+        case "INVALID_SESSION_ERROR":
+          toast.session();
+          await toLogin(router);
+          break;
+        case "INVALID_FILE_ERROR":
+          toast.show("This file does not exist.");
+          await files.getFiles(files.page);
+          await backWithFallback(router, "/staff/files");
+          break;
+        case "INSUFFICIENT_PERMISSIONS_ERROR":
+          await user.getSelf();
+          router.replace("/");
+          break;
+        case "INTERNAL_ERROR":
+          toast.serverError();
+          break;
+        case "GENERIC_ERROR":
+        default:
+          console.error(status);
+          toast.clientError();
+          break;
       }
-    } catch (e) {
-      console.error(e);
+    } else if (!status) {
       toast.clientError();
     }
+  } catch (e) {
+    console.error(e);
+    toast.clientError();
   }
+}
 
-  onMounted(async () => {
-    if (
-      !file.data ||
-      file.data.filename !== router.currentRoute.value.query.id
-    ) {
-      if (!online.value) {
-        const unwatchOnline = watch(online, async () => {
-          if (online.value) {
-            fetchFile();
-            unwatchOnline();
-          }
-        });
-        return;
-      }
-      fetchFile();
-    }
-  });
-
-  async function deleteFile(choice: boolean) {
-    if (!choice) {
-      confirmModal.value!.hide();
-      return;
-    }
+onMounted(async () => {
+  if (!file.data || file.data.filename !== router.currentRoute.value.query.id) {
     if (!online.value) {
-      toast.connectivity();
+      const unwatchOnline = watch(online, async () => {
+        if (online.value) {
+          fetchFile();
+          unwatchOnline();
+        }
+      });
       return;
     }
-    try {
-      const status = await file.deleteFile();
-      if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout(true);
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_FILE_ERROR':
-            toast.show('This file does not exist.');
-            await files.getFiles(files.page);
-            await backWithFallback(router, '/staff/files');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
-        }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('File deleted.');
-        await confirmModal.value!.hide();
-        await files.getFiles(files.page);
-        await backWithFallback(router, '/staff/files');
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    fetchFile();
   }
+});
 
-  async function onShare() {
-    if (shareIsSupported) {
-      await share({
-        title: 'Cumulonimbus',
-        text: 'Check out this file!',
-        url: `https://${user.user?.subdomain ? `${user.user.subdomain}.` : ''}${
+async function deleteFile(choice: boolean) {
+  if (!choice) {
+    confirmModal.value!.hide();
+    return;
+  }
+  if (!online.value) {
+    toast.connectivity();
+    return;
+  }
+  try {
+    const status = await file.deleteFile();
+    if (status instanceof Cumulonimbus.ResponseError) {
+      switch (status.code) {
+        case "BANNED_ERROR":
+          toast.banned();
+          user.logout(true);
+          router.push("/");
+          break;
+        case "RATELIMITED_ERROR":
+          toast.rateLimit(status);
+          break;
+        case "INVALID_SESSION_ERROR":
+          toast.session();
+          await toLogin(router);
+          break;
+        case "INVALID_FILE_ERROR":
+          toast.show("This file does not exist.");
+          await files.getFiles(files.page);
+          await backWithFallback(router, "/staff/files");
+          break;
+        case "INSUFFICIENT_PERMISSIONS_ERROR":
+          await user.getSelf();
+          router.replace("/");
+          break;
+        case "INTERNAL_ERROR":
+          toast.serverError();
+          break;
+        case "GENERIC_ERROR":
+        default:
+          console.error(status);
+          toast.clientError();
+          break;
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("File deleted.");
+      await confirmModal.value!.hide();
+      await files.getFiles(files.page);
+      await backWithFallback(router, "/staff/files");
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function onShare() {
+  if (shareIsSupported) {
+    await share({
+      title: "Cumulonimbus",
+      text: "Check out this file!",
+      url: `https://${user.user?.subdomain ? `${user.user.subdomain}.` : ""}${
+        user.user?.domain
+      }/${file.data!.filename}`,
+    });
+  } else {
+    if (clipboardIsSupported) {
+      await copy(
+        `https://${user.user?.subdomain ? `${user.user.subdomain}.` : ""}${
           user.user?.domain
         }/${file.data!.filename}`
-      });
+      );
+      toast.show("Copied to clipboard.");
     } else {
-      if (clipboardIsSupported) {
-        await copy(
-          `https://${user.user?.subdomain ? `${user.user.subdomain}.` : ''}${
-            user.user?.domain
-          }/${file.data!.filename}`
-        );
-        toast.show('Copied to clipboard.');
-      } else {
-        toast.show('Clipboard not supported.');
-      }
+      toast.show("Clipboard not supported.");
     }
   }
+}
 
-  function download() {
-    if (!online.value) {
-      toast.connectivity();
-      return;
-    }
-    if (file.data) {
-      const a = document.createElement('a');
-      a.href = fileUrl.value;
-      a.download = file.data.filename;
-      a.click();
-    }
+function download() {
+  if (!online.value) {
+    toast.connectivity();
+    return;
   }
+  if (file.data) {
+    const a = document.createElement("a");
+    a.href = fileUrl.value;
+    a.download = file.data.filename;
+    a.click();
+  }
+}
 </script>

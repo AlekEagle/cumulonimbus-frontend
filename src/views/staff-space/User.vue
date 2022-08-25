@@ -19,7 +19,7 @@
     <template v-if="!otherUser.loading">
       <template v-if="!otherUser.errored">
         <template v-if="otherUser.data">
-          <ContentBox :title="otherUser.data.username">
+          <ContentBox :title="otherUser.data.username" nowrap>
             <p>
               ID: <code>{{ otherUser.data.id }}</code>
             </p>
