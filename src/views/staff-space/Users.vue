@@ -20,7 +20,7 @@
   </template>
 
   <div class="quick-action-buttons-container">
-    <BackButton fallback="/dashboard" />
+    <BackButton fallback="/staff" />
     <button
       v-if="!selecting"
       @click="selecting = true"
