@@ -22,7 +22,7 @@
     <h2>Alek can't count the files because you are offline :(</h2>
   </template>
   <div class="quick-action-buttons-container">
-    <BackButton fallback="/dashboard" />
+    <BackButton fallback="/staff" />
     <button
       v-if="!selecting"
       @click="selecting = true"
