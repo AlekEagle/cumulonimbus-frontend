@@ -46,6 +46,15 @@ const messages = [
   "/gamemode creative",
   "Mining diamonds",
   "Minting NFTs",
+  "Never gonna give you up, never gonna let you down",
+  "Wasting your time",
+  "Changing the future",
+  "Writing your horoscope",
+  "Doomscrolling Twitter",
+  "Selling your soul",
+  "Reading your mind",
+  "Deleting your DVR",
+  "L + Ratio",
 ];
 
 const message = ref<string>();
