@@ -12,7 +12,7 @@
     <h2>You're offline. Please connect to the internet to continue.</h2>
   </template>
   <div class="quick-action-buttons-container">
-    <BackButton fallback="/dashboard/files" />
+    <BackButton fallback="/staff/files" />
     <button
       @click="confirmModal!.show()"
       :disabled="file.loading || file.errored"
