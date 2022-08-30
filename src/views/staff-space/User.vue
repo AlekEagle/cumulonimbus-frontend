@@ -12,7 +12,7 @@
     <h2>You're offline. Please connect to the internet to continue.</h2>
   </template>
   <div class="quick-action-buttons-container">
-    <BackButton fallback="/dashboard/users" />
+    <BackButton fallback="/staff/users" />
   </div>
 
   <div class="content-box-container" v-if="online || otherUser.data">
