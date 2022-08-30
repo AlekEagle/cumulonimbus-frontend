@@ -14,7 +14,7 @@
   </template>
   <h2 v-else>Alek can't see who is logged in because you're offline :(</h2>
   <div class="quick-action-buttons-container">
-    <BackButton fallback="/dashboard" />
+    <BackButton fallback="/staff/users" />
     <button
       v-if="!selecting"
       @click="selecting = true"
