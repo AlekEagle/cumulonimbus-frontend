@@ -21,7 +21,7 @@
     <h2>Alek can't read the setup guides because you are offline :(</h2>
   </template>
   <div class="quick-action-buttons-container">
-    <BackButton fallback="/dashboard" />
+    <BackButton fallback="/staff" />
     <template v-if="!selecting">
       <button @click="selecting = true" :disabled="instructions.loading">
         Bulk Delete
