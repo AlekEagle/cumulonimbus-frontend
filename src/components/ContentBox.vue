@@ -170,6 +170,7 @@
     grid-row: 1 / span 1;
     grid-column: 1 / span 2;
     margin: 0;
+    transition: color 0.25s;
     color: var(--ui-foreground);
   }
 
@@ -205,6 +206,7 @@
     font-family: var(--font-body);
     font-size: 18px;
     overflow: auto hidden;
+    transition: color 0.25s;
     color: var(--ui-foreground);
   }
 
