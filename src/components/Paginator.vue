@@ -125,14 +125,6 @@ onMounted(() => {
       });
       return;
     }
-    if (Number(router.currentRoute.value.query.page) > props.max + 1) {
-      router.replace({
-        query: {
-          ...router.currentRoute.value.query,
-          page: props.max + 1 + "",
-        },
-      });
-    }
     emit("update:modelValue", Number(router.currentRoute.value.query.page) - 1);
   }
 });
