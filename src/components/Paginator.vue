@@ -94,9 +94,9 @@ function onInputChange(event: Event) {
     input.value = props.modelValue + 1 + "";
     return;
   }
-  if (Number(input.value) <= props.min) {
+  if (Number(input.value) <= props.min + 1) {
     emit("update:modelValue", props.min);
-  } else if (Number(input.value) >= props.max) {
+  } else if (Number(input.value) >= props.max + 1) {
     emit("update:modelValue", props.max);
   } else {
     emit("update:modelValue", Number(input.value) - 1);
