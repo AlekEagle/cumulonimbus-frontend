@@ -106,12 +106,7 @@ const menuItems = computed(() => {
       : [
           {
             name: "Login",
-            path: "/auth?redirect=/dashboard#login",
-            external: false,
-          },
-          {
-            name: "Register",
-            path: "/auth?redirect=/dashboard#register",
+            path: "/auth",
             external: false,
           },
         ]),
