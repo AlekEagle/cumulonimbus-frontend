@@ -7,19 +7,14 @@
       </div>
     </RouterLink>
     <nav :class="mobileMenu ? 'active' : ''">
-      <div
-        @click="mobileMenu = !mobileMenu"
-        :tabindex="showHamburger ? '0' : '-1'"
-      >
+      <div @click="mobileMenu = !mobileMenu">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
       </div>
       <ul @click.self="mobileMenu = false">
         <li>
-          <ThemeManager
-            :no-tab-index="!showHamburger || (showHamburger && mobileMenu)"
-          />
+          <ThemeManager :no-tab-index="mobileMenu" />
         </li>
         <li
           v-for="(item, index) in menuItems"
@@ -30,9 +25,7 @@
             v-if="!item.external"
             :to="item.path"
             v-text="item.name"
-            :tabindex="
-              !showHamburger || (showHamburger && mobileMenu) ? '0' : '-1'
-            "
+            :tabindex="mobileMenu ? '0' : '-1'"
           />
           <a
             v-else
@@ -40,9 +33,7 @@
             v-text="item.name"
             rel="noopener"
             target="_blank"
-            :tabindex="
-              !showHamburger || (showHamburger && mobileMenu) ? '0' : '-1'
-            "
+            :tabindex="mobileMenu ? '0' : '-1'"
           />
         </li>
       </ul>
@@ -54,19 +45,18 @@
   </main>
   <Modal ref="ptbWarningModal" title="Warning">
     <template v-slot:default>
-      This is the preview of the v4 frontend of Cumulonimbus, it may be
-      unstable, there are features that are not yet implemented, and it will be
-      revised in the future.
+      This is the preview of frontend of Cumulonimbus, it may be unstable and
+      will be revised in the future.
       <br />
       <br />
       If you are aware of the risks of using this preview, please click the
       button below to continue. Otherwise, you can click the other button to be
       taken to the stable version. If you don't know what this means, please go
-      to the stable version. You will only be shown this message once if you
+      to the stable version. You will not see this message again if you
       continue.
     </template>
     <template v-slot:footer>
-      <button @click="acceptPtbhWarning">Continue</button>
+      <button @click="acceptPtbWarning">Continue</button>
 
       <button @click="gotoStable">Go to stable version</button>
     </template>
@@ -77,1080 +67,1077 @@
 </template>
 
 <script lang="ts" setup>
-  import ThemeManager from '@/components/ThemeManager.vue';
-  import { userStore } from './stores/user';
-  import { ref, onMounted, watch, computed } from 'vue';
-  import { toastStore } from './stores/toast';
-  import { useRouter, useRoute } from 'vue-router';
-  import { useNetwork, useMediaQuery } from '@vueuse/core';
-  import { ptbStore } from '@/stores/ptb';
-  import Modal from '@/components/Modal.vue';
+import ThemeManager from "@/components/ThemeManager.vue";
+import { userStore } from "./stores/user";
+import { ref, onMounted, watch, computed } from "vue";
+import { toastStore } from "./stores/toast";
+import { useRouter, useRoute } from "vue-router";
+import { useNetwork, useMediaQuery } from "@vueuse/core";
+import { ptbStore } from "@/stores/ptb";
+import Modal from "@/components/Modal.vue";
 
-  const user = userStore();
-  const toast = toastStore();
-  const router = useRouter();
-  const route = useRoute();
-  const { isOnline: online } = useNetwork();
-  const ptb = ptbStore();
-  const host = window.location.host;
-  const showHamburger = useMediaQuery('only screen and (max-width: 840px)');
-  const menuItems = [
-    {
-      name: 'Home',
-      path: '/',
-      external: false
-    },
-    {
-      name: 'Dashboard',
-      path: '/dashboard',
-      external: false
-    },
-    {
-      name: 'Documentation',
-      path: `https://docs.${host}/`,
-      external: true
-    },
-    {
-      name: 'Discord',
-      path: 'https://alekeagle.com/d',
-      external: true
-    }
-  ];
-  const mobileMenu = ref(false);
-  const ptbWarningModal = ref<typeof Modal>();
+const user = userStore();
+const toast = toastStore();
+const router = useRouter();
+const route = useRoute();
+const { isOnline: online } = useNetwork();
+const ptb = ptbStore();
+const host = window.location.host;
+const menuItems = [
+  {
+    name: "Home",
+    path: "/",
+    external: false,
+  },
+  {
+    name: "Dashboard",
+    path: "/dashboard",
+    external: false,
+  },
+  {
+    name: "Documentation",
+    path: `https://docs.${host}/`,
+    external: true,
+  },
+  {
+    name: "Discord",
+    path: "https://alekeagle.com/d",
+    external: true,
+  },
+];
+const mobileMenu = ref(false);
+const ptbWarningModal = ref<typeof Modal>();
 
-  watch(mobileMenu, val => {
-    if (val) {
-      document.body.classList.add('no-scroll');
-    } else {
-      document.body.classList.remove('no-scroll');
-    }
-  });
+watch(mobileMenu, (val) => {
+  if (val) {
+    document.body.classList.add("no-scroll");
+  } else {
+    document.body.classList.remove("no-scroll");
+  }
+});
 
-  watch(online, val => {
-    if (!val) {
-      toast.show(
-        'You just went offline! Some things may not work as expected.'
+watch(online, (val) => {
+  if (!val) {
+    toast.show("You just went offline! Some things may not work as expected.");
+  } else {
+    toast.show(
+      "You just went online! Everything should be working as expected."
+    );
+  }
+});
+
+// use the beforeEach hook on the router to check if the user is logged in when navigating to a route that requires authentication
+router.beforeEach(async (to, from, next) => {
+  // is the route the user is trying to navigate to the soft 404 page?
+  if (to.name === "404") {
+    // don't do anything
+    next();
+  }
+  // is the route the user is trying to navigate to the auth page?
+  else if (to.name === "auth") {
+    // check if the user is already logged in
+    if (user.loggedIn) {
+      // if so, redirect to wherever the redirect query param is set to or to the dashboard
+      next(
+        route.query.redirect ? (route.query.redirect as string) : "/dashboard"
       );
     } else {
-      toast.show(
-        'You just went online! Everything should be working as expected.'
-      );
-    }
-  });
-
-  // use the beforeEach hook on the router to check if the user is logged in when navigating to a route that requires authentication
-  router.beforeEach(async (to, from, next) => {
-    // is the route the user is trying to navigate to the soft 404 page?
-    if (to.name === '404') {
-      // don't do anything
+      // if not, continue to the auth page
       next();
     }
-    // is the route the user is trying to navigate to the auth page?
-    else if (to.name === 'auth') {
-      // check if the user is already logged in
-      if (user.loggedIn) {
-        // if so, redirect to wherever the redirect query param is set to or to the dashboard
-        next(
-          route.query.redirect ? (route.query.redirect as string) : '/dashboard'
-        );
+  }
+
+  // is the route the user is trying to navigate to a route that requires authentication?
+  else if (to.meta.requiresAuth) {
+    // check if the user is logged in
+    if (user.loggedIn) {
+      // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
+      if (to.meta.requiresStaff) {
+        // if so, check if the user is staff
+        if (user.user!.staff) {
+          // if so, continue to the route
+          next();
+        } else {
+          // if not, redirect to the home page
+          next("/");
+        }
       } else {
-        // if not, continue to the auth page
+        // if not, continue to the route
         next();
       }
-    }
-
-    // is the route the user is trying to navigate to a route that requires authentication?
-    else if (to.meta.requiresAuth) {
-      // check if the user is logged in
-      if (user.loggedIn) {
-        // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
-        if (to.meta.requiresStaff) {
-          // if so, check if the user is staff
-          if (user.user!.staff) {
-            // if so, continue to the route
-            next();
-          } else {
-            // if not, redirect to the home page
-            next('/');
-          }
-        } else {
-          // if not, continue to the route
-          next();
-        }
-      } else {
-        // if not, redirect to the auth page with the redirect query param set to the current route
-        next({
-          name: 'auth',
-          hash: '#login',
-          query: {
-            redirect: to.fullPath
-          }
-        });
-      }
     } else {
-      // if not, continue to the route
-      next();
+      // if not, redirect to the auth page with the redirect query param set to the current route
+      next({
+        name: "auth",
+        hash: "#login",
+        query: {
+          redirect: to.fullPath,
+        },
+      });
     }
-  });
-
-  function acceptPtbhWarning() {
-    ptb.shownWarning = true;
-    ptbWarningModal.value!.hide();
+  } else {
+    // if not, continue to the route
+    next();
   }
+});
 
-  function gotoStable() {
-    window.location.href = 'https://alekeagle.me';
+function acceptPtbWarning() {
+  ptb.shownWarning = true;
+  ptbWarningModal.value!.hide();
+}
+
+function gotoStable() {
+  window.location.href = "https://alekeagle.me";
+}
+
+onMounted(() => {
+  if (ptb.isPtb && !ptb.shownWarning) ptbWarningModal.value!.show();
+  // check if the user is on the soft 404 page
+  if (route.name === "404") {
+    // if so, do nothing
+    return;
   }
-
-  onMounted(() => {
-    if (ptb.isPtb && !ptb.shownWarning) ptbWarningModal.value!.show();
-    // check if the user is on the soft 404 page
-    if (route.name === '404') {
-      // if so, do nothing
+  // check if the user is on the auth page
+  if (route.name === "auth") {
+    // if so, check if the user is already logged in
+    if (user.loggedIn) {
+      // if so, redirect to wherever the redirect query param is set to or to the dashboard
+      router.replace(
+        route.query.redirect ? (route.query.redirect as string) : "/dashboard"
+      );
+    } else {
+      // if not, continue to the auth page
       return;
     }
-    // check if the user is on the auth page
-    if (route.name === 'auth') {
-      // if so, check if the user is already logged in
-      if (user.loggedIn) {
-        // if so, redirect to wherever the redirect query param is set to or to the dashboard
-        router.replace(
-          route.query.redirect ? (route.query.redirect as string) : '/dashboard'
-        );
+  }
+
+  // check if the user is on a route that requires authentication
+  if (route.meta.requiresAuth) {
+    // check if the user is logged in
+    if (user.loggedIn) {
+      // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
+      if (route.meta.requiresStaff) {
+        // if so, check if the user is staff
+        if (user.user!.staff) {
+          // if so, continue to the route
+          return;
+        } else {
+          // if not, redirect to the home page
+          router.replace("/");
+        }
       } else {
-        // if not, continue to the auth page
+        // if not, continue to the route
         return;
       }
-    }
-
-    // check if the user is on a route that requires authentication
-    if (route.meta.requiresAuth) {
-      // check if the user is logged in
-      if (user.loggedIn) {
-        // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
-        if (route.meta.requiresStaff) {
-          // if so, check if the user is staff
-          if (user.user!.staff) {
-            // if so, continue to the route
-            return;
-          } else {
-            // if not, redirect to the home page
-            router.replace('/');
-          }
-        } else {
-          // if not, continue to the route
-          return;
-        }
-      } else {
-        // if not, redirect to the auth page with the redirect query param set to the current route
-        router.replace({
-          name: 'auth',
-          hash: '#login',
-          query: {
-            redirect: route.fullPath
-          }
-        });
-      }
     } else {
-      // if not, continue to the route
-      return;
+      // if not, redirect to the auth page with the redirect query param set to the current route
+      router.replace({
+        name: "auth",
+        hash: "#login",
+        query: {
+          redirect: route.fullPath,
+        },
+      });
     }
-  });
+  } else {
+    // if not, continue to the route
+    return;
+  }
+});
 
-  user.restoreClient();
+user.restoreClient();
 </script>
 
 <style>
-  @font-face {
-    font-family: 'Ubuntu';
-    font-style: normal;
-    font-weight: 300;
-    font-display: swap;
-    src: url(@/assets/fonts/Ubuntu/Ubuntu-Light.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Light.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Ubuntu';
-    font-style: italic;
-    font-weight: 300;
-    font-display: swap;
-    src: url(@/assets/fonts/Ubuntu/Ubuntu-LightItalic.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-LightItalic.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Ubuntu';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(@/assets/fonts/Ubuntu/Ubuntu-Regular.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Regular.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Ubuntu';
-    font-style: italic;
-    font-weight: 400;
-    font-display: swap;
-    src: url(@/assets/fonts/Ubuntu/Ubuntu-Italic.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Italic.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Ubuntu';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url(@/assets/fonts/Ubuntu/Ubuntu-Medium.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Medium.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Ubuntu';
-    font-style: italic;
-    font-weight: 500;
-    font-display: swap;
-    src: url(@/assets/fonts/Ubuntu/Ubuntu-MediumItalic.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-MediumItalic.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Ubuntu';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(@/assets/fonts/Ubuntu/Ubuntu-Bold.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Bold.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Ubuntu';
-    font-style: italic;
-    font-weight: 700;
-    font-display: swap;
-    src: url(@/assets/fonts/Ubuntu/Ubuntu-BoldItalic.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-BoldItalic.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 100;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-Thin.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-Thin.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 100;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-ThinItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 100;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-ThinItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 200;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 200;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-LightItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 200;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-LightItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 300;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 300;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-LightItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-LightItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-Regular.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-Regular.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 400;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-Italic.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-Italic.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-Medium.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-Medium.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 500;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-MediumItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-MediumItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-SemiBold.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-SemiBold.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 600;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-SemiBoldItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-SemiBoldItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-Bold.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-Bold.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 700;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-BoldItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-BoldItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-ExtraBold.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-ExtraBold.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 800;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-ExtraBoldItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 800;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-ExtraBoldItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 900;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-Black.ttf) format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-Black.ttf) format('truetype');
+}
 
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 900;
-    font-display: swap;
-    src: url(@/assets/fonts/Montserrat/Montserrat-BlackItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-weight: 900;
+  font-display: swap;
+  src: url(@/assets/fonts/Montserrat/Montserrat-BlackItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 200;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraLight.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraLight.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 200;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraLightItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 200;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraLightItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 300;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Light.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Light.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 300;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-LightItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-LightItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Regular.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Regular.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 400;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Italic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Italic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Medium.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Medium.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 500;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-MediumItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-MediumItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-SemiBold.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-SemiBold.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 600;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-SemiBoldItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-SemiBoldItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Bold.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Bold.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 700;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-BoldItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-BoldItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraBold.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraBold.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 800;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraBoldItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 800;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraBoldItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 900;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Black.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Black.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 900;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-BlackItalic.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 900;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-BlackItalic.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 100 200 300 400 500 600 700 800 900;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/SourceCodePro-VariableFont_wght.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 100 200 300 400 500 600 700 800 900;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/SourceCodePro-VariableFont_wght.ttf)
+    format('truetype');
+}
 
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: italic;
-    font-weight: 100 200 300 400 500 600 700 800 900;
-    font-display: swap;
-    src: url(@/assets/fonts/SourceCodePro/SourceCodePro-Italic-VariableFont_wght.ttf)
-      format('truetype');
-  }
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 100 200 300 400 500 600 700 800 900;
+  font-display: swap;
+  src: url(@/assets/fonts/SourceCodePro/SourceCodePro-Italic-VariableFont_wght.ttf)
+    format('truetype');
+}
 
-  html {
-    --background: #fff;
-    --foreground: #000;
-    --link-color: #00ccff;
-    --logo-shadow: #818181;
-    --code-background: #ddd;
-    --ui-background: #f3f3f3;
-    --ui-foreground: #000;
-    --ui-border: #aaaaaa;
-    --ui-background-hover: #c0c0c0;
-    --ui-foreground-hover: #000;
-    --ui-border-hover: #8c8c8c;
-    --ui-background-disabled: #b8b8b8;
-    --ui-foreground-disabled: #000;
-    --ui-border-disabled: #9e9e9e;
-    --font-heading: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow',
-      Arial, sans-serif;
-    --font-body: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    --font-code: 'Source Code Pro', monospace;
-  }
+html {
+  --background: #fff;
+  --foreground: #000;
+  --link-color: #00ccff;
+  --logo-shadow: #818181;
+  --code-background: #ddd;
+  --ui-background: #f3f3f3;
+  --ui-foreground: #000;
+  --ui-border: #aaaaaa;
+  --ui-background-hover: #c0c0c0;
+  --ui-foreground-hover: #000;
+  --ui-border-hover: #8c8c8c;
+  --ui-background-disabled: #b8b8b8;
+  --ui-foreground-disabled: #000;
+  --ui-border-disabled: #9e9e9e;
+  --font-heading: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow',
+    Arial, sans-serif;
+  --font-body: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-code: 'Source Code Pro', monospace;
+}
 
-  html.dark-theme {
-    --background: #212121;
-    --foreground: #fff;
-    --logo-shadow: #000;
-    --code-background: #161616;
-    --ui-background: #272727;
-    --ui-foreground: #fff;
-    --ui-border: #424242;
-    --ui-background-hover: #3c3c3c;
-    --ui-foreground-hover: #fff;
-    --ui-border-hover: #616161;
-    --ui-background-disabled: #161616;
-    --ui-foreground-disabled: #949494;
-    --ui-border-disabled: #353535;
-  }
+html.dark-theme {
+  --background: #212121;
+  --foreground: #fff;
+  --logo-shadow: #000;
+  --code-background: #161616;
+  --ui-background: #272727;
+  --ui-foreground: #fff;
+  --ui-border: #424242;
+  --ui-background-hover: #3c3c3c;
+  --ui-foreground-hover: #fff;
+  --ui-border-hover: #616161;
+  --ui-background-disabled: #161616;
+  --ui-foreground-disabled: #949494;
+  --ui-border-disabled: #353535;
+}
 
-  body {
+body {
+  margin: 0;
+  transition: background-color 0.25s, color 0.25s;
+  overflow-y: overlay;
+  overflow-x: hidden;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+main.content {
+  padding-bottom: 15px;
+}
+
+body.no-scroll {
+  overflow-y: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+h1 {
+  font-size: 1.65em;
+  font-weight: 700;
+}
+
+h2,
+h3 {
+  font-size: 1.35em;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.content > h1,
+.content > h1 + h2 {
+  margin-left: 30px;
+  margin-right: 30px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+
+  transition: background-color 0.25s;
+}
+
+li {
+  list-style: none;
+}
+
+header {
+  display: flex;
+  width: calc(100vw - 20px);
+  justify-content: space-between;
+  padding: 10px 10px 0;
+  align-items: center;
+  top: 0;
+  position: sticky;
+  background: var(--background);
+  transition: background-color 0.25s, box-shadow 0.25s;
+  z-index: 10;
+  box-shadow: 0px 10px 10px var(--background);
+}
+
+.nav-links {
+  margin-right: 15px;
+  float: right;
+}
+
+header nav > div {
+  display: none;
+}
+
+header nav ul {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: fit-content;
+  padding: 0;
+  margin: 0;
+}
+
+.bar {
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px auto;
+  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out,
+    background-color 0.25s;
+  background-color: var(--foreground);
+  border-radius: 2px;
+}
+
+a {
+  text-decoration: none;
+  color: var(--link-color);
+  transition: background-color 0.25s, color 0.25s;
+}
+
+.dark-mode-widget {
+  margin-left: auto;
+}
+
+.content h2 {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+code {
+  font-family: var(--font-code);
+  padding: 2px;
+  background-color: var(--code-background);
+  border-radius: 4px;
+  transition: background-color 0.25s;
+}
+
+h5,
+h6,
+p {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--foreground);
+  font-family: var(--font-body);
+  transition: background-color 0.25s, color 0.25s;
+}
+
+header nav ul li {
+  user-select: none;
+}
+
+header nav ul li a {
+  height: fit-content;
+  font-family: var(--font-heading);
+  margin: 0 5px;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--foreground);
+  border-bottom: transparent solid 4px;
+  transition: border 0.25s, color 0.25s;
+}
+
+header nav ul li a.router-link-active {
+  border-bottom: var(--foreground) solid 4px;
+}
+
+header nav ul li a:hover:not(.router-link-active) {
+  border-bottom: var(--link-color) solid 4px;
+}
+
+header a div.logo {
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+header a div.logo p {
+  height: fit-content;
+  margin: 0 0 0 10px;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 28px;
+  color: var(--foreground);
+}
+
+header a div.logo img {
+  height: 50px;
+  border-radius: 50%;
+  box-shadow: 4px 4px 4px var(--logo-shadow);
+  transition: box-shadow 0.25s;
+}
+
+.content {
+  text-align: center;
+}
+
+@media only screen and (max-width: 840px) {
+  header nav ul {
+    padding: 10px 0;
+    position: fixed;
+    justify-content: center;
+    left: 100%;
+    top: 0;
+    flex-direction: column;
     margin: 0;
-    transition: background-color 0.25s, color 0.25s;
-    overflow-y: overlay;
-    overflow-x: hidden;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    text-align: center;
+    transition: left 0.4s;
+    backdrop-filter: blur(5px);
+    z-index: 10;
+  }
+
+  header nav ul:before {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+    z-index: -1;
     background-color: var(--background);
-    color: var(--foreground);
-  }
-
-  main.content {
-    padding-bottom: 15px;
-  }
-
-  body.no-scroll {
-    overflow-y: hidden;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  h1 {
-    font-size: 1.65em;
-    font-weight: 700;
-  }
-
-  h2,
-  h3 {
-    font-size: 1.35em;
-    font-weight: 600;
-    line-height: 1.5;
-  }
-
-  .content > h1,
-  .content > h1 + h2 {
-    margin-left: 30px;
-    margin-right: 30px;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: var(--font-heading);
-
+    opacity: 0.6;
     transition: background-color 0.25s;
   }
 
-  li {
-    list-style: none;
-  }
-
-  header {
-    display: flex;
-    width: calc(100vw - 20px);
-    justify-content: space-between;
-    padding: 10px 10px 0;
-    align-items: center;
-    top: 0;
-    position: sticky;
-    background: var(--background);
-    transition: background-color 0.25s, box-shadow 0.25s;
-    z-index: 10;
-    box-shadow: 0px 10px 10px var(--background);
-  }
-
-  .nav-links {
-    margin-right: 15px;
-    float: right;
+  header nav.active ul {
+    left: 0;
   }
 
   header nav > div {
-    display: none;
-  }
-
-  header nav ul {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: fit-content;
-    padding: 0;
-    margin: 0;
-  }
-
-  .bar {
     display: block;
-    width: 25px;
-    height: 3px;
-    margin: 5px auto;
-    transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out,
-      background-color 0.25s;
-    background-color: var(--foreground);
-    border-radius: 2px;
-  }
-
-  a {
-    text-decoration: none;
-    color: var(--link-color);
-    transition: background-color 0.25s, color 0.25s;
-  }
-
-  .dark-mode-widget {
-    margin-left: auto;
-  }
-
-  .content h2 {
-    margin-left: 5px;
-    margin-right: 5px;
-  }
-
-  code {
-    font-family: var(--font-code);
-    padding: 2px;
-    background-color: var(--code-background);
-    border-radius: 4px;
-    transition: background-color 0.25s;
-  }
-
-  h5,
-  h6,
-  p {
-    font-size: 18px;
-    font-weight: 400;
-    color: var(--foreground);
-    font-family: var(--font-body);
-    transition: background-color 0.25s, color 0.25s;
-  }
-
-  header nav ul li {
-    user-select: none;
-  }
-
-  header nav ul li a {
-    height: fit-content;
-    font-family: var(--font-heading);
-    margin: 0 5px;
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--foreground);
-    border-bottom: transparent solid 4px;
-    transition: border 0.25s, color 0.25s;
-  }
-
-  header nav ul li a.router-link-active {
-    border-bottom: var(--foreground) solid 4px;
-  }
-
-  header nav ul li a:hover:not(.router-link-active) {
-    border-bottom: var(--link-color) solid 4px;
-  }
-
-  header a div.logo {
-    display: flex;
-    align-items: center;
-    user-select: none;
-  }
-
-  header a div.logo p {
-    height: fit-content;
-    margin: 0 0 0 10px;
-    padding: 0;
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 28px;
-    color: var(--foreground);
-  }
-
-  header a div.logo img {
-    height: 50px;
-    border-radius: 50%;
-    box-shadow: 4px 4px 4px var(--logo-shadow);
-    transition: box-shadow 0.25s;
-  }
-
-  .content {
-    text-align: center;
-  }
-
-  @media only screen and (max-width: 840px) {
-    header nav ul {
-      padding: 10px 0;
-      position: fixed;
-      justify-content: center;
-      left: 100%;
-      top: 0;
-      flex-direction: column;
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 10px;
-      text-align: center;
-      transition: left 0.4s;
-      backdrop-filter: blur(5px);
-      z-index: 10;
-    }
-
-    header nav ul:before {
-      content: '';
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      left: 0;
-      top: 0;
-      border-radius: 10px;
-      z-index: -1;
-      background-color: var(--background);
-      opacity: 0.6;
-      transition: background-color 0.25s;
-    }
-
-    header nav.active ul {
-      left: 0;
-    }
-
-    header nav > div {
-      display: block;
-      cursor: pointer;
-      margin-right: 10px;
-      z-index: 11;
-      right: 10px;
-      top: 20.8px;
-      position: fixed;
-    }
-
-    header nav.active .bar:nth-child(2) {
-      opacity: 0;
-    }
-
-    header nav.active .bar:nth-child(1) {
-      transform: translateY(8px) rotate(45deg);
-    }
-
-    header nav.active .bar:nth-child(3) {
-      transform: translateY(-8px) rotate(-45deg);
-    }
-
-    header nav ul li {
-      padding: 2px 0;
-    }
-
-    header nav ul li a {
-      font-size: 33px;
-    }
-  }
-
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-corner {
-    background-color: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--foreground);
-  }
-
-  button {
-    padding: 10px;
-    border-radius: 10px;
-    margin: 5px 0;
-    font-size: 18px;
-    font-family: var(--font-heading);
-    font-weight: 600;
     cursor: pointer;
-    border: 1px solid var(--ui-border);
-    background-color: var(--ui-background);
-    color: var(--ui-foreground);
-    transition: border 0.25s, background-color 0.25s, color 0.25s;
-    user-select: none;
-  }
-
-  button:hover:not(:disabled),
-  button:focus:not(:disabled) {
-    border: 1px solid var(--ui-border-hover);
-    background-color: var(--ui-background-hover);
-    color: var(--ui-foreground-hover);
-  }
-
-  button:disabled {
-    cursor: not-allowed;
-    border: 1px solid var(--ui-border-disabled);
-    background-color: var(--ui-background-disabled);
-    color: var(--ui-foreground-disabled);
-  }
-
-  button:focus {
-    outline: none;
-  }
-
-  .quick-action-buttons-container {
-    display: flex;
-    padding: 0 5px;
-    justify-content: space-evenly;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin: 0 auto 15px;
-    width: 40%;
-  }
-
-  .quick-action-buttons-container > button {
-    margin-left: 5px;
-    margin-right: 5px;
-  }
-
-  @media screen and (max-width: 781px) {
-    .quick-action-buttons-container {
-      width: 90%;
-    }
-  }
-
-  input {
-    padding: 10px;
-    border-radius: 10px;
-    font-family: var(--font-heading);
-    font-weight: 600;
-    margin: 5px 0;
-    transition: border 0.25s, background-color 0.25s, color 0.25s;
-    outline: none;
-  }
-
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input[type='number'] {
-    -moz-appearance: textfield;
-  }
-
-  textarea {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    border-radius: 10px;
-    padding: 10px;
-    margin: 5px 0;
-    outline: none;
-    resize: none;
-    box-sizing: border-box;
-    width: 100%;
-  }
-
-  input,
-  textarea,
-  select {
-    border: 1px solid var(--ui-border);
-    background-color: var(--ui-background);
-    color: var(--ui-foreground);
-    font-size: 18px;
-    transition: border 0.25s, background-color 0.25s, color 0.25s;
-  }
-
-  input:disabled,
-  textarea:disabled,
-  select:disabled {
-    cursor: not-allowed;
-    border: 1px solid var(--ui-border-disabled);
-    background-color: var(--ui-background-disabled);
-    color: var(--ui-foreground-disabled);
-  }
-
-  input:hover:not(:disabled),
-  input:focus:not(:disabled),
-  textarea:hover:not(:disabled),
-  textarea:focus:not(:disabled),
-  select:hover:not(:disabled),
-  select:focus:not(:disabled) {
-    border: 1px solid var(--ui-border-hover);
-    background-color: var(--ui-background-hover);
-    color: var(--ui-foreground-hover);
-    outline: none;
-  }
-
-  form input[type='submit'] {
-    display: none;
-  }
-
-  select {
-    font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', 'Arial',
-      'sans-serif';
-    border-radius: 10px;
-    font-weight: 600;
-    outline: none;
-    padding: 10px;
-    transition: border 0.25s, background-color 0.25s, color 0.25s;
-  }
-
-  option {
-    font-weight: 600;
-    border: 1px solid var(--ui-border);
-    background-color: var(--ui-background);
-    color: var(--ui-foreground);
-  }
-
-  .toast-box {
+    margin-right: 10px;
+    z-index: 11;
+    right: 10px;
+    top: 20.8px;
     position: fixed;
-    right: 35px;
-    bottom: 35px;
-    padding: 10px 15px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    background-color: var(--ui-background);
-    color: var(--ui-foreground);
-    border: 1px solid var(--ui-border);
-    font-size: 18px;
-    font-family: var(--font-body);
-    transition: background-color 0.25s, color 0.25s, border 0.25s;
-    overflow-y: hidden;
-    margin-left: 35px;
-    max-width: calc(100% - 35px * 3);
-    overflow-wrap: break-word;
-    z-index: 100;
   }
 
-  .toast-enter-active,
-  .toast-leave-active {
-    transition: bottom 0.5s, opacity 0.5s;
-  }
-
-  .toast-enter-from,
-  .toast-leave-to {
-    bottom: -50px;
+  header nav.active .bar:nth-child(2) {
     opacity: 0;
   }
 
-  .toast-enter-to,
-  .toast-leave-from {
-    bottom: 35px;
+  header nav.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
   }
 
-  .content-box-container {
-    display: grid;
-    height: fit-content;
-    grid: auto / repeat(auto-fit, minmax(300px, 1fr));
-    grid-gap: 10px;
-    width: calc(100% - 20px);
-    margin: 0 auto;
+  header nav.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
   }
 
-  .content-box-container + .content-box-container {
-    margin-top: 15px;
+  header nav ul li {
+    padding: 2px 0;
   }
 
-  .animated-ellipsis:after {
-    overflow: hidden;
-    display: inline-block;
-    vertical-align: bottom;
-    content: '\2026';
-    animation: ellipsis steps(4, end) 2s infinite;
-    width: 0px;
-    margin-right: 1.55ch;
+  header nav ul li a {
+    font-size: 33px;
   }
+}
 
-  @keyframes ellipsis {
-    to {
-      width: 1.55ch;
-      margin-right: 0;
-    }
-  }
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
 
-  .no-content-container {
-    padding: 30px 0;
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--foreground);
+}
+
+button {
+  padding: 10px;
+  border-radius: 10px;
+  margin: 5px 0;
+  font-size: 18px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--ui-border);
+  background-color: var(--ui-background);
+  color: var(--ui-foreground);
+  transition: border 0.25s, background-color 0.25s, color 0.25s;
+  user-select: none;
+}
+
+button:hover:not(:disabled),
+button:focus:not(:disabled) {
+  border: 1px solid var(--ui-border-hover);
+  background-color: var(--ui-background-hover);
+  color: var(--ui-foreground-hover);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  border: 1px solid var(--ui-border-disabled);
+  background-color: var(--ui-background-disabled);
+  color: var(--ui-foreground-disabled);
+}
+
+button:focus {
+  outline: none;
+}
+
+.quick-action-buttons-container {
+  display: flex;
+  padding: 0 5px;
+  justify-content: space-evenly;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: 0 auto 15px;
+  width: 40%;
+}
+
+.quick-action-buttons-container > button {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+@media screen and (max-width: 781px) {
+  .quick-action-buttons-container {
+    width: 90%;
   }
+}
+
+input {
+  padding: 10px;
+  border-radius: 10px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin: 5px 0;
+  transition: border 0.25s, background-color 0.25s, color 0.25s;
+  outline: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+textarea {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 5px 0;
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+input,
+textarea,
+select {
+  border: 1px solid var(--ui-border);
+  background-color: var(--ui-background);
+  color: var(--ui-foreground);
+  font-size: 18px;
+  transition: border 0.25s, background-color 0.25s, color 0.25s;
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+  border: 1px solid var(--ui-border-disabled);
+  background-color: var(--ui-background-disabled);
+  color: var(--ui-foreground-disabled);
+}
+
+input:hover:not(:disabled),
+input:focus:not(:disabled),
+textarea:hover:not(:disabled),
+textarea:focus:not(:disabled),
+select:hover:not(:disabled),
+select:focus:not(:disabled) {
+  border: 1px solid var(--ui-border-hover);
+  background-color: var(--ui-background-hover);
+  color: var(--ui-foreground-hover);
+  outline: none;
+}
+
+form input[type='submit'] {
+  display: none;
+}
+
+select {
+  font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', 'Arial',
+    'sans-serif';
+  border-radius: 10px;
+  font-weight: 600;
+  outline: none;
+  padding: 10px;
+  transition: border 0.25s, background-color 0.25s, color 0.25s;
+}
+
+option {
+  font-weight: 600;
+  border: 1px solid var(--ui-border);
+  background-color: var(--ui-background);
+  color: var(--ui-foreground);
+}
+
+.toast-box {
+  position: fixed;
+  right: 35px;
+  bottom: 35px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background-color: var(--ui-background);
+  color: var(--ui-foreground);
+  border: 1px solid var(--ui-border);
+  font-size: 18px;
+  font-family: var(--font-body);
+  transition: background-color 0.25s, color 0.25s, border 0.25s;
+  overflow-y: hidden;
+  margin-left: 35px;
+  max-width: calc(100% - 35px * 3);
+  overflow-wrap: break-word;
+  z-index: 100;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: bottom 0.5s, opacity 0.5s;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  bottom: -50px;
+  opacity: 0;
+}
+
+.toast-enter-to,
+.toast-leave-from {
+  bottom: 35px;
+}
+
+.content-box-container {
+  display: grid;
+  height: fit-content;
+  grid: auto / repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 10px;
+  width: calc(100% - 20px);
+  margin: 0 auto;
+}
+
+.content-box-container + .content-box-container {
+  margin-top: 15px;
+}
+
+.animated-ellipsis:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  content: '\2026';
+  animation: ellipsis steps(4, end) 2s infinite;
+  width: 0px;
+  margin-right: 1.55ch;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.55ch;
+    margin-right: 0;
+  }
+}
+
+.no-content-container {
+  padding: 30px 0;
+}
 </style>
