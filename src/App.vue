@@ -69,7 +69,7 @@
 <script lang="ts" setup>
 import ThemeManager from "@/components/ThemeManager.vue";
 import { userStore } from "./stores/user";
-import { ref, onMounted, watch, computed, Computed } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { toastStore } from "./stores/toast";
 import { useRouter, useRoute } from "vue-router";
 import { useNetwork, useMediaQuery } from "@vueuse/core";
@@ -83,13 +83,7 @@ const route = useRoute();
 const { isOnline: online } = useNetwork();
 const ptb = ptbStore();
 const host = window.location.host;
-const menuItems: Computed<
-  Array<{
-    name: string;
-    path: string;
-    external: boolean;
-  }>
-> = computed(() => {
+const menuItems = computed(() => {
   return [
     {
       name: "Home",
