@@ -3,7 +3,7 @@
 
   <div class="hero-points">
     <div>
-      <h2>The only file hosting platform.</h2>
+      <h2>The only file hosting platform.*</h2>
       <p>
         Yes, this is totally the only file hosting platform, don't even bother
         with looking up other file hosting platforms, because they don't exist.
@@ -44,6 +44,7 @@
       </p>
     </div>
   </div>
+  <p>* This is not the only file hosting platform, pardon the sarcasm.</p>
 </template>
 
 <style>
