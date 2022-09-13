@@ -17,7 +17,9 @@
           <ThemeManager :no-tab-index="mobileMenu" />
         </li>
         <li
-          v-for="(item, index) in menuItems"
+          v-for="(item, index) in menuItems.filter(
+            (a) => typeof a !== 'undefined'
+          )"
           @click="mobileMenu = false"
           :key="index"
         >
@@ -94,6 +96,13 @@ const menuItems = [
     path: "/dashboard",
     external: false,
   },
+  user.user && user.user.staff
+    ? {
+        name: "Staff Dashboard",
+        path: "/staff",
+        external: false,
+      }
+    : undefined,
   {
     name: "Documentation",
     path: `https://docs.${host}/`,
