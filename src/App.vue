@@ -845,7 +845,6 @@ header a div.logo img {
   text-align: center;
 }
 
-@media only screen and (max-width: 840px) {
   header nav ul {
     padding: 10px 0;
     position: fixed;
@@ -910,7 +909,6 @@ header a div.logo img {
   header nav ul li a {
     font-size: 33px;
   }
-}
 
 ::-webkit-scrollbar {
   width: 10px;
