@@ -90,29 +90,33 @@ const menuItems = computed(() => {
       path: "/",
       external: false,
     },
-    user.user ? ...[{
+    user.user ? ...[
+      {
       name: "Dashboard",
       path: "/dashboard",
       external: false,
     }, {
-      name: "Upload"
+      name: "Upload",
       path: "/dashboard/upload",
       external: false
-    }] : ...[{
-      name: "Login"
+    }
+  ] : ...[
+    {
+      name: "Login",
       path: "/auth?redirect=/dashboard#login",
       external: false
     },
     {
       name: "Register",
-      path: "/auth?redirect=/dashboard#register"
+      path: "/auth?redirect=/dashboard#register",
+      external: false
     }
   ],
     user.user && user.user.staff
       ? {
           name: "Staff Dashboard",
           path: "/staff",
-          external: false,
+          external: false
         }
       : undefined,
     {
