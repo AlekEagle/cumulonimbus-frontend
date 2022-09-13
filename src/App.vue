@@ -17,9 +17,7 @@
           <ThemeManager :no-tab-index="mobileMenu" />
         </li>
         <li
-          v-for="(item, index) in menuItems.filter(
-            (a) => typeof a !== 'undefined'
-          )"
+          v-for="(item, index) in menuItems"
           @click="mobileMenu = false"
           :key="index"
         >
@@ -85,7 +83,11 @@ const route = useRoute();
 const { isOnline: online } = useNetwork();
 const ptb = ptbStore();
 const host = window.location.host;
-const menuItems = [
+const menuItems: Array<{
+  name: string;
+  path: string;
+  external: boolean;
+}> = [
   {
     name: "Home",
     path: "/",
@@ -113,7 +115,11 @@ const menuItems = [
     path: "https://alekeagle.com/d",
     external: true,
   },
-];
+].filter((a) => typeof a !== "undefined") as Array<{
+  name: string;
+  path: string;
+  external: boolean;
+}>;
 const mobileMenu = ref(false);
 const ptbWarningModal = ref<typeof Modal>();
 
