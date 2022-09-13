@@ -31,7 +31,7 @@ function submit() {
   if (!form.value!.reportValidity()) return;
   const formElements = form.value!.elements as HTMLFormControlsCollection;
   const data: {
-    [key: string]: string | number | boolean;
+    [key: string]: string | number | boolean | undefined;
   } = {};
   for (let i = 0; i < formElements.length; i++) {
     const element = formElements[i];
