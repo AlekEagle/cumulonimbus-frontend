@@ -100,7 +100,7 @@ const menuItems = computed(() => {
       path: "/dashboard/upload",
       external: false
     }
-  ] : ...[
+  ], : ...[
     {
       name: "Login",
       path: "/auth?redirect=/dashboard#login",
