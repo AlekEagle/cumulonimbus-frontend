@@ -199,8 +199,12 @@ async function login(data: {
         case "INVALID_PASSWORD_ERROR":
           toast.show("No, that is not the password.");
           break;
+        case "MISSING_FIELDS_ERROR":
+          toast.show("You kind of need to actually fill everything out.");
+          break;
         case "INTERNAL_ERROR":
           toast.serverError();
+          break;
         case "GENERIC_ERROR":
         default:
           toast.clientError();
@@ -254,8 +258,10 @@ async function register(data: {
           break;
         case "MISSING_FIELDS_ERROR":
           toast.show("You kind of need to actually fill everything out.");
+          break;
         case "INTERNAL_ERROR":
           toast.serverError();
+          break;
         case "GENERIC_ERROR":
         default:
           toast.clientError();
