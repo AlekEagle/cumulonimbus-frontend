@@ -69,7 +69,7 @@
 <script lang="ts" setup>
 import ThemeManager from "@/components/ThemeManager.vue";
 import { userStore } from "./stores/user";
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, Computed } from "vue";
 import { toastStore } from "./stores/toast";
 import { useRouter, useRoute } from "vue-router";
 import { useNetwork, useMediaQuery } from "@vueuse/core";
@@ -83,43 +83,47 @@ const route = useRoute();
 const { isOnline: online } = useNetwork();
 const ptb = ptbStore();
 const host = window.location.host;
-const menuItems: Array<{
-  name: string;
-  path: string;
-  external: boolean;
-}> = [
-  {
-    name: "Home",
-    path: "/",
-    external: false,
-  },
-  {
-    name: "Dashboard",
-    path: "/dashboard",
-    external: false,
-  },
-  user.user && user.user.staff
-    ? {
-        name: "Staff Dashboard",
-        path: "/staff",
-        external: false,
-      }
-    : undefined,
-  {
-    name: "Documentation",
-    path: `https://docs.${host}/`,
-    external: true,
-  },
-  {
-    name: "Discord",
-    path: "https://alekeagle.com/d",
-    external: true,
-  },
-].filter((a) => typeof a !== "undefined") as Array<{
-  name: string;
-  path: string;
-  external: boolean;
-}>;
+const menuItems: Computed<
+  Array<{
+    name: string;
+    path: string;
+    external: boolean;
+  }>
+> = computed(() => {
+  return [
+    {
+      name: "Home",
+      path: "/",
+      external: false,
+    },
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      external: false,
+    },
+    user.user && user.user.staff
+      ? {
+          name: "Staff Dashboard",
+          path: "/staff",
+          external: false,
+        }
+      : undefined,
+    {
+      name: "Documentation",
+      path: `https://docs.${host}/`,
+      external: true,
+    },
+    {
+      name: "Discord",
+      path: "https://alekeagle.com/d",
+      external: true,
+    },
+  ].filter((a) => typeof a !== "undefined") as Array<{
+    name: string;
+    path: string;
+    external: boolean;
+  }>;
+});
 const mobileMenu = ref(false);
 const ptbWarningModal = ref<typeof Modal>();
 
