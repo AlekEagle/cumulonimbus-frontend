@@ -9,6 +9,9 @@
         with looking up other file hosting platforms, because they don't exist.
         You can trust me, I'm the marketing material that's supposed to convince
         you to use this platform.
+        <br />
+        <br />
+        * This is not the only file hosting platform, pardon the sarcasm.
       </p>
     </div>
     <div>
@@ -44,7 +47,6 @@
       </p>
     </div>
   </div>
-  <p>* This is not the only file hosting platform, pardon the sarcasm.</p>
 </template>
 
 <style>
