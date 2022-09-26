@@ -878,7 +878,7 @@
     padding: 10px 0;
     position: fixed;
     justify-content: center;
-    top: -100%;
+    top: -101.5%;
     left: 0;
     flex-direction: column;
     margin: 0;
