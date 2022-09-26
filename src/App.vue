@@ -880,6 +880,7 @@
     position: fixed;
     justify-content: center;
     top: -100%;
+    left: 0;
     flex-direction: column;
     margin: 0;
     width: 100%;
