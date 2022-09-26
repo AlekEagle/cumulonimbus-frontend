@@ -786,8 +786,7 @@
     width: 25px;
     height: 3px;
     margin: 5px auto;
-    transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out,
-      background-color 0.25s;
+    transition: transform 0.4s, opacity 0.4s, background-color 0.25s;
     background-color: var(--foreground);
     border-radius: 2px;
   }
@@ -921,6 +920,7 @@
   }
 
   header nav.active .bar:nth-child(2) {
+    transform: translateX(-10px);
     opacity: 0;
   }
 
