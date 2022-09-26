@@ -1,30 +1,30 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import persistPiniaStore from '@/utils/persistPinia';
-import Cumulonimbus from 'cumulonimbus-wrapper';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import persistPiniaStore from "@/utils/persistPinia";
+import Cumulonimbus from "cumulonimbus-wrapper";
 
 const BaseAPIURLs: { [key: string]: string } = {
   production: `${window.location.protocol}//${window.location.host}/api`,
-  prod_preview: 'https://alekeagle.me/api',
-  development: 'http://localhost:8000/api'
+  ptb: "https://alekeagle.me/api",
+  development: "http://localhost:8000/api",
 };
 
 const BaseThumbnailURLs: { [key: string]: string } = {
   production: `${window.location.protocol}//previews.${window.location.host}`,
-  prod_preview: 'https://previews.alekeagle.me',
-  development: 'http://localhost:8100'
+  ptb: "https://previews.alekeagle.me",
+  development: "http://localhost:8100",
 };
 
 const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
   baseURL: BaseAPIURLs[import.meta.env.MODE],
-  baseThumbnailURL: BaseThumbnailURLs[import.meta.env.MODE]
+  baseThumbnailURL: BaseThumbnailURLs[import.meta.env.MODE],
 };
 
-export const userStore = defineStore('user', () => {
+export const userStore = defineStore("user", () => {
   const user = ref<Cumulonimbus.Data.User | null>(null);
   const domain = computed(() => {
-    if (!user.value) return '';
-    return `${user.value.subdomain ? `${user.value.subdomain}.` : ''}${
+    if (!user.value) return "";
+    return `${user.value.subdomain ? `${user.value.subdomain}.` : ""}${
       user.value.domain
     }`;
   });
@@ -35,8 +35,8 @@ export const userStore = defineStore('user', () => {
   const loggedIn = computed(() => !!session.value && !!user.value && !!client);
   const loading = ref(false);
 
-  persistPiniaStore(user, 'user', { immediate: true, deep: true });
-  persistPiniaStore(session, 'session', { immediate: true, deep: true });
+  persistPiniaStore(user, "user", { immediate: true, deep: true });
+  persistPiniaStore(session, "session", { immediate: true, deep: true });
 
   async function login(
     username: string,
@@ -53,7 +53,7 @@ export const userStore = defineStore('user', () => {
 
       session.value = {
         ...(await client.value.getSelfSession()).result,
-        token: (client.value as any).token
+        token: (client.value as any).token,
       };
       user.value = (await client.value.getSelf()).result;
       return true;
@@ -85,7 +85,7 @@ export const userStore = defineStore('user', () => {
 
       session.value = {
         ...(await client.value.getSelfSession()).result,
-        token: (client.value as any).token
+        token: (client.value as any).token,
       };
       user.value = (await client.value.getSelf()).result;
       return true;
@@ -298,6 +298,6 @@ export const userStore = defineStore('user', () => {
     deleteAllSessions,
     deleteAllFiles,
     deleteAccount,
-    getSelf
+    getSelf,
   };
 });

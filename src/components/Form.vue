@@ -31,7 +31,7 @@ function submit() {
   if (!form.value!.reportValidity()) return;
   const formElements = form.value!.elements as HTMLFormControlsCollection;
   const data: {
-    [key: string]: string | number | boolean;
+    [key: string]: string | number | boolean | undefined;
   } = {};
   for (let i = 0; i < formElements.length; i++) {
     const element = formElements[i];
@@ -58,15 +58,15 @@ function submit() {
         case "range":
         case "textarea":
         default:
-          data[element.name] = element.value;
+          data[element.name] = element.value === "" ? undefined : element.value;
           break;
         case "submit":
           break;
       }
     } else if (element instanceof HTMLSelectElement) {
-      data[element.name] = element.value;
+      data[element.name] = element.value === "" ? undefined : element.value;
     } else if (element instanceof HTMLTextAreaElement) {
-      data[element.name] = element.value;
+      data[element.name] = element.value === "" ? undefined : element.value;
     }
   }
   if (props.reset) {
