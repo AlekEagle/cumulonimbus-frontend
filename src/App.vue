@@ -30,11 +30,16 @@
           <a
             v-else
             :href="item.path"
-            v-text="item.name"
             rel="noopener"
             target="_blank"
             :tabindex="mobileMenu ? '0' : '-1'"
-          />
+          >
+            {{ item.name }}
+            <img
+              :src="newTabIcon"
+              alt="Icon indicating this link will open a new tab"
+            />
+          </a>
         </li>
       </ul>
     </nav>
@@ -75,6 +80,7 @@
   import { useNetwork, useMediaQuery } from '@vueuse/core';
   import { ptbStore } from '@/stores/ptb';
   import Modal from '@/components/Modal.vue';
+  import newTabIcon from '@/assets/images/newtab.svg';
 
   const user = userStore();
   const toast = toastStore();
@@ -90,7 +96,7 @@
         path: '/',
         external: false
       },
-      ...(user.user
+      ...(user.account
         ? [
             {
               name: 'Dashboard',
@@ -101,16 +107,21 @@
               name: 'Upload',
               path: '/dashboard/upload',
               external: false
+            },
+            {
+              name: 'Switch Accounts',
+              path: '/auth/switcher',
+              external: false
             }
           ]
         : [
             {
               name: 'Login',
-              path: '/auth',
+              path: '/auth/switcher',
               external: false
             }
           ]),
-      user.user && user.user.staff
+      user.account && user.account.user.staff
         ? {
             name: 'Staff Dashboard',
             path: '/staff',
@@ -163,19 +174,6 @@
       // don't do anything
       next();
     }
-    // is the route the user is trying to navigate to the auth page?
-    else if (to.name === 'auth') {
-      // check if the user is already logged in
-      if (user.loggedIn) {
-        // if so, redirect to wherever the redirect query param is set to or to the dashboard
-        next(
-          route.query.redirect ? (route.query.redirect as string) : '/dashboard'
-        );
-      } else {
-        // if not, continue to the auth page
-        next();
-      }
-    }
 
     // is the route the user is trying to navigate to a route that requires authentication?
     else if (to.meta.requiresAuth) {
@@ -184,7 +182,7 @@
         // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
         if (to.meta.requiresStaff) {
           // if so, check if the user is staff
-          if (user.user!.staff) {
+          if (user.account!.user.staff) {
             // if so, continue to the route
             next();
           } else {
@@ -227,19 +225,6 @@
       // if so, do nothing
       return;
     }
-    // check if the user is on the auth page
-    if (route.name === 'auth') {
-      // if so, check if the user is already logged in
-      if (user.loggedIn) {
-        // if so, redirect to wherever the redirect query param is set to or to the dashboard
-        router.replace(
-          route.query.redirect ? (route.query.redirect as string) : '/dashboard'
-        );
-      } else {
-        // if not, continue to the auth page
-        return;
-      }
-    }
 
     // check if the user is on a route that requires authentication
     if (route.meta.requiresAuth) {
@@ -248,7 +233,7 @@
         // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
         if (route.meta.requiresStaff) {
           // if so, check if the user is staff
-          if (user.user!.staff) {
+          if (user.account!.user.staff) {
             // if so, continue to the route
             return;
           } else {
@@ -847,6 +832,15 @@
     border-bottom: var(--link-color) solid 4px;
   }
 
+  header nav ul li a img {
+    width: 24px;
+    transition: filter 0.25s;
+  }
+
+  html.dark-theme nav ul li a img {
+    filter: invert(100%);
+  }
+
   header a div.logo {
     display: flex;
     align-items: center;
@@ -1027,11 +1021,13 @@
 
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
+    appearance: none;
     -webkit-appearance: none;
     margin: 0;
   }
 
   input[type='number'] {
+    appearance: none;
     -moz-appearance: textfield;
   }
 
@@ -1114,7 +1110,7 @@
     transition: background-color 0.25s, color 0.25s, border 0.25s;
     overflow-y: hidden;
     margin-left: 35px;
-    max-width: calc(100% - 35px * 3);
+    max-width: 80vw;
     overflow-wrap: break-word;
     z-index: 100;
   }

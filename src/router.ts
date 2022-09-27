@@ -17,6 +17,12 @@ export const router = createRouter({
       name: 'auth',
       component: () => import('@/views/Auth.vue')
     },
+    // Account Switcher page route
+    {
+      path: '/auth/switcher',
+      name: 'account-switcher',
+      component: () => import('@/views/AccountSwitcher.vue')
+    },
     // User space routes
     {
       path: '/dashboard',
