@@ -321,6 +321,11 @@
   .account-switcher-account p {
     margin: 0;
     text-align: left;
+    transition: color 0.25s;
+  }
+
+  .account-switcher-account.disabled p {
+    color: var(--ui-foreground-disabled);
   }
 
   .account-switcher-account p:first-of-type {
