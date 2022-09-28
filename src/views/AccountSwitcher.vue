@@ -75,7 +75,7 @@
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { ref, onMounted } from 'vue';
+  import { ref, onBeforeMount } from 'vue';
   import { userStore, cumulonimbusOptions } from '@/stores/user';
   import { useRouter } from 'vue-router';
   import { toastStore } from '@/stores/toast';
@@ -130,7 +130,48 @@
   }
 
   async function removeAllAccountsConfirm(choice: boolean) {
-    removeAllAccountsModal.value?.hide();
+    if (choice) {
+      for (const account in user.accounts) {
+        if (user.accounts[account] === false) {
+          user.removeAccount(account);
+        } else {
+          const tempClient = new Cumulonimbus(
+            user.accounts[account] as string,
+            cumulonimbusOptions
+          );
+          try {
+            const res = await tempClient.deleteSelfSession(
+              (await tempClient.getSelfSession()).result.iat.toString()
+            );
+            if (res) {
+              user.removeAccount(account);
+            }
+          } catch (error) {
+            if (error instanceof Cumulonimbus.ResponseError) {
+              if (error.code === 'INVALID_SESSION_ERROR') {
+                user.removeAccount(account);
+              }
+              {
+                console.error(error);
+                toast.clientError();
+              }
+            } else {
+              console.error(error);
+              toast.clientError();
+            }
+          }
+        }
+      }
+      toast.show('All accounts removed.');
+      user.logout();
+      router.push({
+        path: '/auth',
+        query: {
+          redirect: '/dashboard'
+        },
+        hash: 'login'
+      });
+    }
   }
 
   async function removeAccountConfirm(choice: boolean) {
@@ -163,6 +204,13 @@
               }
               user.removeAccount(selectedAccount.value as string);
             }
+            {
+              console.error(error);
+              toast.clientError();
+            }
+          } else {
+            console.error(error);
+            toast.clientError();
           }
         } finally {
           removeAccountModal.value?.hide();
@@ -173,7 +221,7 @@
     }
   }
 
-  onMounted(async () => {
+  onBeforeMount(async () => {
     if (Object.keys(user.accounts).length < 1) {
       router.replace({
         path: '/auth',
@@ -182,8 +230,7 @@
         },
         hash: 'login'
       });
-    }
-    if (Object.keys(user.accounts).length < 2 && !user.loggedIn) {
+    } else if (Object.keys(user.accounts).length < 2 && !user.loggedIn) {
       const res = await user.switchAccount(Object.keys(user.accounts)[0]);
       if (typeof res === 'boolean') {
         if (res)
