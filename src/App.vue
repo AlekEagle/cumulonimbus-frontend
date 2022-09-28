@@ -77,7 +77,7 @@
   import { ref, onMounted, watch, computed } from 'vue';
   import { toastStore } from './stores/toast';
   import { useRouter, useRoute } from 'vue-router';
-  import { useNetwork, useMediaQuery } from '@vueuse/core';
+  import { useNetwork } from '@vueuse/core';
   import { ptbStore } from '@/stores/ptb';
   import Modal from '@/components/Modal.vue';
   import newTabIcon from '@/assets/images/newtab.svg';
@@ -187,7 +187,9 @@
             next();
           } else {
             // if not, redirect to the home page
-            next('/');
+            next({
+              path: '/'
+            });
           }
         } else {
           // if not, continue to the route
