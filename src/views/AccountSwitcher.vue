@@ -295,7 +295,7 @@
   .account-switcher-account.disabled {
     cursor: not-allowed;
     background-color: var(--ui-background-disabled);
-    color: var(--ui-text-disabled);
+    color: var(--ui-foreground-disabled);
   }
 
   .account-switcher-account img {
@@ -314,18 +314,8 @@
     filter: invert(100%);
   }
 
-  .account-switcher-account .account-switcher-account-remove-button {
-    grid-row: 1 / span 2;
-    grid-column: 3 / 4;
-  }
-
-  .account-switcher-account .account-switcher-account-remove-button img {
-    width: 35px;
-    justify-self: right;
-    align-self: center;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
+  html.dark-theme .account-switcher-account.disabled img {
+    filter: invert(calc(148 / 255));
   }
 
   .account-switcher-account p {
