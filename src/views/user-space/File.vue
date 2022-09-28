@@ -135,7 +135,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -204,7 +204,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -245,18 +245,12 @@
     if (shareIsSupported) {
       await share({
         title: 'Cumulonimbus',
-        text: 'Check out this file!',
-        url: `https://${user.user?.subdomain ? `${user.user.subdomain}.` : ''}${
-          user.user?.domain
-        }/${file.data!.filename}`
+        text: 'Check out this file on Cumulonimbus, an open-source cloud hosting platform!',
+        url: `https://${user.domain}/${file.data!.filename}`
       });
     } else {
       if (clipboardIsSupported) {
-        await copy(
-          `https://${user.user?.subdomain ? `${user.user.subdomain}.` : ''}${
-            user.user?.domain
-          }/${file.data!.filename}`
-        );
+        await copy(`https://${user.domain}/${file.data!.filename}`);
         toast.show('Copied to clipboard.');
       } else {
         toast.show('Clipboard not supported.');

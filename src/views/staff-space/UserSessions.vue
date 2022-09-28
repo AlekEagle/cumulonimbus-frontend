@@ -144,7 +144,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -210,7 +210,7 @@
                   switch (e.code) {
                     case 'BANNED_ERROR':
                       toast.banned();
-                      user.logout(true);
+                      user.logout();
                       router.push('/');
                       break;
                     case 'RATELIMITED_ERROR':
@@ -221,7 +221,7 @@
                       await toLogin(router);
                       break;
                     case 'INSUFFICIENT_PERMISSIONS_ERROR':
-                      await user.getSelf();
+                      await user.refetch();
                       router.replace('/');
                       break;
                     case 'INVALID_USER_ERROR':
@@ -270,7 +270,7 @@
             switch (e.code) {
               case 'BANNED_ERROR':
                 toast.banned();
-                user.logout(true);
+                user.logout();
                 router.push('/');
                 break;
               case 'RATELIMITED_ERROR':
@@ -281,7 +281,7 @@
                 await toLogin(router);
                 break;
               case 'INSUFFICIENT_PERMISSIONS_ERROR':
-                await user.getSelf();
+                await user.refetch();
                 router.replace('/');
                 break;
               case 'INVALID_USER_ERROR':
@@ -315,7 +315,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -327,7 +327,7 @@
             selectedSession.value = null;
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INTERNAL_ERROR':
@@ -342,8 +342,8 @@
       } else if (!status) {
         toast.clientError();
       } else {
-        if (selectedSession.value!.iat === user.session!.iat) {
-          await user.logout(true);
+        if (selectedSession.value?.iat === user.account?.session.iat) {
+          await user.logout();
         } else {
           selectedSession.value = null;
           toast.show('Session deleted.');
@@ -371,7 +371,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -395,8 +395,8 @@
       } else if (!status) {
         toast.clientError();
       } else {
-        if (selected.value.includes(user.session!.iat + '')) {
-          await user.logout(true);
+        if (selected.value.includes(user.account?.session.iat + '')) {
+          await user.logout();
         } else {
           selected.value = [];
           selecting.value = false;

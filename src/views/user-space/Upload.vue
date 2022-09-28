@@ -51,7 +51,13 @@
     type="file"
     class="file-dialog"
     ref="fileDialog"
-    @change="onDrop(($event.target as HTMLInputElement).files !== null ? Array.from(($event.target as HTMLInputElement).files as FileList) : null)"
+    @change="
+      onDrop(
+        ($event.target as HTMLInputElement).files !== null
+          ? Array.from(($event.target as HTMLInputElement).files as FileList)
+          : null
+      )
+    "
   />
   <FullscreenLoadingBlurb ref="fsb" />
 </template>
@@ -119,7 +125,7 @@
         switch (error.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':

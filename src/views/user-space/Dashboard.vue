@@ -1,6 +1,6 @@
 <template>
   <h1>Dashboard</h1>
-  <h2>Welcome to your dashboard, {{ user.user?.username }}.</h2>
+  <h2>Welcome to your dashboard, {{ user.account?.user.username }}.</h2>
   <div class="quick-action-buttons-container">
     <button
       @click="logout"
@@ -10,7 +10,7 @@
     <RouterButton
       to="/staff"
       title="Go to Staff Dashboard"
-      v-if="user.user?.staff"
+      v-if="user.account?.user.staff"
     >
       Staff Dashboard
     </RouterButton>
@@ -74,11 +74,11 @@
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'INVALID_SESSION_ERROR':
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'INTERNAL_ERROR':

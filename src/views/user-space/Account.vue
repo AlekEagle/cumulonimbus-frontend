@@ -4,33 +4,37 @@
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
   </div>
-  <template v-if="!user.loading && !!user.user">
+  <template v-if="!user.loading && !!user.account">
     <div class="content-box-container">
       <ContentBox
-        :title="user.user!.username"
+        :title="user.account!.user.username"
         theme-safe
         :src="profileIcon"
         nowrap
       >
         <p
-          >User ID: <code>{{ user.user!.id }}</code></p
+          >User ID: <code>{{ user.account!.user.id }}</code></p
         >
         <p
-          >Email: <code>{{ user.user!.email }}</code></p
+          >Email: <code>{{ user.account!.user.email }}</code></p
         >
         <p
           >Domain: <code>{{ user.domain }}</code></p
         >
         <p
           >Last updated at:
-          <code>{{ toDateString(new Date(user.user!.updatedAt)) }}</code></p
+          <code>{{
+            toDateString(new Date(user.account.user!.updatedAt))
+          }}</code></p
         >
         <p
           >Created at:
-          <code>{{ toDateString(new Date(user.user!.createdAt)) }}</code></p
+          <code>{{
+            toDateString(new Date(user.account.user!.createdAt))
+          }}</code></p
         >
         <p
-          >Staff: <code>{{ user.user!.staff ? 'Yes' : 'No' }}</code></p
+          >Staff: <code>{{ user.account.user!.staff ? 'Yes' : 'No' }}</code></p
         >
       </ContentBox>
     </div>
@@ -159,7 +163,11 @@
     :disabled="user.loading"
     @submit="updatePassword"
   >
-    <input type="hidden" autocomplete="username" :value="user.user!.username" />
+    <input
+      type="hidden"
+      autocomplete="username"
+      :value="user.account!.user.username"
+    />
     <input
       type="password"
       placeholder="New Password"
@@ -189,8 +197,8 @@
   </FormModal>
   <DomainModal
     ref="domainModal"
-    :domain="user.user!.domain"
-    :subdomain="user.user!.subdomain"
+    :domain="user.account!.user.domain"
+    :subdomain="user.account!.user.subdomain"
     :disabled="user.loading"
     @submit="updateDomain"
     @no-session="toLogin(router)"
@@ -283,12 +291,12 @@
       return;
     }
     try {
-      const res = await user.updateUsername(data.username, data.password);
+      const res = await user.changeUsername(data.username, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -331,12 +339,12 @@
       return;
     }
     try {
-      const res = await user.updateEmail(data.email, data.password);
+      const res = await user.changeEmail(data.email, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -387,12 +395,12 @@
       return;
     }
     try {
-      const res = await user.updatePassword(data.newPassword, data.password);
+      const res = await user.changePassword(data.newPassword, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -432,12 +440,12 @@
       return;
     }
     try {
-      const res = await user.updateDomain(data.domain, data.subdomain);
+      const res = await user.changeDomain(data.domain, data.subdomain);
       if (res instanceof Cumulonimbus.ResponseError) {
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -485,12 +493,12 @@
     }
 
     try {
-      const res = await user.deleteAllSessions(data.allButSelf);
+      const res = await user.revokeSessions(data.allButSelf);
       if (res instanceof Cumulonimbus.ResponseError) {
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -511,10 +519,6 @@
         }
       } else if (res) {
         deleteSessionsModal.value!.hide();
-        if (!data.allButSelf) {
-          user.logout(true);
-          router.push('/');
-        }
       }
     } catch (error) {
       console.error(error);
@@ -532,12 +536,12 @@
       return;
     }
     try {
-      const res = await user.deleteAllFiles();
+      const res = await user.deleteFiles();
       if (res instanceof Cumulonimbus.ResponseError) {
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -577,7 +581,7 @@
         switch (res.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -607,7 +611,7 @@
         }
       } else if (res) {
         deleteAccountModal.value!.hide();
-        user.logout(true);
+        user.logout();
         router.push('/');
       }
     } catch (error) {

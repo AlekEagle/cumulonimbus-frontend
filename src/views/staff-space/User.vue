@@ -260,11 +260,7 @@
   >
     <p>
       Are you sure you want to
-      {{
-        otherUser.data!.bannedAt
-          ? 'unban'
-          : 'ban'
-      }}
+      {{ otherUser.data!.bannedAt ? 'unban' : 'ban' }}
       <code>{{ otherUser.data!.username }}</code
       >?
     </p>
@@ -381,14 +377,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':
@@ -427,14 +423,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'MISSING_FIELDS_ERROR':
@@ -484,14 +480,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':
@@ -545,14 +541,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':
@@ -599,14 +595,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':
@@ -667,14 +663,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':
@@ -725,14 +721,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':
@@ -783,14 +779,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':
@@ -838,14 +834,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':
@@ -893,14 +889,14 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
             toast.rateLimit(status);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_SESSION_ERROR':

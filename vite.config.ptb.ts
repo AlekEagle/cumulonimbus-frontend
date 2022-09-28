@@ -13,6 +13,10 @@ export default defineConfig({
   build: {
     sourcemap: true
   },
+  define: {
+    __VUE_PROD_DEVTOOLS__: true
+  },
+
   plugins: [
     VitePWA({
       strategies: 'injectManifest',
