@@ -117,7 +117,7 @@
         : [
             {
               name: 'Login',
-              path: '/auth/switcher',
+              path: '/auth/switcher?redirect=/dashboard',
               external: false
             }
           ]),
@@ -157,13 +157,9 @@
 
   watch(online, val => {
     if (!val) {
-      toast.show(
-        'You just went offline! Some things may not work as expected.'
-      );
+      toast.connectivityChangeOffline();
     } else {
-      toast.show(
-        'You just went online! Everything should be working as expected.'
-      );
+      toast.connectivityChangeOnline();
     }
   });
 
@@ -198,7 +194,7 @@
       } else {
         // if not, redirect to the auth page with the redirect query param set to the current route
         next({
-          name: 'auth',
+          name: 'account-switcher',
           hash: '#login',
           query: {
             redirect: to.fullPath
@@ -249,7 +245,7 @@
       } else {
         // if not, redirect to the auth page with the redirect query param set to the current route
         router.replace({
-          name: 'auth',
+          name: 'account-switcher',
           hash: '#login',
           query: {
             redirect: route.fullPath

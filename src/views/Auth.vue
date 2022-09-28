@@ -113,6 +113,7 @@
   import { toastStore } from '@/stores/toast';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useNetwork } from '@vueuse/core';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
   const user = userStore(),
     router = useRouter(),
@@ -179,7 +180,7 @@
     remember: boolean;
   }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     processing.value = true;
@@ -192,29 +193,9 @@
           toast.show('This should not be seen');
         }
       } else {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_USER_ERROR':
-            toast.show("I can't find anyone with that username or email!");
-            break;
-          case 'INVALID_PASSWORD_ERROR':
-            toast.show('No, that is not the password.');
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            toast.show('You kind of need to actually fill everything out.');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(res);
+        if (!handled) {
+          toast.clientError();
         }
       }
     } catch (e) {
@@ -233,7 +214,7 @@
     remember: boolean;
   }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     processing.value = true;
@@ -252,26 +233,13 @@
           toast.show('This should not be seen');
         }
       } else {
-        switch (res.code) {
-          case 'USER_EXISTS_ERROR':
-            toast.show("There's already someone with that username or email!");
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_PASSWORD_ERROR':
-            toast.show('These passwords do not match!');
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            toast.show('You kind of need to actually fill everything out.');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(res);
+        if (!handled) {
+          switch (res.code) {
+            case 'USER_EXISTS_ERROR':
+              toast.show('Someone already has that username or email!');
+              break;
+          }
         }
       }
     } catch (e) {

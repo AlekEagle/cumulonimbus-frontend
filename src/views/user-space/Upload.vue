@@ -71,7 +71,7 @@
   import { ref, onMounted } from 'vue';
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import Cumulonimbus from 'cumulonimbus-wrapper';
 
   const fileDropZone = ref<HTMLElement | null>(null),
@@ -103,14 +103,11 @@
 
   async function uploadFile() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!file.value) {
-      toast.show(
-        'In order to upload a file, you have to have a file to upload.',
-        7500
-      );
+      toast.show('In order to upload a file, you need a file to upload.', 7500);
       return;
     }
     try {
@@ -122,36 +119,13 @@
       await copyToClipboard();
     } catch (error) {
       if (error instanceof Cumulonimbus.ResponseError) {
-        switch (error.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(error);
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            toast.show(
-              'In order to upload a file, you have to have a file to upload.',
-              7500
-            );
-            break;
-          case 'BODY_TOO_LARGE_ERROR':
-            toast.show('Unfortunately, the max file size is 100MB.');
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(error);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(error);
+        if (!handled) {
+          switch (error.code) {
+            case 'BODY_TOO_LARGE_ERROR':
+              toast.show('Unfortunately, the max file size is 100MB.');
+              break;
+          }
         }
       } else {
         console.error(error);

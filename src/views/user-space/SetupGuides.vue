@@ -80,7 +80,7 @@
   import { instructionsStore } from '@/stores/user-space/instructions';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useRouter } from 'vue-router';
   import { useOnline } from '@vueuse/core';
@@ -95,34 +95,16 @@
 
   async function fetchInstructions() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const status = await instructions.getInstructions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!status) {
         toast.clientError();

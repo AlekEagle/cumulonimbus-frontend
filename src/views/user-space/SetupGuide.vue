@@ -93,7 +93,7 @@
   import { toastStore } from '@/stores/toast';
   import { useRouter } from 'vue-router';
   import { useOnline, useClipboard } from '@vueuse/core';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import backWithFallback from '@/utils/routerBackWithFallback';
   import { ref, watch, onMounted } from 'vue';
@@ -122,7 +122,7 @@
 
   async function fetchInstruction() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -130,32 +130,15 @@
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/dashboard/setup-guides');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/dashboard/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -220,7 +203,7 @@
     password: string;
   }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     processing.value = true;
@@ -250,36 +233,21 @@
         session.value = json;
         await verifyIdentityModal.value!.hide();
       } else {
-        switch (json.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit({
-              ratelimit: {
-                max: Number(newSession.headers.get('X-Ratelimit-Limit') || '0'),
-                remaining: Number(
-                  newSession.headers.get('X-Ratelimit-Remaining') || '0'
-                ),
-                reset: Number(
-                  newSession.headers.get('X-Ratelimit-Reset') || '0'
-                )
-              }
-            } as any);
-            break;
-          case 'INVALID_PASSWORD_ERROR':
-            toast.show('No, that is not the password.');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(json);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(
+          new Cumulonimbus.ResponseError(json, {
+            max: Number(newSession.headers.get('X-Ratelimit-Limit') || '0'),
+            remaining: Number(
+              newSession.headers.get('X-Ratelimit-Remaining') || '0'
+            ),
+            reset: Number(newSession.headers.get('X-Ratelimit-Reset') || '0')
+          })
+        );
+        if (!handled) {
+          switch (json.code) {
+            case 'INVALID_PASSWORD_ERROR':
+              toast.invalidPassword();
+              break;
+          }
         }
       }
     } catch (error) {

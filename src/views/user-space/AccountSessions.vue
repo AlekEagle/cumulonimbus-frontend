@@ -119,7 +119,7 @@
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import toDateString from '@/utils/dateString';
   import { useOnline } from '@vueuse/core';
   import { ref, watch, onMounted } from 'vue';
@@ -142,34 +142,16 @@
 
   async function fetchSessions() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const status = await sessions.getSessions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!status) {
         toast.clientError();
@@ -256,7 +238,7 @@
 
   async function onDeleteSessionsChoice(choice: boolean) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!choice) {
@@ -269,28 +251,16 @@
       const status = await sessions.deleteSessions(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
           case 'INVALID_SESSION_ERROR':
             toast.show("It appears that session doesn't exist anymore.");
             await fetchSessions();
-            selected.value = [];
-            selecting.value = false;
+            selectedSession.value = null;
             break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
           default:
-            console.error(status);
-            toast.clientError();
-            break;
+            const handled = await defaultErrorHandler(status);
+            if (!handled) {
+              toast.clientError();
+            }
         }
       } else if (!status) {
         toast.clientError();

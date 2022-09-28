@@ -9,7 +9,7 @@
         }}uploaded.
         <br />
         Showing page {{ page + 1 }} of
-        {{ (files.data ? Math.floor(files.data?.count / 50) : 0) + 1 }}
+        {{ files.data ? Math.floor(files.data.count / 51) : 0 }}
         <br />
         {{ files.data?.count || 'some number of' }} files in total.
       </h2>
@@ -110,7 +110,7 @@
   import { useRouter } from 'vue-router';
   import { ref, watch, onMounted } from 'vue';
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import backWithFallback from '@/utils/routerBackWithFallback';
 
   const online = useOnline(),
@@ -143,34 +143,13 @@
                 ).result;
               } catch (e) {
                 if (e instanceof Cumulonimbus.ResponseError) {
-                  switch (e.code) {
-                    case 'BANNED_ERROR':
-                      toast.banned();
-                      user.logout();
-                      router.push('/');
-                      break;
-                    case 'RATELIMITED_ERROR':
-                      toast.rateLimit(e);
-                      break;
-                    case 'INVALID_SESSION_ERROR':
-                      toast.session();
-                      await toLogin(router);
-                      break;
-                    case 'INSUFFICIENT_PERMISSIONS_ERROR':
-                      await user.refetch();
-                      router.replace('/');
-                      break;
-                    case 'INVALID_USER_ERROR':
-                      toast.show('User not found.');
-                      backWithFallback(router, '/staff/users');
-                    case 'INTERNAL_ERROR':
-                      toast.serverError();
-                      break;
-                    case 'GENERIC_ERROR':
-                    default:
-                      console.error(e);
-                      toast.clientError();
-                      break;
+                  const handled = await defaultErrorHandler(e);
+                  if (!handled) {
+                    switch (e.code) {
+                      case 'INVALID_USER_ERROR':
+                        toast.show('This user does not exist.');
+                        backWithFallback(router, '/staff/users');
+                    }
                   }
                 } else {
                   console.error(e);
@@ -196,34 +175,13 @@
           ).result;
         } catch (e) {
           if (e instanceof Cumulonimbus.ResponseError) {
-            switch (e.code) {
-              case 'BANNED_ERROR':
-                toast.banned();
-                user.logout();
-                router.push('/');
-                break;
-              case 'RATELIMITED_ERROR':
-                toast.rateLimit(e);
-                break;
-              case 'INVALID_SESSION_ERROR':
-                toast.session();
-                await toLogin(router);
-                break;
-              case 'INSUFFICIENT_PERMISSIONS_ERROR':
-                await user.refetch();
-                router.replace('/');
-                break;
-              case 'INVALID_USER_ERROR':
-                toast.show('User not found.');
-                backWithFallback(router, '/staff/users');
-              case 'INTERNAL_ERROR':
-                toast.serverError();
-                break;
-              case 'GENERIC_ERROR':
-              default:
-                console.error(e);
-                toast.clientError();
-                break;
+            const handled = await defaultErrorHandler(e);
+            if (!handled) {
+              switch (e.code) {
+                case 'INVALID_USER_ERROR':
+                  toast.show('This user does not exist.');
+                  backWithFallback(router, '/staff/users');
+              }
             }
           } else {
             console.error(e);
@@ -239,41 +197,20 @@
 
   async function fetchFiles() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const status = await files.getFiles(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INVALID_USER_ERROR':
-            toast.show('Invalid user.');
-            backWithFallback(router, '/staff/users');
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users');
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -304,7 +241,7 @@
 
   async function deleteSelected(choice: boolean) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!choice) {
@@ -315,36 +252,15 @@
     try {
       const status = await files.deleteFiles(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            if (selected.value.length > 0)
-              toast.show('You can only select up to 100 files at once.');
-            else toast.show('You must select at least one file to delete.');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        if ((status.code = 'MISSING_FIELDS_ERROR')) {
+          if (selected.value.length > 0)
+            toast.show('You can only select up to 100 files at once.');
+          else toast.show('You must select at least one file to delete.');
+          return;
+        }
+        const handled = await defaultErrorHandler(status);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!status) {
         toast.clientError();

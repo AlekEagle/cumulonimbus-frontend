@@ -110,7 +110,7 @@
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import toDateString from '@/utils/dateString';
   import { useOnline } from '@vueuse/core';
   import { ref, watch, onMounted } from 'vue';
@@ -134,34 +134,16 @@
 
   async function fetchSessions() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const status = await sessions.getSessions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!status) {
         toast.clientError();
@@ -207,34 +189,13 @@
                 ).result;
               } catch (e) {
                 if (e instanceof Cumulonimbus.ResponseError) {
-                  switch (e.code) {
-                    case 'BANNED_ERROR':
-                      toast.banned();
-                      user.logout();
-                      router.push('/');
-                      break;
-                    case 'RATELIMITED_ERROR':
-                      toast.rateLimit(e);
-                      break;
-                    case 'INVALID_SESSION_ERROR':
-                      toast.session();
-                      await toLogin(router);
-                      break;
-                    case 'INSUFFICIENT_PERMISSIONS_ERROR':
-                      await user.refetch();
-                      router.replace('/');
-                      break;
-                    case 'INVALID_USER_ERROR':
-                      toast.show('User not found.');
-                      backWithFallback(router, '/staff/users');
-                    case 'INTERNAL_ERROR':
-                      toast.serverError();
-                      break;
-                    case 'GENERIC_ERROR':
-                    default:
-                      console.error(e);
-                      toast.clientError();
-                      break;
+                  const handled = await defaultErrorHandler(e);
+                  if (!handled) {
+                    switch (e.code) {
+                      case 'INVALID_USER_ERROR':
+                        toast.show('This user does not exist.');
+                        backWithFallback(router, '/staff/users');
+                    }
                   }
                 } else {
                   console.error(e);
@@ -267,34 +228,13 @@
           ).result;
         } catch (e) {
           if (e instanceof Cumulonimbus.ResponseError) {
-            switch (e.code) {
-              case 'BANNED_ERROR':
-                toast.banned();
-                user.logout();
-                router.push('/');
-                break;
-              case 'RATELIMITED_ERROR':
-                toast.rateLimit(e);
-                break;
-              case 'INVALID_SESSION_ERROR':
-                toast.session();
-                await toLogin(router);
-                break;
-              case 'INSUFFICIENT_PERMISSIONS_ERROR':
-                await user.refetch();
-                router.replace('/');
-                break;
-              case 'INVALID_USER_ERROR':
-                toast.show('User not found.');
-                backWithFallback(router, '/staff/users');
-              case 'INTERNAL_ERROR':
-                toast.serverError();
-                break;
-              case 'GENERIC_ERROR':
-              default:
-                console.error(e);
-                toast.clientError();
-                break;
+            const handled = await defaultErrorHandler(e);
+            if (!handled) {
+              switch (e.code) {
+                case 'INVALID_USER_ERROR':
+                  toast.show('This user does not exist.');
+                  backWithFallback(router, '/staff/users');
+              }
             }
           } else {
             console.error(e);
@@ -313,31 +253,16 @@
       );
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
           case 'INVALID_SESSION_ERROR':
             toast.show("It appears that session doesn't exist anymore.");
             await fetchSessions();
             selectedSession.value = null;
             break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
           default:
-            console.error(status);
-            toast.clientError();
-            break;
+            const handled = await defaultErrorHandler(status);
+            if (!handled) {
+              toast.clientError();
+            }
         }
       } else if (!status) {
         toast.clientError();
@@ -356,7 +281,7 @@
 
   async function onDeleteSessionsChoice(choice: boolean) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!choice) {
@@ -369,28 +294,16 @@
       const status = await sessions.deleteSessions(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
           case 'INVALID_SESSION_ERROR':
             toast.show("It appears that session doesn't exist anymore.");
             await fetchSessions();
-            selected.value = [];
-            selecting.value = false;
+            selectedSession.value = null;
             break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
           default:
-            console.error(status);
-            toast.clientError();
-            break;
+            const handled = await defaultErrorHandler(status);
+            if (!handled) {
+              toast.clientError();
+            }
         }
       } else if (!status) {
         toast.clientError();

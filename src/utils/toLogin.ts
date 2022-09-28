@@ -1,13 +1,14 @@
-import { Router } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { userStore } from '@/stores/user';
 
-export default async function toLogin(router: Router) {
-  const user = userStore();
+export default async function toLogin() {
+  const user = userStore(),
+    router = useRouter();
   if (user.loggedIn) {
-    if (typeof (await user.logout()) !== 'boolean') await user.logout();
+    await user.logout();
   }
   return await router.replace({
-    name: 'auth',
+    name: 'account-switcher',
     query: {
       redirect: router.currentRoute.value.fullPath
     }

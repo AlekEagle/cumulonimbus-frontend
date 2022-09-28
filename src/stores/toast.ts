@@ -5,6 +5,10 @@ import Cumulonimbus from 'cumulonimbus-wrapper';
 
 const toastTransitionDuration = 500;
 
+function capitalizeFirstLetter(string: string): string {
+  return string.charAt(0).toLocaleUpperCase() + string.slice(1);
+}
+
 // A store for managing toast messages
 export const toastStore = defineStore('toast', () => {
   // The current text of the toast
@@ -85,6 +89,11 @@ export const toastStore = defineStore('toast', () => {
     await show('Your session has expired. Please log in again.');
   };
 
+  // The function to display a toast regarding insufficient permissions
+  const insufficientPermissions = async () => {
+    await show("Uh uh uh, you didn't say the magic word!");
+  };
+
   // The function to display a toast regarding a client-side error
   const clientError = async () => {
     await show('I did something wrong, give me a second and try again.');
@@ -97,9 +106,51 @@ export const toastStore = defineStore('toast', () => {
     );
   };
 
+  // The function to display a toast regarding a generic error
+  const genericError = async () => {
+    await show(
+      "Someone did something wrong, I don't know who. Give it a second and try again."
+    );
+  };
+
+  // The function to display a toast regarding missing fields
+  const missingFields = async (fields: string[]) => {
+    // Capitalize the first letter of each field, and join them with commas, putting an "and" before the last one
+    const fieldsNormalized =
+      fields.length === 1
+        ? capitalizeFirstLetter(fields[0])
+        : fields
+            .map(capitalizeFirstLetter)
+            .join(', ')
+            .replace(/, ([^,]*)$/, ', and $1');
+    await show(
+      `Whoops! Looks like you missed something! Please double-check: ${fieldsNormalized}`
+    );
+  };
+
+  // The function to display a toast regarding an incorrect username/email
+  const invalidUsernameEmail = async () => {
+    await show("I can't find anyone with that username or email!");
+  };
+
+  // The function to display a toast regarding an incorrect password
+  const invalidPassword = async () => {
+    await show('No, that is not the password.');
+  };
+
   // The function to display a toast regarding client internet connectivity
-  const connectivity = async () => {
+  const connectivityOffline = async () => {
     await show('It seems like you are offline. Please try again later.');
+  };
+
+  // The function to display a toast regarding the client's internet connectivity changing to online
+  const connectivityChangeOnline = async () => {
+    await show("You're back online! Everything should be working as expected.");
+  };
+
+  // The function to display a toast regarding the client's internet connectivity changing to offline
+  const connectivityChangeOffline = async () => {
+    await show("Looks like you went offline. You won't be able to do much.");
   };
 
   return {
@@ -110,8 +161,15 @@ export const toastStore = defineStore('toast', () => {
     rateLimit,
     banned,
     session,
+    insufficientPermissions,
     clientError,
     serverError,
-    connectivity
+    genericError,
+    missingFields,
+    invalidUsernameEmail,
+    invalidPassword,
+    connectivityOffline,
+    connectivityChangeOnline,
+    connectivityChangeOffline
   };
 });

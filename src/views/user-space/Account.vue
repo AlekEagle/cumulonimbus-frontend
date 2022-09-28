@@ -201,7 +201,7 @@
     :subdomain="user.account!.user.subdomain"
     :disabled="user.loading"
     @submit="updateDomain"
-    @no-session="toLogin(router)"
+    @no-session="toLogin"
   />
   <FormModal
     ref="deleteSessionsModal"
@@ -268,6 +268,7 @@
   import { toastStore } from '@/stores/toast';
   import toDateString from '@/utils/dateString';
   import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
   import { ref } from 'vue';
@@ -287,42 +288,19 @@
 
   async function updateUsername(data: { username: string; password: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const res = await user.changeUsername(data.username, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            toast.show('You need to actually fill out the form');
-            break;
-          case 'USER_EXISTS_ERROR':
-            toast.show('Someone already has that username!');
-            break;
-          case 'INVALID_PASSWORD_ERROR':
-            toast.show('No, that is not the password.');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(res);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(res);
+        if (!handled) {
+          switch (res.code) {
+            case 'USER_EXISTS_ERROR':
+              toast.show('Someone already has that username!');
+              break;
+          }
         }
       } else if (res) {
         usernameFormModal.value!.hide();
@@ -335,42 +313,19 @@
 
   async function updateEmail(data: { email: string; password: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const res = await user.changeEmail(data.email, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            toast.show('You need to actually fill out the form');
-            break;
-          case 'USER_EXISTS_ERROR':
-            toast.show('Someone already has that email!');
-            break;
-          case 'INVALID_PASSWORD_ERROR':
-            toast.show('No, that is not the password.');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(res);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(res);
+        if (!handled) {
+          switch (res.code) {
+            case 'USER_EXISTS_ERROR':
+              toast.show('Someone already has that username!');
+              break;
+          }
         }
       } else if (res) {
         emailFormModal.value!.hide();
@@ -387,7 +342,7 @@
     password: string;
   }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (data.newPassword !== data.repeatNewPassword) {
@@ -397,33 +352,9 @@
     try {
       const res = await user.changePassword(data.newPassword, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            toast.show('You need to actually fill out the form');
-            break;
-          case 'INVALID_PASSWORD_ERROR':
-            toast.show('No, that is not the password.');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(res);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(res);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (res) {
         passwordFormModal.value!.hide();
@@ -436,46 +367,26 @@
 
   async function updateDomain(data: { domain: string; subdomain?: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const res = await user.changeDomain(data.domain, data.subdomain);
       if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            toast.show('You need to actually fill out the form');
-            break;
-          case 'INVALID_DOMAIN_ERROR':
-            toast.show('You just missed that domain.');
-            domainModal.value!.reloadDomains();
-            break;
-          case 'SUBDOMAIN_NOT_SUPPORTED_ERROR':
-            toast.show('Subdomains are not supported.');
-            break;
-          case 'INVALID_SUBDOMAIN_ERROR':
-            toast.show('Subdomain cannot be longer than 63 characters.');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(res);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(res);
+        if (!handled) {
+          switch (res.code) {
+            case 'INVALID_DOMAIN_ERROR':
+              toast.show('You just missed that domain.');
+              domainModal.value!.reloadDomains();
+              break;
+            case 'SUBDOMAIN_NOT_SUPPORTED_ERROR':
+              toast.show('Subdomains are not supported.');
+              break;
+            case 'INVALID_SUBDOMAIN_ERROR':
+              toast.show('Subdomain cannot be longer than 63 characters.');
+              break;
+          }
         }
       } else if (res) {
         domainModal.value!.hide();
@@ -488,34 +399,16 @@
 
   async function deleteSessions(data: { allButSelf: boolean }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
 
     try {
       const res = await user.revokeSessions(data.allButSelf);
       if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(res);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(res);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (res) {
         deleteSessionsModal.value!.hide();
@@ -532,33 +425,15 @@
       return;
     }
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const res = await user.deleteFiles();
       if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(res);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(res);
+        if (!handled) {
+          toast.clientError();
         }
       } else {
         toast.show(`Deleted ${res} files.`);
@@ -572,41 +447,21 @@
 
   async function deleteAccount(data: { username: string; password: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const res = await user.deleteAccount(data.username, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
         switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            toast.show('You need to actually fill out the form');
-            break;
-          case 'INVALID_PASSWORD_ERROR':
-            toast.show('No, that is not the password.');
-            break;
           case 'INVALID_USER_ERROR':
-            toast.show('No, that is not the username.');
+            toast.show('That is not your username.');
             break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
           default:
-            console.error(res);
-            toast.clientError();
+            const handled = await defaultErrorHandler(res);
+            if (!handled) {
+              toast.clientError();
+            }
             break;
         }
       } else if (res) {

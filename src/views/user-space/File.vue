@@ -26,8 +26,8 @@
         file.loading ||
         file.errored
       "
-      >Share</button
-    >
+      v-text="copied ? 'Copied to clipboard!' : 'Share'"
+    />
     <button @click="download" :disabled="file.loading || file.errored">
       Download
     </button>
@@ -88,7 +88,6 @@
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
   import { ref, onMounted, watch, computed } from 'vue';
-  import toLogin from '@/utils/toLogin';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useRouter } from 'vue-router';
   import { useOnline, useShare, useClipboard } from '@vueuse/core';
@@ -97,6 +96,7 @@
   import toDateString from '@/utils/dateString';
   import size from '@/utils/size';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
   const toast = toastStore(),
     user = userStore(),
@@ -106,7 +106,7 @@
     online = useOnline(),
     fileUrl = computed(() => {
       if (file.data) {
-        if (import.meta.env.MODE === 'prod_preview')
+        if (import.meta.env.MODE === 'ptb')
           return `https://alekeagle.me/${file.data.filename}`;
         else
           return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
@@ -114,17 +114,12 @@
       return '';
     }),
     confirmModal = ref<typeof ConfirmModal>(),
-    {
-      isSupported: clipboardIsSupported,
-      copy,
-      copied,
-      text: clipboardText
-    } = useClipboard(),
+    { isSupported: clipboardIsSupported, copy, copied } = useClipboard(),
     { share, isSupported: shareIsSupported } = useShare();
 
   async function fetchFile() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -132,32 +127,14 @@
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_FILE_ERROR':
-            toast.show('This file does not exist.');
-            await files.getFiles(files.page);
-            await backWithFallback(router, '/dashboard/files');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('That file does not exist.');
+              await files.getFiles(files.page);
+              await backWithFallback(router, '/dashboard/files');
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -195,38 +172,20 @@
       return;
     }
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const status = await file.deleteFile();
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_FILE_ERROR':
-            toast.show('This file does not exist.');
-            await files.getFiles(files.page);
-            await backWithFallback(router, '/dashboard/files');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('That file does not exist.');
+              await files.getFiles(files.page);
+              await backWithFallback(router, '/dashboard/files');
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -253,14 +212,14 @@
         await copy(`https://${user.domain}/${file.data!.filename}`);
         toast.show('Copied to clipboard.');
       } else {
-        toast.show('Clipboard not supported.');
+        toast.show('Sharing is not supported on your device.');
       }
     }
   }
 
   function download() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (file.data) {
