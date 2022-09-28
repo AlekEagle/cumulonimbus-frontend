@@ -92,6 +92,7 @@
     removeAccountModal = ref<typeof ConfirmModal>();
 
   async function handleAccountClick(account: string) {
+    if (user.loading) return;
     if (managingAccounts.value) {
       selectedAccount.value = account;
       removeAccountModal.value?.show();
