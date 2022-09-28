@@ -268,7 +268,7 @@
     gap: 0 5px;
     border-bottom: 1px solid var(--ui-border);
     cursor: pointer;
-    transition: background-color 0.25s, border-color 0.25s;
+    transition: background-color 0.25s, border-color 0.25s, color 0.25s;
   }
 
   .account-switcher-account:hover,
@@ -290,6 +290,12 @@
     border-radius: 1rem;
     border-bottom-width: none;
     border-bottom-style: none;
+  }
+
+  .account-switcher-account.disabled {
+    cursor: not-allowed;
+    background-color: var(--ui-background-disabled);
+    color: var(--ui-text-disabled);
   }
 
   .account-switcher-account img {
