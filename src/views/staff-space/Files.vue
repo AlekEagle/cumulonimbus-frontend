@@ -146,7 +146,7 @@
                   switch (e.code) {
                     case 'BANNED_ERROR':
                       toast.banned();
-                      user.logout(true);
+                      user.logout();
                       router.push('/');
                       break;
                     case 'RATELIMITED_ERROR':
@@ -157,7 +157,7 @@
                       await toLogin(router);
                       break;
                     case 'INSUFFICIENT_PERMISSIONS_ERROR':
-                      await user.getSelf();
+                      await user.refetch();
                       router.replace('/');
                       break;
                     case 'INVALID_USER_ERROR':
@@ -199,7 +199,7 @@
             switch (e.code) {
               case 'BANNED_ERROR':
                 toast.banned();
-                user.logout(true);
+                user.logout();
                 router.push('/');
                 break;
               case 'RATELIMITED_ERROR':
@@ -210,7 +210,7 @@
                 await toLogin(router);
                 break;
               case 'INSUFFICIENT_PERMISSIONS_ERROR':
-                await user.getSelf();
+                await user.refetch();
                 router.replace('/');
                 break;
               case 'INVALID_USER_ERROR':
@@ -249,7 +249,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -260,7 +260,7 @@
             await toLogin(router);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_USER_ERROR':
@@ -318,7 +318,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -334,7 +334,7 @@
             else toast.show('You must select at least one file to delete.');
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INTERNAL_ERROR':

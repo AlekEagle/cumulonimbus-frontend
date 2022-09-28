@@ -129,7 +129,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -199,7 +199,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':

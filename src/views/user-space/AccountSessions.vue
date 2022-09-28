@@ -55,10 +55,10 @@
             :selected="selected.includes(session.iat + '')"
             @click="onSessionClick(session)"
           >
-            <strong v-if="session.iat === user.session!.iat"
+            <strong v-if="session.iat === user.account?.session.iat"
               >This Session!</strong
             >
-            <br v-if="session.iat === user.session!.iat" />
+            <br v-if="session.iat === user.account?.session.iat" />
             Click me to manage this session.
           </SelectableContentBox>
         </div>
@@ -94,7 +94,7 @@
     <template v-if="!!selectedSession">
       <code v-text="selectedSession!.name" />
       <br />
-      <strong v-if="selectedSession!.iat === user.session!.iat">
+      <strong v-if="selectedSession!.iat === user.account?.session.iat">
         This is your current session.
       </strong>
       <p>
@@ -152,7 +152,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -219,7 +219,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -242,8 +242,8 @@
       } else if (!status) {
         toast.clientError();
       } else {
-        if (selectedSession.value!.iat === user.session!.iat) {
-          await user.logout(true);
+        if (selectedSession.value?.iat === user.account?.session.iat) {
+          await user.logout();
         } else {
           selectedSession.value = null;
           toast.show('Session deleted.');
@@ -271,7 +271,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -295,8 +295,8 @@
       } else if (!status) {
         toast.clientError();
       } else {
-        if (selected.value.includes(user.session!.iat + '')) {
-          await user.logout(true);
+        if (selected.value.includes(user.account?.session.iat + '')) {
+          await user.logout();
         } else {
           selected.value = [];
           selecting.value = false;

@@ -196,7 +196,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -263,7 +263,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -274,7 +274,7 @@
             await toLogin(router);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_DOMAIN_ERROR':
@@ -319,7 +319,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -330,7 +330,7 @@
             await toLogin(router);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INTERNAL_ERROR':
@@ -367,7 +367,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -378,7 +378,7 @@
             await toLogin(router);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'INVALID_DOMAIN_ERROR':
@@ -450,7 +450,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -461,7 +461,7 @@
             await toLogin(router);
             break;
           case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.getSelf();
+            await user.refetch();
             router.replace('/');
             break;
           case 'DOMAIN_EXISTS_ERROR':

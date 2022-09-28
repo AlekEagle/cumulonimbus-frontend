@@ -133,7 +133,7 @@
         switch (status.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
@@ -238,7 +238,7 @@
                 } on ${OS}`
             },
             body: JSON.stringify({
-              user: user.user?.username,
+              user: user.account?.user.username,
               pass: data.password,
               rememberMe: true
             })
@@ -253,7 +253,7 @@
         switch (json.code) {
           case 'BANNED_ERROR':
             toast.banned();
-            user.logout(true);
+            user.logout();
             router.push('/');
             break;
           case 'RATELIMITED_ERROR':
