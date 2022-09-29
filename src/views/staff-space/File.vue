@@ -124,7 +124,7 @@
     online = useOnline(),
     fileUrl = computed(() => {
       if (file.data) {
-        if (import.meta.env.MODE === 'prod_preview')
+        if (import.meta.env.MODE === 'ptb')
           return `https://alekeagle.me/${file.data.filename}`;
         else
           return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
