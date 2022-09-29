@@ -5,7 +5,7 @@
       <h2>
         Showing page {{ page + 1 }} of
         {{
-          (instructions.data ? Math.floor(instructions.data?.count / 50) : 0) +
+          (instructions.data ? Math.floor(instructions.data?.count / 51) : 0) +
           1
         }}
         <br />
@@ -47,7 +47,7 @@
   </div>
   <Paginator
     v-model="page"
-    :max="instructions.data ? Math.floor(instructions.data.count / 50) : 0"
+    :max="instructions.data ? Math.floor(instructions.data.count / 51) : 0"
     :disabled="instructions.loading || !online"
   >
     <template v-if="!instructions.loading">
