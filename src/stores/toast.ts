@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { wait, waitFor } from '@/utils/wait';
 import Cumulonimbus from 'cumulonimbus-wrapper';
+import toTimeString from '@/utils/toTimeString';
 
 const toastTransitionDuration = 500;
 
@@ -70,9 +71,9 @@ export const toastStore = defineStore('toast', () => {
   // The function to display a toast regarding a rate limit error
   const rateLimit = async (error: Cumulonimbus.ResponseError) => {
     // construct the message
-    const msg = `You have been ratelimited. Please try again in ${
-      error.ratelimit!.reset - Math.floor(Date.now() / 1000)
-    } seconds.`;
+    const msg = `You have been ratelimited. Please try again in ${toTimeString(
+      (error.ratelimit!.reset - Math.floor(Date.now() / 1000)) * 1000
+    )}.`;
     // show the toast
     await show(msg);
   };
@@ -89,9 +90,14 @@ export const toastStore = defineStore('toast', () => {
     await show('Your session has expired. Please log in again.');
   };
 
+  // The function to display a toast telling the user they need to log in to do something
+  const login = async () => {
+    await show('Whoops! Looks like you need to log in before we do that!');
+  };
+
   // The function to display a toast regarding insufficient permissions
   const insufficientPermissions = async () => {
-    await show("Uh uh uh, you didn't say the magic word!");
+    await show("Nuh uh uh! You didn't say the magic word!");
   };
 
   // The function to display a toast regarding a client-side error
@@ -162,6 +168,7 @@ export const toastStore = defineStore('toast', () => {
     banned,
     session,
     insufficientPermissions,
+    login,
     clientError,
     serverError,
     genericError,

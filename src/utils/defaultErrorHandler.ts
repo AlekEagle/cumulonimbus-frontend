@@ -2,15 +2,15 @@ import Cumulonimbus from 'cumulonimbus-wrapper';
 import toLogin from './toLogin';
 import { toastStore } from '@/stores/toast';
 import { userStore } from '@/stores/user';
-import { useRouter } from 'vue-router';
+import { Router } from 'vue-router';
 
 // Handle common errors from the API
 export default async function defaultErrorHandler(
-  error: Cumulonimbus.ResponseError
+  error: Cumulonimbus.ResponseError,
+  router: Router
 ): Promise<boolean> {
   // Get the stores and components we need
-  const router = useRouter(),
-    user = userStore(),
+  const user = userStore(),
     toast = toastStore();
 
   switch (error.code) {
@@ -24,7 +24,7 @@ export default async function defaultErrorHandler(
         user.account = null;
         user.client = null;
         // Send the user to the login page.
-        await toLogin();
+        await toLogin(router);
       }
       // Return true to indicate that the error was handled.
       return true;
@@ -39,7 +39,7 @@ export default async function defaultErrorHandler(
       // Display the invalid session message.
       toast.session();
       // Log the user out.
-      await toLogin();
+      await toLogin(router);
       // Return true to indicate that the error was handled.
       return true;
     // If the user tries to perform an action that they do not have permission to perform.

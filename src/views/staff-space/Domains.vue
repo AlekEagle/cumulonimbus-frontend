@@ -169,7 +169,7 @@
   import { useRouter } from 'vue-router';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import gearIcon from '@/assets/images/gear.svg';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
 
   const online = useOnline(),
     router = useRouter(),
@@ -194,7 +194,7 @@
     try {
       const status = await domains.getDomains(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.clientError();
         }
@@ -243,7 +243,7 @@
     try {
       const status = await domains.deleteDomain(selectedDomain.value!.domain);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -278,7 +278,7 @@
     try {
       const status = await domains.deleteDomains(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.clientError();
         }
@@ -304,7 +304,7 @@
         allowSubdomains
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -366,7 +366,7 @@
         data.allowsSubdomains
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'DOMAIN_EXISTS_ERROR':

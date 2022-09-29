@@ -201,7 +201,7 @@
     :subdomain="user.account!.user.subdomain"
     :disabled="user.loading"
     @submit="updateDomain"
-    @no-session="toLogin"
+    @no-session="toLogin(router)"
   />
   <FormModal
     ref="deleteSessionsModal"
@@ -266,7 +266,7 @@
   import gearIcon from '@/assets/images/gear.svg';
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
   import toLogin from '@/utils/toLogin';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import { useOnline } from '@vueuse/core';
@@ -294,7 +294,7 @@
     try {
       const res = await user.changeUsername(data.username, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           switch (res.code) {
             case 'USER_EXISTS_ERROR':
@@ -319,7 +319,7 @@
     try {
       const res = await user.changeEmail(data.email, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           switch (res.code) {
             case 'USER_EXISTS_ERROR':
@@ -352,7 +352,7 @@
     try {
       const res = await user.changePassword(data.newPassword, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           toast.clientError();
         }
@@ -373,7 +373,7 @@
     try {
       const res = await user.changeDomain(data.domain, data.subdomain);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           switch (res.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -406,7 +406,7 @@
     try {
       const res = await user.revokeSessions(data.allButSelf);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           toast.clientError();
         }
@@ -431,7 +431,7 @@
     try {
       const res = await user.deleteFiles();
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           toast.clientError();
         }
@@ -458,7 +458,7 @@
             toast.show('That is not your username.');
             break;
           default:
-            const handled = await defaultErrorHandler(res);
+            const handled = await defaultErrorHandler(res, router);
             if (!handled) {
               toast.clientError();
             }

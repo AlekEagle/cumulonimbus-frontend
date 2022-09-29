@@ -90,6 +90,7 @@
   const ptb = ptbStore();
   const host = window.location.host;
   const menuItems = computed(() => {
+    const currentLoc = route.fullPath;
     return [
       {
         name: 'Home',
@@ -100,31 +101,47 @@
         ? [
             {
               name: 'Dashboard',
-              path: '/dashboard',
+              path: {
+                name: 'user-space-dashboard'
+              },
               external: false
             },
             {
               name: 'Upload',
-              path: '/dashboard/upload',
+              path: {
+                name: 'user-space-upload'
+              },
               external: false
             },
             {
               name: 'Switch Accounts',
-              path: '/auth/switcher',
+              path: {
+                name: 'account-switcher',
+                query: {
+                  redirect: currentLoc
+                }
+              },
               external: false
             }
           ]
         : [
             {
-              name: 'Login',
-              path: '/auth/switcher?redirect=/dashboard',
+              name: 'Login to Dashboard',
+              path: {
+                name: 'account-switcher',
+                query: {
+                  redirect: '/dashboard'
+                }
+              },
               external: false
             }
           ]),
       user.account && user.account.user.staff
         ? {
             name: 'Staff Dashboard',
-            path: '/staff',
+            path: {
+              name: 'staff-space-dashboard'
+            },
             external: false
           }
         : undefined,
@@ -182,7 +199,8 @@
             // if so, continue to the route
             next();
           } else {
-            // if not, redirect to the home page
+            // if not, display the insufficient permissions error and redirect to the home page
+            toast.insufficientPermissions();
             next({
               path: '/'
             });
@@ -192,10 +210,10 @@
           next();
         }
       } else {
-        // if not, redirect to the auth page with the redirect query param set to the current route
+        // if not, display a toast that says the user needs to login and redirect to the auth page with the redirect query param set to the current route
+        toast.login();
         next({
           name: 'account-switcher',
-          hash: '#login',
           query: {
             redirect: to.fullPath
           }
@@ -235,18 +253,21 @@
             // if so, continue to the route
             return;
           } else {
-            // if not, redirect to the home page
-            router.replace('/');
+            // if not, display the insufficient permissions error and redirect to the home page
+            toast.insufficientPermissions();
+            router.replace({
+              path: '/'
+            });
           }
         } else {
           // if not, continue to the route
           return;
         }
       } else {
-        // if not, redirect to the auth page with the redirect query param set to the current route
+        // if not, display a toast that says the user needs to login and redirect to the auth page with the redirect query param set to the current route
+        toast.login();
         router.replace({
           name: 'account-switcher',
-          hash: '#login',
           query: {
             redirect: route.fullPath
           }

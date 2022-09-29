@@ -93,7 +93,7 @@
   import { useOnline, useShare, useClipboard } from '@vueuse/core';
   import fileIcon from '@/assets/images/file.svg';
   import backWithFallback from '@/utils/routerBackWithFallback';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
   import size from '@/utils/size';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
@@ -127,7 +127,7 @@
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_FILE_ERROR':
@@ -178,7 +178,7 @@
     try {
       const status = await file.deleteFile();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_FILE_ERROR':

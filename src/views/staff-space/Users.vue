@@ -11,9 +11,9 @@
         {{ users.data?.count || 'some number of' }} users in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else>
-      Alek is individually counting the users
-    </h2>
+    <h2 class="animated-ellipsis" v-else
+      >Alek is individually counting the users</h2
+    >
   </template>
   <template v-else>
     <h2>Alek can't count the users because you are offline :(</h2>
@@ -152,7 +152,7 @@
     try {
       const res = users.getUsers(page.value);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           toast.clientError();
         }
@@ -171,7 +171,7 @@
     try {
       const res = await users.deleteUsers(selected.value);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           toast.clientError();
         }

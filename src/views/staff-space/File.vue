@@ -101,7 +101,7 @@
   import ContentBox from '@/components/ContentBox.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
   import size from '@/utils/size';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import backWithFallback from '@/utils/routerBackWithFallback';
@@ -150,7 +150,7 @@
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_FILE_ERROR':
@@ -199,7 +199,7 @@
     try {
       const status = await file.deleteFile();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_FILE_ERROR':

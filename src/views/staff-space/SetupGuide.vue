@@ -262,7 +262,7 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
   import plusIcon from '@/assets/images/plus.svg';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
   import backWithFallback from '@/utils/routerBackWithFallback';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
@@ -292,7 +292,7 @@
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -351,7 +351,7 @@
     try {
       const status = instruction.updateInstructionSteps(steps);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -384,7 +384,7 @@
     try {
       const status = instruction.updateInstructionSteps(steps);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -444,7 +444,7 @@
     try {
       const status = await instruction.deleteInstruction();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -477,7 +477,7 @@
         data.displayName
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -509,7 +509,7 @@
         data.description
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -539,7 +539,7 @@
     try {
       const status = await instruction.updateInstructionFilename(data.filename);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -569,7 +569,7 @@
     try {
       const status = await instruction.updateInstructionFilename('');
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -601,7 +601,7 @@
         data.content
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':

@@ -11,11 +11,11 @@
       Remove Accounts
     </button>
     <button v-else @click="managingAccounts = false" :disabled="user.loading">
-      Cancel
+      Done
     </button>
     <button
       v-if="managingAccounts"
-      @click="removeAllAccounts"
+      @click="removeAllAccountsModal?.show()"
       :disabled="user.loading || !online"
     >
       Remove All Accounts
@@ -36,7 +36,9 @@
           />
           <img v-else :src="closeIcon" alt="Delete account icon" />
           <p v-text="account" />
-          <p v-if="user.account?.user.username === account && !managingAccounts">
+          <p
+            v-if="user.account?.user.username === account && !managingAccounts"
+          >
             Currently logged in.
           </p>
           <p v-if="token === false && !managingAccounts">Not logged in.</p>
@@ -123,6 +125,7 @@
         if (typeof res === 'boolean') {
           if (res) {
             toast.show(`Switched to ${user.account?.user.username}.`);
+
             redirect();
           } else
             router.push({
@@ -131,14 +134,14 @@
                 redirect: redirectLoc.value,
                 username: account
               },
-              hash: 'login'
+              hash: '#login'
             });
         } else {
           toast.show(`Failed to switch to ${account}: ${res.message}`);
         }
       } catch (e) {
         if (e instanceof Cumulonimbus.ResponseError) {
-          const handled = await defaultErrorHandler(e);
+          const handled = await defaultErrorHandler(e, router);
           if (!handled) toast.show(`Failed to switch to ${account}.`);
         } else {
           toast.clientError();
@@ -153,12 +156,8 @@
       query: {
         redirect: redirectLoc.value
       },
-      hash: 'login'
+      hash: '#login'
     });
-  }
-
-  function removeAllAccounts() {
-    removeAllAccountsModal.value?.show();
   }
 
   async function removeAllAccountsConfirm(choice: boolean) {
@@ -201,7 +200,7 @@
         query: {
           redirect: redirectLoc.value
         },
-        hash: 'login'
+        hash: '#login'
       });
     }
   }
@@ -211,6 +210,8 @@
       if (user.accounts[selectedAccount.value as string] === false) {
         toast.show('Account removed.');
         user.removeAccount(selectedAccount.value as string);
+        selectedAccount.value = null;
+        removeAccountModal.value?.hide();
       } else {
         const tempClient = new Cumulonimbus(
           user.accounts[selectedAccount.value as string] as string,
@@ -260,7 +261,7 @@
         query: {
           redirect: redirectLoc.value
         },
-        hash: 'login'
+        hash: '#login'
       });
     } else if (Object.keys(user.accounts).length < 2 && !user.loggedIn) {
       const res = await user.switchAccount(Object.keys(user.accounts)[0]);
@@ -276,7 +277,7 @@
               redirect: redirectLoc.value,
               username: Object.keys(user.accounts)[0]
             },
-            hash: 'login'
+            hash: '#login'
           });
       }
     }

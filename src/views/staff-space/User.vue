@@ -248,8 +248,8 @@
     :disabled="otherUser.loading"
   >
     <p>
-      Are you sure you want to {{ otherUser.data!.staff ? 'revoke' : 'grant' }}
-      <code>{{ otherUser.data!.username }}</code> staff status?
+      Are you sure you want to {{ otherUser.data?.staff ? 'revoke' : 'grant' }}
+      <code>{{ otherUser.data?.username }}</code> staff status?
     </p>
   </ConfirmModal>
   <ConfirmModal
@@ -260,8 +260,8 @@
   >
     <p>
       Are you sure you want to
-      {{ otherUser.data!.bannedAt ? 'unban' : 'ban' }}
-      <code>{{ otherUser.data!.username }}</code
+      {{ otherUser.data?.bannedAt ? 'unban' : 'ban' }}
+      <code>{{ otherUser.data?.username }}</code
       >?
     </p>
   </ConfirmModal>
@@ -273,7 +273,7 @@
   >
     <p>
       Are you sure you want to sign
-      <code>{{ otherUser.data!.username }}</code> out everywhere?
+      <code>{{ otherUser.data?.username }}</code> out everywhere?
     </p>
   </ConfirmModal>
   <ConfirmModal
@@ -283,7 +283,7 @@
     :disabled="otherUser.loading"
   >
     <p>
-      Are you sure you want to delete <code>{{ otherUser.data!.username }}</code
+      Are you sure you want to delete <code>{{ otherUser.data?.username }}</code
       >'s files?
     </p>
   </ConfirmModal>
@@ -294,11 +294,11 @@
     :disabled="otherUser.loading"
   >
     <p>
-      Are you sure you want to delete <code>{{ otherUser.data!.username }}</code
+      Are you sure you want to delete <code>{{ otherUser.data?.username }}</code
       >'s account?
     </p>
     <p>
-      This will delete all of <code>{{ otherUser.data!.username }}</code
+      This will delete all of <code>{{ otherUser.data?.username }}</code
       >'s files and account.
     </p>
   </ConfirmModal>
@@ -320,7 +320,7 @@
   import { otherUserStore } from '@/stores/staff-space/user';
   import { usersStore } from '@/stores/staff-space/users';
   import backWithFallback from '@/utils/routerBackWithFallback';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
   import gearIcon from '@/assets/images/gear.svg';
   import fileIcon from '@/assets/images/file.svg';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
@@ -374,7 +374,7 @@
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -397,7 +397,7 @@
     try {
       const status = await otherUser.updateUsername(data.username);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -425,7 +425,7 @@
     try {
       const status = await otherUser.updateEmail(data.email);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -457,7 +457,7 @@
     try {
       const status = await otherUser.updatePassword(data.password);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -485,7 +485,7 @@
     try {
       const status = await otherUser.updateDomain(data.domain, data.subdomain);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -528,7 +528,7 @@
     try {
       const status = await otherUser.toggleStaff();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -560,7 +560,7 @@
     try {
       const status = await otherUser.toggleBan();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -592,7 +592,7 @@
     try {
       const status = await otherUser.deleteAllSessions();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -624,7 +624,7 @@
     try {
       const status = await otherUser.deleteAllFiles();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -656,7 +656,7 @@
     try {
       const status = await otherUser.deleteUser();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -668,6 +668,7 @@
         toast.clientError();
       } else {
         toast.show('User deleted.');
+        otherUser.data = null;
         await deleteUserModal.value!.hide();
         await users.getUsers(users.page);
         await backWithFallback(router, '/staff/users');

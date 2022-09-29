@@ -84,7 +84,7 @@
     <p>
       Are you sure you want to delete these {{ selected.length }} sessions?
     </p>
-    <p>They will have to be signed back in!</p>
+    <p>They will have to be logged back in!</p>
   </ConfirmModal>
   <ConfirmModal
     ref="manageSessionModal"
@@ -105,7 +105,7 @@
         Expires At:
         <code>{{ toDateString(new Date(selectedSession.exp * 1000)) }}</code></p
       >
-      <p> If you delete this session, you will have to sign back in. </p>
+      <p> If you delete this session, you will have to log back in. </p>
     </template>
     <LoadingBlurb v-else />
   </ConfirmModal>
@@ -120,7 +120,7 @@
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
   import { useOnline } from '@vueuse/core';
   import { ref, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
@@ -149,7 +149,7 @@
     try {
       const status = await sessions.getSessions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.clientError();
         }
@@ -257,7 +257,7 @@
             selectedSession.value = null;
             break;
           default:
-            const handled = await defaultErrorHandler(status);
+            const handled = await defaultErrorHandler(status, router);
             if (!handled) {
               toast.clientError();
             }

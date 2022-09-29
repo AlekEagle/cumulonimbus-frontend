@@ -33,6 +33,7 @@
             autocomplete="username"
             :disabled="processing"
             name="username"
+            @change="checkUsernameForEmail"
           />
           <br />
           <input
@@ -57,6 +58,7 @@
             autocomplete="username"
             :disabled="processing"
             name="username"
+            @change="checkUsernameForEmailRegister"
           />
           <br />
           <input
@@ -113,6 +115,7 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useNetwork } from '@vueuse/core';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import { wait } from '@/utils/wait';
 
   const user = userStore(),
     router = useRouter(),
@@ -144,9 +147,26 @@
         hash: '#login'
       });
     }
+
+    await wait(100);
+    if (route.query.username) {
+      document.querySelector<HTMLInputElement>(
+        'input[name="username"]'
+      )!.value = route.query.username as string;
+      document
+        .querySelector<HTMLInputElement>(
+          `input[name="${action.value === 'login' ? 'password' : 'email'}"]`
+        )!
+        .focus();
+    } else {
+      document
+        .querySelector<HTMLInputElement>('input[name="username"]')!
+        .focus();
+    }
   }
 
   async function redirect() {
+    toast.hide();
     let redirectLoc = route.query.redirect
       ? (route.query.redirect as string)
       : '/dashboard';
@@ -170,6 +190,43 @@
       document.querySelector<HTMLInputElement>(
         'input[name="username"]'
       )!.value = route.query.username as string;
+      document
+        .querySelector<HTMLInputElement>('input[name="password"]')!
+        .focus();
+    } else {
+      document
+        .querySelector<HTMLInputElement>('input[name="username"]')!
+        .focus();
+    }
+  }
+
+  function checkUsernameForEmail(e: Event) {
+    const username = (e.target as HTMLInputElement).value;
+    if (
+      username.match(
+        /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+      )
+    ) {
+      toast.text =
+        'Using your email to login is not recommended and will be removed in the future. Please use your username instead.';
+      toast.visible = true;
+    } else {
+      toast.hide();
+    }
+  }
+
+  function checkUsernameForEmailRegister(e: Event) {
+    const username = (e.target as HTMLInputElement).value;
+    if (
+      username.match(
+        /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+      )
+    ) {
+      toast.text =
+        'Using an email as your username is not recommended and may prevent you from logging in in the future. Please use a username instead.';
+      toast.visible = true;
+    } else {
+      toast.hide();
     }
   }
 
@@ -192,9 +249,16 @@
           toast.show('This should not be seen');
         }
       } else {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
-          toast.clientError();
+          switch (res.code) {
+            case 'INVALID_USER_ERROR':
+              toast.invalidUsernameEmail();
+              break;
+            case 'INVALID_PASSWORD_ERROR':
+              toast.invalidPassword();
+              break;
+          }
         }
       }
     } catch (e) {
@@ -232,7 +296,7 @@
           toast.show('This should not be seen');
         }
       } else {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           switch (res.code) {
             case 'USER_EXISTS_ERROR':

@@ -102,7 +102,7 @@
     try {
       const status = await instructions.getInstructions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.clientError();
         }

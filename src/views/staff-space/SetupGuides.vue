@@ -157,7 +157,7 @@
   import { useRouter } from 'vue-router';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import gearIcon from '@/assets/images/gear.svg';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
 
   const online = useOnline(),
     router = useRouter(),
@@ -181,7 +181,7 @@
     try {
       const status = await instructions.getInstructions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.clientError();
         }
@@ -238,7 +238,7 @@
     try {
       const result = await instructions.deleteInstructions(selected.value);
       if (result instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(result);
+        const handled = await defaultErrorHandler(result, router);
         if (!handled) {
           toast.clientError();
         }
@@ -277,7 +277,7 @@
     try {
       const result = await instructions.createInstruction(data.name);
       if (result instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(result);
+        const handled = await defaultErrorHandler(result, router);
         if (!handled) {
           toast.clientError();
         }
