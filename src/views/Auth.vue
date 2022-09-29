@@ -56,7 +56,6 @@
             placeholder="Username"
             autocomplete="username"
             :disabled="processing"
-            :value="route.query.username"
             name="username"
           />
           <br />
