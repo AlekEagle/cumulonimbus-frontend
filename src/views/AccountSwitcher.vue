@@ -36,7 +36,7 @@
           />
           <img v-else :src="closeIcon" alt="Delete account icon" />
           <p v-text="account" />
-          <p v-if="user.account?.user.username === account">
+          <p v-if="user.account?.user.username === account && !managingAccounts">
             Currently logged in.
           </p>
           <p v-if="token === false && !managingAccounts">Not logged in.</p>
