@@ -236,8 +236,7 @@
                 user.logout();
               }
               user.removeAccount(selectedAccount.value as string);
-            }
-            {
+            } else {
               console.error(error);
               toast.clientError();
             }

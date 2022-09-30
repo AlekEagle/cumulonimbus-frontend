@@ -291,6 +291,7 @@
       toast.connectivityOffline();
       return;
     }
+    const oldUsername = user.account!.user.username;
     try {
       const res = await user.changeUsername(data.username, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
@@ -303,6 +304,9 @@
           }
         }
       } else if (res) {
+        const token = user.accounts[oldUsername]!;
+        delete user.accounts[oldUsername];
+        user.accounts[data.username] = token;
         usernameFormModal.value!.hide();
       }
     } catch (error) {
