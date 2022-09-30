@@ -4,7 +4,7 @@
     <template v-if="domains.data">
       <h2>
         Showing page {{ page + 1 }} of
-        {{ (domains.data ? Math.floor(domains.data?.count / 50) : 0) + 1 }}
+        {{ (domains.data ? Math.floor(domains.data?.count / 51) : 0) + 1 }}
         <br />
         {{ domains.data?.count || 'some number of' }} domains in total.
       </h2>
@@ -41,8 +41,9 @@
 
   <Paginator
     v-model="page"
-    :max="domains.data ? Math.floor(domains.data.count / 50) : 0"
+    :max="domains.data ? Math.floor(domains.data.count / 51) : 0"
     :disabled="domains.loading || !online"
+    @page-change="fetchDomains"
   >
     <template v-if="!domains.loading">
       <template v-if="!domains.errored">
@@ -162,13 +163,13 @@
   import { domainsStore } from '@/stores/staff-space/domains';
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import { useOnline } from '@vueuse/core';
   import { ref, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import gearIcon from '@/assets/images/gear.svg';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
 
   const online = useOnline(),
     router = useRouter(),
@@ -186,34 +187,16 @@
 
   async function fetchDomains() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const status = await domains.getDomains(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!status) {
         toast.clientError();
@@ -250,7 +233,7 @@
 
   async function deleteDomain(choice: boolean) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!choice) {
@@ -260,36 +243,15 @@
     try {
       const status = await domains.deleteDomain(selectedDomain.value!.domain);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INVALID_DOMAIN_ERROR':
-            toast.show('That domain does not exist.');
-            deselect();
-            await fetchDomains();
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_DOMAIN_ERROR':
+              toast.show('That domain does not exist.');
+              deselect();
+              await fetchDomains();
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -306,7 +268,7 @@
 
   async function deleteDomains(choice: boolean) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!choice) {
@@ -316,31 +278,9 @@
     try {
       const status = await domains.deleteDomains(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else {
         toast.show(`Deleted ${status} domains.`);
@@ -355,7 +295,7 @@
 
   async function onAllowSubdomainsChange(allowSubdomains: boolean) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -364,36 +304,15 @@
         allowSubdomains
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INVALID_DOMAIN_ERROR':
-            toast.show('That domain does not exist.');
-            deselect();
-            await fetchDomains();
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_DOMAIN_ERROR':
+              toast.show('That domain does not exist.');
+              deselect();
+              await fetchDomains();
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -438,7 +357,7 @@
     allowsSubdomains: boolean;
   }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -447,34 +366,13 @@
         data.allowsSubdomains
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'DOMAIN_EXISTS_ERROR':
-            toast.show('That domain already exists.');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'DOMAIN_EXISTS_ERROR':
+              toast.show('That domain already exists.');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();

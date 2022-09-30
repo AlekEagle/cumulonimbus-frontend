@@ -6,7 +6,7 @@
         Check out everything you've uploaded.
         <br />
         Showing page {{ page + 1 }} of
-        {{ (files.data ? Math.floor(files.data?.count / 50) : 0) + 1 }}
+        {{ (files.data ? Math.floor(files.data.count / 51) : 0) + 1 }}
         <br />
         {{ files.data?.count || 'some number of' }} files in total.
       </h2>
@@ -39,7 +39,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchFiles"
-    :max="files.data ? Math.floor(files.data?.count / 50) : 0"
+    :max="files.data ? Math.floor(files.data?.count / 51) : 0"
     :disabled="files.loading || !online"
   >
     <template v-if="online || files.data">
@@ -97,59 +97,41 @@
   import PreviewContentBox from '@/components/PreviewContentBox.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import BackButton from '@/components/BackButton.vue';
-  import { userStore } from '@/stores/user';
   import { filesStore } from '@/stores/user-space/files';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
   import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { useRouter } from 'vue-router';
   import { useOnline } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
   import ConfirmModal from '@/components/ConfirmModal.vue';
 
   const files = filesStore(),
-    user = userStore(),
     page = ref(0),
     toast = toastStore(),
-    router = useRouter(),
     selecting = ref(false),
     selected = ref<string[]>([]),
     online = useOnline(),
+    router = useRouter(),
     confirmModal = ref<typeof ConfirmModal>();
 
   async function fetchFiles() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const status = await files.getFiles(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!status) {
-        toast.clientError();
+        toast.show("You're not logged in.");
+        await toLogin(router);
       }
     } catch (e) {
       console.error(e);
@@ -190,38 +172,21 @@
       return;
     }
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const status = await files.deleteFiles(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'MISSING_FIELDS_ERROR':
-            if (selected.value.length > 0)
-              toast.show('You can only select up to 100 files at once.');
-            else toast.show('You must select at least one file to delete.');
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        if ((status.code = 'MISSING_FIELDS_ERROR')) {
+          if (selected.value.length > 0)
+            toast.show('You can only select up to 100 files at once.');
+          else toast.show('You must select at least one file to delete.');
+          return;
+        }
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (status < 0) {
         toast.clientError();

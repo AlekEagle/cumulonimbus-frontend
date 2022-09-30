@@ -228,6 +228,9 @@ export const userStore = defineStore('user', () => {
         // If it isn't a Cumulonimbus ResponseError, throw the error.
         throw error;
       }
+    } finally {
+      // Reset the loading state.
+      loading.value = false;
     }
   }
 

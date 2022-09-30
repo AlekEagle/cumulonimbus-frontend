@@ -5,7 +5,7 @@
       <h2>
         Showing page {{ page + 1 }} of
         {{
-          (instructions.data ? Math.floor(instructions.data?.count / 50) : 0) +
+          (instructions.data ? Math.floor(instructions.data?.count / 51) : 0) +
           1
         }}
         <br />
@@ -47,7 +47,7 @@
   </div>
   <Paginator
     v-model="page"
-    :max="instructions.data ? Math.floor(instructions.data.count / 50) : 0"
+    :max="instructions.data ? Math.floor(instructions.data.count / 51) : 0"
     :disabled="instructions.loading || !online"
   >
     <template v-if="!instructions.loading">
@@ -151,13 +151,13 @@
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
   import { instructionsStore } from '@/stores/staff-space/instructions';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import { useOnline } from '@vueuse/core';
   import { ref, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import gearIcon from '@/assets/images/gear.svg';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
 
   const online = useOnline(),
     router = useRouter(),
@@ -174,34 +174,16 @@
 
   async function fetchInstructions() {
     if (!online) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const status = await instructions.getInstructions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!status) {
         toast.clientError();
@@ -246,7 +228,7 @@
 
   async function bulkDeleteInstructions(choice: boolean) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!choice) {
@@ -256,31 +238,9 @@
     try {
       const result = await instructions.deleteInstructions(selected.value);
       if (result instanceof Cumulonimbus.ResponseError) {
-        switch (result.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(result);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(result);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(result, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!result) {
         toast.clientError();
@@ -311,37 +271,15 @@
 
   async function createInstruction(data: { name: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const result = await instructions.createInstruction(data.name);
       if (result instanceof Cumulonimbus.ResponseError) {
-        switch (result.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(result);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(result);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(result, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!result) {
         toast.clientError();

@@ -6,14 +6,14 @@
         All users registered on Cumulonimbus.
         <br />
         Showing page {{ page + 1 }} of
-        {{ (users.data ? Math.floor(users.data?.count / 50) : 0) + 1 }}
+        {{ (users.data ? Math.floor(users.data?.count / 51) : 0) + 1 }}
         <br />
         {{ users.data?.count || 'some number of' }} users in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else>
-      Alek is individually counting the users
-    </h2>
+    <h2 class="animated-ellipsis" v-else
+      >Alek is individually counting the users</h2
+    >
   </template>
   <template v-else>
     <h2>Alek can't count the users because you are offline :(</h2>
@@ -39,7 +39,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchUsers"
-    :max="users.data ? Math.floor(users.data?.count / 50) : 0"
+    :max="users.data ? Math.floor(users.data?.count / 51) : 0"
     :disabled="users.loading || !online"
   >
     <template v-if="online || users.data">
@@ -101,7 +101,7 @@
   import { usersStore } from '@/stores/staff-space/users';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useRouter } from 'vue-router';
   import { useOnline } from '@vueuse/core';
@@ -145,35 +145,16 @@
 
   async function fetchUsers() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const res = users.getUsers(page.value);
       if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(res);
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          toast.clientError();
         }
       }
     } catch (error) {
@@ -184,36 +165,15 @@
 
   async function deleteSelected() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const res = await users.deleteUsers(selected.value);
       if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(res);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(res);
-            toast.clientError();
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else {
         toast.show(`Deleted ${res} users.`);

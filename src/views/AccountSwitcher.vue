@@ -6,48 +6,59 @@
     <button
       v-if="!managingAccounts"
       @click="managingAccounts = true"
-      :disabled="user.loading"
+      :disabled="user.loading || !online"
     >
       Remove Accounts
     </button>
     <button v-else @click="managingAccounts = false" :disabled="user.loading">
-      Cancel
+      Done
     </button>
     <button
       v-if="managingAccounts"
-      @click="removeAllAccounts"
-      :disabled="user.loading"
+      @click="removeAllAccountsModal?.show()"
+      :disabled="user.loading || !online"
     >
       Remove All Accounts
     </button>
   </div>
-  <EmphasizedBox no-padding>
-    <div class="account-switcher-accounts">
-      <div
-        :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
-        v-for="(token, account) in user.accounts"
-        @click="handleAccountClick(account as string)"
-      >
-        <img
+  <EmphasizedBox :no-padding="!user.loading && online">
+    <template v-if="online">
+      <div v-if="!user.loading" class="account-switcher-accounts">
+        <div
+          :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
+          v-for="(token, account) in user.accounts"
+          @click="handleAccountClick(account as string)"
+        >
+          <img
+            v-if="!managingAccounts"
+            :src="profileIcon"
+            alt="Generic account icon"
+          />
+          <img v-else :src="closeIcon" alt="Delete account icon" />
+          <p v-text="account" />
+          <p
+            v-if="user.account?.user.username === account && !managingAccounts"
+          >
+            Currently logged in.
+          </p>
+          <p v-if="token === false && !managingAccounts">Not logged in.</p>
+          <p v-if="managingAccounts">Click to remove this account.</p>
+        </div>
+        <div
           v-if="!managingAccounts"
-          :src="profileIcon"
-          alt="Generic account icon"
-        />
-        <img v-else :src="closeIcon" alt="Delete account icon" />
-        <p v-text="account" />
-        <p v-if="token === false && !managingAccounts">Not logged in.</p>
-        <p v-if="managingAccounts">Click to remove this account.</p>
+          :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
+          @click="addAccount"
+        >
+          <img :src="plusIcon" alt="Plus icon" />
+          <p>Add Account</p>
+          <p>Add another account.</p>
+        </div>
       </div>
-      <div
-        v-if="!managingAccounts"
-        :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
-        @click="addAccount"
-      >
-        <img :src="plusIcon" alt="Plus icon" />
-        <p>Add Account</p>
-        <p>Add another account.</p>
-      </div>
-    </div>
+      <LoadingBlurb v-else />
+    </template>
+    <template v-else>
+      <p>You are offline.</p>
+    </template>
   </EmphasizedBox>
   <ConfirmModal
     title="Remove All Accounts"
@@ -75,21 +86,33 @@
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { ref, onBeforeMount } from 'vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import { ref, onBeforeMount, computed } from 'vue';
   import { userStore, cumulonimbusOptions } from '@/stores/user';
-  import { useRouter } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import { toastStore } from '@/stores/toast';
   import profileIcon from '@/assets/images/profile.svg';
   import plusIcon from '@/assets/images/plus.svg';
   import closeIcon from '@/assets/images/close.svg';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import { useOnline } from '@vueuse/core';
 
   const user = userStore(),
     router = useRouter(),
+    route = useRoute(),
     toast = toastStore(),
+    online = useOnline(),
     managingAccounts = ref(false),
     selectedAccount = ref<string | null>(null),
     removeAllAccountsModal = ref<typeof ConfirmModal>(),
-    removeAccountModal = ref<typeof ConfirmModal>();
+    removeAccountModal = ref<typeof ConfirmModal>(),
+    redirectLoc = computed(() =>
+      route.query.redirect ? (route.query.redirect as string) : '/dashboard'
+    );
+
+  async function redirect() {
+    await router.replace(redirectLoc.value);
+  }
 
   async function handleAccountClick(account: string) {
     if (user.loading) return;
@@ -97,21 +120,32 @@
       selectedAccount.value = account;
       removeAccountModal.value?.show();
     } else {
-      const res = await user.switchAccount(account);
-      if (typeof res === 'boolean') {
-        if (res)
-          router.push({
-            path: '/dashboard'
-          });
-        else
-          router.push({
-            path: '/auth',
-            query: {
-              redirect: '/dashboard',
-              username: account
-            },
-            hash: 'login'
-          });
+      try {
+        const res = await user.switchAccount(account);
+        if (typeof res === 'boolean') {
+          if (res) {
+            toast.show(`Switched to ${user.account?.user.username}.`);
+
+            redirect();
+          } else
+            router.push({
+              path: '/auth',
+              query: {
+                redirect: redirectLoc.value,
+                username: account
+              },
+              hash: '#login'
+            });
+        } else {
+          toast.show(`Failed to switch to ${account}: ${res.message}`);
+        }
+      } catch (e) {
+        if (e instanceof Cumulonimbus.ResponseError) {
+          const handled = await defaultErrorHandler(e, router);
+          if (!handled) toast.show(`Failed to switch to ${account}.`);
+        } else {
+          toast.clientError();
+        }
       }
     }
   }
@@ -120,14 +154,10 @@
     router.push({
       path: '/auth',
       query: {
-        redirect: '/dashboard'
+        redirect: redirectLoc.value
       },
-      hash: 'login'
+      hash: '#login'
     });
-  }
-
-  function removeAllAccounts() {
-    removeAllAccountsModal.value?.show();
   }
 
   async function removeAllAccountsConfirm(choice: boolean) {
@@ -168,9 +198,9 @@
       router.push({
         path: '/auth',
         query: {
-          redirect: '/dashboard'
+          redirect: redirectLoc.value
         },
-        hash: 'login'
+        hash: '#login'
       });
     }
   }
@@ -180,6 +210,8 @@
       if (user.accounts[selectedAccount.value as string] === false) {
         toast.show('Account removed.');
         user.removeAccount(selectedAccount.value as string);
+        selectedAccount.value = null;
+        removeAccountModal.value?.hide();
       } else {
         const tempClient = new Cumulonimbus(
           user.accounts[selectedAccount.value as string] as string,
@@ -204,8 +236,7 @@
                 user.logout();
               }
               user.removeAccount(selectedAccount.value as string);
-            }
-            {
+            } else {
               console.error(error);
               toast.clientError();
             }
@@ -227,25 +258,25 @@
       router.replace({
         path: '/auth',
         query: {
-          redirect: '/dashboard'
+          redirect: redirectLoc.value
         },
-        hash: 'login'
+        hash: '#login'
       });
     } else if (Object.keys(user.accounts).length < 2 && !user.loggedIn) {
       const res = await user.switchAccount(Object.keys(user.accounts)[0]);
       if (typeof res === 'boolean') {
         if (res)
           router.push({
-            path: '/dashboard'
+            path: redirectLoc.value
           });
         else
           router.push({
             path: '/auth',
             query: {
-              redirect: '/dashboard',
+              redirect: redirectLoc.value,
               username: Object.keys(user.accounts)[0]
             },
-            hash: 'login'
+            hash: '#login'
           });
       }
     }

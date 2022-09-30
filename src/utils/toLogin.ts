@@ -4,10 +4,10 @@ import { userStore } from '@/stores/user';
 export default async function toLogin(router: Router) {
   const user = userStore();
   if (user.loggedIn) {
-    if (typeof (await user.logout()) !== 'boolean') await user.logout();
+    await user.logout();
   }
   return await router.replace({
-    name: 'auth',
+    name: 'account-switcher',
     query: {
       redirect: router.currentRoute.value.fullPath
     }

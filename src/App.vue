@@ -82,6 +82,12 @@
   import Modal from '@/components/Modal.vue';
   import newTabIcon from '@/assets/images/newtab.svg';
 
+  if (import.meta.env.MODE !== 'production') {
+    const vueDevtoolsScript = document.createElement('script');
+    vueDevtoolsScript.src = 'http://localhost:8098';
+    document.head.appendChild(vueDevtoolsScript);
+  }
+
   const user = userStore();
   const toast = toastStore();
   const router = useRouter();
@@ -90,6 +96,7 @@
   const ptb = ptbStore();
   const host = window.location.host;
   const menuItems = computed(() => {
+    const currentLoc = route.fullPath;
     return [
       {
         name: 'Home',
@@ -100,31 +107,47 @@
         ? [
             {
               name: 'Dashboard',
-              path: '/dashboard',
+              path: {
+                name: 'user-space-dashboard'
+              },
               external: false
             },
             {
               name: 'Upload',
-              path: '/dashboard/upload',
+              path: {
+                name: 'user-space-upload'
+              },
               external: false
             },
             {
               name: 'Switch Accounts',
-              path: '/auth/switcher',
+              path: {
+                name: 'account-switcher',
+                query: {
+                  redirect: currentLoc
+                }
+              },
               external: false
             }
           ]
         : [
             {
-              name: 'Login',
-              path: '/auth/switcher',
+              name: 'Login to Dashboard',
+              path: {
+                name: 'account-switcher',
+                query: {
+                  redirect: '/dashboard'
+                }
+              },
               external: false
             }
           ]),
       user.account && user.account.user.staff
         ? {
             name: 'Staff Dashboard',
-            path: '/staff',
+            path: {
+              name: 'staff-space-dashboard'
+            },
             external: false
           }
         : undefined,
@@ -157,13 +180,9 @@
 
   watch(online, val => {
     if (!val) {
-      toast.show(
-        'You just went offline! Some things may not work as expected.'
-      );
+      toast.connectivityChangeOffline();
     } else {
-      toast.show(
-        'You just went online! Everything should be working as expected.'
-      );
+      toast.connectivityChangeOnline();
     }
   });
 
@@ -186,7 +205,8 @@
             // if so, continue to the route
             next();
           } else {
-            // if not, redirect to the home page
+            // if not, display the insufficient permissions error and redirect to the home page
+            toast.insufficientPermissions();
             next({
               path: '/'
             });
@@ -196,10 +216,10 @@
           next();
         }
       } else {
-        // if not, redirect to the auth page with the redirect query param set to the current route
+        // if not, display a toast that says the user needs to login and redirect to the auth page with the redirect query param set to the current route
+        toast.login();
         next({
-          name: 'auth',
-          hash: '#login',
+          name: 'account-switcher',
           query: {
             redirect: to.fullPath
           }
@@ -239,18 +259,21 @@
             // if so, continue to the route
             return;
           } else {
-            // if not, redirect to the home page
-            router.replace('/');
+            // if not, display the insufficient permissions error and redirect to the home page
+            toast.insufficientPermissions();
+            router.replace({
+              path: '/'
+            });
           }
         } else {
           // if not, continue to the route
           return;
         }
       } else {
-        // if not, redirect to the auth page with the redirect query param set to the current route
+        // if not, display a toast that says the user needs to login and redirect to the auth page with the redirect query param set to the current route
+        toast.login();
         router.replace({
-          name: 'auth',
-          hash: '#login',
+          name: 'account-switcher',
           query: {
             redirect: route.fullPath
           }

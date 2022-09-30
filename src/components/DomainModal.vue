@@ -67,7 +67,7 @@
   import { userStore } from '@/stores/user';
   import { useNetwork } from '@vueuse/core';
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { waitUntil, wait } from '@/utils/wait';
+  import { wait } from '@/utils/wait';
 
   const emit = defineEmits<{
       (event: 'submit', data: { domain: string; subdomain?: string }): void;
@@ -166,7 +166,7 @@
 
   async function reloadDomains() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     const res = await slimDomains.sync();

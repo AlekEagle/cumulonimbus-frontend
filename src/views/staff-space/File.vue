@@ -101,9 +101,9 @@
   import ContentBox from '@/components/ContentBox.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
   import size from '@/utils/size';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import backWithFallback from '@/utils/routerBackWithFallback';
   import { ref, watch, onMounted, computed } from 'vue';
   import { useRouter } from 'vue-router';
@@ -124,7 +124,7 @@
     online = useOnline(),
     fileUrl = computed(() => {
       if (file.data) {
-        if (import.meta.env.MODE === 'prod_preview')
+        if (import.meta.env.MODE === 'ptb')
           return `https://alekeagle.me/${file.data.filename}`;
         else
           return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
@@ -142,7 +142,7 @@
 
   async function fetchFile() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -150,36 +150,15 @@
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_FILE_ERROR':
-            toast.show('This file does not exist.');
-            await files.getFiles(files.page);
-            await backWithFallback(router, '/staff/files');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('This file does not exist.');
+              await files.getFiles(files.page);
+              await backWithFallback(router, '/staff/files');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -214,42 +193,21 @@
       return;
     }
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const status = await file.deleteFile();
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_FILE_ERROR':
-            toast.show('This file does not exist.');
-            await files.getFiles(files.page);
-            await backWithFallback(router, '/staff/files');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('This file does not exist.');
+              await files.getFiles(files.page);
+              await backWithFallback(router, '/staff/files');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -273,9 +231,7 @@
       });
     } else {
       if (clipboardIsSupported) {
-        await copy(
-          `https://${user.domain}/${file.data!.filename}`
-        );
+        await copy(`https://${user.domain}/${file.data!.filename}`);
         toast.show('Copied to clipboard.');
       } else {
         toast.show('Clipboard not supported.');
@@ -285,7 +241,7 @@
 
   function download() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (file.data) {

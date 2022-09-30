@@ -4,7 +4,7 @@
     <template v-if="sessions.data">
       <h2>
         Showing page {{ page + 1 }} of
-        {{ (sessions.data ? Math.floor(sessions.data?.count / 50) : 0) + 1 }}
+        {{ (sessions.data ? Math.floor(sessions.data?.count / 51) : 0) + 1 }}
         <br />
         {{ sessions.data?.count || 'some number of' }} logged in sessions in
         total.
@@ -37,7 +37,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchSessions"
-    :max="sessions.data ? Math.floor(sessions.data?.count / 50) : 0"
+    :max="sessions.data ? Math.floor(sessions.data?.count / 51) : 0"
     :disabled="sessions.loading || !online"
   >
     <template v-if="!sessions.loading">
@@ -84,7 +84,7 @@
     <p>
       Are you sure you want to delete these {{ selected.length }} sessions?
     </p>
-    <p>They will have to be signed back in!</p>
+    <p>They will have to be logged back in!</p>
   </ConfirmModal>
   <ConfirmModal
     ref="manageSessionModal"
@@ -105,7 +105,7 @@
         Expires At:
         <code>{{ toDateString(new Date(selectedSession.exp * 1000)) }}</code></p
       >
-      <p> If you delete this session, you will have to sign back in. </p>
+      <p> If you delete this session, you will have to log back in. </p>
     </template>
     <LoadingBlurb v-else />
   </ConfirmModal>
@@ -119,8 +119,8 @@
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
-  import toLogin from '@/utils/toLogin';
-  import toDateString from '@/utils/dateString';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import toDateString from '@/utils/toDateString';
   import { useOnline } from '@vueuse/core';
   import { ref, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
@@ -142,34 +142,16 @@
 
   async function fetchSessions() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
       const status = await sessions.getSessions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
       } else if (!status) {
         toast.clientError();
@@ -256,7 +238,7 @@
 
   async function onDeleteSessionsChoice(choice: boolean) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!choice) {
@@ -269,28 +251,16 @@
       const status = await sessions.deleteSessions(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
         switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
           case 'INVALID_SESSION_ERROR':
             toast.show("It appears that session doesn't exist anymore.");
             await fetchSessions();
-            selected.value = [];
-            selecting.value = false;
+            selectedSession.value = null;
             break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
           default:
-            console.error(status);
-            toast.clientError();
-            break;
+            const handled = await defaultErrorHandler(status, router);
+            if (!handled) {
+              toast.clientError();
+            }
         }
       } else if (!status) {
         toast.clientError();

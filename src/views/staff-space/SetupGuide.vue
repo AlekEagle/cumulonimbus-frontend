@@ -262,9 +262,9 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
   import plusIcon from '@/assets/images/plus.svg';
-  import toDateString from '@/utils/dateString';
+  import toDateString from '@/utils/toDateString';
   import backWithFallback from '@/utils/routerBackWithFallback';
-  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
   const online = useOnline(),
     router = useRouter(),
@@ -284,7 +284,7 @@
 
   async function fetchInstruction() {
     if (!online) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -292,32 +292,15 @@
         router.currentRoute.value.query.id as string
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       }
     } catch (e) {
@@ -360,7 +343,7 @@
 
   async function editStep(data: { stepContent: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     const steps = instruction.data!.steps;
@@ -368,36 +351,15 @@
     try {
       const status = instruction.updateInstructionSteps(steps);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -414,7 +376,7 @@
 
   async function deleteStep() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     const steps = instruction.data!.steps;
@@ -422,36 +384,15 @@
     try {
       const status = instruction.updateInstructionSteps(steps);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -493,7 +434,7 @@
 
   async function confirmDeleteSetupGuide(choice: boolean) {
     if (!online) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     if (!choice) {
@@ -503,36 +444,15 @@
     try {
       const status = await instruction.deleteInstruction();
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -549,7 +469,7 @@
 
   async function onEditDisplayName(data: { displayName: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -557,36 +477,15 @@
         data.displayName
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -602,7 +501,7 @@
 
   async function onEditDescription(data: { description: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -610,36 +509,15 @@
         data.description
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -655,42 +533,21 @@
 
   async function onEditFilename(data: { filename: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const status = await instruction.updateInstructionFilename(data.filename);
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -706,42 +563,21 @@
 
   async function onNoFilename() {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
       const status = await instruction.updateInstructionFilename('');
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
@@ -757,7 +593,7 @@
 
   async function onEditFileContent(data: { content: string }) {
     if (!online.value) {
-      toast.connectivity();
+      toast.connectivityOffline();
       return;
     }
     try {
@@ -765,36 +601,15 @@
         data.content
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'RATELIMITED_ERROR':
-            toast.rateLimit(status);
-            break;
-          case 'INVALID_SESSION_ERROR':
-            toast.session();
-            await toLogin(router);
-            break;
-          case 'INVALID_INSTRUCTION_ERROR':
-            toast.show('This setup guide does not exist.');
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, '/staff/setup-guides');
-            break;
-          case 'INSUFFICIENT_PERMISSIONS_ERROR':
-            await user.refetch();
-            router.replace('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            console.error(status);
-            toast.clientError();
-            break;
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_INSTRUCTION_ERROR':
+              toast.show('This setup guide does not exist.');
+              await instructions.getInstructions(instructions.page);
+              await backWithFallback(router, '/staff/setup-guides');
+              break;
+          }
         }
       } else if (!status) {
         toast.clientError();
