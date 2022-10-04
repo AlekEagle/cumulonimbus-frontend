@@ -30,13 +30,14 @@
       </p>
     </div>
     <div>
-      <h2>Having trouble?</h2>
+      <h2>Have questions?</h2>
       <p>
-        We are always happy to help with any issues you might be having in our
+        Have a question or concern about Cumulonimbus, have a suggestion, or
+        just want to chat with the developer? Join the
         <a href="https://alekeagle.com/d" rel="noopener" target="_blank"
           >Discord</a
         >
-        server!
+        server and talk with the rest of the community!
       </p>
     </div>
     <div>
@@ -50,29 +51,29 @@
 </template>
 
 <style>
-.hero-points {
-  display: flex;
-  justify-content: space-evenly;
-  flex-wrap: wrap;
-}
-
-.hero-points div {
-  width: 45vw;
-}
-
-@media screen and (min-width: 769px) {
-  .hero-points div:nth-child(even) {
-    text-align: left;
+  .hero-points {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
   }
 
-  .hero-points div:nth-child(odd):not(:last-child) {
-    text-align: right;
-  }
-}
-
-@media only screen and (max-width: 768px) {
   .hero-points div {
-    width: 70vw;
+    width: 45vw;
   }
-}
+
+  @media screen and (min-width: 769px) {
+    .hero-points div:nth-child(even) {
+      text-align: left;
+    }
+
+    .hero-points div:nth-child(odd):not(:last-child) {
+      text-align: right;
+    }
+  }
+
+  @media only screen and (max-width: 768px) {
+    .hero-points div {
+      width: 70vw;
+    }
+  }
 </style>
