@@ -82,12 +82,6 @@
   import Modal from '@/components/Modal.vue';
   import newTabIcon from '@/assets/images/newtab.svg';
 
-  if (import.meta.env.MODE !== 'production') {
-    const vueDevtoolsScript = document.createElement('script');
-    vueDevtoolsScript.src = 'http://localhost:8098';
-    document.head.appendChild(vueDevtoolsScript);
-  }
-
   const user = userStore();
   const toast = toastStore();
   const router = useRouter();
