@@ -7,7 +7,7 @@
       </div>
     </RouterLink>
     <nav :class="mobileMenu ? 'active' : ''">
-      <div @click="mobileMenu = !mobileMenu">
+      <div @click="mobileMenu = !mobileMenu" tabindex="0">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
