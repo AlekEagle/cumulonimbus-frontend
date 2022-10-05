@@ -9,7 +9,7 @@
         }}uploaded.
         <br />
         Showing page {{ page + 1 }} of
-        {{ (files.data ? Math.floor(files.data.count / 51) : 0) + 1 }}
+        {{ (files.data ? Math.ceil(files.data.count / 50) : 0) + 1 }}
         <br />
         {{ files.data?.count || 'some number of' }} files in total.
       </h2>
@@ -43,7 +43,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchFiles"
-    :max="files.data ? Math.floor(files.data?.count / 51) : 0"
+    :max="files.data ? Math.ceil(files.data?.count / 50) : 0"
     :disabled="files.loading || !online"
   >
     <template v-if="online || files.data">

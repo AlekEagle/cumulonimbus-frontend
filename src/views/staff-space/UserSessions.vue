@@ -4,7 +4,7 @@
     <template v-if="sessions.data">
       <h2>
         Showing page {{ page + 1 }} of
-        {{ (sessions.data ? Math.floor(sessions.data?.count / 51) : 0) + 1 }}
+        {{ (sessions.data ? Math.ceil(sessions.data?.count / 50) : 0) + 1 }}
         <br />
         {{ sessions.data?.count || 'some number of' }} logged in sessions in
         total.
@@ -35,7 +35,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchSessions"
-    :max="sessions.data ? Math.floor(sessions.data?.count / 51) : 0"
+    :max="sessions.data ? Math.ceil(sessions.data?.count / 50) : 0"
     :disabled="sessions.loading || !online"
   >
     <template v-if="!sessions.loading">

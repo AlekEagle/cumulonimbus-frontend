@@ -6,7 +6,7 @@
         All users registered on Cumulonimbus.
         <br />
         Showing page {{ page + 1 }} of
-        {{ (users.data ? Math.floor(users.data?.count / 51) : 0) + 1 }}
+        {{ (users.data ? Math.ceil(users.data?.count / 50) : 0) + 1 }}
         <br />
         {{ users.data?.count || 'some number of' }} users in total.
       </h2>
@@ -39,7 +39,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchUsers"
-    :max="users.data ? Math.floor(users.data?.count / 51) : 0"
+    :max="users.data ? Math.ceil(users.data?.count / 50) : 0"
     :disabled="users.loading || !online"
   >
     <template v-if="online || users.data">
