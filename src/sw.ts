@@ -1,11 +1,7 @@
 /// <reference lib="WebWorker" />
 import { skipWaiting, clientsClaim } from 'workbox-core';
-import {
-  precacheAndRoute,
-  createHandlerBoundToURL,
-  cleanupOutdatedCaches
-} from 'workbox-precaching';
-import { NavigationRoute, registerRoute, Route } from 'workbox-routing';
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { registerRoute, Route } from 'workbox-routing';
 import { ManualHandlerCallbackOptions } from 'workbox-core';
 import { CacheFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
@@ -13,7 +9,7 @@ import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 
 const BaseThumbnailURLs: { [key: string]: string } = {
   production: `previews.${self.location.hostname}`,
-  prod_preview: 'previews.alekeagle.me',
+  ptb: 'previews.alekeagle.me',
   development: 'localhost:8100'
 };
 
@@ -42,8 +38,9 @@ registerRoute(
     const indexHTML = (await caches.match('/index.html')) as Response;
     if (cachedResponse) return cachedResponse;
     if (!self.navigator.onLine) return indexHTML;
-    if ((await fetch(options.request)).status === 404) return indexHTML;
-    return await fetch(options.request);
+    const freshResponse = await fetch(options.request);
+    if (freshResponse.status === 404) return indexHTML;
+    return freshResponse;
   }
 );
 
@@ -51,7 +48,6 @@ registerRoute(
 // This route will serve the preview thumbnail from the cache if it exists.
 // If the thumbnail does not exist in the cache, it will be fetched and
 // cached for future use.
-// All preview thumbnails are cached for a lifetime of one day.
 // Preview thumbnails are requested from "previews.${hostname}/filename" URLs.
 const previewThumbnailRoute = new Route(
   ({ request }) =>
@@ -59,10 +55,6 @@ const previewThumbnailRoute = new Route(
   new CacheFirst({
     cacheName: 'preview-thumbnails',
     plugins: [
-      new ExpirationPlugin({
-        maxAgeSeconds: 24 * 60 * 60,
-        purgeOnQuotaError: true
-      }),
       new CacheableResponsePlugin({
         statuses: [200, 304, 415]
       })
