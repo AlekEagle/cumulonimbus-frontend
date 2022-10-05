@@ -4,7 +4,7 @@
     <template v-if="domains.data">
       <h2>
         Showing page {{ page + 1 }} of
-        {{ (domains.data ? Math.ceil(domains.data?.count / 50) : 0) + 1 }}
+        {{ domains.data ? Math.ceil(domains.data?.count / 50) : 0 }}
         <br />
         {{ domains.data?.count || 'some number of' }} domains in total.
       </h2>
@@ -41,7 +41,7 @@
 
   <Paginator
     v-model="page"
-    :max="domains.data ? Math.ceil(domains.data.count / 50) : 0"
+    :max="domains.data ? Math.ceil(domains.data.count / 50) - 1 : 0"
     :disabled="domains.loading || !online"
     @page-change="fetchDomains"
   >

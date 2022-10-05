@@ -37,7 +37,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchSessions"
-    :max="sessions.data ? Math.ceil(sessions.data?.count / 50) : 0"
+    :max="sessions.data ? Math.ceil(sessions.data?.count / 50) - 1 : 0"
     :disabled="sessions.loading || !online"
   >
     <template v-if="!sessions.loading">

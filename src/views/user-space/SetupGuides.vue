@@ -4,9 +4,7 @@
     <template v-if="instructions.data">
       <h2>
         Showing page {{ page + 1 }} of
-        {{
-          (instructions.data ? Math.ceil(instructions.data?.count / 5) : 0) + 1
-        }}
+        {{ instructions.data ? Math.ceil(instructions.data?.count / 50) : 0 }}
         <br />
         {{ instructions.data?.count || 'some number of' }} setup guides in
         total.
@@ -25,7 +23,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchInstructions"
-    :max="instructions.data ? Math.ceil(instructions.data?.count / 50) : 0"
+    :max="instructions.data ? Math.ceil(instructions.data?.count / 50) - 1 : 0"
     :disabled="instructions.loading || !online"
   >
     <template v-if="online || instructions.data">
