@@ -130,7 +130,10 @@
 
   watch(allowsSubdomains, newValue => {
     if (newValue) {
-      setTimeout(() => (subdomainInput.value!.value = props.subdomain), 10);
+      setTimeout(() => {
+        if (!subdomainInput.value) return;
+        subdomainInput.value.value = props.subdomain;
+      }, 10);
     }
   });
 

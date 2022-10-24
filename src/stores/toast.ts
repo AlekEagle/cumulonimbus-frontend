@@ -119,6 +119,13 @@ export const toastStore = defineStore('toast', () => {
     );
   };
 
+  // The function to display a toast regarding a new version of the app
+  const newVersion = async () => {
+    await show(
+      'A new version of Cumulonimbus is available! Please refresh the page to apply the update.'
+    );
+  };
+
   // The function to display a toast regarding missing fields
   const missingFields = async (fields: string[]) => {
     // Capitalize the first letter of each field, and join them with commas, putting an "and" before the last one
@@ -172,6 +179,7 @@ export const toastStore = defineStore('toast', () => {
     clientError,
     serverError,
     genericError,
+    newVersion,
     missingFields,
     invalidUsernameEmail,
     invalidPassword,

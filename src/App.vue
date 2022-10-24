@@ -280,6 +280,16 @@
   });
 
   user.restoreClient();
+
+  // Register a message handler for the service worker
+  navigator.serviceWorker?.addEventListener('message', event => {
+    const payload = event.data;
+    switch (payload.type) {
+      case 'update-nag':
+        toast.newVersion();
+        break;
+    }
+  });
 </script>
 
 <style>
