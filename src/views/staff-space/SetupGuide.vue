@@ -60,33 +60,32 @@
   </div>
   <div v-else>
     <h1>Offline</h1>
-    <h2
-      >You are currently offline. Please connect to the internet to
-      continue.</h2
-    >
+    <h2>
+      You are currently offline. Please connect to the internet to continue.
+    </h2>
   </div>
   <Modal dismissible title="Info" ref="setupGuideInfoModal">
     <template v-if="instruction.data">
-      <p
-        >Name:
+      <p>
+        Name:
         <code v-text="instruction.data.name" />
       </p>
-      <p
-        >Display Name:
+      <p>
+        Display Name:
         <code v-text="instruction.data.displayName" />
       </p>
-      <p
-        >Description:
+      <p>
+        Description:
         <br />
         <code v-text="instruction.data.description" />
         <br />
       </p>
-      <p
-        >Steps:
+      <p>
+        Steps:
         <code v-text="instruction.data.steps.length" />
       </p>
-      <p
-        >Has setup file:
+      <p>
+        Has setup file:
         <code v-text="instruction.data.filename === null ? 'No' : 'Yes'" />
       </p>
       <p v-if="instruction.data.filename !== null">
@@ -94,7 +93,7 @@
         <code v-text="instruction.data.filename" />
       </p>
       <p>
-        {{ instruction.data.filename === null ? 'Clipboard' : 'File' }} content:
+        {{ instruction.data.filename === null ? "Clipboard" : "File" }} content:
         <br />
         <code v-text="instruction.data.fileContent" />
         <br />
@@ -117,11 +116,13 @@
       instruction.data ? instruction.data.displayName : 'this thing'
     }`"
   >
-    <button @click="deleteSetupGuide">Delete</button>
-    <button @click="editDisplayName">Edit Display Name</button>
-    <button @click="editDescription">Edit Description</button>
-    <button @click="editFilename">Edit Filename</button>
-    <button @click="editFileContent">Edit File Content</button>
+    <div class="button-modal-container">
+      <button @click="deleteSetupGuide">Delete</button>
+      <button @click="editDisplayName">Edit Display Name</button>
+      <button @click="editDescription">Edit Description</button>
+      <button @click="editFilename">Edit Filename</button>
+      <button @click="editFileContent">Edit File Content</button>
+    </div>
   </Modal>
   <FormModal
     :title="`Editing Step ${selectedStep + 1}`"
@@ -152,8 +153,9 @@
       <button
         @click="deleteStep"
         :disabled="instruction.data?.steps[selectedStep] === undefined"
-        >Delete Step</button
       >
+        Delete Step
+      </button>
     </template>
   </FormModal>
   <ConfirmModal
@@ -216,9 +218,9 @@
       required
     />
     <template v-slot:additional-buttons>
-      <button @click="onNoFilename" :disabled="instruction.loading"
-        >No File</button
-      >
+      <button @click="onNoFilename" :disabled="instruction.loading">
+        No File
+      </button>
     </template>
   </FormModal>
   <FormModal
@@ -246,380 +248,392 @@
 </template>
 
 <script lang="ts" setup>
-  import ContentBox from '@/components/ContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import BackButton from '@/components/BackButton.vue';
-  import Modal from '@/components/Modal.vue';
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import { instructionStore } from '@/stores/staff-space/instruction';
-  import { instructionsStore } from '@/stores/staff-space/instructions';
-  import { useOnline } from '@vueuse/core';
-  import { ref, watch, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import infoIcon from '@/assets/images/info.svg';
-  import plusIcon from '@/assets/images/plus.svg';
-  import toDateString from '@/utils/toDateString';
-  import backWithFallback from '@/utils/routerBackWithFallback';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import ContentBox from "@/components/ContentBox.vue";
+import LoadingBlurb from "@/components/LoadingBlurb.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import FormModal from "@/components/FormModal.vue";
+import BackButton from "@/components/BackButton.vue";
+import Modal from "@/components/Modal.vue";
+import { userStore } from "@/stores/user";
+import { toastStore } from "@/stores/toast";
+import { instructionStore } from "@/stores/staff-space/instruction";
+import { instructionsStore } from "@/stores/staff-space/instructions";
+import { useOnline } from "@vueuse/core";
+import { ref, watch, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import Cumulonimbus from "cumulonimbus-wrapper";
+import infoIcon from "@/assets/images/info.svg";
+import plusIcon from "@/assets/images/plus.svg";
+import toDateString from "@/utils/toDateString";
+import backWithFallback from "@/utils/routerBackWithFallback";
+import defaultErrorHandler from "@/utils/defaultErrorHandler";
 
-  const online = useOnline(),
-    router = useRouter(),
-    user = userStore(),
-    toast = toastStore(),
-    instruction = instructionStore(),
-    instructions = instructionsStore(),
-    manageSetupGuideModal = ref<typeof Modal>(),
-    setupGuideInfoModal = ref<typeof Modal>(),
-    editStepModal = ref<typeof FormModal>(),
-    deleteSetupGuideModal = ref<typeof ConfirmModal>(),
-    editDisplayNameModal = ref<typeof FormModal>(),
-    editDescriptionModal = ref<typeof FormModal>(),
-    editFilenameModal = ref<typeof FormModal>(),
-    editFileContentModal = ref<typeof FormModal>(),
-    selectedStep = ref<number>(-1);
+const online = useOnline(),
+  router = useRouter(),
+  user = userStore(),
+  toast = toastStore(),
+  instruction = instructionStore(),
+  instructions = instructionsStore(),
+  manageSetupGuideModal = ref<typeof Modal>(),
+  setupGuideInfoModal = ref<typeof Modal>(),
+  editStepModal = ref<typeof FormModal>(),
+  deleteSetupGuideModal = ref<typeof ConfirmModal>(),
+  editDisplayNameModal = ref<typeof FormModal>(),
+  editDescriptionModal = ref<typeof FormModal>(),
+  editFilenameModal = ref<typeof FormModal>(),
+  editFileContentModal = ref<typeof FormModal>(),
+  selectedStep = ref<number>(-1);
 
-  async function fetchInstruction() {
-    if (!online) {
-      toast.connectivityOffline();
-      return;
-    }
-    try {
-      const status = await instruction.getInstruction(
-        router.currentRoute.value.query.id as string
-      );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
+async function fetchInstruction() {
+  if (!online) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await instruction.getInstruction(
+      router.currentRoute.value.query.id as string
+    );
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
         }
       }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
     }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
   }
+}
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (
-            !instruction.data ||
-            instruction.data.name !== router.currentRoute.value.query.id
-          ) {
-            fetchInstruction();
-          }
-          unwatchOnline();
+onMounted(async () => {
+  if (!online.value) {
+    const unwatchOnline = watch(online, () => {
+      if (online.value) {
+        if (
+          !instruction.data ||
+          instruction.data.name !== router.currentRoute.value.query.id
+        ) {
+          fetchInstruction();
         }
-      });
-      return;
-    }
-    if (
-      !instruction.data ||
-      instruction.data.name !== router.currentRoute.value.query.id
-    ) {
-      fetchInstruction();
-    }
-  });
-
-  function onInstructionStepClick(index: number) {
-    selectedStep.value = index;
-    editStepModal.value!.show();
-  }
-
-  function cancelEditStep() {
-    selectedStep.value = -1;
-  }
-
-  async function editStep(data: { stepContent: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-    const steps = instruction.data!.steps;
-    steps[selectedStep.value] = data.stepContent;
-    try {
-      const status = instruction.updateInstructionSteps(steps);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('Step updated successfully.');
-        editStepModal.value!.hide();
-        selectedStep.value = -1;
+        unwatchOnline();
       }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
-    }
+    });
+    return;
   }
+  if (
+    !instruction.data ||
+    instruction.data.name !== router.currentRoute.value.query.id
+  ) {
+    fetchInstruction();
+  }
+});
 
-  async function deleteStep() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-    const steps = instruction.data!.steps;
-    steps.splice(selectedStep.value, 1);
-    try {
-      const status = instruction.updateInstructionSteps(steps);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
+function onInstructionStepClick(index: number) {
+  selectedStep.value = index;
+  editStepModal.value!.show();
+}
+
+function cancelEditStep() {
+  selectedStep.value = -1;
+}
+
+async function editStep(data: { stepContent: string }) {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  const steps = instruction.data!.steps;
+  steps[selectedStep.value] = data.stepContent;
+  try {
+    const status = instruction.updateInstructionSteps(steps);
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
         }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('Step deleted successfully.');
-        editStepModal.value!.hide();
-        selectedStep.value = -1;
       }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("Step updated successfully.");
+      editStepModal.value!.hide();
+      selectedStep.value = -1;
     }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
   }
+}
 
-  async function deleteSetupGuide() {
-    await manageSetupGuideModal.value!.hide();
-    await deleteSetupGuideModal.value!.show();
+async function deleteStep() {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
   }
-
-  async function editDisplayName() {
-    await manageSetupGuideModal.value!.hide();
-    await editDisplayNameModal.value!.show();
-  }
-
-  async function editDescription() {
-    await manageSetupGuideModal.value!.hide();
-    await editDescriptionModal.value!.show();
-  }
-
-  async function editFilename() {
-    await manageSetupGuideModal.value!.hide();
-    await editFilenameModal.value!.show();
-  }
-
-  async function editFileContent() {
-    await manageSetupGuideModal.value!.hide();
-    await editFileContentModal.value!.show();
-  }
-
-  async function confirmDeleteSetupGuide(choice: boolean) {
-    if (!online) {
-      toast.connectivityOffline();
-      return;
-    }
-    if (!choice) {
-      deleteSetupGuideModal.value!.hide();
-      return;
-    }
-    try {
-      const status = await instruction.deleteInstruction();
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
+  const steps = instruction.data!.steps;
+  steps.splice(selectedStep.value, 1);
+  try {
+    const status = instruction.updateInstructionSteps(steps);
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
         }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('Setup guide deleted successfully.');
-        await instructions.getInstructions(instructions.page);
-        await backWithFallback(router, '/staff/setup-guides');
       }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("Step deleted successfully.");
+      editStepModal.value!.hide();
+      selectedStep.value = -1;
     }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
   }
+}
 
-  async function onEditDisplayName(data: { displayName: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-    try {
-      const status = await instruction.updateInstructionDisplayName(
-        data.displayName
-      );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('Display name updated successfully.');
-        editDisplayNameModal.value!.hide();
-      }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
-    }
-  }
+async function deleteSetupGuide() {
+  await manageSetupGuideModal.value!.hide();
+  await deleteSetupGuideModal.value!.show();
+}
 
-  async function onEditDescription(data: { description: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-    try {
-      const status = await instruction.updateInstructionDescription(
-        data.description
-      );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('Description updated successfully.');
-        editDescriptionModal.value!.hide();
-      }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
-    }
-  }
+async function editDisplayName() {
+  await manageSetupGuideModal.value!.hide();
+  await editDisplayNameModal.value!.show();
+}
 
-  async function onEditFilename(data: { filename: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-    try {
-      const status = await instruction.updateInstructionFilename(data.filename);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('Filename updated successfully.');
-        editFilenameModal.value!.hide();
-      }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
-    }
-  }
+async function editDescription() {
+  await manageSetupGuideModal.value!.hide();
+  await editDescriptionModal.value!.show();
+}
 
-  async function onNoFilename() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-    try {
-      const status = await instruction.updateInstructionFilename('');
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('Filename updated successfully.');
-        editFilenameModal.value!.hide();
-      }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
-    }
-  }
+async function editFilename() {
+  await manageSetupGuideModal.value!.hide();
+  await editFilenameModal.value!.show();
+}
 
-  async function onEditFileContent(data: { content: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-    try {
-      const status = await instruction.updateInstructionFileContent(
-        data.content
-      );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/staff/setup-guides');
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('File content updated successfully.');
-        editFileContentModal.value!.hide();
-      }
-    } catch (e) {
-      console.error(e);
-      toast.serverError();
-    }
+async function editFileContent() {
+  await manageSetupGuideModal.value!.hide();
+  await editFileContentModal.value!.show();
+}
+
+async function confirmDeleteSetupGuide(choice: boolean) {
+  if (!online) {
+    toast.connectivityOffline();
+    return;
   }
+  if (!choice) {
+    deleteSetupGuideModal.value!.hide();
+    return;
+  }
+  try {
+    const status = await instruction.deleteInstruction();
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
+        }
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("Setup guide deleted successfully.");
+      await instructions.getInstructions(instructions.page);
+      await backWithFallback(router, "/staff/setup-guides");
+    }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
+  }
+}
+
+async function onEditDisplayName(data: { displayName: string }) {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await instruction.updateInstructionDisplayName(
+      data.displayName
+    );
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
+        }
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("Display name updated successfully.");
+      editDisplayNameModal.value!.hide();
+    }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
+  }
+}
+
+async function onEditDescription(data: { description: string }) {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await instruction.updateInstructionDescription(
+      data.description
+    );
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
+        }
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("Description updated successfully.");
+      editDescriptionModal.value!.hide();
+    }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
+  }
+}
+
+async function onEditFilename(data: { filename: string }) {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await instruction.updateInstructionFilename(data.filename);
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
+        }
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("Filename updated successfully.");
+      editFilenameModal.value!.hide();
+    }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
+  }
+}
+
+async function onNoFilename() {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await instruction.updateInstructionFilename("");
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
+        }
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("Filename updated successfully.");
+      editFilenameModal.value!.hide();
+    }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
+  }
+}
+
+async function onEditFileContent(data: { content: string }) {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await instruction.updateInstructionFileContent(data.content);
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_INSTRUCTION_ERROR":
+            toast.show("This setup guide does not exist.");
+            await instructions.getInstructions(instructions.page);
+            await backWithFallback(router, "/staff/setup-guides");
+            break;
+        }
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("File content updated successfully.");
+      editFileContentModal.value!.hide();
+    }
+  } catch (e) {
+    console.error(e);
+    toast.serverError();
+  }
+}
 </script>
+
+<style>
+.button-modal-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-modal-container > * {
+  margin: 0.5rem;
+}
+</style>
