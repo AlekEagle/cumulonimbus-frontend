@@ -159,6 +159,7 @@
         name: 'About the Dev',
         path: 'https://alekeagle.com/',
         external: true
+      }
     ].filter(a => typeof a !== 'undefined') as Array<{
       name: string;
       path: string;
