@@ -154,7 +154,11 @@
         name: 'Discord',
         path: 'https://alekeagle.com/d',
         external: true
-      }
+      },
+      {
+        name: 'About the Dev',
+        path: 'https://alekeagle.com/',
+        external: true
     ].filter(a => typeof a !== 'undefined') as Array<{
       name: string;
       path: string;
