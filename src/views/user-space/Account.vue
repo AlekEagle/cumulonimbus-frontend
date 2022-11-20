@@ -469,9 +469,8 @@
             break;
         }
       } else if (res) {
-        deleteAccountModal.value!.hide();
-        user.logout();
-        router.push('/');
+        await deleteAccountModal.value!.hide();
+        router.replace('/');
       }
     } catch (error) {
       console.error(error);
