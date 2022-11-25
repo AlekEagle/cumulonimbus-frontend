@@ -47,6 +47,12 @@
         dashboard!
       </p>
     </div>
+    <div>
+      <h2>Report Abuse</h2>
+      <p>
+        Find someone misusing and/or exploiting the Cumulonimbus platform? Send us an <a href="mailto:abuse@alekeagle.me?subject=Report%20Abuse&body=URL%2FLink%20to%20offending%20content%3A%20%5BReplace%20me%20with%20the%20link%20to%20the%20offending%20content%5D%0A%0AUse%20the%20space%20below%20to%20explain%20how%20the%20content%20above%20is%20potentially%20abusing%20the%20service%3A%0A%5BYour%20reasoning%20here%5D" rel="noopener" target="_blank">abuse report</a> and we'll look into it right away.
+      </p>
+    </div>
   </div>
 </template>
 
