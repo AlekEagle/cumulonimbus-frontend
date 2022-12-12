@@ -151,6 +151,11 @@ const menuItems = computed(() => {
       external: true,
     },
     {
+      name: "GitHub",
+      path: "https://github.com/AlekEagle/cumulonimbus-frontend",
+      external: true,
+    },
+    {
       name: "Discord",
       path: "https://alekeagle.com/d",
       external: true,
