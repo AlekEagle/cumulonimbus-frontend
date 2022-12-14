@@ -300,7 +300,7 @@ async function fetchInstruction() {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }
@@ -359,7 +359,7 @@ async function editStep(data: { stepContent: string }) {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }
@@ -392,7 +392,7 @@ async function deleteStep() {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }
@@ -452,7 +452,7 @@ async function confirmDeleteSetupGuide(choice: boolean) {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }
@@ -461,7 +461,7 @@ async function confirmDeleteSetupGuide(choice: boolean) {
     } else {
       toast.show("Setup guide deleted successfully.");
       await instructions.getInstructions(instructions.page);
-      await backWithFallback(router, "/staff/setup-guides");
+      await backWithFallback(router, "/staff/setup-guides", true);
     }
   } catch (e) {
     console.error(e);
@@ -485,7 +485,7 @@ async function onEditDisplayName(data: { displayName: string }) {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }
@@ -517,7 +517,7 @@ async function onEditDescription(data: { description: string }) {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }
@@ -547,7 +547,7 @@ async function onEditFilename(data: { filename: string }) {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }
@@ -577,7 +577,7 @@ async function onNoFilename() {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }
@@ -607,7 +607,7 @@ async function onEditFileContent(data: { content: string }) {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides");
+            await backWithFallback(router, "/staff/setup-guides", true);
             break;
         }
       }

@@ -2,18 +2,44 @@ import { Router } from "vue-router";
 
 export default async function backWithFallback(
   router: Router,
-  fallback: string
+  fallback: string,
+  fallbackWithoutRouter: boolean = false
 ) {
-  if (window.history.length > 1) {
+  let current = router.currentRoute.value;
+  let fallbackResolved = await router.resolve(fallback);
+  if (window.history.state.back != null) {
     router.back();
   } else {
-    let current = router.currentRoute.value.fullPath;
-    let fallbackResolved = (await router.resolve(fallback)).fullPath;
-    window.history.replaceState(null, "", fallbackResolved);
-    // await router.replace(fallback);
-    window.history.pushState(null, "", current);
-    // await router.push(current);
-    window.history.back();
-    // router.back();
+    if (!fallbackWithoutRouter) {
+      await router.replace(fallback);
+      await router.push(current);
+      router.back();
+    } else {
+      window.history.replaceState(
+        {
+          back: null,
+          current: fallbackResolved.fullPath,
+          forward: null,
+          position: 0,
+          replaced: true,
+          scroll: { top: 0, left: 0 },
+        },
+        "",
+        fallbackResolved.fullPath
+      );
+      window.history.pushState(
+        {
+          back: fallbackResolved.fullPath,
+          current: current.fullPath,
+          forward: null,
+          position: 1,
+          replaced: false,
+          scroll: null,
+        },
+        "",
+        current.fullPath
+      );
+      router.back();
+    }
   }
 }

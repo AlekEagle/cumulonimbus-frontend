@@ -134,7 +134,7 @@ async function fetchInstruction() {
           case "INVALID_INSTRUCTION_ERROR":
             toast.show("This setup guide does not exist.");
             await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/dashboard/setup-guides");
+            await backWithFallback(router, "/dashboard/setup-guides", true);
             break;
         }
       }
@@ -171,7 +171,7 @@ onMounted(() => {
 
 async function cancelVerify() {
   await verifyIdentityModal.value!.hide();
-  backWithFallback(router, "/dashboard/setup-guides");
+  backWithFallback(router, "/dashboard/setup-guides", true);
 }
 
 async function getSetupFile() {

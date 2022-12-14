@@ -133,7 +133,7 @@
             case 'INVALID_FILE_ERROR':
               toast.show('That file does not exist.');
               await files.getFiles(files.page);
-              await backWithFallback(router, '/dashboard/files');
+              await backWithFallback(router, '/dashboard/files', true);
           }
         }
       } else if (!status) {
@@ -184,7 +184,7 @@
             case 'INVALID_FILE_ERROR':
               toast.show('That file does not exist.');
               await files.getFiles(files.page);
-              await backWithFallback(router, '/dashboard/files');
+              await backWithFallback(router, '/dashboard/files', true);
           }
         }
       } else if (!status) {
@@ -193,7 +193,7 @@
         toast.show('File deleted.');
         await confirmModal.value!.hide();
         await files.getFiles(files.page);
-        await backWithFallback(router, '/dashboard/files');
+        await backWithFallback(router, '/dashboard/files', true);
       }
     } catch (e) {
       console.error(e);

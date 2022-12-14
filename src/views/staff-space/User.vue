@@ -379,7 +379,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       }
@@ -402,7 +402,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       } else if (!status) {
@@ -430,7 +430,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       } else if (!status) {
@@ -462,7 +462,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       } else if (!status) {
@@ -490,7 +490,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
               break;
             case 'INVALID_DOMAIN_ERROR':
               toast.show('You just missed that domain.');
@@ -533,7 +533,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       } else if (!status) {
@@ -565,7 +565,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       } else if (!status) {
@@ -597,7 +597,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       } else if (!status) {
@@ -629,7 +629,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       } else if (!status) {
@@ -661,7 +661,7 @@
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
+              backWithFallback(router, '/staff/users', true);
           }
         }
       } else if (!status) {
@@ -671,7 +671,7 @@
         otherUser.data = null;
         await deleteUserModal.value!.hide();
         await users.getUsers(users.page);
-        await backWithFallback(router, '/staff/users');
+        await backWithFallback(router, '/staff/users', true);
       }
     } catch (error) {
       toast.clientError();
