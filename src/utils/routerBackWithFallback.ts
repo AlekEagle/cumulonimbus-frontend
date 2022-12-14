@@ -4,7 +4,7 @@ export default async function backWithFallback(
   router: Router,
   fallback: string
 ) {
-  if (window.history.state.back !== null) {
+  if (window.history.length > 1) {
     router.back();
   } else {
     let current = router.currentRoute.value.fullPath;
@@ -12,8 +12,8 @@ export default async function backWithFallback(
     window.history.replaceState(null, "", fallbackResolved);
     // await router.replace(fallback);
     window.history.pushState(null, "", current);
-    console.log(window.history.state);
     // await router.push(current);
-    router.back();
+    window.history.back();
+    // router.back();
   }
 }
