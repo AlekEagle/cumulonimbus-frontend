@@ -38,7 +38,7 @@ const messages = [
   "Mining crypto",
   "(╯°□°)╯︵ ┻━┻",
   "Solving a Rubik's Cube",
-  "(Creating unresolved tension",
+  "Creating unresolved tension",
   "Downloading more RAM",
   "Importing data from the future",
   "Downloading Club Penguin",
