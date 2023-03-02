@@ -87,6 +87,7 @@
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     cursor: not-allowed;
     overflow-x: scroll;
     overflow-y: overlay;
@@ -170,18 +171,20 @@
 
   .modal-enter-active,
   .modal-leave-active {
-    transition: opacity 0.4s, backdrop-filter 0.4s;
+    transition: opacity 0.4s, backdrop-filter 0.4s, -webkit-backdrop-filter 0.4s;
   }
 
   .modal-enter-from,
   .modal-leave-to {
     opacity: 0;
     backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .modal-enter-to,
   .modal-leave-from {
     opacity: 1;
     backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
   }
 </style>
