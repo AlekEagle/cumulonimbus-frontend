@@ -38,6 +38,7 @@ defineExpose({
   left: 0;
   background-color: #00000080;
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   z-index: 20;
   display: grid;
   grid: auto / auto;
@@ -49,18 +50,20 @@ defineExpose({
 
 .fullscreen-loading-blurb-enter-active,
 .fullscreen-loading-blurb-leave-active {
-  transition: opacity 0.4s, backdrop-filter 0.4s;
+  transition: opacity 0.4s, backdrop-filter 0.4s, -webkit-backdrop-filter 0.4s;
 }
 
 .fullscreen-loading-blurb-enter-from,
 .fullscreen-loading-blurb-leave-to {
   opacity: 0;
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .fullscreen-loading-blurb-enter-to,
 .fullscreen-loading-blurb-leave-from {
   opacity: 1;
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 </style>
