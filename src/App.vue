@@ -882,6 +882,7 @@ header nav ul {
   text-align: center;
   transition: bottom 0.4s;
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   z-index: 10;
   overflow: hidden;
 }
