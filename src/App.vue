@@ -781,6 +781,7 @@ header {
   align-items: center;
   top: 0;
   position: sticky;
+  position: -webkit-sticky;
   background: var(--background);
   transition: background-color 0.25s, box-shadow 0.25s;
   z-index: 10;
