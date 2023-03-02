@@ -913,7 +913,8 @@ header nav > div {
   z-index: 11;
   right: 10px;
   top: 20.8px;
-  position: fixed;
+  position: sticky;
+  position: -webkit-sticky;
 }
 
 header nav.active .bar:nth-child(2) {
