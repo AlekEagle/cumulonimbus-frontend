@@ -354,7 +354,7 @@
       return;
     }
     try {
-      const res = await user.changePassword(data.newPassword, data.password);
+      const res = await user.changePassword(data.password, data.newPassword);
       if (res instanceof Cumulonimbus.ResponseError) {
         const handled = await defaultErrorHandler(res, router);
         if (!handled) {
