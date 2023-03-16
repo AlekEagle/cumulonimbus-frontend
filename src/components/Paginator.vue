@@ -60,23 +60,23 @@
 import { onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 
-const emit = defineEmits(["update:modelValue", "pageChange"]),
-  props = defineProps({
-    modelValue: {
-      type: Number,
-      required: true,
-    },
-    min: {
-      type: Number,
-      default: 0,
-    },
-    max: {
-      type: Number,
-      default: 0,
-    },
-    disabled: Boolean,
-  }),
-  router = useRouter();
+const emit = defineEmits(["update:modelValue", "pageChange"]);
+const props = defineProps({
+  modelValue: {
+    type: Number,
+    required: true,
+  },
+  min: {
+    type: Number,
+    default: 0,
+  },
+  max: {
+    type: Number,
+    default: 0,
+  },
+  disabled: Boolean,
+});
+const router = useRouter();
 
 function prevPage() {
   emit("update:modelValue", props.modelValue - 1);
