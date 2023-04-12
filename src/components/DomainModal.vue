@@ -295,11 +295,15 @@ onMounted(async () => {
 
 .domain-container select {
   width: calc(var(--domain-width, 6ch) + 30px);
-  padding-left: 0;
+  padding: 10px 5px;
   min-width: 10vw;
   margin: 0;
   border: none;
   background-color: transparent;
+}
+
+.domain-container > .subdomain-container + select {
+  padding: 10px 10px 10px 0;
 }
 
 .domain-container select:focus,
