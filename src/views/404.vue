@@ -1,18 +1,19 @@
 <template>
   <h1>
-    This doesn't look like the right place<router-link
-      class="h1-link"
+    This doesn't look like the right place<RouterLink
       to="/testing/hush/dont/touch"
-      tabindex="-1"
-      >...</router-link
+      custom
+      v-slot="{ navigate }"
     >
+      <p class="h1-link" @click="navigate">...</p>
+    </RouterLink>
   </h1>
   <h2>Um, I think we took a wrong turn somewhere.</h2>
   <h2>404 not found! The page you're looking for probably doesn't exist!</h2>
   <div class="quick-action-buttons-container">
-    <router-link to="/">
-      <button title="Lets go home!"> I wanna go home. </button>
-    </router-link>
+    <RouterLink to="/">
+      <button title="Lets go home!">I wanna go home.</button>
+    </RouterLink>
     <BackButton fallback="/" title="Retrace your steps. duh.">
       Retrace my steps.
     </BackButton>
@@ -96,57 +97,57 @@
 </template>
 
 <script lang="ts" setup>
-  import { useRouter } from 'vue-router';
-  import { ref, onMounted, onBeforeUnmount } from 'vue';
-  import BackButton from '@/components/BackButton.vue';
+import { useRouter } from "vue-router";
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import BackButton from "@/components/BackButton.vue";
 
-  const router = useRouter(),
-    line = ref<number>(-1),
-    maxLine = 14,
-    nextLineTimeout = ref<number>(-1);
+const router = useRouter(),
+  line = ref<number>(-1),
+  maxLine = 14,
+  nextLineTimeout = ref<number>(-1);
 
-  function displayNextLine() {
-    nextLineTimeout.value = -1;
-    if (++line.value >= maxLine) {
-      setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 1);
-      return;
-    } else {
-      setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 1);
-      nextLineTimeout.value = setTimeout(displayNextLine, 5000);
-    }
-    if (line.value === 10) {
-      throw new Error(
-        'Page redirection was not allowed. It must be preformed after a user gesture on the page.'
-      );
-    }
+function displayNextLine() {
+  nextLineTimeout.value = -1;
+  if (++line.value >= maxLine) {
+    setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 1);
+    return;
+  } else {
+    setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 1);
+    nextLineTimeout.value = setTimeout(displayNextLine, 5000);
   }
+  if (line.value === 10) {
+    throw new Error(
+      "Page redirection was not allowed. It must be preformed after a user gesture on the page."
+    );
+  }
+}
 
-  onMounted(() => (nextLineTimeout.value = setTimeout(displayNextLine, 1000)));
-  onBeforeUnmount(() => clearTimeout(nextLineTimeout.value));
+onMounted(() => (nextLineTimeout.value = setTimeout(displayNextLine, 1000)));
+onBeforeUnmount(() => clearTimeout(nextLineTimeout.value));
 </script>
 
 <style>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.4s;
-  }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s;
+}
 
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 
-  .fade-enter-to,
-  .fade-leave-from {
-    opacity: 1;
-  }
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
 
-  .funny-padding {
-    padding: 1em;
-  }
+.funny-padding {
+  padding: 1em;
+}
 
-  h1 a.h1-link {
-    color: var(--foreground);
-    cursor: initial;
-  }
+h1 a.h1-link {
+  color: var(--foreground);
+  cursor: initial;
+}
 </style>

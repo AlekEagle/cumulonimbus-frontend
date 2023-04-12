@@ -16,19 +16,21 @@
         <li>
           <ThemeManager :no-tab-index="mobileMenu" />
         </li>
-        <li
-          v-for="(item, index) in menuItems"
-          @click="mobileMenu = false"
-          :key="index"
-        >
+        <li v-for="item in menuItems" @click="mobileMenu = false">
           <RouterLink
             v-if="!item.external"
             :to="item.path"
-            v-text="item.name"
-            :tabindex="mobileMenu ? '0' : '-1'"
-          />
+            custom
+            v-slot="{ navigate, href }"
+          >
+            <a
+              :href="href"
+              @click.prevent="navigate"
+              :tabindex="mobileMenu ? '0' : '-1'"
+              v-text="item.name"
+            />
+          </RouterLink>
           <a
-            v-else
             :href="item.path"
             rel="noopener"
             target="_blank"
@@ -304,384 +306,382 @@ navigator.serviceWorker?.addEventListener("message", (event) => {
 
 <style>
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: "Ubuntu";
   font-style: normal;
   font-weight: 300;
   font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Light.ttf) format('truetype');
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Light.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: "Ubuntu";
   font-style: italic;
   font-weight: 300;
   font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-LightItalic.ttf) format('truetype');
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-LightItalic.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: "Ubuntu";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Regular.ttf) format('truetype');
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Regular.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: "Ubuntu";
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Italic.ttf) format('truetype');
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Italic.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: "Ubuntu";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Medium.ttf) format('truetype');
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Medium.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: "Ubuntu";
   font-style: italic;
   font-weight: 500;
   font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-MediumItalic.ttf) format('truetype');
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-MediumItalic.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: "Ubuntu";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Bold.ttf) format('truetype');
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-Bold.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: "Ubuntu";
   font-style: italic;
   font-weight: 700;
   font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-BoldItalic.ttf) format('truetype');
+  src: url(@/assets/fonts/Ubuntu/Ubuntu-BoldItalic.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 100;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Thin.ttf) format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-Thin.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 100;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-ThinItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 200;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 200;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-LightItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 300;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 300;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-LightItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Regular.ttf)
-    format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-Regular.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Italic.ttf) format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-Italic.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Medium.ttf) format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-Medium.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 500;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-MediumItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-SemiBold.ttf)
-    format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-SemiBold.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 600;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-SemiBoldItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Bold.ttf) format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-Bold.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 700;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-BoldItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 800;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-ExtraBold.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 800;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-ExtraBoldItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 900;
   font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Black.ttf) format('truetype');
+  src: url(@/assets/fonts/Montserrat/Montserrat-Black.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 900;
   font-display: swap;
   src: url(@/assets/fonts/Montserrat/Montserrat-BlackItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 200;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraLight.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 200;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraLightItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 300;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Light.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 300;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-LightItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Regular.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 400;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Italic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Medium.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 500;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-MediumItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-SemiBold.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 600;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-SemiBoldItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Bold.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 700;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-BoldItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 800;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraBold.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 800;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraBoldItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 900;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Black.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 900;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-BlackItalic.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: normal;
   font-weight: 100 200 300 400 500 600 700 800 900;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/SourceCodePro-VariableFont_wght.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 @font-face {
-  font-family: 'Source Code Pro';
+  font-family: "Source Code Pro";
   font-style: italic;
   font-weight: 100 200 300 400 500 600 700 800 900;
   font-display: swap;
   src: url(@/assets/fonts/SourceCodePro/SourceCodePro-Italic-VariableFont_wght.ttf)
-    format('truetype');
+    format("truetype");
 }
 
 html {
@@ -699,10 +699,10 @@ html {
   --ui-background-disabled: #b8b8b8;
   --ui-foreground-disabled: #000;
   --ui-border-disabled: #9e9e9e;
-  --font-heading: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow',
-    Arial, sans-serif;
-  --font-body: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  --font-code: 'Source Code Pro', monospace;
+  --font-heading: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
+    sans-serif;
+  --font-body: "Ubuntu", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --font-code: "Source Code Pro", monospace;
 }
 
 html.dark-theme {
@@ -889,7 +889,7 @@ header nav ul {
 }
 
 header nav ul:before {
-  content: '';
+  content: "";
   width: 100%;
   height: 100%;
   position: absolute;
@@ -1055,7 +1055,7 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-input[type='number'] {
+input[type="number"] {
   appearance: none;
   -moz-appearance: textfield;
 }
@@ -1103,13 +1103,13 @@ select:focus:not(:disabled) {
   outline: none;
 }
 
-form input[type='submit'] {
+form input[type="submit"] {
   display: none;
 }
 
 select {
-  font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', 'Arial',
-    'sans-serif';
+  font-family: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", "Arial",
+    "sans-serif";
   border-radius: 10px;
   font-weight: 600;
   outline: none;
@@ -1177,7 +1177,7 @@ option {
   overflow: hidden;
   display: inline-block;
   vertical-align: bottom;
-  content: '\2026';
+  content: "\2026";
   animation: ellipsis steps(4, end) 2s infinite;
   width: 0px;
   margin-right: 1.55ch;
