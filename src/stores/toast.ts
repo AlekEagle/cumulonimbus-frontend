@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { wait, waitFor } from '@/utils/wait';
-import Cumulonimbus from 'cumulonimbus-wrapper';
-import toTimeString from '@/utils/toTimeString';
+import { defineStore } from "pinia";
+import { computed, Ref, ref, unref, watch, WatchStopHandle } from "vue";
+import { wait, waitFor } from "@/utils/wait";
+import Cumulonimbus from "cumulonimbus-wrapper";
+import { addSeconds, useTimeString } from "@/utils/time";
 
 const toastTransitionDuration = 500;
 
@@ -11,9 +11,11 @@ function capitalizeFirstLetter(string: string): string {
 }
 
 // A store for managing toast messages
-export const toastStore = defineStore('toast', () => {
+export const toastStore = defineStore("toast", () => {
   // The current text of the toast
-  const text = ref('');
+  const text = ref("");
+  // Watcher for reactive text
+  const watcher = ref<WatchStopHandle | null>(null);
   // The current visibility of the toast
   const visible = ref(false);
   // The timeout to automatically hide the toast
@@ -22,7 +24,7 @@ export const toastStore = defineStore('toast', () => {
   const animating = ref(false);
 
   // The function to show a toast
-  const show = async (msg: string, duration: number = 3000) => {
+  const show = async (msg: string | Ref<string>, duration: number = 3000) => {
     // Check if the toast is currently animating
     if (animating.value) {
       // If it is, wait for it to finish
@@ -35,7 +37,13 @@ export const toastStore = defineStore('toast', () => {
     }
 
     // Set the text of the toast
-    text.value = msg;
+    text.value = unref(msg);
+    // If the text is reactive, watch it
+    if (typeof msg !== "string") {
+      watcher.value = watch(msg, (newMsg) => {
+        text.value = newMsg;
+      });
+    }
     // Set the visibility of the toast
     visible.value = true;
     // wait for the toast to transition in
@@ -54,6 +62,13 @@ export const toastStore = defineStore('toast', () => {
       await waitFor(animating, false);
     }
 
+    // Check if we were watching a reactive text
+    if (watcher.value) {
+      // If we were, stop watching it
+      watcher.value();
+      watcher.value = null;
+    }
+
     // Clear the timeout to hide the toast
     if (timeout.value) {
       clearTimeout(timeout.value);
@@ -70,10 +85,13 @@ export const toastStore = defineStore('toast', () => {
 
   // The function to display a toast regarding a rate limit error
   const rateLimit = async (error: Cumulonimbus.ResponseError) => {
+    // Take reset time (time until the rate limit resets in seconds) and convert it to a date
+    const reset = addSeconds(new Date(Date.now()), error.ratelimit!.reset);
     // construct the message
-    const msg = `You have been ratelimited. Please try again in ${toTimeString(
-      (error.ratelimit!.reset - Math.floor(Date.now() / 1000)) * 1000
-    )}.`;
+    const msg = computed(() => {
+      const toTimeString = useTimeString(ref(reset));
+      return `You are being rate limited! Please wait ${toTimeString.value} before trying again.`;
+    });
     // show the toast
     await show(msg);
   };
@@ -81,18 +99,18 @@ export const toastStore = defineStore('toast', () => {
   // The function to display a toast regarding a banned user
   const banned = async () => {
     await show(
-      'You have been banned from Cumulonimbus. Sorry for the inconvenience.'
+      "You have been banned from Cumulonimbus. Sorry for the inconvenience."
     );
   };
 
   // The function to display a toast regarding an invalid/expired session
   const session = async () => {
-    await show('Your session has expired. Please log in again.');
+    await show("Your session has expired. Please log in again.");
   };
 
   // The function to display a toast telling the user they need to log in to do something
   const login = async () => {
-    await show('Whoops! Looks like you need to log in before we do that!');
+    await show("Whoops! Looks like you need to log in before we do that!");
   };
 
   // The function to display a toast regarding insufficient permissions
@@ -102,13 +120,13 @@ export const toastStore = defineStore('toast', () => {
 
   // The function to display a toast regarding a client-side error
   const clientError = async () => {
-    await show('I did something wrong, give me a second and try again.');
+    await show("I did something wrong, give me a second and try again.");
   };
 
   // The function to display a toast regarding a server-side error
   const serverError = async () => {
     await show(
-      'The server did something wrong, give it a second and try again.'
+      "The server did something wrong, give it a second and try again."
     );
   };
 
@@ -122,7 +140,7 @@ export const toastStore = defineStore('toast', () => {
   // The function to display a toast regarding a new version of the app
   const newVersion = async () => {
     await show(
-      'A new version of Cumulonimbus is available! Please refresh the page to apply the update.'
+      "A new version of Cumulonimbus is available! Please refresh the page to apply the update."
     );
   };
 
@@ -134,8 +152,8 @@ export const toastStore = defineStore('toast', () => {
         ? capitalizeFirstLetter(fields[0])
         : fields
             .map(capitalizeFirstLetter)
-            .join(', ')
-            .replace(/, ([^,]*)$/, ', and $1');
+            .join(", ")
+            .replace(/, ([^,]*)$/, ", and $1");
     await show(
       `Whoops! Looks like you missed something! Please double-check: ${fieldsNormalized}`
     );
@@ -148,12 +166,12 @@ export const toastStore = defineStore('toast', () => {
 
   // The function to display a toast regarding an incorrect password
   const invalidPassword = async () => {
-    await show('No, that is not the password.');
+    await show("No, that is not the password.");
   };
 
   // The function to display a toast regarding client internet connectivity
   const connectivityOffline = async () => {
-    await show('It seems like you are offline. Please try again later.');
+    await show("It seems like you are offline. Please try again later.");
   };
 
   // The function to display a toast regarding the client's internet connectivity changing to online
@@ -185,6 +203,6 @@ export const toastStore = defineStore('toast', () => {
     invalidPassword,
     connectivityOffline,
     connectivityChangeOnline,
-    connectivityChangeOffline
+    connectivityChangeOffline,
   };
 });

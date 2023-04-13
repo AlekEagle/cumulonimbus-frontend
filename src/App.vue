@@ -452,8 +452,9 @@ a {
 }
 
 code {
+  display: inline-block;
   font-family: var(--font-code);
-  padding: 2px;
+  padding: 0 10px;
   background-color: var(--code-background);
   border-radius: 4px;
   transition: background-color 0.25s;
