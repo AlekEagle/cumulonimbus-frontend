@@ -148,7 +148,7 @@ export function useFuzzyTimeString(
   // The time passed since the date
   const time = ref(
     unrefDate
-      ? toFuzzyTimeString(Date.now() - unrefDate.getTime())
+      ? toFuzzyTimeString(unrefDate.getTime() - Date.now())
       : "Time travel detected!"
   );
   // The interval to update the time
@@ -157,7 +157,7 @@ export function useFuzzyTimeString(
   // The function to update the time
   const update = () => {
     time.value = unrefDate
-      ? toFuzzyTimeString(Date.now() - unrefDate.getTime())
+      ? toFuzzyTimeString(unrefDate.getTime() - Date.now())
       : "Time travel detected!";
   };
 
