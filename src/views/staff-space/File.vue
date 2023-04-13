@@ -80,8 +80,10 @@
             :to="`/staff/user?id=${file.uploader.id}`"
             theme-safe
           >
-            {{ file.uploader.username }} (<code>{{ file.uploader.id }}</code
-            >)
+            <p>
+              {{ file.uploader.username }} (<code>{{ file.uploader.id }}</code
+              >)
+            </p>
           </ContentBox>
         </div>
       </template>
@@ -97,158 +99,155 @@
 </template>
 
 <script lang="ts" setup>
-  import BackButton from '@/components/BackButton.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import toDateString from '@/utils/toDateString';
-  import size from '@/utils/size';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import backWithFallback from '@/utils/routerBackWithFallback';
-  import { ref, watch, onMounted, computed } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { fileStore } from '@/stores/staff-space/file';
-  import { filesStore } from '@/stores/staff-space/files';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
-  import { useOnline, useClipboard, useShare } from '@vueuse/core';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import fileIcon from '@/assets/images/file.svg';
-  import profileIcon from '@/assets/images/profile.svg';
+import BackButton from "@/components/BackButton.vue";
+import ContentBox from "@/components/ContentBox.vue";
+import LoadingBlurb from "@/components/LoadingBlurb.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import toDateString from "@/utils/toDateString";
+import size from "@/utils/size";
+import defaultErrorHandler from "@/utils/defaultErrorHandler";
+import backWithFallback from "@/utils/routerBackWithFallback";
+import { ref, watch, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+import { fileStore } from "@/stores/staff-space/file";
+import { filesStore } from "@/stores/staff-space/files";
+import { toastStore } from "@/stores/toast";
+import { userStore } from "@/stores/user";
+import { useOnline, useClipboard, useShare } from "@vueuse/core";
+import Cumulonimbus from "cumulonimbus-wrapper";
+import fileIcon from "@/assets/images/file.svg";
+import profileIcon from "@/assets/images/profile.svg";
 
-  const toast = toastStore(),
-    user = userStore(),
-    file = fileStore(),
-    files = filesStore(),
-    router = useRouter(),
-    online = useOnline(),
-    fileUrl = computed(() => {
-      if (file.data) {
-        if (import.meta.env.MODE === 'ptb')
-          return `https://alekeagle.me/${file.data.filename}`;
-        else
-          return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
-      }
-      return '';
-    }),
-    confirmModal = ref<typeof ConfirmModal>(),
-    {
-      isSupported: clipboardIsSupported,
-      copy,
-      copied,
-      text: clipboardText
-    } = useClipboard(),
-    { share, isSupported: shareIsSupported } = useShare();
-
-  async function fetchFile() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
+const toast = toastStore(),
+  user = userStore(),
+  file = fileStore(),
+  files = filesStore(),
+  router = useRouter(),
+  online = useOnline(),
+  fileUrl = computed(() => {
+    if (file.data) {
+      if (import.meta.env.MODE === "ptb")
+        return `https://alekeagle.me/${file.data.filename}`;
+      else
+        return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
     }
-    try {
-      const status = await file.getFile(
-        router.currentRoute.value.query.id as string
-      );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_FILE_ERROR':
-              toast.show('This file does not exist.');
-              await files.getFiles(files.page);
-              await backWithFallback(router, '/staff/files', true);
-              break;
-          }
+    return "";
+  }),
+  confirmModal = ref<typeof ConfirmModal>(),
+  {
+    isSupported: clipboardIsSupported,
+    copy,
+    copied,
+    text: clipboardText,
+  } = useClipboard(),
+  { share, isSupported: shareIsSupported } = useShare();
+
+async function fetchFile() {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await file.getFile(
+      router.currentRoute.value.query.id as string
+    );
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_FILE_ERROR":
+            toast.show("This file does not exist.");
+            await files.getFiles(files.page);
+            await backWithFallback(router, "/staff/files", true);
+            break;
         }
-      } else if (!status) {
-        toast.clientError();
       }
-    } catch (e) {
-      console.error(e);
+    } else if (!status) {
       toast.clientError();
     }
+  } catch (e) {
+    console.error(e);
+    toast.clientError();
   }
+}
 
-  onMounted(async () => {
-    if (
-      !file.data ||
-      file.data.filename !== router.currentRoute.value.query.id
-    ) {
-      if (!online.value) {
-        const unwatchOnline = watch(online, async () => {
-          if (online.value) {
-            fetchFile();
-            unwatchOnline();
-          }
-        });
-        return;
-      }
-      fetchFile();
-    }
-  });
-
-  async function deleteFile(choice: boolean) {
-    if (!choice) {
-      confirmModal.value!.hide();
-      return;
-    }
+onMounted(async () => {
+  if (!file.data || file.data.filename !== router.currentRoute.value.query.id) {
     if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-    try {
-      const status = await file.deleteFile();
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_FILE_ERROR':
-              toast.show('This file does not exist.');
-              await files.getFiles(files.page);
-              await backWithFallback(router, '/staff/files', true);
-              break;
-          }
+      const unwatchOnline = watch(online, async () => {
+        if (online.value) {
+          fetchFile();
+          unwatchOnline();
         }
-      } else if (!status) {
-        toast.clientError();
-      } else {
-        toast.show('File deleted.');
-        await confirmModal.value!.hide();
-        await files.getFiles(files.page);
-        await backWithFallback(router, '/staff/files', true);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async function onShare() {
-    if (shareIsSupported) {
-      await share({
-        title: 'Cumulonimbus',
-        text: 'Check out this file on Cumulonimbus, an open-source cloud hosting platform!',
-        url: `https://${user.domain}/${file.data!.filename}`
       });
-    } else {
-      if (clipboardIsSupported) {
-        await copy(`https://${user.domain}/${file.data!.filename}`);
-        toast.show('Copied to clipboard.');
-      } else {
-        toast.show('Clipboard not supported.');
-      }
-    }
-  }
-
-  function download() {
-    if (!online.value) {
-      toast.connectivityOffline();
       return;
     }
-    if (file.data) {
-      const a = document.createElement('a');
-      a.href = fileUrl.value;
-      a.download = file.data.filename;
-      a.click();
+    fetchFile();
+  }
+});
+
+async function deleteFile(choice: boolean) {
+  if (!choice) {
+    confirmModal.value!.hide();
+    return;
+  }
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await file.deleteFile();
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_FILE_ERROR":
+            toast.show("This file does not exist.");
+            await files.getFiles(files.page);
+            await backWithFallback(router, "/staff/files", true);
+            break;
+        }
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("File deleted.");
+      await confirmModal.value!.hide();
+      await files.getFiles(files.page);
+      await backWithFallback(router, "/staff/files", true);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function onShare() {
+  if (shareIsSupported) {
+    await share({
+      title: "Cumulonimbus",
+      text: "Check out this file on Cumulonimbus, an open-source cloud hosting platform!",
+      url: `https://${user.domain}/${file.data!.filename}`,
+    });
+  } else {
+    if (clipboardIsSupported) {
+      await copy(`https://${user.domain}/${file.data!.filename}`);
+      toast.show("Copied to clipboard.");
+    } else {
+      toast.show("Clipboard not supported.");
     }
   }
+}
+
+function download() {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  if (file.data) {
+    const a = document.createElement("a");
+    a.href = fileUrl.value;
+    a.download = file.data.filename;
+    a.click();
+  }
+}
 </script>
