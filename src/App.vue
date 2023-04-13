@@ -31,6 +31,7 @@
             />
           </RouterLink>
           <a
+            v-else
             :href="item.path"
             rel="noopener"
             target="_blank"
