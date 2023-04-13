@@ -227,7 +227,7 @@ html.dark-theme .content-box > .content-box-inner > img.theme-safe {
   white-space: nowrap;
 }
 
-.content-box > .content-box-inner .content-box-content code:only-child {
+.content-box > .content-box-inner .content-box-content > code:only-child {
   width: calc(100% - 20px);
 }
 
