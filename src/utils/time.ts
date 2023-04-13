@@ -48,6 +48,8 @@ export function toTimeString(ms: number): string {
 export function toFuzzyTimeString(ms: number): string {
   // negative indicates in the past
   const inPast = ms < 0;
+  // Now that we know the sign, we just need the magnitude
+  ms = Math.abs(ms);
   // The number of hours
   const hours = Math.floor(ms / 3600000);
   // The number of minutes
