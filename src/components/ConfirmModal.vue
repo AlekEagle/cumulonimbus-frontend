@@ -1,9 +1,9 @@
 <template>
   <Modal :title="props.title" dismissible @close="submit(false)" ref="modal">
-    <template v-slot:default>
+    <template #default>
       <slot name="default" />
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <button
         @click="submit(false)"
         v-text="props.denyButton"

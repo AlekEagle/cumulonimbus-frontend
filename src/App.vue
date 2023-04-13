@@ -1,6 +1,6 @@
 <template>
   <header>
-    <RouterLink to="/">
+    <RouterLink to="/" v-slot>
       <div class="logo">
         <img src="@/assets/images/Cumulonimbus.svg" alt="Cumulonimbus Logo" />
         <p>Cumulonimbus</p>
@@ -17,18 +17,15 @@
           <ThemeManager :no-tab-index="mobileMenu" />
         </li>
         <li v-for="item in menuItems" @click="mobileMenu = false">
-          <RouterLink
-            v-if="!item.external"
-            :to="item.path"
-            custom
-            v-slot="{ navigate, href }"
-          >
-            <a
-              :href="href"
-              @click.prevent="navigate"
-              :tabindex="mobileMenu ? '0' : '-1'"
-              v-text="item.name"
-            />
+          <RouterLink v-if="!item.external" :to="item.path" custom>
+            <template #default="{ navigate, href }">
+              <a
+                :href="href"
+                @click.prevent="navigate"
+                :tabindex="mobileMenu ? '0' : '-1'"
+                v-text="item.name"
+              />
+            </template>
           </RouterLink>
           <a
             :href="item.path"
@@ -51,7 +48,7 @@
     <RouterView />
   </main>
   <Modal ref="ptbWarningModal" title="Warning">
-    <template v-slot:default>
+    <template #default>
       This is the preview of frontend of Cumulonimbus, it may be unstable and
       will be revised in the future.
       <br />
@@ -62,7 +59,7 @@
       to the stable version. You will not see this message again if you
       continue.
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <button @click="acceptPtbWarning">Continue</button>
 
       <button @click="gotoStable">Go to stable version</button>

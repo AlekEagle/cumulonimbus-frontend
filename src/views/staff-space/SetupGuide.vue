@@ -149,7 +149,7 @@
       />
     </template>
     <LoadingBlurb v-else />
-    <template v-slot:additional-buttons>
+    <template #additional-buttons>
       <button
         @click="deleteStep"
         :disabled="instruction.data?.steps[selectedStep] === undefined"
@@ -217,7 +217,7 @@
       :disabled="instruction.loading"
       required
     />
-    <template v-slot:additional-buttons>
+    <template #additional-buttons>
       <button @click="onNoFilename" :disabled="instruction.loading">
         No File
       </button>

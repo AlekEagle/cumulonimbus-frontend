@@ -161,7 +161,7 @@
     </ContentBox>
     <Modal ref="basicModal" title="I am a basic modal">
       I do basic things.
-      <template v-slot:footer>
+      <template #footer>
         <button @click="basicModal!.hide()">Close</button>
       </template>
     </Modal>
@@ -178,7 +178,7 @@
       @close="toast.show('basic dismissible modal closed non-programmatically')"
     >
       I do basic things.
-      <template v-slot:footer>
+      <template #footer>
         <button @click="basicDismissibleModal!.hide()">
           Close without event
         </button>

@@ -3,9 +3,10 @@
     This doesn't look like the right place<RouterLink
       to="/testing/hush/dont/touch"
       custom
-      v-slot="{ navigate }"
     >
-      <p class="h1-link" @click="navigate">...</p>
+      <template #default="{ navigate }">
+        <p class="h1-link" @click="navigate">...</p>
+      </template>
     </RouterLink>
   </h1>
   <h2>Um, I think we took a wrong turn somewhere.</h2>

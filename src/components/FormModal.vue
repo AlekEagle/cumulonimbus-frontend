@@ -7,12 +7,12 @@
     :confirm-button="props.confirmButton"
     :deny-button="props.denyButton"
   >
-    <template v-slot:default>
+    <template #default>
       <Form ref="form" @submit="formSubmit">
         <slot name="default" />
       </Form>
     </template>
-    <template v-slot:additional-buttons>
+    <template #additional-buttons>
       <slot name="additional-buttons" />
     </template>
   </ConfirmModal>
