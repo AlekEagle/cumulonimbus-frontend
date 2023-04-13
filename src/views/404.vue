@@ -5,7 +5,7 @@
       custom
     >
       <template #default="{ navigate }">
-        <p class="h1-link" @click="navigate">...</p>
+        <a class="h1-link" @click="navigate">...</a>
       </template>
     </RouterLink>
   </h1>

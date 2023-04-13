@@ -1,37 +1,43 @@
 <template>
   <header>
-    <RouterLink to="/" v-slot>
+    <RouterLink to="/">
       <div class="logo">
         <img src="@/assets/images/Cumulonimbus.svg" alt="Cumulonimbus Logo" />
         <p>Cumulonimbus</p>
       </div>
     </RouterLink>
-    <nav :class="mobileMenu ? 'active' : ''">
-      <div @click="mobileMenu = !mobileMenu" tabindex="0">
+    <nav :class="hamburgerMenu ? 'active' : ''">
+      <div @click="hamburgerMenu = !hamburgerMenu" tabindex="0">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
       </div>
-      <ul @click.self="mobileMenu = false">
+      <ul @click.self="hamburgerMenu = false">
         <li>
-          <ThemeManager :no-tab-index="mobileMenu" />
+          <ThemeManager :no-tab-index="hamburgerMenu" />
         </li>
-        <li v-for="item in menuItems" @click="mobileMenu = false">
+        <li
+          v-for="(item, index) in menuItems"
+          @click="hamburgerMenu = false"
+          :key="index"
+        >
           <RouterLink v-if="!item.external" :to="item.path" custom>
-            <template #default="{ navigate, href }">
+            <template #default="{ navigate, href, isExactActive }">
               <a
+                :class="isExactActive ? 'router-link-active' : ''"
                 :href="href"
-                @click.prevent="navigate"
-                :tabindex="mobileMenu ? '0' : '-1'"
+                @click="navigate"
+                :tabindex="hamburgerMenu ? '0' : '-1'"
                 v-text="item.name"
               />
             </template>
           </RouterLink>
           <a
+            v-else
             :href="item.path"
             rel="noopener"
             target="_blank"
-            :tabindex="mobileMenu ? '0' : '-1'"
+            :tabindex="hamburgerMenu ? '0' : '-1'"
           >
             {{ item.name }}
             <img
@@ -145,6 +151,11 @@ const menuItems = computed(() => {
         }
       : undefined,
     {
+      name: "About",
+      path: "/about",
+      external: false,
+    },
+    {
       name: "Documentation",
       path: `https://docs.${host}/`,
       external: true,
@@ -170,10 +181,10 @@ const menuItems = computed(() => {
     external: boolean;
   }>;
 });
-const mobileMenu = ref(false);
+const hamburgerMenu = ref(false);
 const ptbWarningModal = ref<typeof Modal>();
 
-watch(mobileMenu, (val) => {
+watch(hamburgerMenu, (val) => {
   if (val) {
     document.body.classList.add("no-scroll");
   } else {
@@ -302,385 +313,6 @@ navigator.serviceWorker?.addEventListener("message", (event) => {
 </script>
 
 <style>
-@font-face {
-  font-family: "Ubuntu";
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Light.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Ubuntu";
-  font-style: italic;
-  font-weight: 300;
-  font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-LightItalic.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Ubuntu";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Regular.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Ubuntu";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Italic.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Ubuntu";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Medium.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Ubuntu";
-  font-style: italic;
-  font-weight: 500;
-  font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-MediumItalic.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Ubuntu";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-Bold.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Ubuntu";
-  font-style: italic;
-  font-weight: 700;
-  font-display: swap;
-  src: url(@/assets/fonts/Ubuntu/Ubuntu-BoldItalic.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 100;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Thin.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 100;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-ThinItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 200;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 200;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-LightItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Light.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 300;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-LightItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Regular.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Italic.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Medium.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 500;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-MediumItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-SemiBold.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 600;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-SemiBoldItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Bold.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 700;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-BoldItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-ExtraBold.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 800;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-ExtraBoldItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-Black.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Montserrat";
-  font-style: italic;
-  font-weight: 900;
-  font-display: swap;
-  src: url(@/assets/fonts/Montserrat/Montserrat-BlackItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 200;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraLight.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 200;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraLightItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Light.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 300;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-LightItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Regular.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Italic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Medium.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 500;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-MediumItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-SemiBold.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 600;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-SemiBoldItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Bold.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 700;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-BoldItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraBold.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 800;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-ExtraBoldItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-Black.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 900;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/static/SourceCodePro-BlackItalic.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: normal;
-  font-weight: 100 200 300 400 500 600 700 800 900;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/SourceCodePro-VariableFont_wght.ttf)
-    format("truetype");
-}
-
-@font-face {
-  font-family: "Source Code Pro";
-  font-style: italic;
-  font-weight: 100 200 300 400 500 600 700 800 900;
-  font-display: swap;
-  src: url(@/assets/fonts/SourceCodePro/SourceCodePro-Italic-VariableFont_wght.ttf)
-    format("truetype");
-}
-
 html {
   --background: #fff;
   --foreground: #000;
@@ -1189,5 +821,31 @@ option {
 
 .no-content-container {
   padding: 30px 0;
+}
+
+.hero-points {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+
+.hero-points div {
+  width: 45vw;
+}
+
+@media screen and (min-width: 769px) {
+  .hero-points div:nth-child(even) {
+    text-align: left;
+  }
+
+  .hero-points div:nth-child(odd):not(:last-child) {
+    text-align: right;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .hero-points div {
+    width: 70vw;
+  }
 }
 </style>

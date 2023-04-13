@@ -63,31 +63,3 @@
     </div>
   </div>
 </template>
-
-<style>
-.hero-points {
-  display: flex;
-  justify-content: space-evenly;
-  flex-wrap: wrap;
-}
-
-.hero-points div {
-  width: 45vw;
-}
-
-@media screen and (min-width: 769px) {
-  .hero-points div:nth-child(even) {
-    text-align: left;
-  }
-
-  .hero-points div:nth-child(odd):not(:last-child) {
-    text-align: right;
-  }
-}
-
-@media only screen and (max-width: 768px) {
-  .hero-points div {
-    width: 70vw;
-  }
-}
-</style>
