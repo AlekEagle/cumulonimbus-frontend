@@ -185,8 +185,10 @@
       theme-safe
       @click="deleteUserModal!.show()"
     >
-      Delete <code>{{ otherUser.data.username }}</code
-      >'s account.
+      <p>
+        Delete <code>{{ otherUser.data.username }}</code
+        >'s account.
+      </p>
     </ContentBox>
     <ContentBox
       title="View User's Files"
