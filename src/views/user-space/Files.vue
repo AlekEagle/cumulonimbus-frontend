@@ -8,12 +8,12 @@
         Showing page {{ page + 1 }} of
         {{ files.data ? Math.ceil(files.data.count / 50) : 0 }}
         <br />
-        {{ files.data?.count || "some number of" }} files in total.
+        {{ files.data?.count ? files.data.count.toLocaleString() : "some number of" }} files in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else>
-      Alek is individually counting your files
-    </h2>
+    <h2 class="animated-ellipsis" v-else
+      >Alek is individually counting your files</h2
+    >
   </template>
   <template v-else>
     <h2>Alek can't count your files because you are offline :(</h2>

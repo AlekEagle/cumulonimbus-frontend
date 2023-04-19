@@ -8,7 +8,7 @@
         Showing page {{ page + 1 }} of
         {{ users.data ? Math.ceil(users.data?.count / 50) : 0 }}
         <br />
-        {{ users.data?.count || 'some number of' }} users in total.
+        {{ users.data?.count ? users.data.count.toLocaleString() : 'some number of' }} users in total.
       </h2>
     </template>
     <h2 class="animated-ellipsis" v-else

@@ -11,7 +11,7 @@
         Showing page {{ page + 1 }} of
         {{ files.data ? Math.ceil(files.data.count / 50) : 0 }}
         <br />
-        {{ files.data?.count || 'some number of' }} files in total.
+        {{ files.data?.count ? files.data.count.toLocaleString() : 'some number of' }} files in total.
       </h2>
     </template>
     <h2 class="animated-ellipsis" v-else

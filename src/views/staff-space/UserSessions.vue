@@ -6,7 +6,7 @@
         Showing page {{ page + 1 }} of
         {{ sessions.data ? Math.ceil(sessions.data?.count / 50) : 0 }}
         <br />
-        {{ sessions.data?.count || "some number of" }} logged in sessions in
+        {{ sessions.data?.count ? sessions.data.count.toLocaleString() : "some number of" }} logged in sessions in
         total.
       </h2>
     </template>

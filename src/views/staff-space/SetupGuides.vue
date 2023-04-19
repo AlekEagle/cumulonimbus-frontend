@@ -6,13 +6,17 @@
         Showing page {{ page + 1 }} of
         {{ instructions.data ? Math.ceil(instructions.data?.count / 50) : 0 }}
         <br />
-        {{ instructions.data?.count || "some number of" }} setup guides in
-        total.
+        {{
+          instructions.data?.count
+            ? instructions.data.count.toLocaleString()
+            : "some number of"
+        }}
+        setup guides in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else>
-      Alek is individually reading the setup guides
-    </h2>
+    <h2 class="animated-ellipsis" v-else
+      >Alek is individually reading the setup guides</h2
+    >
   </template>
   <template v-else>
     <h2>Alek can't read the setup guides because you are offline :(</h2>

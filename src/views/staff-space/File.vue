@@ -5,7 +5,7 @@
       <h2>View and manage this file.</h2>
     </template>
     <template v-else>
-      <h2 class="animated-ellipsis">Rummaging through your files</h2>
+      <h2 class="animated-ellipsis">Rummaging through the files</h2>
     </template>
   </template>
   <template v-else>

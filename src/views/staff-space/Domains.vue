@@ -6,12 +6,12 @@
         Showing page {{ page + 1 }} of
         {{ domains.data ? Math.ceil(domains.data?.count / 50) : 0 }}
         <br />
-        {{ domains.data?.count || "some number of" }} domains in total.
+        {{ domains.data?.count ? domains.data.count.toLocaleString() : "some number of" }} domains in total.
       </h2>
     </template>
-    <h2 v-else class="animated-ellipsis">
-      Alek is remembering what domains there are
-    </h2>
+    <h2 v-else class="animated-ellipsis"
+      >Alek is remembering what domains there are</h2
+    >
   </template>
   <h2 v-else>
     Alek can't remember what domains there are because you're offline :(
