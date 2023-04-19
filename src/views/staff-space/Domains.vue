@@ -3,8 +3,8 @@
   <template v-if="online || domains.data">
     <template v-if="domains.data">
       <h2>
-        Showing page {{ page + 1 }} of
-        {{ domains.data ? Math.ceil(domains.data?.count / 50) : 0 }}
+        Showing page {{ (page + 1).toLocaleString() }} of
+        {{ (domains.data ? Math.ceil(domains.data?.count / 50) : 1).toLocaleString() }}
         <br />
         {{ domains.data?.count ? domains.data.count.toLocaleString() : "some number of" }} domains in total.
       </h2>

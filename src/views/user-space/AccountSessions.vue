@@ -3,8 +3,8 @@
   <template v-if="online || sessions.data">
     <template v-if="sessions.data">
       <h2>
-        Showing page {{ page + 1 }} of
-        {{ sessions.data ? Math.ceil(sessions.data?.count / 50) : 0 }}
+        Showing page {{ (page + 1).toLocaleString() }} of
+        {{ (sessions.data ? Math.ceil(sessions.data?.count / 50) : 1).toLocaleString() }}
         <br />
         {{
           sessions.data?.count

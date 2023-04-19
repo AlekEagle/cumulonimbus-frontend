@@ -5,8 +5,8 @@
       <h2>
         All users registered on Cumulonimbus.
         <br />
-        Showing page {{ page + 1 }} of
-        {{ users.data ? Math.ceil(users.data?.count / 50) : 0 }}
+        Showing page {{ (page + 1).toLocaleString() }} of
+        {{ (users.data ? Math.ceil(users.data?.count / 50) : 1).toLocaleString() }}
         <br />
         {{ users.data?.count ? users.data.count.toLocaleString() : 'some number of' }} users in total.
       </h2>
