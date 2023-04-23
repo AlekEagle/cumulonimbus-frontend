@@ -41,7 +41,7 @@ export function toTimeString(ms: number): string {
   }
 
   // Return the string
-  return str.length > 0 ? `${str} ago` : "Now";
+  return str.length > 0 ? str : "Now";
 }
 
 // Take milliseconds and return a fuzzy time string (e.g. "less than a minute ago", "about 2 hours ago", "about 3 days ago", etc.)
