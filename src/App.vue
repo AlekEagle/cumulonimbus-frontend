@@ -657,7 +657,8 @@ button:focus {
   width: 40%;
 }
 
-.quick-action-buttons-container > button {
+.quick-action-buttons-container > button,
+.quick-action-buttons-container > a > button {
   margin-left: 5px;
   margin-right: 5px;
 }
