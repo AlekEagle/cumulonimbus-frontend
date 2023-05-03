@@ -1,0 +1,25 @@
+name: Build and Deploy Cumulonimbus Production
+
+on:
+  push:
+    branches: [master]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Remove Stale Build Artifacts
+        run: rm -rf /www-data/dist
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Copy Static Build Artifacts
+        run: |
+          cp nginx.conf /var/www-data
+          cp -R domain-specific-pages/ /var/www-data
+      - name: Build Production
+        run: yarn build-prod
+      - name: Copy Build Artifacts
+        run: cp -R dist /www-data/
