@@ -27,4 +27,4 @@ jobs:
       - name: Build Production
         run: yarn build-prod
       - name: Copy Build Artifacts
-        run: cp -R dist /www-data/
+        run: cp -R dist/ /var/www-data
