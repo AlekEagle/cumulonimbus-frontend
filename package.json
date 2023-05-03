@@ -1,7 +1,7 @@
 {
   "name": "cumulonimbus-frontend-v4",
   "private": true,
-  "version": "4.3.3",
+  "version": "4.3.4",
   "scripts": {
     "dev": "vite --host",
     "build-prod": "vue-tsc --noEmit && vite build",
@@ -22,6 +22,8 @@
     "@types/ms": "^0.7.31",
     "@types/node": "^18.15.11",
     "@vitejs/plugin-vue": "^4.1.0",
+    "@vitejs/plugin-legacy": "^4.0.3",
+    "terser": "^5.17.1",
     "typescript": "^5.0.4",
     "vite": "^4.2.1",
     "vite-plugin-pwa": "^0.14.7",
