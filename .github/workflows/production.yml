@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    
+
     env:
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
 
@@ -23,6 +23,7 @@ jobs:
       - name: Copy Static Build Artifacts
         run: |
           cp nginx.conf /var/www-data
+          cp nginx-error.html /var/www-data
           cp -R domain-specific-pages/ /var/www-data
       - name: Build Production
         run: yarn build-prod
