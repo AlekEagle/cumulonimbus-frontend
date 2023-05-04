@@ -18,13 +18,12 @@ jobs:
         run: rm -rf /www-data/dist
       - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Install Dependencies
-        run: yarn
       - name: Copy Static Build Artifacts
         run: |
-          cp nginx.conf /var/www-data
-          cp nginx-error.html /var/www-data
+          cp -R nginx/ /var/www-data
           cp -R domain-specific-pages/ /var/www-data
+      - name: Install Dependencies
+        run: yarn
       - name: Build Production
         run: yarn build-prod
       - name: Copy Build Artifacts
