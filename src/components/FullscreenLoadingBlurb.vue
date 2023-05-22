@@ -36,7 +36,7 @@ defineExpose({
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #00000080;
+  background-color: var(--ui-fs-overlay-background);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   z-index: 20;

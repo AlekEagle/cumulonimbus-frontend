@@ -76,7 +76,7 @@ defineExpose({
 
 <style>
 .modal-container {
-  background-color: #00000080;
+  background-color: var(--ui-fs-overlay-background);
   width: 100%;
   height: calc(100% + 15px);
   position: fixed;
