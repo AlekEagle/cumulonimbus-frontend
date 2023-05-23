@@ -329,10 +329,9 @@ html {
   --ui-foreground-disabled: #000;
   --ui-border-disabled: #9e9e9e;
   --ui-fs-overlay-background: #ffffff80;
-  --font-heading: "Montserrat", "Franklin Gothic Medium", "Arial Narrow", Arial,
-    sans-serif;
-  --font-body: "Ubuntu", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  --font-code: "Source Code Pro", monospace;
+  --font-heading: "Montserrat", Verdana, sans-serif;
+  --font-body: "Ubuntu", "Trebuchet MS", sans-serif;
+  --font-code: "Source Code Pro", "Courier New", monospace;
 }
 
 html.dark-theme {
