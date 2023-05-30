@@ -93,7 +93,7 @@ export const toastStore = defineStore("toast", () => {
       return `You are being rate limited! Please wait ${toTimeString.value} before trying again.`;
     });
     // show the toast
-    await show(msg);
+    await show(msg, 10000);
   };
 
   // The function to display a toast regarding a banned user
