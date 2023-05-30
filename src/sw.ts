@@ -69,7 +69,7 @@ router.addRoute(
     if (
       options.request.method !== 'GET' ||
       options.url.pathname.match(/^\/api\/?/) ||
-      (await caches.match(options.url)) ||
+      !(await caches.match(options.url)) ||
       options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE])
     )
       return false;
