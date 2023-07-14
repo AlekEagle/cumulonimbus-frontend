@@ -2,11 +2,11 @@
 
 declare var self: ServiceWorkerGlobalScope;
 
-import { Router, RouteParams } from './utils/swRouter';
+import { Router, RouteParams } from "./utils/swRouter";
 
 const router = new Router();
 
-self.addEventListener('fetch', event => {
+self.addEventListener("fetch", (event) => {
   event.respondWith(
     (async () => {
       const response = await router.handleRequest(event as FetchEvent);
@@ -24,50 +24,50 @@ self.addEventListener('fetch', event => {
 const precacheManifest = self.__WB_MANIFEST;
 
 async function nagToUpdate(claim: boolean = false): Promise<void> {
-  console.debug('[UpdateNag] Nagging clients to update...');
+  console.debug("[UpdateNag] Nagging clients to update...");
   if (claim) {
-    console.debug('[UpdateNag] Claiming clients...');
+    console.debug("[UpdateNag] Claiming clients...");
     await self.clients.claim();
   }
   const clients = await self.clients.matchAll();
   for (const client of clients) {
-    client.postMessage({ type: 'update-nag' });
+    client.postMessage({ type: "update-nag" });
   }
 }
 
-self.addEventListener('install', async event => {
-  console.debug('[ServiceWorker] Install event');
+self.addEventListener("install", async (event) => {
+  console.debug("[ServiceWorker] Install event");
   try {
     await self.skipWaiting();
-    await caches.delete('offline-cache');
-    await caches.delete('share-target-cache');
-    const cache = await caches.open('offline-cache');
+    await caches.delete("offline-cache");
+    await caches.delete("share-target-cache");
+    const cache = await caches.open("offline-cache");
     for (const file of precacheManifest) {
       console.debug(`[ServiceWorkerInstallManager] Caching ${file.url}...`);
       await cache.add(new Request(file.url));
     }
-    console.debug('[ServiceWorkerInstallManager] Caching complete.');
+    console.debug("[ServiceWorkerInstallManager] Caching complete.");
     // Nag clients to update.
     await nagToUpdate(true);
   } catch (e) {
-    console.error('[ServiceWorker] Install event failed', e);
+    console.error("[ServiceWorker] Install event failed", e);
   }
 });
 
 const BaseThumbnailURLs: { [key: string]: RegExp } = {
   production: new RegExp(
-    `previews\\.${self.location.hostname.replace('.', '\\.')}`
+    `previews\\.${self.location.hostname.replace(".", "\\.")}`
   ),
-  ptb: new RegExp('previews\\.alekeagle\\.me'),
-  development: /localhost(?::\d{1,5})?/
+  ptb: new RegExp("previews\\.alekeagle\\.me"),
+  development: /localhost(?::\d{1,5})?/,
 };
 
 // Make SPA available offline
 // Register a route to serve /index.html from the cache when the user is offline or the webserver returns a 404.
 router.addRoute(
-  async options => {
+  async (options) => {
     if (
-      options.request.method !== 'GET' ||
+      options.request.method !== "GET" ||
       options.url.pathname.match(/^\/api\/?/) ||
       (await caches.match(options.url)) ||
       options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE])
@@ -75,9 +75,9 @@ router.addRoute(
       return false;
     return true;
   },
-  async options => {
+  async (options) => {
     const cachedResponse = await caches.match(options.request);
-    const indexHTML = (await caches.match('/index.html')) as Response;
+    const indexHTML = (await caches.match("/index.html")) as Response;
     if (cachedResponse) return cachedResponse;
     if (!self.navigator.onLine) return indexHTML;
     const freshResponse = await fetch(options.request);
@@ -95,7 +95,7 @@ async function previewThumbnailHandler(
   options: RouteParams
 ): Promise<Response> {
   // First, open the 'thumbnails' cache
-  const cache = await caches.open('thumbnails');
+  const cache = await caches.open("thumbnails");
   // Next, check if there is a thumbnail in cache.
   const thumb = await cache.match((options.event as FetchEvent).request);
   // If there is a thumbnail in cache, return it.
@@ -106,11 +106,11 @@ async function previewThumbnailHandler(
   switch (freshThumb.status) {
     case 200:
       // If the status is 200, Check if the thumbnail actually has content.
-      if (freshThumb.headers.get('content-length') === '0') {
+      if (freshThumb.headers.get("content-length") === "0") {
         // The thumbnail server timed out, FFMPEG is still processing the thumbnail. Return Gateway Timeout.
         return new Response(null, {
           status: 504,
-          statusText: 'Gateway Timeout'
+          statusText: "Gateway Timeout",
         });
       }
       // The thumbnail server returned a thumbnail. Cache it and return it.
@@ -125,9 +125,12 @@ async function previewThumbnailHandler(
       return freshThumb;
   }
 }
-router.addRoute(options => {
+router.addRoute((options) => {
+  // Disable thumbnail caching in development mode. (The regex will match the localhost API and make it think all requests are thumbnails.)
+  if (import.meta.env.MODE === "development") return false;
+
   if (
-    options.request.method === 'GET' &&
+    options.request.method === "GET" &&
     options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE])
   )
     return true;
@@ -136,19 +139,19 @@ router.addRoute(options => {
 
 // Register a route for the share target
 
-router.addRoute('/dashboard/upload', shareTargetHandler, 'POST');
+router.addRoute("/dashboard/upload", shareTargetHandler, "POST");
 
 async function shareTargetHandler(options: RouteParams): Promise<Response> {
   const formData = await (options.event as FetchEvent).request.formData();
-  const file = formData.get('file');
+  const file = formData.get("file");
   if (!file) {
     // If the file is not provided, redirect to upload page with no file.
-    return Response.redirect('/dashboard/upload');
+    return Response.redirect("/dashboard/upload");
   }
   // Add file to share-target-cache.
-  const cache = await caches.open('share-target-cache');
+  const cache = await caches.open("share-target-cache");
   await cache.put(
-    'shared-file',
+    "shared-file",
     new Response(file, { headers: { Filename: (file as File).name } })
   );
   // Redirect to upload page with the file.

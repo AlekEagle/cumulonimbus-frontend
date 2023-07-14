@@ -6,14 +6,21 @@
         Check out everything you've uploaded.
         <br />
         Showing page {{ (page + 1).toLocaleString() }} of
-        {{ (files.data ? Math.ceil(files.data.count / 50) : 1).toLocaleString() }}
+        {{
+          (files.data ? Math.ceil(files.data.count / 50) : 1).toLocaleString()
+        }}
         <br />
-        {{ files.data?.count ? files.data.count.toLocaleString() : "some number of" }} files in total.
+        {{
+          files.data?.count
+            ? files.data.count.toLocaleString()
+            : "some number of"
+        }}
+        files in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else
-      >Alek is individually counting your files</h2
-    >
+    <h2 class="animated-ellipsis" v-else>
+      Alek is individually counting your files
+    </h2>
   </template>
   <template v-else>
     <h2>Alek can't count your files because you are offline :(</h2>
@@ -51,7 +58,7 @@
               v-for="file in files.data.items"
               :file="file"
               :selecting="selecting"
-              :selected="selected.includes(file.filename)"
+              :selected="selected.includes(file.id)"
               @click="onFileClick(file)"
             />
           </div>
@@ -202,10 +209,10 @@ async function deleteSelected(choice: boolean) {
 }
 
 function onFileClick(file: Cumulonimbus.Data.File) {
-  if (selected.value.includes(file.filename)) {
-    selected.value = selected.value.filter((f) => f !== file.filename);
+  if (selected.value.includes(file.id)) {
+    selected.value = selected.value.filter((f) => f !== file.id);
   } else {
-    selected.value.push(file.filename);
+    selected.value.push(file.id);
   }
 }
 

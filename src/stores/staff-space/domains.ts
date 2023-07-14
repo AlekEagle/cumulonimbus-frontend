@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia';
-import { userStore } from '../user';
-import { ref } from 'vue';
-import Cumulonimbus from 'cumulonimbus-wrapper';
+import { defineStore } from "pinia";
+import { userStore } from "../user";
+import { ref } from "vue";
+import Cumulonimbus from "cumulonimbus-wrapper";
 
-export const domainsStore = defineStore('staff-space-domains', () => {
+export const domainsStore = defineStore("staff-space-domains", () => {
   const user = userStore(),
     data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Domain> | null>(null),
     loading = ref(false),
@@ -31,12 +31,12 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     }
   }
 
-  async function createDomain(domain: string, allowsSubdomains: boolean) {
+  async function createDomain(id: string, subdomains: boolean) {
     if (user.client === null) return false;
     loading.value = true;
     errored.value = false;
     try {
-      const result = await user.client.createDomain(domain, allowsSubdomains);
+      const result = await user.client.createDomain(id, subdomains);
       return true;
     } catch (e) {
       errored.value = true;
@@ -69,12 +69,31 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     }
   }
 
-  async function updateDomain(domain: string, allowsSubdomains: boolean) {
+  async function enableSubdomains(domain: string) {
     if (user.client === null) return false;
     loading.value = true;
     errored.value = false;
     try {
-      const result = await user.client.editDomain(domain, allowsSubdomains);
+      const result = await user.client.allowSubdomains(domain);
+      return true;
+    } catch (e) {
+      errored.value = true;
+      if (e instanceof Cumulonimbus.ResponseError) {
+        return e;
+      } else {
+        throw e;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function disableSubdomains(domain: string) {
+    if (user.client === null) return false;
+    loading.value = true;
+    errored.value = false;
+    try {
+      const result = await user.client.disallowSubdomains(domain);
       return true;
     } catch (e) {
       errored.value = true;
@@ -114,8 +133,9 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     page,
     getDomains,
     createDomain,
+    enableSubdomains,
+    disableSubdomains,
     deleteDomain,
-    updateDomain,
-    deleteDomains
+    deleteDomains,
   };
 });

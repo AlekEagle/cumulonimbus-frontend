@@ -48,54 +48,53 @@
 </template>
 
 <script lang="ts" setup>
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import ContentBox from '@/components/ContentBox.vue';
-  import RouterButton from '@/components/RouterButton.vue';
-  import profileIcon from '@/assets/images/profile.svg';
-  import fileIcon from '@/assets/images/file.svg';
-  import infoIcon from '@/assets/images/info.svg';
-  import uploadIcon from '@/assets/images/upload.svg';
+import { userStore } from "@/stores/user";
+import { toastStore } from "@/stores/toast";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import ContentBox from "@/components/ContentBox.vue";
+import RouterButton from "@/components/RouterButton.vue";
+import profileIcon from "@/assets/images/profile.svg";
+import fileIcon from "@/assets/images/file.svg";
+import infoIcon from "@/assets/images/info.svg";
+import uploadIcon from "@/assets/images/upload.svg";
 
-  const user = userStore(),
-    toast = toastStore(),
-    processing = ref<boolean>(false),
-    router = useRouter();
+const user = userStore(),
+  toast = toastStore(),
+  processing = ref<boolean>(false),
+  router = useRouter();
 
-  async function logout() {
-    processing.value = true;
-    try {
-      let res = await user.logout();
-      if (typeof res === 'boolean') {
-        router.push('/');
-      } else {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'INVALID_SESSION_ERROR':
-            user.logout();
-            router.push('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          case 'GENERIC_ERROR':
-          default:
-            toast.clientError();
-            console.error(res);
-            break;
-        }
+async function logout() {
+  processing.value = true;
+  try {
+    let res = await user.logout();
+    if (typeof res === "boolean") {
+      router.push("/");
+    } else {
+      switch (res.code) {
+        case "BANNED_ERROR":
+          toast.banned();
+          user.logout();
+          router.push("/");
+          break;
+        case "INVALID_SESSION_ERROR":
+          user.logout();
+          router.push("/");
+          break;
+        case "INTERNAL_ERROR":
+          toast.serverError();
+          break;
+        default:
+          toast.clientError();
+          console.error(res);
+          break;
       }
-    } catch (e) {
-      toast.clientError();
-      console.error(e);
-    } finally {
-      processing.value = false;
     }
+  } catch (e) {
+    toast.clientError();
+    console.error(e);
+  } finally {
+    processing.value = false;
   }
+}
 </script>

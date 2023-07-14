@@ -38,12 +38,16 @@
       <template v-if="!file.errored">
         <template v-if="file.data">
           <ContentBox
-            :title="file.data.filename"
+            :title="file.data.name ?? file.data.id"
             :src="fileIcon"
             :to="fileUrl"
             theme-safe
             nowrap
           >
+            <p>
+              Saved on Cumulonimbus as:
+              <code>{{ file.data.id }}</code>
+            </p>
             <p>
               Uploaded at:
               <code>{{ toDateString(new Date(file.data.createdAt)) }}</code>
@@ -92,8 +96,7 @@
   <ConfirmModal ref="confirmModal" @submit="deleteFile" title="Are you sure?">
     <p>Are you sure you want to delete this file?</p>
     <p>
-      <code>{{ file.data!.filename }}</code> will be lost forever! (A long
-      time!)
+      <code>{{ file.data!.id }}</code> will be lost forever! (A long time!)
     </p>
   </ConfirmModal>
 </template>
@@ -127,9 +130,9 @@ const toast = toastStore(),
   fileUrl = computed(() => {
     if (file.data) {
       if (import.meta.env.MODE === "ptb")
-        return `https://alekeagle.me/${file.data.filename}`;
+        return `https://alekeagle.me/${file.data.id}`;
       else
-        return `${window.location.protocol}//${window.location.host}/${file.data.filename}`;
+        return `${window.location.protocol}//${window.location.host}/${file.data.id}`;
     }
     return "";
   }),
@@ -172,7 +175,7 @@ async function fetchFile() {
 }
 
 onMounted(async () => {
-  if (!file.data || file.data.filename !== router.currentRoute.value.query.id) {
+  if (!file.data || file.data.id !== router.currentRoute.value.query.id) {
     if (!online.value) {
       const unwatchOnline = watch(online, async () => {
         if (online.value) {
@@ -226,11 +229,11 @@ async function onShare() {
     await share({
       title: "Cumulonimbus",
       text: "Check out this file on Cumulonimbus, an open-source cloud hosting platform!",
-      url: `https://${user.domain}/${file.data!.filename}`,
+      url: `https://${user.domain}/${file.data!.id}`,
     });
   } else {
     if (clipboardIsSupported) {
-      await copy(`https://${user.domain}/${file.data!.filename}`);
+      await copy(`https://${user.domain}/${file.data!.id}`);
       toast.show("Copied to clipboard.");
     } else {
       toast.show("Clipboard not supported.");
@@ -246,7 +249,7 @@ function download() {
   if (file.data) {
     const a = document.createElement("a");
     a.href = fileUrl.value;
-    a.download = file.data.filename;
+    a.download = file.data.id;
     a.click();
   }
 }

@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia';
-import { userStore } from '../user';
-import { ref } from 'vue';
-import Cumulonimbus from 'cumulonimbus-wrapper';
+import { defineStore } from "pinia";
+import { userStore } from "../user";
+import { ref } from "vue";
+import Cumulonimbus from "cumulonimbus-wrapper";
 
-export const sessionsStore = defineStore('user-space-sessions', () => {
+export const sessionsStore = defineStore("user-space-sessions", () => {
   const user = userStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(
@@ -19,7 +19,8 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getSelfSessions(
+      const result = await (user.client as Cumulonimbus).getSessions(
+        "me",
         50,
         50 * p
       );
@@ -43,7 +44,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      await (user.client as Cumulonimbus).deleteSelfSession(session);
+      await (user.client as Cumulonimbus).deleteSession(session);
       return true;
     } catch (error) {
       errored.value = true;
@@ -64,10 +65,10 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteSelfSessions(
+      const result = await (user.client as Cumulonimbus).deleteSessions(
         sessions
       );
-      return result.result.count;
+      return result.result.count!;
     } catch (error) {
       if (error instanceof Cumulonimbus.ResponseError) {
         return error;
@@ -87,6 +88,6 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     page,
     getSessions,
     deleteSession,
-    deleteSessions
+    deleteSessions,
   };
 });

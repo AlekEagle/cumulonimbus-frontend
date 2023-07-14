@@ -171,8 +171,8 @@ async function removeAllAccountsConfirm(choice: boolean) {
           cumulonimbusOptions
         );
         try {
-          const res = await tempClient.deleteSelfSession(
-            (await tempClient.getSelfSession()).result.iat.toString()
+          const res = await tempClient.deleteSession(
+            (await tempClient.getSession()).result.id.toString()
           );
           if (res) {
             user.removeAccount(account);
@@ -218,8 +218,8 @@ async function removeAccountConfirm(choice: boolean) {
         cumulonimbusOptions
       );
       try {
-        const res = await tempClient.deleteSelfSession(
-          (await tempClient.getSelfSession()).result.iat.toString()
+        const res = await tempClient.deleteSession(
+          (await tempClient.getSession()).result.id.toString()
         );
         if (res) {
           toast.show("Account removed.");

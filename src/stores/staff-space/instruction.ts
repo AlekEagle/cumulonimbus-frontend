@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia';
-import { userStore } from '../user';
-import { instructionsStore } from './instructions';
-import { ref } from 'vue';
-import Cumulonimbus from 'cumulonimbus-wrapper';
+import { defineStore } from "pinia";
+import { userStore } from "../user";
+import { instructionsStore } from "./instructions";
+import { ref } from "vue";
+import Cumulonimbus from "cumulonimbus-wrapper";
 
-export const instructionStore = defineStore('staff-space-instruction', () => {
+export const instructionStore = defineStore("staff-space-instruction", () => {
   const user = userStore(),
     instructions = instructionsStore(),
     data = ref<Cumulonimbus.Data.Instruction | null>(null),
@@ -37,7 +37,7 @@ export const instructionStore = defineStore('staff-space-instruction', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteInstruction(data.value!.name);
+      const result = await user.client!.deleteInstruction(data.value!.id);
       return true;
     } catch (error) {
       errored.value = true;
@@ -57,9 +57,10 @@ export const instructionStore = defineStore('staff-space-instruction', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editInstruction(data.value!.name, {
+      const result = await user.client!.editInstructionName(
+        data.value!.id,
         displayName
-      });
+      );
       data.value = result.result;
       return true;
     } catch (error) {
@@ -80,9 +81,10 @@ export const instructionStore = defineStore('staff-space-instruction', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editInstruction(data.value!.name, {
+      const result = await user.client!.editInstructionDescription(
+        data.value!.id,
         description
-      });
+      );
       data.value = result.result;
       return true;
     } catch (error) {
@@ -97,38 +99,17 @@ export const instructionStore = defineStore('staff-space-instruction', () => {
     }
   }
 
-  async function updateInstructionFilename(filename: string | null = null) {
+  async function updateInstructionFile(content: string, filename?: string) {
     if (user.client === null) return false;
     if (data.value === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editInstruction(data.value!.name, {
-        filename: filename
-      });
-      data.value = result.result;
-      return true;
-    } catch (error) {
-      errored.value = true;
-      if (error instanceof Cumulonimbus.ResponseError) {
-        return error;
-      } else {
-        throw error;
-      }
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function updateInstructionFileContent(fileContent: string) {
-    if (user.client === null) return false;
-    if (data.value === null) return false;
-    errored.value = false;
-    loading.value = true;
-    try {
-      const result = await user.client!.editInstruction(data.value!.name, {
-        fileContent
-      });
+      const result = await user.client!.editInstructionFile(
+        data.value!.id,
+        content,
+        filename === undefined || filename === "" ? undefined : filename
+      );
       data.value = result.result;
       return true;
     } catch (error) {
@@ -149,9 +130,10 @@ export const instructionStore = defineStore('staff-space-instruction', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editInstruction(data.value!.name, {
+      const result = await user.client!.editInstructionSteps(
+        data.value!.id,
         steps
-      });
+      );
       data.value = result.result;
       return true;
     } catch (error) {
@@ -174,8 +156,7 @@ export const instructionStore = defineStore('staff-space-instruction', () => {
     deleteInstruction,
     updateInstructionDisplayName,
     updateInstructionDescription,
-    updateInstructionFilename,
-    updateInstructionFileContent,
-    updateInstructionSteps
+    updateInstructionFile,
+    updateInstructionSteps,
   };
 });

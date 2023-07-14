@@ -1,11 +1,11 @@
 <template>
   <ConfirmModal ref="confirmModal" @submit="submit" title="Select Your Domain">
-    <template v-if="online || !!slimDomains.domains">
+    <template v-if="online || !!domainPicker.domains">
       <template v-if="user.loggedIn">
-        <Loading v-if="slimDomains.loading" />
+        <Loading v-if="domainPicker.loading" />
         <div
           :class="`domain-container${props.disabled ? ' disabled' : ''}`"
-          v-if="slimDomains.domains"
+          v-if="domainPicker.domains"
         >
           <div class="subdomain-container" v-if="allowsSubdomains">
             <input
@@ -28,13 +28,13 @@
             v-model="domain"
           >
             <option
-              v-for="domain in slimDomains.domains.items"
-              :value="domain.domain"
-              v-text="domain.domain"
+              v-for="domain in domainPicker.domains.items"
+              :value="domain.id"
+              v-text="domain.id"
             />
           </select>
         </div>
-        <div v-else-if="!slimDomains.loading">
+        <div v-else-if="!domainPicker.loading">
           <h1>I wasn't able to get the available domains.</h1>
           <button @click="reloadDomains">Retry</button>
         </div>
@@ -62,7 +62,7 @@
 import Loading from "@/components/Loading.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import { ref, onMounted, watch } from "vue";
-import { slimDomainStore } from "@/stores/slimDomains";
+import { domainPickerStore } from "@/stores/domainPicker";
 import { toastStore } from "@/stores/toast";
 import { userStore } from "@/stores/user";
 import { useNetwork } from "@vueuse/core";
@@ -77,16 +77,16 @@ const emit = defineEmits<{
 const props = defineProps({
   domain: {
     type: String,
-    required: true,
+    default: "alekeagle.me",
   },
   subdomain: {
-    type: String,
+    type: null,
     default: "",
   },
   disabled: Boolean,
 });
 const confirmModal = ref<typeof ConfirmModal>(),
-  slimDomains = slimDomainStore(),
+  domainPicker = domainPickerStore(),
   toast = toastStore(),
   user = userStore(),
   inputFitContentShim = ref<HTMLDivElement>(),
@@ -106,9 +106,9 @@ function onSubdomainInput(event: Event) {
 function onDomainSelect(event: Event) {
   const select = event.target as HTMLSelectElement;
   setDomainWidth(select.value);
-  allowsSubdomains.value = slimDomains.domains!.items.find(
-    (domain) => domain.domain === select.value
-  )!.allowsSubdomains;
+  allowsSubdomains.value = domainPicker.domains!.items.find(
+    (domain) => domain.id === select.value
+  )!.subdomains;
 }
 
 function validateSubdomain(event: InputEvent) {
@@ -172,7 +172,7 @@ async function reloadDomains() {
     toast.connectivityOffline();
     return;
   }
-  const res = await slimDomains.sync();
+  const res = await domainPicker.sync();
   if (res instanceof Cumulonimbus.ResponseError) {
     switch (res.code) {
       case "INVALID_SESSION_ERROR":
@@ -185,7 +185,6 @@ async function reloadDomains() {
       case "INTERNAL_ERROR":
         toast.serverError();
         break;
-      case "GENERIC_ERROR":
       default:
         toast.clientError();
     }
@@ -232,9 +231,9 @@ onMounted(async () => {
   domain.value = props.domain;
   subdomain.value = props.subdomain;
   await wait(100);
-  allowsSubdomains.value = slimDomains.domains!.items.find(
-    (domain) => domain.domain === props.domain
-  )!.allowsSubdomains;
+  allowsSubdomains.value = domainPicker.domains!.items.find(
+    (domain) => domain.id === props.domain
+  )!.subdomains;
 });
 </script>
 

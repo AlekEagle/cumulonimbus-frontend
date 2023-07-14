@@ -1,6 +1,6 @@
 <template>
   <h1>User Info</h1>
-  <template v-if="online || otherUser.data">
+  <template v-if="online">
     <template v-if="otherUser.data">
       <h2>View and manage this user.</h2>
     </template>
@@ -15,7 +15,7 @@
     <BackButton fallback="/staff/users" />
   </div>
 
-  <div class="content-box-container" v-if="online || otherUser.data">
+  <div class="content-box-container" v-if="online">
     <template v-if="!otherUser.loading">
       <template v-if="!otherUser.errored">
         <template v-if="otherUser.data">
@@ -471,12 +471,8 @@ async function updatePassword(data: { password: string; confirm: string }) {
     toast.connectivityOffline();
     return;
   }
-  if (data.password !== data.confirm) {
-    toast.show("Passwords do not match.");
-    return;
-  }
   try {
-    const status = await otherUser.updatePassword(data.password);
+    const status = await otherUser.updatePassword(data.password, data.confirm);
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {
@@ -517,10 +513,10 @@ async function updateDomain(data: { domain: string; subdomain?: string }) {
             toast.show("You just missed that domain.");
             changeDomainModal.value!.reloadDomains();
             break;
-          case "SUBDOMAIN_NOT_SUPPORTED_ERROR":
+          case "SUBDOMAIN_NOT_ALLOWED_ERROR":
             toast.show("Subdomains are not supported.");
             break;
-          case "INVALID_SUBDOMAIN_ERROR":
+          case "SUBDOMAIN_TOO_LONG_ERROR":
             toast.show("Subdomain cannot be longer than 63 characters.");
             break;
         }
@@ -547,7 +543,9 @@ async function updateStaff(choice: boolean) {
     return;
   }
   try {
-    const status = await otherUser.toggleStaff();
+    const status = otherUser.data?.staff
+      ? await otherUser.grantStaff()
+      : await otherUser.revokeStaff();
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {
@@ -579,7 +577,9 @@ async function updateBan(choice: boolean) {
     return;
   }
   try {
-    const status = await otherUser.toggleBan();
+    const status = otherUser.data?.bannedAt
+      ? await otherUser.unbanUser()
+      : await otherUser.banUser();
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {

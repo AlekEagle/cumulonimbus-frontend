@@ -2,7 +2,7 @@
   <h1>Edit Setup Guide</h1>
   <template v-if="online || instruction.data">
     <h2 v-if="instruction.data">
-      Editing setup guide {{ instruction.data.displayName }}.
+      Editing setup guide {{ instruction.data.name }}.
     </h2>
     <h2 class="animated-ellipsis" v-else>Alek is reading the setup guide</h2>
   </template>
@@ -22,7 +22,7 @@
       Manage Setup Guide
     </button>
   </div>
-  <div class="content-box-container" v-if="online || instruction.data">
+  <div class="content-box-container" v-if="online">
     <template v-if="!instruction.loading">
       <template v-if="!instruction.errored">
         <template v-if="instruction.data">
@@ -35,7 +35,6 @@
           >
             <template v-if="index === 0">
               <strong> This step gives the setup file. </strong>
-              <br />
               <br />
             </template>
             {{ step }}
@@ -67,36 +66,12 @@
   <Modal dismissible title="Info" ref="setupGuideInfoModal">
     <template v-if="instruction.data">
       <p>
+        ID:
+        <code v-text="instruction.data.id" />
+      </p>
+      <p>
         Name:
         <code v-text="instruction.data.name" />
-      </p>
-      <p>
-        Display Name:
-        <code v-text="instruction.data.displayName" />
-      </p>
-      <p>
-        Description:
-        <br />
-        <code v-text="instruction.data.description" />
-        <br />
-      </p>
-      <p>
-        Steps:
-        <code v-text="instruction.data.steps.length" />
-      </p>
-      <p>
-        Has setup file:
-        <code v-text="instruction.data.filename === null ? 'No' : 'Yes'" />
-      </p>
-      <p v-if="instruction.data.filename !== null">
-        Setup file:
-        <code v-text="instruction.data.filename" />
-      </p>
-      <p>
-        {{ instruction.data.filename === null ? "Clipboard" : "File" }} content:
-        <br />
-        <code v-text="instruction.data.fileContent" />
-        <br />
       </p>
       <p>
         Created at:
@@ -112,16 +87,13 @@
   <Modal
     dismissible
     ref="manageSetupGuideModal"
-    :title="`Manage ${
-      instruction.data ? instruction.data.displayName : 'this thing'
-    }`"
+    :title="`Manage ${instruction.data ? instruction.data.name : 'this thing'}`"
   >
     <div class="button-modal-container">
       <button @click="deleteSetupGuide">Delete</button>
       <button @click="editDisplayName">Edit Display Name</button>
       <button @click="editDescription">Edit Description</button>
-      <button @click="editFilename">Edit Filename</button>
-      <button @click="editFileContent">Edit File Content</button>
+      <button @click="editFile">Edit File</button>
     </div>
   </Modal>
   <FormModal
@@ -135,8 +107,7 @@
   >
     <template v-if="instruction.data && selectedStep > -1">
       <template v-if="selectedStep === 0">
-        <strong> This step gives the setup file. </strong>
-        <br />
+        <strong>This step gives the setup file.</strong>
         <br />
       </template>
       <textarea
@@ -163,7 +134,7 @@
     @submit="confirmDeleteSetupGuide"
     title="Are you sure?"
   >
-    <p>Are you sure you want to delete this setup guide?</p>
+    <p>Are you sure you want to delete {{ instruction.data?.name }}?</p>
   </ConfirmModal>
   <FormModal
     ref="editDisplayNameModal"
@@ -175,8 +146,8 @@
   >
     <input
       type="text"
-      name="displayName"
-      :value="instruction.data?.displayName"
+      name="name"
+      :value="instruction.data?.name"
       placeholder="Display Name"
       autocomplete="off"
       :disabled="instruction.loading"
@@ -201,13 +172,15 @@
     />
   </FormModal>
   <FormModal
-    ref="editFilenameModal"
-    @submit="onEditFilename"
-    title="Edit Filename"
+    ref="editFileModal"
+    @submit="onEditFile"
+    title="Edit File"
     :disabled="instruction.loading"
     deny-button="Cancel"
     confirm-button="Save"
   >
+    <strong>Leave blank to specify clipboard content.</strong>
+    <br />
     <input
       type="text"
       name="filename"
@@ -215,30 +188,16 @@
       placeholder="Filename"
       autocomplete="off"
       :disabled="instruction.loading"
-      required
     />
-    <template #additional-buttons>
-      <button @click="onNoFilename" :disabled="instruction.loading">
-        No File
-      </button>
-    </template>
-  </FormModal>
-  <FormModal
-    ref="editFileContentModal"
-    @submit="onEditFileContent"
-    title="Edit File Content"
-    :disabled="instruction.loading"
-    deny-button="Cancel"
-    confirm-button="Save"
-  >
+    <br />
+    <br />
     <strong
       v-html="'Use {{token}} to indicate where the token should be injected.'"
     />
     <br />
-    <br />
     <textarea
       name="content"
-      :value="instruction.data?.fileContent"
+      :value="instruction.data?.content"
       placeholder="File Content"
       autocomplete="off"
       :disabled="instruction.loading"
@@ -280,8 +239,7 @@ const online = useOnline(),
   deleteSetupGuideModal = ref<typeof ConfirmModal>(),
   editDisplayNameModal = ref<typeof FormModal>(),
   editDescriptionModal = ref<typeof FormModal>(),
-  editFilenameModal = ref<typeof FormModal>(),
-  editFileContentModal = ref<typeof FormModal>(),
+  editFileModal = ref<typeof FormModal>(),
   selectedStep = ref<number>(-1);
 
 async function fetchInstruction() {
@@ -424,14 +382,9 @@ async function editDescription() {
   await editDescriptionModal.value!.show();
 }
 
-async function editFilename() {
+async function editFile() {
   await manageSetupGuideModal.value!.hide();
-  await editFilenameModal.value!.show();
-}
-
-async function editFileContent() {
-  await manageSetupGuideModal.value!.hide();
-  await editFileContentModal.value!.show();
+  await editFileModal.value!.show();
 }
 
 async function confirmDeleteSetupGuide(choice: boolean) {
@@ -469,15 +422,13 @@ async function confirmDeleteSetupGuide(choice: boolean) {
   }
 }
 
-async function onEditDisplayName(data: { displayName: string }) {
+async function onEditDisplayName(data: { name: string }) {
   if (!online.value) {
     toast.connectivityOffline();
     return;
   }
   try {
-    const status = await instruction.updateInstructionDisplayName(
-      data.displayName
-    );
+    const status = await instruction.updateInstructionDisplayName(data.name);
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {
@@ -533,13 +484,16 @@ async function onEditDescription(data: { description: string }) {
   }
 }
 
-async function onEditFilename(data: { filename: string }) {
+async function onEditFile(data: { filename: string; content: string }) {
   if (!online.value) {
     toast.connectivityOffline();
     return;
   }
   try {
-    const status = await instruction.updateInstructionFilename(data.filename);
+    const status = await instruction.updateInstructionFile(
+      data.content,
+      data.filename
+    );
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {
@@ -554,68 +508,8 @@ async function onEditFilename(data: { filename: string }) {
     } else if (!status) {
       toast.clientError();
     } else {
-      toast.show("Filename updated successfully.");
-      editFilenameModal.value!.hide();
-    }
-  } catch (e) {
-    console.error(e);
-    toast.serverError();
-  }
-}
-
-async function onNoFilename() {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    const status = await instruction.updateInstructionFilename("");
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_INSTRUCTION_ERROR":
-            toast.show("This setup guide does not exist.");
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides", true);
-            break;
-        }
-      }
-    } else if (!status) {
-      toast.clientError();
-    } else {
-      toast.show("Filename updated successfully.");
-      editFilenameModal.value!.hide();
-    }
-  } catch (e) {
-    console.error(e);
-    toast.serverError();
-  }
-}
-
-async function onEditFileContent(data: { content: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    const status = await instruction.updateInstructionFileContent(data.content);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_INSTRUCTION_ERROR":
-            toast.show("This setup guide does not exist.");
-            await instructions.getInstructions(instructions.page);
-            await backWithFallback(router, "/staff/setup-guides", true);
-            break;
-        }
-      }
-    } else if (!status) {
-      toast.clientError();
-    } else {
-      toast.show("File content updated successfully.");
-      editFileContentModal.value!.hide();
+      toast.show("File updated successfully.");
+      editFileModal.value!.hide();
     }
   } catch (e) {
     console.error(e);

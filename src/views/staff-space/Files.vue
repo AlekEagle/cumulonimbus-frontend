@@ -57,7 +57,7 @@
               v-for="file in files.data.items"
               :file="file"
               :selecting="selecting"
-              :selected="selected.includes(file.filename)"
+              :selected="selected.includes(file.id)"
               @click="onFileClick(file)"
             />
           </div>
@@ -223,10 +223,10 @@
 
   function onFileClick(file: Cumulonimbus.Data.File) {
     if (selecting.value) {
-      if (selected.value.includes(file.filename)) {
-        selected.value = selected.value.filter(f => f !== file.filename);
+      if (selected.value.includes(file.id)) {
+        selected.value = selected.value.filter(f => f !== file.id);
       } else {
-        selected.value.push(file.filename);
+        selected.value.push(file.id);
       }
     }
   }

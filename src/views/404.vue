@@ -89,12 +89,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import BackButton from "@/components/BackButton.vue";
 
-const router = useRouter(),
-  line = ref<number>(-1),
+const line = ref<number>(-1),
   maxLine = 14,
   nextLineTimeout = ref<number>(-1);
 

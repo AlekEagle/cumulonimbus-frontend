@@ -7,7 +7,7 @@
     @click="spanClicked"
   >
     <div class="content-box-inner">
-      <h3 class="title" v-text="props.file.filename" />
+      <h3 class="title" v-text="props.file.name ?? props.file.id" />
       <template v-if="!props.selected">
         <img
           :class="`${noPreview ? 'theme-safe' : ''}`"
@@ -26,7 +26,7 @@
         height="80"
       />
       <div class="content-box-content" v-if="!props.selecting">
-        Click here to see more information about {{ props.file.filename }}.
+        Saved on Cumulonimbus as {{ props.file.id }}.
       </div>
       <div class="content-box-content" v-else>
         Click me to select or deselect this file.
@@ -41,7 +41,7 @@
     v-else
   >
     <div class="content-box-inner">
-      <h3 class="title" v-text="props.file.filename" />
+      <h3 class="title" v-text="props.file.name ?? props.file.id" />
       <template v-if="!props.selected">
         <img
           :class="`${noPreview ? 'theme-safe' : ''}`"
@@ -60,7 +60,7 @@
         height="80"
       />
       <div class="content-box-content" v-if="!props.selecting">
-        Click here to see more information about {{ props.file.filename }}.
+        Saved on Cumulonimbus as {{ props.file.id }}.
       </div>
       <div class="content-box-content" v-else>
         Click me to select or deselect this file.
@@ -106,7 +106,7 @@ const location = computed(() => {
         : "dashboard/file"
     }`,
     query: {
-      id: props.file.filename,
+      id: props.file.id,
     },
   });
 });
@@ -137,7 +137,7 @@ async function loadImage(tryCount: number = 0) {
     return;
   }
   try {
-    const thumbArrayBuf = await user.client!.getThumbnail(props.file.filename);
+    const thumbArrayBuf = await user.client!.getThumbnail(props.file.id);
     const blob = new Blob([thumbArrayBuf], {
       type: "image/webp",
     });

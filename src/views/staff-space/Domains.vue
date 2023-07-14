@@ -4,14 +4,24 @@
     <template v-if="domains.data">
       <h2>
         Showing page {{ (page + 1).toLocaleString() }} of
-        {{ (domains.data ? Math.ceil(domains.data?.count / 50) : 1).toLocaleString() }}
+        {{
+          (domains.data
+            ? Math.ceil(domains.data?.count / 50)
+            : 1
+          ).toLocaleString()
+        }}
         <br />
-        {{ domains.data?.count ? domains.data.count.toLocaleString() : "some number of" }} domains in total.
+        {{
+          domains.data?.count
+            ? domains.data.count.toLocaleString()
+            : "some number of"
+        }}
+        domains in total.
       </h2>
     </template>
-    <h2 v-else class="animated-ellipsis"
-      >Alek is remembering what domains there are</h2
-    >
+    <h2 v-else class="animated-ellipsis">
+      Alek is remembering what domains there are
+    </h2>
   </template>
   <h2 v-else>
     Alek can't remember what domains there are because you're offline :(
@@ -53,18 +63,16 @@
         >
           <SelectableContentBox
             v-for="domain in domains.data.items"
-            :title="domain.domain"
+            :title="domain.id"
             :selecting="selecting"
             :src="gearIcon"
             theme-safe
-            :selected="selected.includes(domain.domain)"
+            :selected="selected.includes(domain.id)"
             @click="onDomainClick(domain)"
           >
             <p>
               Subdomains are
-              <code>{{
-                domain.allowsSubdomains ? "allowed" : "not allowed"
-              }}</code
+              <code>{{ domain.subdomains ? "allowed" : "not allowed" }}</code
               >.
             </p>
           </SelectableContentBox>
@@ -72,7 +80,7 @@
         <div v-else class="no-content-container">
           <h1>There are no domains.</h1>
           <h2>You should probably fix that.</h2>
-          <button>Create</button>
+          <button @click="createDomainModal!.show()">Create</button>
         </div>
       </template>
       <div class="no-content-container" v-else>
@@ -104,7 +112,7 @@
     @submit="showDeleteModal"
   >
     <template v-if="selectedDomain">
-      <code v-text="selectedDomain.domain" />
+      <code v-text="selectedDomain.id" />
       <p>
         Created at:
         <code v-text="toDateString(new Date(selectedDomain.createdAt))" />
@@ -113,13 +121,17 @@
         Last updated at:
         <code v-text="toDateString(new Date(selectedDomain.updatedAt))" />
       </p>
-      <Switch
-        @change="onAllowSubdomainsChange"
-        :checked="selectedDomain.allowsSubdomains"
-      >
-        Allow Subdomains
-      </Switch>
+      <p>
+        This domain currently does{{
+          selectedDomain.subdomains ? " " : " not "
+        }}allow subdomains to be used.
+      </p>
+      <button v-if="selectedDomain.subdomains" @click="disableSubdomains">
+        Disable Subdomains
+      </button>
+      <button v-else @click="enableSubdomains">Enable Subdomains</button>
     </template>
+    <LoadingBlurb v-else />
   </ConfirmModal>
   <ConfirmModal
     ref="deleteDomainModal"
@@ -127,9 +139,7 @@
     :disabled="domains.loading"
     @submit="deleteDomain"
   >
-    <p>
-      Are you sure you want to delete <code v-text="selectedDomain!.domain" />?
-    </p>
+    <p>Are you sure you want to delete <code v-text="selectedDomain!.id" />?</p>
     <p>All users using it will have their domain selection reset to default.</p>
   </ConfirmModal>
   <FormModal
@@ -141,12 +151,12 @@
   >
     <input
       type="text"
-      name="domain"
+      name="id"
       placeholder="Domain"
       required
       :disabled="domains.loading"
     />
-    <Switch name="allowsSubdomains" :disabled="domains.loading"
+    <Switch name="subdomains" :disabled="domains.loading"
       >Allow Subdomains</Switch
     >
   </FormModal>
@@ -209,13 +219,13 @@ async function fetchDomains() {
 
 async function onDomainClick(domain: Cumulonimbus.Data.Domain) {
   if (selecting.value) {
-    if (selected.value.includes(domain.domain)) {
-      selected.value = selected.value.filter((d) => d !== domain.domain);
+    if (selected.value.includes(domain.id)) {
+      selected.value = selected.value.filter((d) => d !== domain.id);
     } else {
-      selected.value.push(domain.domain);
+      selected.value.push(domain.id);
     }
   } else {
-    selectedDomain.value = domain;
+    selectedDomain.value = (await user.client!.getDomain(domain.id)).result;
     manageDomainModal.value!.show();
   }
 }
@@ -241,7 +251,7 @@ async function deleteDomain(choice: boolean) {
     return;
   }
   try {
-    const status = await domains.deleteDomain(selectedDomain.value!.domain);
+    const status = await domains.deleteDomain(selectedDomain.value!.id);
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {
@@ -293,16 +303,13 @@ async function deleteDomains(choice: boolean) {
   }
 }
 
-async function onAllowSubdomainsChange(allowSubdomains: boolean) {
+async function enableSubdomains() {
   if (!online.value) {
     toast.connectivityOffline();
     return;
   }
   try {
-    const status = await domains.updateDomain(
-      selectedDomain.value!.domain,
-      allowSubdomains
-    );
+    const status = await domains.enableSubdomains(selectedDomain.value!.id);
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {
@@ -319,7 +326,40 @@ async function onAllowSubdomainsChange(allowSubdomains: boolean) {
     } else {
       toast.show("Domain updated.");
       selectedDomain.value = (
-        await user.client!.getDomain(selectedDomain.value!.domain)
+        await user.client!.getDomain(selectedDomain.value!.id)
+      ).result;
+      await fetchDomains();
+    }
+  } catch (e) {
+    console.error(e);
+    toast.clientError();
+  }
+}
+
+async function disableSubdomains() {
+  if (!online.value) {
+    toast.connectivityOffline();
+    return;
+  }
+  try {
+    const status = await domains.disableSubdomains(selectedDomain.value!.id);
+    if (status instanceof Cumulonimbus.ResponseError) {
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        switch (status.code) {
+          case "INVALID_DOMAIN_ERROR":
+            toast.show("That domain does not exist.");
+            deselect();
+            await fetchDomains();
+            break;
+        }
+      }
+    } else if (!status) {
+      toast.clientError();
+    } else {
+      toast.show("Domain updated.");
+      selectedDomain.value = (
+        await user.client!.getDomain(selectedDomain.value!.id)
       ).result;
       await fetchDomains();
     }
@@ -352,19 +392,13 @@ async function showDeleteModal(choice: boolean) {
   await deleteDomainModal.value!.show();
 }
 
-async function createDomain(data: {
-  domain: string;
-  allowsSubdomains: boolean;
-}) {
+async function createDomain(data: { id: string; subdomains: boolean }) {
   if (!online.value) {
     toast.connectivityOffline();
     return;
   }
   try {
-    const status = await domains.createDomain(
-      data.domain,
-      data.allowsSubdomains
-    );
+    const status = await domains.createDomain(data.id, data.subdomains);
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {

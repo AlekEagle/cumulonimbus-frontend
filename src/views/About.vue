@@ -165,10 +165,12 @@ async function update() {
 
   await Promise.all([
     (async () => {
-      backendVersion.value = (await Cumulonimbus.apiSanity()).version;
+      backendVersion.value = (await Cumulonimbus.getAPIStatus()).version;
     })(),
     (async () => {
-      thumbnailVersion.value = (await Cumulonimbus.thumbnailSanity()).version;
+      thumbnailVersion.value = (
+        await Cumulonimbus.getThumbnailAPIStatus()
+      ).version;
     })(),
   ]);
 

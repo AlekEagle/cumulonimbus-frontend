@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia';
-import { userStore } from '../user';
-import { ref } from 'vue';
-import Cumulonimbus from 'cumulonimbus-wrapper';
+import { defineStore } from "pinia";
+import { userStore } from "../user";
+import { ref } from "vue";
+import Cumulonimbus from "cumulonimbus-wrapper";
 
-export const sessionsStore = defineStore('staff-space-sessions', () => {
+export const sessionsStore = defineStore("staff-space-sessions", () => {
   const user = userStore(),
     data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(null),
     loading = ref(false),
@@ -17,7 +17,7 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.getUserSessions(
+      const result = await user.client!.getSessions(
         sessionOwner.value.id,
         50,
         p * 50
@@ -43,9 +43,9 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteUserSession(
-        sessionOwner.value.id,
-        id
+      const result = await user.client!.deleteSession(
+        id,
+        sessionOwner.value.id
       );
       return true;
     } catch (error) {
@@ -66,9 +66,9 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteUserSessions(
-        sessionOwner.value.id,
-        ids
+      const result = await user.client!.deleteSessions(
+        ids,
+        sessionOwner.value.id
       );
       return result.result.count;
     } catch (error) {
@@ -91,6 +91,6 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     page,
     getSessions,
     deleteSession,
-    deleteSessions
+    deleteSessions,
   };
 });

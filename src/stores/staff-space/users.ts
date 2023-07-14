@@ -41,7 +41,7 @@ export const usersStore = defineStore('staff-space-users', () => {
     loading.value = true;
     try {
       const result = await (user.client as Cumulonimbus).deleteUsers(users);
-      return result.result.count;
+      return result.result.count!;
     } catch (error) {
       if (error instanceof Cumulonimbus.ResponseError) {
         return error;

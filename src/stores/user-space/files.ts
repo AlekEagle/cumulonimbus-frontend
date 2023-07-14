@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia';
-import { userStore } from '../user';
-import { ref } from 'vue';
-import Cumulonimbus from 'cumulonimbus-wrapper';
+import { defineStore } from "pinia";
+import { userStore } from "../user";
+import { ref } from "vue";
+import Cumulonimbus from "cumulonimbus-wrapper";
 
-export const filesStore = defineStore('user-space-files', () => {
+export const filesStore = defineStore("user-space-files", () => {
   const user = userStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.File> | null>(null);
@@ -17,7 +17,8 @@ export const filesStore = defineStore('user-space-files', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getSelfFiles(
+      const result = await (user.client as Cumulonimbus).getFiles(
+        "me",
         50,
         50 * p
       );
@@ -43,8 +44,8 @@ export const filesStore = defineStore('user-space-files', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteSelfFiles(files);
-      return result.result.count;
+      const result = await (user.client as Cumulonimbus).deleteFiles(files);
+      return result.result.count!;
     } catch (error) {
       if (error instanceof Cumulonimbus.ResponseError) {
         return error;
@@ -63,6 +64,6 @@ export const filesStore = defineStore('user-space-files', () => {
     errored,
     page,
     getFiles,
-    deleteFiles
+    deleteFiles,
   };
 });

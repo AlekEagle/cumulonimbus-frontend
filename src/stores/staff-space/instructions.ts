@@ -61,8 +61,8 @@ export const instructionsStore = defineStore("staff-space-instructions", () => {
         name.toLowerCase().replace(/\s/g, "-"),
         name,
         description,
-        "{{token}}",
-        []
+        [],
+        "{{token}}"
       );
       return result.result;
     } catch (error) {

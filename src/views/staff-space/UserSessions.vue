@@ -1,13 +1,22 @@
 <template>
   <h1>Active Sessions</h1>
-  <template v-if="online || sessions.data">
+  <template v-if="online">
     <template v-if="sessions.data">
       <h2>
         Showing page {{ (page + 1).toLocaleString() }} of
-        {{ (sessions.data ? Math.ceil(sessions.data?.count / 50) : 0).toLocaleString() }}
+        {{
+          (sessions.data
+            ? Math.ceil(sessions.data?.count / 50)
+            : 0
+          ).toLocaleString()
+        }}
         <br />
-        {{ sessions.data?.count ? sessions.data.count.toLocaleString() : "some number of" }} logged in sessions in
-        total.
+        {{
+          sessions.data?.count
+            ? sessions.data.count.toLocaleString()
+            : "some number of"
+        }}
+        logged in sessions in total.
       </h2>
     </template>
     <h2 v-else class="animated-ellipsis">Alek is seeing who is logged in</h2>
@@ -50,7 +59,7 @@
             :selecting="selecting"
             :src="infoIcon"
             theme-safe
-            :selected="selected.includes(session.iat + '')"
+            :selected="selected.includes(session.id + '')"
             @click="onSessionClick(session)"
           >
             Click me to manage this session.
@@ -88,7 +97,7 @@
       <br />
       <p>
         Created At:
-        <code>{{ toDateString(new Date(selectedSession.iat * 1000)) }}</code>
+        <code>{{ toDateString(new Date(selectedSession.id * 1000)) }}</code>
       </p>
       <p>
         Expires At:
@@ -154,10 +163,10 @@ async function fetchSessions() {
 
 async function onSessionClick(session: Cumulonimbus.Data.Session) {
   if (selecting.value) {
-    if (selected.value.includes(session.iat + "")) {
-      selected.value = selected.value.filter((id) => id !== session.iat + "");
+    if (selected.value.includes(session.id + "")) {
+      selected.value = selected.value.filter((id) => id !== session.id + "");
     } else {
-      selected.value.push(session.iat + "");
+      selected.value.push(session.id + "");
     }
   } else {
     selectedSession.value = session;
@@ -246,9 +255,7 @@ onMounted(async () => {
 
 async function onManageSessionChoice(choice: boolean) {
   if (choice) {
-    const status = await sessions.deleteSession(
-      selectedSession.value!.iat + ""
-    );
+    const status = await sessions.deleteSession(selectedSession.value!.id + "");
     if (status instanceof Cumulonimbus.ResponseError) {
       switch (status.code) {
         case "INVALID_SESSION_ERROR":
@@ -265,7 +272,7 @@ async function onManageSessionChoice(choice: boolean) {
     } else if (!status) {
       toast.clientError();
     } else {
-      if (selectedSession.value?.iat === user.account?.session.iat) {
+      if (selectedSession.value?.id === user.account?.session.id) {
         await user.logout();
       } else {
         selectedSession.value = null;
@@ -306,7 +313,7 @@ async function onDeleteSessionsChoice(choice: boolean) {
     } else if (!status) {
       toast.clientError();
     } else {
-      if (selected.value.includes(user.account?.session.iat + "")) {
+      if (selected.value.includes(user.account?.session.id + "")) {
         await user.logout();
       } else {
         selected.value = [];

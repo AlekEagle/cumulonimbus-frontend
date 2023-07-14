@@ -1,9 +1,9 @@
-import Cumulonimbus from 'cumulonimbus-wrapper';
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { userStore } from '../user';
+import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import { userStore } from "../user";
 
-export const otherUserStore = defineStore('staff-space-user', () => {
+export const otherUserStore = defineStore("staff-space-user", () => {
   const user = userStore();
   const data = ref<Cumulonimbus.Data.User | null>(null);
   const loading = ref(false);
@@ -36,7 +36,11 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editUser(data.value!.id, { username });
+      const result = await user.client!.editUsername(
+        username,
+        undefined,
+        data.value!.id
+      );
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -56,7 +60,11 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editUser(data.value!.id, { email });
+      const result = await user.client!.editEmail(
+        email,
+        undefined,
+        data.value!.id
+      );
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -71,12 +79,17 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     return true;
   }
 
-  async function updatePassword(password: string) {
+  async function updatePassword(password: string, confirmPassword: string) {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editUser(data.value!.id, { password });
+      const result = await user.client!.editPassword(
+        password,
+        confirmPassword,
+        undefined,
+        data.value!.id
+      );
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -96,10 +109,10 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editUserDomain(
-        data.value!.id,
+      const result = await user.client!.editDomainSelection(
         domain,
-        subdomain
+        subdomain,
+        data.value!.id
       );
       data.value = result.result;
     } catch (error) {
@@ -115,14 +128,12 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     return true;
   }
 
-  async function toggleStaff() {
+  async function grantStaff() {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editUser(data.value!.id, {
-        staff: !data.value!.staff
-      });
+      const result = await user.client!.grantStaff(data.value!.id);
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -137,12 +148,52 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     return true;
   }
 
-  async function toggleBan() {
+  async function revokeStaff() {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.toggleUserBan(data.value!.id);
+      const result = await user.client!.revokeStaff(data.value!.id);
+      data.value = result.result;
+    } catch (error) {
+      errored.value = true;
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+    return true;
+  }
+
+  async function banUser() {
+    if (user.client === null) return false;
+    errored.value = false;
+    loading.value = true;
+    try {
+      const result = await user.client!.banUser(data.value!.id);
+      data.value = result.result;
+    } catch (error) {
+      errored.value = true;
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+    return true;
+  }
+
+  async function unbanUser() {
+    if (user.client === null) return false;
+    errored.value = false;
+    loading.value = true;
+    try {
+      const result = await user.client!.unbanUser(data.value!.id);
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -162,7 +213,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteAllUserSessions(data.value!.id);
+      const result = await user.client!.deleteAllSessions(data.value!.id);
       return result.result.count;
     } catch (error) {
       errored.value = true;
@@ -181,7 +232,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteAllUserFiles(data.value!.id);
+      const result = await user.client!.deleteAllFiles(data.value!.id);
       return result.result.count;
     } catch (error) {
       errored.value = true;
@@ -223,10 +274,12 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     updateEmail,
     updatePassword,
     updateDomain,
-    toggleStaff,
-    toggleBan,
+    grantStaff,
+    revokeStaff,
+    banUser,
+    unbanUser,
     deleteAllSessions,
     deleteAllFiles,
-    deleteUser
+    deleteUser,
   };
 });

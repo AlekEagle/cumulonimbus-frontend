@@ -1,10 +1,15 @@
 <template>
   <h1>Setup Guides</h1>
-  <template v-if="online || instructions.data">
+  <template v-if="online">
     <template v-if="instructions.data">
       <h2>
         Showing page {{ (page + 1).toLocaleString() }} of
-        {{ (instructions.data ? Math.ceil(instructions.data?.count / 50) : 1).toLocaleString() }}
+        {{
+          (instructions.data
+            ? Math.ceil(instructions.data?.count / 50)
+            : 1
+          ).toLocaleString()
+        }}
         <br />
         {{
           instructions.data?.count
@@ -14,9 +19,9 @@
         setup guides in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else
-      >Alek is individually reading the setup guides</h2
-    >
+    <h2 class="animated-ellipsis" v-else>
+      Alek is individually reading the setup guides
+    </h2>
   </template>
   <template v-else>
     <h2>Alek can't read the setup guides because you are offline :(</h2>
@@ -59,7 +64,7 @@
         >
           <SelectableContentBox
             v-for="instruction in instructions.data.items"
-            :title="instruction.displayName"
+            :title="instruction.name"
             :selecting="selecting"
             :src="gearIcon"
             theme-safe
@@ -67,17 +72,12 @@
             @click="onInstructionClick(instruction)"
           >
             <p>{{ instruction.description }}</p>
-            <p>
-              Contains {{ instruction.steps.length }} step{{
-                instruction.steps.length === 1 ? "" : "s"
-              }}.
-            </p>
           </SelectableContentBox>
         </div>
         <div v-else class="no-content-container">
           <h1>There are no instructions.</h1>
           <h2>You should probably fix that.</h2>
-          <button>Create</button>
+          <button @click="createInstructionModal!.show()">Create</button>
         </div>
       </template>
       <div class="no-content-container" v-else>
@@ -107,21 +107,8 @@
     confirm-button="Edit"
   >
     <template v-if="selectedInstruction">
-      <code v-text="selectedInstruction.displayName" />
+      <code v-text="selectedInstruction.name" />
       <p>{{ selectedInstruction.description }}</p>
-      <p>
-        Contains {{ selectedInstruction.steps.length }} step{{
-          selectedInstruction.steps.length === 1 ? "" : "s"
-        }}.
-      </p>
-      <p>
-        Created at:
-        <code v-text="toDateString(new Date(selectedInstruction.createdAt))" />
-      </p>
-      <p>
-        Last updated at:
-        <code v-text="toDateString(new Date(selectedInstruction.updatedAt))" />
-      </p>
     </template>
     <LoadingBlurb v-else />
   </ConfirmModal>
@@ -272,7 +259,7 @@ async function manageInstruction(choice: boolean) {
     selectedInstruction.value = null;
     return;
   }
-  await router.push(`/staff/setup-guide?id=${selectedInstruction.value!.name}`);
+  await router.push(`/staff/setup-guide?id=${selectedInstruction.value!.id}`);
 }
 
 async function createInstruction(data: { name: string; description: string }) {
@@ -296,7 +283,7 @@ async function createInstruction(data: { name: string; description: string }) {
     } else {
       await fetchInstructions();
       await createInstructionModal.value!.hide();
-      toast.show(`Created ${result.displayName}.`);
+      toast.show(`Created ${result.name}.`);
       await router.push(`/staff/setup-guide?id=${result.name}`);
     }
   } catch (e) {

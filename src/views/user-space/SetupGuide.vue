@@ -48,16 +48,16 @@
       <p>Please login again to verify your identity.</p>
       <p>
         Name what your new
-        {{ instruction.data ? instruction.data.displayName : "thing" }}
+        {{ instruction.data ? instruction.data.name : "thing" }}
         will be called.
       </p>
       <input
         type="text"
         :placeholder="`${
-          instruction.data ? instruction.data.displayName : 'thing'
+          instruction.data ? instruction.data.name : 'thing'
         } on ${OS}`"
         autocomplete="off"
-        name="displayName"
+        name="name"
         required
         :disabled="processing"
       />
@@ -176,7 +176,7 @@ async function cancelVerify() {
 
 async function getSetupFile() {
   if (!instruction.data) return;
-  const setupFileData = instruction.data.fileContent.replace(
+  const setupFileData = instruction.data.content.replace(
     "{{token}}",
     session.value!.token
   );
@@ -196,7 +196,7 @@ async function getSetupFile() {
   }
 }
 
-async function verifyIdentity(data: { displayName: string; password: string }) {
+async function verifyIdentity(data: { name: string; password: string }) {
   if (!online.value) {
     toast.connectivityOffline();
     return;
@@ -204,19 +204,17 @@ async function verifyIdentity(data: { displayName: string; password: string }) {
   processing.value = true;
   try {
     const newSession = await fetch(
-        `${BaseAPIURLs[import.meta.env.MODE]}/user/session`,
+        `${BaseAPIURLs[import.meta.env.MODE]}/login`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-Token-Name":
-              data.displayName ||
-              `${
-                instruction.data ? instruction.data.displayName : "thing"
-              } on ${OS}`,
+              data.name ||
+              `${instruction.data ? instruction.data.name : "thing"} on ${OS}`,
           },
           body: JSON.stringify({
-            username: user.account?.user.username,
+            username: user.account!.user.username,
             password: data.password,
             rememberMe: true,
           }),
@@ -230,11 +228,11 @@ async function verifyIdentity(data: { displayName: string; password: string }) {
     } else {
       const handled = await defaultErrorHandler(
         new Cumulonimbus.ResponseError(json, {
-          max: Number(newSession.headers.get("X-Ratelimit-Limit") || "0"),
+          limit: Number(newSession.headers.get("Ratelimit-Limit") || "0"),
           remaining: Number(
-            newSession.headers.get("X-Ratelimit-Remaining") || "0"
+            newSession.headers.get("Ratelimit-Remaining") || "0"
           ),
-          reset: Number(newSession.headers.get("X-Ratelimit-Reset") || "0"),
+          reset: Number(newSession.headers.get("Ratelimit-Reset") || "0"),
         }),
         router
       );

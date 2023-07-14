@@ -41,7 +41,7 @@ export const fileStore = defineStore('staff-space-file', () => {
     loading.value = true;
     try {
       const result = await (user.client as Cumulonimbus).deleteFile(
-        data.value.filename
+        data.value.id
       );
       data.value = null;
       return true;
