@@ -258,6 +258,7 @@ async function renameFile(data: { filename?: string }) {
       toast.clientError();
     } else {
       toast.show("File renamed.");
+      await files.getFiles(files.page);
       await renameFileModal.value!.hide();
     }
   } catch (e) {

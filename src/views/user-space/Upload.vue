@@ -70,6 +70,7 @@ import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
 import { userStore } from "@/stores/user";
 import { toastStore } from "@/stores/toast";
+import { filesStore } from "@/stores/user-space/files";
 import defaultErrorHandler from "@/utils/defaultErrorHandler";
 import Cumulonimbus from "cumulonimbus-wrapper";
 
@@ -78,6 +79,7 @@ const fileDropZone = ref<HTMLElement | null>(null),
   router = useRouter(),
   toast = toastStore(),
   user = userStore(),
+  files = filesStore(),
   online = useOnline(),
   { copied, copy, isSupported: clipboardIsSupported, text } = useClipboard(),
   { isOverDropZone } = useDropZone(fileDropZone, onDrop),
@@ -113,6 +115,7 @@ async function uploadFile() {
     uploadData.value = undefined;
     await fsb.value!.show();
     const data = await user.client!.upload(file.value);
+    await files.getFiles(files.page);
     uploadData.value = data.result;
     file.value = undefined;
     await copyToClipboard();

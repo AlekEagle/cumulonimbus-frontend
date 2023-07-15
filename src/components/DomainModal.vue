@@ -143,6 +143,9 @@ async function show() {
   subdomain.value = props.subdomain;
   setDomainWidth(props.domain);
   setSubdomainWidth(props.subdomain);
+  allowsSubdomains.value = domainPicker.domains!.items.find(
+    (domain) => domain.id === props.domain
+  )!.subdomains;
 }
 
 function hide() {
@@ -277,7 +280,7 @@ onMounted(async () => {
 }
 
 .subdomain-container input {
-  padding-right: 4px;
+  padding-right: 0;
   margin: 0;
   width: var(--subdomain-width, 9ch);
   min-width: 10vw;
@@ -303,6 +306,7 @@ onMounted(async () => {
 
 .domain-container > .subdomain-container + select {
   padding: 10px 10px 10px 0;
+  margin-left: -4px;
 }
 
 .domain-container select:focus,
