@@ -334,7 +334,6 @@ import DomainModal from "@/components/DomainModal.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import { useRouter } from "vue-router";
 import { useOnline } from "@vueuse/core";
-import { userStore } from "@/stores/user";
 import { toastStore } from "@/stores/toast";
 import { ref, onMounted, watch } from "vue";
 import Cumulonimbus from "cumulonimbus-wrapper";
@@ -346,8 +345,7 @@ import gearIcon from "@/assets/images/gear.svg";
 import fileIcon from "@/assets/images/file.svg";
 import defaultErrorHandler from "@/utils/defaultErrorHandler";
 
-const user = userStore(),
-  users = usersStore(),
+const users = usersStore(),
   otherUser = otherUserStore(),
   router = useRouter(),
   toast = toastStore(),
@@ -543,7 +541,7 @@ async function updateStaff(choice: boolean) {
     return;
   }
   try {
-    const status = otherUser.data?.staff
+    const status = otherUser.data!.staff
       ? await otherUser.grantStaff()
       : await otherUser.revokeStaff();
     if (status instanceof Cumulonimbus.ResponseError) {

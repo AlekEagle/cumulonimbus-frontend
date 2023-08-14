@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia';
-import { userStore } from '../user';
-import { ref } from 'vue';
-import Cumulonimbus from 'cumulonimbus-wrapper';
+import { defineStore } from "pinia";
+import { userStore } from "../user";
+import { ref } from "vue";
+import Cumulonimbus from "cumulonimbus-wrapper";
 
-export const instructionsStore = defineStore('user-space-instructions', () => {
+export const instructionsStore = defineStore("user-space-instructions", () => {
   const user = userStore();
   const loading = ref(false);
   const data =
@@ -42,6 +42,6 @@ export const instructionsStore = defineStore('user-space-instructions', () => {
     data,
     errored,
     page,
-    getInstructions
+    getInstructions,
   };
 });
