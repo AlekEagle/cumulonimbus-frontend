@@ -541,9 +541,9 @@ async function updateStaff(choice: boolean) {
     return;
   }
   try {
-    const status = otherUser.data!.staff
-      ? await otherUser.grantStaff()
-      : await otherUser.revokeStaff();
+    const status = otherUser.data?.staff
+      ? await otherUser.revokeStaff()
+      : await otherUser.grantStaff();
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
       if (!handled) {
