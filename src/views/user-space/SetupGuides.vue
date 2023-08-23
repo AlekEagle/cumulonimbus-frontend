@@ -47,7 +47,7 @@
               :title="instruction.name"
               :src="infoIcon"
               theme-safe
-              :to="`/dashboard/setup-guide?id=${instruction.name}`"
+              :to="`/dashboard/setup-guide?id=${instruction.id}`"
             >
               {{ instruction.description }}
             </ContentBox>
