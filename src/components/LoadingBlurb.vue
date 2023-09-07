@@ -50,11 +50,21 @@ const messages = [
   "Wasting your time",
   "Changing the future",
   "Writing your horoscope",
-  "Doomscrolling Twitter",
+  "Doomscrolling X (formerly Twitter)",
   "Selling your soul",
   "Reading your mind",
   "Deleting your DVR",
   "L + Ratio",
+  "Organizing my desktop",
+  ":)",
+  "Stay hydrated",
+  "Brush your teeth",
+  "Playing with matches",
+  "Posture check",
+  "ChatGPT is at capacity, please try again later",
+  "Manually breathing",
+  "Manually blinking",
+  "I'm running out of ideas",
 ];
 
 const message = ref<string>();
