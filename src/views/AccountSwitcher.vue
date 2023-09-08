@@ -207,46 +207,21 @@ async function removeAllAccountsConfirm(choice: boolean) {
 
 async function removeAccountConfirm(choice: boolean) {
   if (choice) {
-    if (user.accounts[selectedAccount.value as string] === false) {
-      toast.show("Account removed.");
-      user.removeAccount(selectedAccount.value as string);
-      selectedAccount.value = null;
-      removeAccountModal.value?.hide();
-    } else {
-      const tempClient = new Cumulonimbus(
-        user.accounts[selectedAccount.value as string] as string,
-        cumulonimbusOptions
-      );
-      try {
-        const res = await tempClient.deleteSession(
-          (await tempClient.getSession()).result.id.toString()
-        );
-        if (res) {
+    try {
+      const res = await user.removeAccount(selectedAccount.value as string);
+      if (res) {
+        if (res === true) {
           toast.show("Account removed.");
-          if (user.account?.user.username === selectedAccount.value) {
-            user.logout();
-          }
-          user.removeAccount(selectedAccount.value as string);
-        }
-      } catch (error) {
-        if (error instanceof Cumulonimbus.ResponseError) {
-          if (error.code === "INVALID_SESSION_ERROR") {
-            toast.show("Account removed.");
-            if (user.account?.user.username === selectedAccount.value) {
-              user.logout();
-            }
-            user.removeAccount(selectedAccount.value as string);
-          } else {
-            console.error(error);
-            toast.clientError();
-          }
+          selectedAccount.value = null;
+          removeAccountModal.value?.hide();
         } else {
-          console.error(error);
+          console.error(res);
           toast.clientError();
         }
-      } finally {
-        removeAccountModal.value?.hide();
       }
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
     }
   } else {
     removeAccountModal.value?.hide();

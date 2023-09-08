@@ -90,9 +90,61 @@ export const userStore = defineStore("user", () => {
   }
 
   // Remove an account from the account switcher.
-  function removeAccount(username: string) {
-    delete accounts.value[username];
-    return accounts.value;
+  async function removeAccount(username: string) {
+    if (accounts.value[username] === false) {
+      // If the account isn't logged in, but simply in the account switcher, simply remove the account from the account switcher.
+      delete accounts.value[username];
+      return true;
+    } else {
+      // Begin the process of deleting the session and logging out.
+      loading.value = true;
+
+      if (username === account.value.user.username) {
+        try {
+          // If the currently logged in user is being removed, call our logout function.
+          let res = await logout();
+          if (res !== true) {
+            // If the function returned an unhandled Cumulonimbus ResponseError, pass it on to the function caller.
+            return res;
+          } else {
+            // Success, remove the account from the account switcher.
+            delete accounts.value[username];
+            return true;
+          }
+        } catch (error) {
+          // The logout function threw an unhandled error that wasn't a Cumulonimbus ResponseError, pass it on to the function caller.
+          throw error;
+        } finally {
+          loading.value = false;
+        }
+      } else {
+        // Log out a user that isn't currently selected.
+        try {
+          const tempClient = new Cumulonimbus(accounts.value[username], cumulonimbusOptions),
+            sid = (await tempClient.getSession()).result.id.toString();
+
+          const res = await tempClient.deleteSession(sid);
+
+          if (res) {
+            delete accounts.value[username];
+            return true;
+          }
+        } catch (error) {
+          if (error instanceof Cumulonimbus.ResponseError) {
+            if (error.code === "INVALID_SESSION_ERROR") {
+              delete accounts.value[username];
+              return true;
+            } else {
+              return error;
+            }
+          } else {
+            throw error;
+          }
+        } finally {
+          loading.value = false;
+        }
+      }
+    }
   }
 
   // --- Account Login/Registration Management ---
