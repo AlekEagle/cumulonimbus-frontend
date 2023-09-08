@@ -26,7 +26,7 @@
         height="80"
       />
       <div class="content-box-content">
-        Click me to select or deselect this file.
+        <p>Click me to select or deselect this file.</p>
       </div>
     </div>
   </div>
@@ -57,7 +57,7 @@
         height="80"
       />
       <div class="content-box-content">
-        Saved on Cumulonimbus as <code v-text="props.file.id" />
+        <p>Saved on Cumulonimbus as <code v-text="props.file.id" /></p>
       </div>
     </div>
   </a>
