@@ -99,7 +99,7 @@ export const userStore = defineStore("user", () => {
       // Begin the process of deleting the session and logging out.
       loading.value = true;
 
-      if (username === account.value.user.username) {
+      if (username === account.value?.user?.username) {
         try {
           // If the currently logged in user is being removed, call our logout function.
           let res = await logout();
