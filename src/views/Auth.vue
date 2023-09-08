@@ -218,6 +218,10 @@ async function login(data: {
           case "INVALID_PASSWORD_ERROR":
             toast.invalidPassword();
             break;
+          default:
+            toast.genericError();
+            console.error(res);
+            break;
         }
       }
     }
@@ -261,6 +265,16 @@ async function register(data: {
         switch (res.code) {
           case "USER_EXISTS_ERROR":
             toast.show("Someone already has that username!");
+            break;
+          case "INVALID_USERNAME_ERROR":
+            toast.show("Uh oh! Looks like your username contains invalid characters!");
+            break;
+          case "INVALID_EMAIL_ERROR":
+            toast.show("Uh oh! Looks like you provided an invalid email!");
+            break;
+          default:
+            toast.genericError();
+            console.error(res);
             break;
         }
       }
