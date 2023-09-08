@@ -25,10 +25,7 @@
         width="80"
         height="80"
       />
-      <div class="content-box-content" v-if="!props.selecting">
-        Saved on Cumulonimbus as {{ props.file.id }}.
-      </div>
-      <div class="content-box-content" v-else>
+      <div class="content-box-content">
         Click me to select or deselect this file.
       </div>
     </div>
@@ -59,11 +56,8 @@
         width="80"
         height="80"
       />
-      <div class="content-box-content" v-if="!props.selecting">
-        Saved on Cumulonimbus as {{ props.file.id }}.
-      </div>
-      <div class="content-box-content" v-else>
-        Click me to select or deselect this file.
+      <div class="content-box-content">
+        Saved on Cumulonimbus as <code v-text="props.file.id" />
       </div>
     </div>
   </a>
