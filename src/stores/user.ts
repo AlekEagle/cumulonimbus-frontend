@@ -120,7 +120,7 @@ export const userStore = defineStore("user", () => {
       } else {
         // Log out a user that isn't currently selected.
         try {
-          const tempClient = new Cumulonimbus(accounts.value[username], cumulonimbusOptions),
+          const tempClient = new Cumulonimbus(accounts.value[username] as string, cumulonimbusOptions),
             sid = (await tempClient.getSession()).result.id.toString();
 
           const res = await tempClient.deleteSession(sid);
