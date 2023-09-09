@@ -64,7 +64,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, onUnmounted } from "vue";
+import { computed, ref, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import Loading from "./Loading.vue";
 import { wait } from "@/utils/wait";
