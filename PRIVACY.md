@@ -34,9 +34,9 @@ Data stored inside of the database is immediately deleted, not marked as "delete
 
 ## General Data Protection Regulation (GDPR) Requests
 
-Outside of logs, all data We store related to Your account can be accessed via Your dashboard. If you'd like to access all logs related to Your account, you can reach out to <gdpr@alekeagle.com> using the email attributed to Your account, in which you will receive Your information in 2 business days.
+Outside of logs, all data We store related to Your account can be accessed via Your dashboard. If You would like to access all logs related to Your account, You can reach out to <gdpr@alekeagle.com> using the email attributed to Your account, in which you will receive Your information in 2 business days.
 
-Anyone may make a request, irregardless if you live under a jurisdiction with the GDPR or CCPA regulations.
+Anyone may make a request, irregardless if You live under a jurisdiction with the GDPR or CCPA regulations.
 
 ## Contact
 
