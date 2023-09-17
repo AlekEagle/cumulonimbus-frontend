@@ -4,7 +4,7 @@ Last Updated: September 15th, 2023
 
 This document describes the usage of Cumulonimbus (which from here on out may be referred to as `We`, `Us`, and/or `the Service`) allowed by you. By using the Service you are agreeing to these terms. THIS SERVICE IS PROVIDED AS-IS WITH ABSOLUTELY NO WARRANTY IN ANY WAY, SHAPE, OR FORM. WE ARE NOT RESPONSIBLE FOR ANY LOSS OF DATA. FAILURE TO ABIDE BY THESE TERMS MAY RESULT IN YOUR ACCOUNT BEING DISABLED ("BANNED") OR TERMINATED. ANY ACTION TAKEN AGAINST YOUR ACCOUNT WILL BE ACCOMPANIED WITH A REASON, WHETHER IT BE BY EMAIL OR ON THE SERVICE ITSELF.
 
-If you do not agree to these terms then usage must be discontinued immediately.
+If you do not agree to these terms, usage of the Service must be discontinued immediately.
 
 We will alert you of these terms being updated both by changing the "Last Updated" date above and by prompting you on the Service. If We deem the change great enough you may receive an email concerning the change of the Terms of Service. While you will be notified of any changes to these terms We still strongly recommend that you periodically review these terms.
 
