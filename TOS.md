@@ -1,6 +1,6 @@
 # Cumulonimbus Terms of Service
 
-Last Updated: September 15th, 2023
+Last Updated: September 17th, 2023
 
 This document describes the usage of Cumulonimbus (which from here on out may be referred to as `We`, `Us`, and/or `the Service`) allowed by you. By using the Service you are agreeing to these terms. THIS SERVICE IS PROVIDED AS-IS WITH ABSOLUTELY NO WARRANTY IN ANY WAY, SHAPE, OR FORM. WE ARE NOT RESPONSIBLE FOR ANY LOSS OF DATA. FAILURE TO ABIDE BY THESE TERMS MAY RESULT IN YOUR ACCOUNT BEING DISABLED ("BANNED") OR TERMINATED. ANY ACTION TAKEN AGAINST YOUR ACCOUNT WILL BE ACCOMPANIED WITH A REASON, WHETHER IT BE BY EMAIL OR ON THE SERVICE ITSELF.
 
