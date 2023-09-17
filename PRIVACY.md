@@ -12,7 +12,7 @@ We respect You and Your privacy, and collect the smallest amounts of data We can
 
 ## What We Collect and Why
 
-When You create an account You provide a username, email address, and password. We use Your email address to contact You about any/all issues regarding Your account, and is also used for notifying You of Your completion of a data request.
+When You create an account, You provide a username, email address, and password. We use Your email address to contact You about any/all issues regarding Your account, and is also used for notifying You of Your completion of a data request.
 
 When uploading files to the Service, We store the file, when it was uploaded, and how big it is.
 
