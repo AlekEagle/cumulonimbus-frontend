@@ -16,8 +16,8 @@ Any and all content uploaded by you is, and will always be Your property. the Se
 
 ## Digital Millennium Copyright Act (DMCA) Claims
 
-If a user is to upload content that violates DMCA, a request for a take-down can be filed at dmca@alekeagle.com with a subject of "Cumulonimbus DMCA Claim". Abuse of a DMCA Claim is not tolerated and will go ignored.
+If a user is to upload content that violates DMCA, a request for a take-down can be filed at dmca@alekeagle.me with a subject of "Cumulonimbus DMCA Claim". Abuse of a DMCA Claim is not tolerated and will go ignored.
 
 ## Contact
 
-If You have any questions please contact Us at contact@alekeagle.com
+If You have any questions please contact Us at contact@alekeagle.me
