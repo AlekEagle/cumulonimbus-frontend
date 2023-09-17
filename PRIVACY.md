@@ -1,6 +1,6 @@
 # Cumulonimbus Privacy Policy
 
-Last Updated: September 15th, 2023
+Last Updated: September 17th, 2023
 
 This document describes the policies and procedures on collection, use, and disclosure of Your information when using Cumulonimbus (which from here on out may be referred to as `We`, `Us`, `Our`, and/or `the Service`), and informs You of Your privacy rights and how You are protected by the law.
 
