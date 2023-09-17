@@ -20,4 +20,4 @@ If a user is to upload content that violates DMCA, a request for a take-down can
 
 ## Contact
 
-If you have any questions please contact Us at contact@alekeagle.com
+If You have any questions please contact Us at contact@alekeagle.com
