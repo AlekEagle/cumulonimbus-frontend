@@ -40,4 +40,4 @@ Anyone may make a request, irregardless if you live under a jurisdiction with th
 
 ## Contact
 
-If you have any questions please contact Us at <contact@alekeagle.com>.
+If You have any questions please contact Us at <contact@alekeagle.com>.
