@@ -8,7 +8,7 @@ If you do not agree to these terms, usage of the Service must be discontinued im
 
 We will alert you of these terms being updated both by changing the "Last Updated" date above and by prompting you on the Service. If We deem the change great enough, you may receive an email concerning the change of the Terms of Service. While you will be notified of any changes to these terms, We still strongly recommend that you periodically review these terms.
 
-The source code of the Service is provided not to be used to create a hostile clone (duplicates of the Service to mislead, deceive, or act in any other malicious manner). Using the source code of the Service to create a hostile clone will result in defensive action.
+The source code of the Service is provided not to be used to create a "hostile clone" (duplicates of the Service to mislead, deceive, or act in any other malicious manner). Using the source code of the Service to create a "hostile clone" as described above will result in defensive action.
 
 ## Acceptable Use
 
