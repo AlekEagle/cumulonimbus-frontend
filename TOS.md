@@ -12,7 +12,7 @@ The source code of the Service is provided not to be used to create a "hostile c
 
 ## Acceptable Use
 
-Any and all content uploaded by you is, and will always be your property. the Service is not liable for any user-generated content. The upload of illegal, harmful, and/or immoral content as defined within your jurisdiction, the state laws of Alaska and Missouri, and federal US laws is not allowed and will be removed with valid reason being sent to you via email. Continued violations may result in your account being disabled or terminated. Account termination will result in your account being deleted and all user generated content being deleted. Violations resulting in an account being disabled can be appealed, while account termination is permanent and cannot be reversed. Abuse of the API is not allowed and can result in your account being disabled or terminated.
+Any and all content uploaded by you is, and will always be Your property. the Service is not liable for any user-generated content. The upload of illegal, harmful, and/or immoral content as defined within Your jurisdiction, the state laws of Alaska and Missouri, and U.S. Federal Law is not allowed and will be removed with valid reason being sent to you via email. Continued violations may result in your account being disabled ("banned") or terminated. Account termination will result in Your account being deleted, as well as all user-generated content contained within Your account. Violations resulting in an account being disabled ("banned") can be appealed, while account termination is permanent and cannot be reversed. Abuse of the API is not allowed and can result in Your account being disabled ("banned") or terminated.
 
 ## Digital Millennium Copyright Act (DMCA) Claims
 
