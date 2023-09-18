@@ -19,9 +19,7 @@
         domains in total.
       </h2>
     </template>
-    <h2 v-else class="animated-ellipsis">
-      Alek is remembering what domains there are
-    </h2>
+    <h2 v-else class="animated-ellipsis">Alek is remembering what domains there are</h2>
   </template>
   <h2 v-else>
     Alek can't remember what domains there are because you're offline :(

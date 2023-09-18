@@ -4,9 +4,9 @@
     <h2 v-if="instruction.data">
       It won't take you more than a few minutes to set this up.
     </h2>
-    <h2 class="animated-ellipsis" v-else>Alek is reading the setup guide</h2>
+    <h2 class="animated-ellipsis" v-else>Speed reading the setup guide</h2>
   </template>
-  <h2 v-else>Alek can't read the setup guide because you are offline :(</h2>
+  <h2 v-else>You're offline. Please connect to the internet to continue.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard/setup-guides" />
   </div>

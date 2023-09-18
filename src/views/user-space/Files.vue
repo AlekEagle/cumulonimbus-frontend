@@ -18,12 +18,10 @@
         files in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else>
-      Alek is individually counting your files
-    </h2>
+    <h2 class="animated-ellipsis" v-else>Counting each individual file</h2>
   </template>
   <template v-else>
-    <h2>Alek can't count your files because you are offline :(</h2>
+    <h2>You're offline. Please connect to the internet to continue.</h2>
   </template>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />

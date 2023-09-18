@@ -19,11 +19,9 @@
         logged in sessions in total.
       </h2>
     </template>
-    <h2 v-else class="animated-ellipsis">
-      Alek is seeing who is logged in as you
-    </h2>
+    <h2 v-else class="animated-ellipsis">Checking who's logged in</h2>
   </template>
-  <h2 v-else>Alek can't see who is logged in as you :(</h2>
+  <h2 v-else>You're offline. Please connect to the internet to continue.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
     <button
