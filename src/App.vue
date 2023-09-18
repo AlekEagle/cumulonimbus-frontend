@@ -658,10 +658,15 @@ button:focus {
   width: 40%;
 }
 
+.quick-action-buttons-container > a {
+  pointer-events: none;
+}
+
 .quick-action-buttons-container > button,
 .quick-action-buttons-container > a > button {
   margin-left: 5px;
   margin-right: 5px;
+  pointer-events: all;
 }
 
 @media screen and (max-width: 781px) {
