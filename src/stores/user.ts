@@ -120,24 +120,35 @@ export const userStore = defineStore("user", () => {
       } else {
         // Log out a user that isn't currently selected.
         try {
-          const tempClient = new Cumulonimbus(accounts.value[username] as string, cumulonimbusOptions),
+          // Create a temporary client with the stored token.
+          const tempClient = new Cumulonimbus(
+              accounts.value[username] as string,
+              cumulonimbusOptions
+          ),
+            // Get the session ID.
             sid = (await tempClient.getSession()).result.id.toString();
 
+          // Delete the session.
           const res = await tempClient.deleteSession(sid);
 
           if (res) {
+            // Success, remove the account from the account switcher.
             delete accounts.value[username];
             return true;
           }
         } catch (error) {
+          // If the error is a Cumulonimbus ResponseError, check if the error was caused by an invalid session.
           if (error instanceof Cumulonimbus.ResponseError) {
             if (error.code === "INVALID_SESSION_ERROR") {
+              // If it was, the session has already expired and we can pretend it was deleted successfully.
               delete accounts.value[username];
               return true;
             } else {
+              // If it wasn't, pass the error on to the function caller.
               return error;
             }
           } else {
+            // If the error wasn't a Cumulonimbus ResponseError, pass it on to the function caller.
             throw error;
           }
         } finally {

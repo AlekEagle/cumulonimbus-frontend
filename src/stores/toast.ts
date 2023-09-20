@@ -83,7 +83,7 @@ export const toastStore = defineStore("toast", () => {
     animating.value = false;
   };
 
-  // The function to display a toast regarding a rate limit error
+  // A toast for a rate limit cooldown.
   const rateLimit = async (error: Cumulonimbus.ResponseError) => {
     // Take reset time (time until the rate limit resets in seconds) and convert it to a date
     const reset = addSeconds(new Date(Date.now()), error.ratelimit!.reset);
@@ -96,55 +96,55 @@ export const toastStore = defineStore("toast", () => {
     await show(msg, 10000);
   };
 
-  // The function to display a toast regarding a banned user
+  // A toast for when a user that is banned makes an API call.
   const banned = async () => {
     await show(
       "You have been banned from Cumulonimbus. Sorry for the inconvenience."
     );
   };
 
-  // The function to display a toast regarding an invalid/expired session
+  // A toast for when a user's session is invalid or has expired.
   const session = async () => {
     await show("Your session has expired. Please log in again.");
   };
 
-  // The function to display a toast telling the user they need to log in to do something
+  // A toast for when a user tries to do something that requires them to be logged in.
   const login = async () => {
     await show("Whoops! Looks like you need to log in before we do that!");
   };
 
-  // The function to display a toast regarding insufficient permissions
+  // A toast for when a user tries to access an endpoint they don't have permission to.
   const insufficientPermissions = async () => {
     await show("Nuh uh uh! You didn't say the magic word!");
   };
 
-  // The function to display a toast regarding a client-side error
+  // A toast for a client-side error.
   const clientError = async () => {
     await show("I did something wrong, give me a second and try again.");
   };
 
-  // The function to display a toast regarding a server-side error
+  // A toast for a server-side error.
   const serverError = async () => {
     await show(
       "The server did something wrong, give it a second and try again."
     );
   };
 
-  // The function to display a toast regarding a generic error
+  // A toast for a generic error.
   const genericError = async () => {
     await show(
       "Someone did something wrong, I don't know who. Give it a second and try again."
     );
   };
 
-  // The function to display a toast regarding a new version of the app
+  // A toast for a new version of Cumulonimbus being available.
   const newVersion = async () => {
     await show(
       "A new version of Cumulonimbus is available! Please refresh the page to apply the update."
     );
   };
 
-  // The function to display a toast regarding missing fields
+  // A toast to inform the user that they are missing required fields.
   const missingFields = async (fields: string[]) => {
     // Capitalize the first letter of each field, and join them with commas, putting an "and" before the last one
     const fieldsNormalized =
@@ -159,9 +159,9 @@ export const toastStore = defineStore("toast", () => {
     );
   };
 
-  // The function to display a toast regarding an incorrect username/email
-  const invalidUsernameEmail = async () => {
-    await show("I can't find anyone with that username or email!");
+  // A toast to inform a user trying to log in that
+  const userNotFound = async () => {
+    await show("I can't find anyone with that username!");
   };
 
   // The function to display a toast regarding an incorrect password
@@ -199,7 +199,7 @@ export const toastStore = defineStore("toast", () => {
     genericError,
     newVersion,
     missingFields,
-    invalidUsernameEmail,
+    invalidUsernameEmail: userNotFound,
     invalidPassword,
     connectivityOffline,
     connectivityChangeOnline,

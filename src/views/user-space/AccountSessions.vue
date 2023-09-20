@@ -87,6 +87,7 @@
     ref="confirmDeleteModal"
     title="Are you sure?"
     @submit="onDeleteSessionsChoice"
+    :disabled="sessions.loading"
   >
     <p>Are you sure you want to delete these {{ selected.length }} sessions?</p>
     <p>They will have to be logged back in!</p>
@@ -95,6 +96,7 @@
     ref="manageSessionModal"
     title="Manage Session"
     @submit="onManageSessionChoice"
+    :disabled="sessions.loading"
   >
     <template v-if="!!selectedSession">
       <code v-text="selectedSession!.name" />
@@ -282,6 +284,7 @@ async function onDeleteSessionsChoice(choice: boolean) {
     console.error(e);
     toast.clientError();
   }
+  await confirmDeleteModal.value!.hide();
 }
 
 function cancelSelection() {

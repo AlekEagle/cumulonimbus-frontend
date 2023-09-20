@@ -64,20 +64,22 @@
     title="Remove All Accounts"
     ref="removeAllAccountsModal"
     @submit="removeAllAccountsConfirm"
+    :disabled="user.loading"
   >
     <p>Are you sure you want to remove all accounts?</p>
-    <p>You'll have to enter your username/email and password again.</p>
+    <p>You'll have to enter your username and password again.</p>
   </ConfirmModal>
   <ConfirmModal
     title="Remove Account"
     ref="removeAccountModal"
     @submit="removeAccountConfirm"
+    :disabled="user.loading"
   >
     <p>
       Are you sure you want to remove the account
       <code v-text="selectedAccount" />?
     </p>
-    <p>You'll have to enter your username/email and password again.</p>
+    <p>You'll have to enter your username and password again.</p>
   </ConfirmModal>
 </template>
 
@@ -88,7 +90,7 @@ import ConfirmModal from "@/components/ConfirmModal.vue";
 import Cumulonimbus from "cumulonimbus-wrapper";
 import LoadingBlurb from "@/components/LoadingBlurb.vue";
 import { ref, onBeforeMount, computed } from "vue";
-import { userStore, cumulonimbusOptions } from "@/stores/user";
+import { userStore } from "@/stores/user";
 import { useRouter, useRoute } from "vue-router";
 import { toastStore } from "@/stores/toast";
 import profileIcon from "@/assets/images/profile.svg";
@@ -163,38 +165,22 @@ function addAccount() {
 async function removeAllAccountsConfirm(choice: boolean) {
   if (choice) {
     for (const account in user.accounts) {
-      if (user.accounts[account] === false) {
-        user.removeAccount(account);
-      } else {
-        const tempClient = new Cumulonimbus(
-          user.accounts[account] as string,
-          cumulonimbusOptions
-        );
-        try {
-          const res = await tempClient.deleteSession(
-            (await tempClient.getSession()).result.id.toString()
-          );
-          if (res) {
-            user.removeAccount(account);
-          }
-        } catch (error) {
-          if (error instanceof Cumulonimbus.ResponseError) {
-            if (error.code === "INVALID_SESSION_ERROR") {
-              user.removeAccount(account);
-            }
-            {
-              console.error(error);
-              toast.clientError();
-            }
-          } else {
-            console.error(error);
+      try {
+        const res = await user.removeAccount(account);
+        if (res) {
+          if (res !== true) {
+            console.error(res);
             toast.clientError();
+            break;
           }
         }
+      } catch (error) {
+        console.error(error);
+        toast.clientError();
+        break;
       }
     }
     toast.show("All accounts removed.");
-    user.logout();
     router.replace({
       path: "/auth",
       query: {

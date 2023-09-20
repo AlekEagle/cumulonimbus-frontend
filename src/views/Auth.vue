@@ -267,7 +267,9 @@ async function register(data: {
             toast.show("Someone already has that username!");
             break;
           case "INVALID_USERNAME_ERROR":
-            toast.show("Uh oh! Looks like your username contains invalid characters!");
+            toast.show(
+              "Uh oh! Looks like your username contains invalid characters!"
+            );
             break;
           case "INVALID_EMAIL_ERROR":
             toast.show("Uh oh! Looks like you provided an invalid email!");
