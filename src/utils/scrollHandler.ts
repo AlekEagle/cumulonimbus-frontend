@@ -5,13 +5,13 @@ function scrollHandler(e: Event) {
 }
 
 export function disableScrolling() {
-  document.body.addEventListener("scroll", scrollHandler, false);
-  document.body.addEventListener("wheel", scrollHandler, false);
-  document.body.addEventListener("touchmove", scrollHandler, false);
+  document.body.addEventListener("scroll", scrollHandler);
+  document.body.addEventListener("wheel", scrollHandler);
+  document.body.addEventListener("touchmove", scrollHandler);
 }
 
 export function enableScrolling() {
-  document.body.removeEventListener("scroll", scrollHandler, false);
-  document.body.removeEventListener("wheel", scrollHandler, false);
-  document.body.removeEventListener("touchmove", scrollHandler, false);
+  document.body.removeEventListener("scroll", scrollHandler);
+  document.body.removeEventListener("wheel", scrollHandler);
+  document.body.removeEventListener("touchmove", scrollHandler);
 }
