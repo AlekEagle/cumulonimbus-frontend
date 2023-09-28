@@ -30,6 +30,7 @@
 <script lang="ts" setup>
 import { wait } from "@/utils/wait";
 import { ref, onBeforeUnmount } from "vue";
+import { enableScrolling, disableScrolling } from "@/utils/scrollHandler";
 
 const emit = defineEmits(["close"]);
 
@@ -46,7 +47,7 @@ const visible = ref(false);
 // Internal hide function, not to be used externally, use hide() instead
 function __hide() {
   if (!props.dismissible || !visible.value) return;
-  document.body.classList.remove("no-scroll");
+  enableScrolling();
   visible.value = false;
   emit("close");
 }
@@ -54,14 +55,14 @@ function __hide() {
 // A hide function exposed that doesn't emit the closed event.
 async function hide() {
   visible.value = false;
-  document.body.classList.remove("no-scroll");
+  enableScrolling();
   await wait(400);
   return;
 }
 
 async function show() {
   visible.value = true;
-  document.body.classList.add("no-scroll");
+  disableScrolling();
   await wait(400);
   return;
 }

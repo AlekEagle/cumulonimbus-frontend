@@ -78,12 +78,13 @@
 
 <script lang="ts" setup>
 import ThemeManager from "@/components/ThemeManager.vue";
-import { userStore } from "./stores/user";
+import { userStore } from "@/stores/user";
 import { ref, onMounted, watch, computed } from "vue";
-import { toastStore } from "./stores/toast";
+import { toastStore } from "@/stores/toast";
 import { useRouter, useRoute } from "vue-router";
 import { useNetwork } from "@vueuse/core";
 import { ptbStore } from "@/stores/ptb";
+import { enableScrolling, disableScrolling } from "@/utils/scrollHandler";
 import Modal from "@/components/Modal.vue";
 import newTabIcon from "@/assets/images/newtab.svg";
 
@@ -186,9 +187,9 @@ const ptbWarningModal = ref<typeof Modal>();
 
 watch(hamburgerMenu, (val) => {
   if (val) {
-    document.body.classList.add("no-scroll");
+    disableScrolling();
   } else {
-    document.body.classList.remove("no-scroll");
+    enableScrolling();
   }
 });
 
@@ -362,11 +363,6 @@ body {
 
 main.content {
   padding-bottom: 15px;
-}
-
-body.no-scroll {
-  overflow-y: hidden;
-  margin-right: 10px;
 }
 
 html {
