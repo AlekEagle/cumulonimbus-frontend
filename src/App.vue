@@ -541,6 +541,7 @@ header nav > div {
   display: block;
   cursor: pointer;
   position: relative;
+  top: 3px;
 }
 
 header nav.active .bar:nth-child(2) {
