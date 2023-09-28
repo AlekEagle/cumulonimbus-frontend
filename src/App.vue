@@ -540,11 +540,7 @@ header nav.active ul {
 header nav > div {
   display: block;
   cursor: pointer;
-  margin-right: 10px;
-  z-index: 11;
-  top: 20.8px;
-  position: sticky;
-  position: -webkit-sticky;
+  position: relative;
 }
 
 header nav.active .bar:nth-child(2) {
