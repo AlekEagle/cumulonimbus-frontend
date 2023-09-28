@@ -354,7 +354,7 @@ html.dark-theme {
 body {
   margin: 0;
   transition: background-color 0.25s, color 0.25s;
-  overflow-y: overlay;
+  overflow-y: scroll;
   overflow-x: hidden;
   background-color: var(--background);
   color: var(--foreground);
@@ -366,6 +366,7 @@ main.content {
 
 body.no-scroll {
   overflow-y: hidden;
+  margin-right: 10px;
 }
 
 html {
@@ -405,7 +406,6 @@ li {
 
 header {
   display: flex;
-  width: calc(100vw - 20px);
   justify-content: space-between;
   padding: 10px 10px 0;
   align-items: center;
@@ -508,8 +508,8 @@ header nav ul {
   left: 0;
   flex-direction: column;
   margin: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   border-radius: 10px;
   text-align: center;
   transition: bottom 0.4s;
@@ -542,7 +542,6 @@ header nav > div {
   cursor: pointer;
   margin-right: 10px;
   z-index: 11;
-  right: 10px;
   top: 20.8px;
   position: sticky;
   position: -webkit-sticky;
@@ -604,15 +603,12 @@ html.dark-theme nav ul li a img {
 }
 
 ::-webkit-scrollbar-thumb {
+  background-color: var(--foreground);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-corner {
   background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--foreground);
 }
 
 button {
