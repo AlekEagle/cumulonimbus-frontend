@@ -173,6 +173,7 @@ async function contentBoxClicked() {
   margin: 0;
   transition: color 0.25s;
   color: var(--ui-foreground);
+  padding-right: 15px;
 }
 
 .content-box.disabled > .content-box-inner .title {
