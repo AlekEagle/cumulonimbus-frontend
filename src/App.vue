@@ -541,6 +541,7 @@ header nav > div {
   display: block;
   cursor: pointer;
   position: relative;
+  z-index: 11;
   top: 3px;
 }
 
