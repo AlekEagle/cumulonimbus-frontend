@@ -11,7 +11,7 @@ export function disableScrolling() {
 }
 
 export function enableScrolling() {
-  document.body.removeEventListener("scroll", scrollHandler, {passive: false});
-  document.body.removeEventListener("wheel", scrollHandler, {passive: false});
-  document.body.removeEventListener("touchmove", scrollHandler, {passive: false});
+  document.body.removeEventListener("scroll", scrollHandler);
+  document.body.removeEventListener("wheel", scrollHandler);
+  document.body.removeEventListener("touchmove", scrollHandler);
 }
