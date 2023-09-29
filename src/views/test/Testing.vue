@@ -276,6 +276,16 @@
       @cancel="toast.show('cancelled domain modal')"
       domain="alekeagle.me"
     />
+    <ContentBox title="Display Fullscreen Loading Blurb Modal" @click="fullscreenLoadingBlurbModal!.show()">
+      Display Fullscreen Loading Blurb Modal
+    </ContentBox>
+    <ConfirmModal
+      ref="fullscreenLoadingBlurbModal"
+      title="Fullscreen Loading Blurb Modal"
+      @submit="fullscreenLoadingBlurbModalHandler"
+    >
+      I am a modal that will display a fullscreen loading blurb when confirmed.
+    </ConfirmModal>
   </div>
   <!--  PAGINATOR  -->
   <template v-if="currentItem === CurrentItem.PAGINATOR">
@@ -313,8 +323,8 @@
         Show fullscreen loading blurb forever
       </ContentBox>
     </div>
-    <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
   </template>
+  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
 </template>
 
 <script lang="ts" setup>
@@ -361,7 +371,8 @@ const Items = computed(() => {
   formModal = ref<typeof FormModal>(),
   domainModal = ref<typeof DomainModal>(),
   paginatorPage = ref<number>(0),
-  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
+  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+  fullscreenLoadingBlurbModal = ref<typeof ConfirmModal>();
 
 function meowMeow(choice: boolean) {
   function* allNodes(node: Node): Generator<Node> {
@@ -402,6 +413,17 @@ async function fsb() {
   await fullscreenLoadingBlurb.value!.show();
   await wait(5000);
   fullscreenLoadingBlurb.value!.hide();
+}
+
+async function fullscreenLoadingBlurbModalHandler(choice: boolean) {
+  if (!choice) {
+    await fullscreenLoadingBlurbModal.value!.hide();
+  } else {
+    await fullscreenLoadingBlurb.value!.show();
+    await wait(5000);
+    fullscreenLoadingBlurbModal.value!.hide();
+    await fullscreenLoadingBlurb.value!.hide();
+  }
 }
 </script>
 
