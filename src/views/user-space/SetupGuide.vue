@@ -100,7 +100,7 @@ import { ref, watch, onMounted } from "vue";
 
 const BaseAPIURLs: { [key: string]: string } = {
   production: `${window.location.protocol}//${window.location.host}/api`,
-  prod_preview: "https://alekeagle.me/api",
+  ptb: "https://alekeagle.me/api",
   development: "http://localhost:8000/api",
 };
 
