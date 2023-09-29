@@ -248,6 +248,7 @@ async function verifyIdentity(data: { name: string; password: string }) {
             break;
         }
       }
+      fullscreenLoadingBlurb.value!.hide();
     }
   } catch (error) {
     console.error(error);

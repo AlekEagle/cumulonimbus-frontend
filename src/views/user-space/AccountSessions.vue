@@ -209,33 +209,12 @@ async function onManageSessionChoice(choice: boolean) {
     fullscreenLoadingBlurb.value!.show();
     const status = await sessions.deleteSession(selectedSession.value!.id + "");
     if (status instanceof Cumulonimbus.ResponseError) {
-      switch (status.code) {
-        case "BANNED_ERROR":
-          toast.banned();
-          fullscreenLoadingBlurb.value!.hide();
-          await manageSessionModal.value!.hide();
-          user.logout();
-          router.push("/");
-          break;
-        case "RATELIMITED_ERROR":
-          toast.rateLimit(status);
-          break;
-        case "INVALID_SESSION_ERROR":
-          toast.show("It appears that session doesn't exist anymore.");
-          await fetchSessions();
-          selectedSession.value = null;
-          fullscreenLoadingBlurb.value!.hide();
-          await manageSessionModal.value!.hide();
-          break;
-        case "INTERNAL_ERROR":
-          toast.serverError();
-          break;
-        default:
-          console.error(status);
-          toast.clientError();
-          break;
+      const handled = await defaultErrorHandler(status, router);
+      if (!handled) {
+        toast.clientError();
       }
     } else if (!status) {
+      fullscreenLoadingBlurb.value!.hide();
       toast.clientError();
     } else {
       if (selectedSession.value?.id === user.account?.session.id) {
@@ -278,10 +257,12 @@ async function onDeleteSessionsChoice(choice: boolean) {
         default:
           const handled = await defaultErrorHandler(status, router);
           if (!handled) {
+            fullscreenLoadingBlurb.value!.hide();
             toast.clientError();
           }
       }
     } else if (!status) {
+      fullscreenLoadingBlurb.value!.hide();
       toast.clientError();
     } else {
       if (selected.value.includes(user.account?.session.id + "")) {

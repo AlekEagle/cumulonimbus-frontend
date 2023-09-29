@@ -337,6 +337,7 @@ async function updateUsername(data: { username: string; password: string }) {
             break;
         }
       }
+      fullscreenLoadingBlurb.value!.hide();
     } else if (res) {
       const token = user.accounts[oldUsername]!;
       delete user.accounts[oldUsername];
@@ -367,6 +368,7 @@ async function updateEmail(data: { email: string; password: string }) {
             break;
         }
       }
+      fullscreenLoadingBlurb.value!.hide();
     } else if (res) {
       fullscreenLoadingBlurb.value!.hide();
       emailFormModal.value!.hide();
