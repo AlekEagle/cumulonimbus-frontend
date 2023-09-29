@@ -257,9 +257,9 @@ async function onDeleteSessionsChoice(choice: boolean) {
         default:
           const handled = await defaultErrorHandler(status, router);
           if (!handled) {
-            fullscreenLoadingBlurb.value!.hide();
             toast.clientError();
           }
+          fullscreenLoadingBlurb.value!.hide();
       }
     } else if (!status) {
       fullscreenLoadingBlurb.value!.hide();
