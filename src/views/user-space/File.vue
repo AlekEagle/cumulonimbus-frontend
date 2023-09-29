@@ -57,15 +57,15 @@
           >
             <p>
               Saved on Cumulonimbus as:
-              <code>{{ file.data.id }}</code>
+              <code v-text="file.data.id" />
             </p>
             <p>
               Uploaded at:
-              <code>{{ toDateString(new Date(file.data.createdAt)) }}</code>
+              <code v-text="toDateString(new Date(file.data.createdAt))" />
             </p>
             <p>
               Size:
-              <code>{{ size(file.data.size) }}</code>
+              <code v-text="size(file.data.size)" />
             </p>
             <p>Click me to open the file in a new tab.</p>
           </ContentBox>
@@ -89,11 +89,12 @@
     ref="deleteFileModal"
     @submit="deleteFile"
     title="Are you sure?"
+    :disabled="file.loading"
   >
     <p>Are you sure you want to delete this file?</p>
     <p><code v-text="filename" /> will be lost forever! (A long time!)</p>
   </ConfirmModal>
-  <FormModal ref="renameFileModal" @submit="renameFile" title="Rename File">
+  <FormModal ref="renameFileModal" @submit="renameFile" title="Rename File" :disabled="file.loading">
     <p>
       Give the file a new name so you can recognize it easier, or leave it blank
       to reset it.
@@ -114,6 +115,7 @@
     ref="editFileExtensionModal"
     @submit="editFileExtension"
     title="Edit File Extension"
+    :disabled="file.loading"
   >
     <p>
       If Cumulonimbus chose the wrong file extension, you can change it here.
@@ -136,12 +138,14 @@
       />
     </div>
   </FormModal>
+  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
 </template>
 
 <script lang="ts" setup>
 import ContentBox from "@/components/ContentBox.vue";
 import BackButton from "@/components/BackButton.vue";
 import LoadingBlurb from "@/components/LoadingBlurb.vue";
+import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
 import { fileStore } from "@/stores/user-space/file";
 import { filesStore } from "@/stores/user-space/files";
 import { toastStore } from "@/stores/toast";
@@ -188,6 +192,7 @@ const toast = toastStore(),
   deleteFileModal = ref<typeof ConfirmModal>(),
   renameFileModal = ref<typeof FormModal>(),
   editFileExtensionModal = ref<typeof FormModal>(),
+  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
   { isSupported: clipboardIsSupported, copy, copied } = useClipboard(),
   { share, isSupported: shareIsSupported } = useShare();
 
@@ -243,6 +248,7 @@ async function renameFile(data: { filename?: string }) {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const status = await file.editFilename(data.filename);
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
@@ -259,6 +265,7 @@ async function renameFile(data: { filename?: string }) {
     } else {
       toast.show("File renamed.");
       await files.getFiles(files.page);
+      fullscreenLoadingBlurb.value!.hide();
       await renameFileModal.value!.hide();
     }
   } catch (e) {
@@ -273,6 +280,7 @@ async function editFileExtension(data: { extension: string }) {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const status = await file.editFileExtension(data.extension);
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
@@ -289,12 +297,13 @@ async function editFileExtension(data: { extension: string }) {
     } else {
       toast.show("File extension edited.");
       await files.getFiles(files.page);
+      fullscreenLoadingBlurb.value!.hide();
+      await editFileExtensionModal.value!.hide();
       await router.replace({
         query: {
           id: file.data?.id,
         },
       });
-      await editFileExtensionModal.value!.hide();
     }
   } catch (e) {
     console.error(e);
@@ -312,6 +321,7 @@ async function deleteFile(choice: boolean) {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const status = await file.deleteFile();
     if (status instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(status, router);
@@ -327,8 +337,9 @@ async function deleteFile(choice: boolean) {
       toast.clientError();
     } else {
       toast.show("File deleted.");
-      await deleteFileModal.value!.hide();
       await files.getFiles(files.page);
+      fullscreenLoadingBlurb.value!.hide();
+      await deleteFileModal.value!.hide();
       await backWithFallback(router, "/dashboard/files", true);
     }
   } catch (e) {
