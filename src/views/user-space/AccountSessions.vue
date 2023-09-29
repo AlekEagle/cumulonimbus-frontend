@@ -116,6 +116,7 @@
     </template>
     <LoadingBlurb v-else />
   </ConfirmModal>
+  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
 </template>
 
 <script lang="ts" setup>
@@ -134,6 +135,7 @@ import { useRouter } from "vue-router";
 import { sessionsStore } from "@/stores/user-space/sessions";
 import Cumulonimbus from "cumulonimbus-wrapper";
 import infoIcon from "@/assets/images/info.svg";
+import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
 
 const router = useRouter(),
   online = useOnline(),
@@ -144,6 +146,7 @@ const router = useRouter(),
   selected = ref<string[]>([]),
   confirmDeleteModal = ref<typeof ConfirmModal>(),
   manageSessionModal = ref<typeof ConfirmModal>(),
+  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
   page = ref(0),
   selectedSession = ref<Cumulonimbus.Data.Session | null>(null);
 
@@ -203,11 +206,14 @@ onMounted(async () => {
 
 async function onManageSessionChoice(choice: boolean) {
   if (choice) {
+    fullscreenLoadingBlurb.value!.show();
     const status = await sessions.deleteSession(selectedSession.value!.id + "");
     if (status instanceof Cumulonimbus.ResponseError) {
       switch (status.code) {
         case "BANNED_ERROR":
           toast.banned();
+          fullscreenLoadingBlurb.value!.hide();
+          await manageSessionModal.value!.hide();
           user.logout();
           router.push("/");
           break;
@@ -218,6 +224,8 @@ async function onManageSessionChoice(choice: boolean) {
           toast.show("It appears that session doesn't exist anymore.");
           await fetchSessions();
           selectedSession.value = null;
+          fullscreenLoadingBlurb.value!.hide();
+          await manageSessionModal.value!.hide();
           break;
         case "INTERNAL_ERROR":
           toast.serverError();
@@ -231,15 +239,18 @@ async function onManageSessionChoice(choice: boolean) {
       toast.clientError();
     } else {
       if (selectedSession.value?.id === user.account?.session.id) {
+        fullscreenLoadingBlurb.value!.hide();
+        await manageSessionModal.value!.hide();
         await user.logout();
       } else {
         selectedSession.value = null;
         toast.show("Session deleted.");
         await fetchSessions();
+        fullscreenLoadingBlurb.value!.hide();
+        await manageSessionModal.value!.hide();
       }
     }
   }
-  await manageSessionModal.value!.hide();
 }
 
 async function onDeleteSessionsChoice(choice: boolean) {
@@ -261,6 +272,8 @@ async function onDeleteSessionsChoice(choice: boolean) {
           toast.show("It appears that session doesn't exist anymore.");
           await fetchSessions();
           selectedSession.value = null;
+          fullscreenLoadingBlurb.value!.hide();
+          await manageSessionModal.value!.hide();
           break;
         default:
           const handled = await defaultErrorHandler(status, router);
@@ -272,19 +285,22 @@ async function onDeleteSessionsChoice(choice: boolean) {
       toast.clientError();
     } else {
       if (selected.value.includes(user.account?.session.id + "")) {
+        fullscreenLoadingBlurb.value!.hide();
+        await manageSessionModal.value!.hide();
         await user.logout();
       } else {
         selected.value = [];
         selecting.value = false;
         toast.show(`Deleted ${status} sessions.`);
         await fetchSessions();
+        fullscreenLoadingBlurb.value!.hide();
+        await manageSessionModal.value!.hide();
       }
     }
   } catch (e) {
     console.error(e);
     toast.clientError();
   }
-  await confirmDeleteModal.value!.hide();
 }
 
 function cancelSelection() {

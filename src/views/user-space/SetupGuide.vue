@@ -78,11 +78,13 @@
       </h2>
     </template>
   </FormModal>
+  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
 </template>
 
 <script lang="ts" setup>
 import ContentBox from "@/components/ContentBox.vue";
 import LoadingBlurb from "@/components/LoadingBlurb.vue";
+import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
 import BackButton from "@/components/BackButton.vue";
 import FormModal from "@/components/FormModal.vue";
 import { instructionStore } from "@/stores/user-space/instruction";
@@ -112,6 +114,7 @@ const instruction = instructionStore(),
   session = ref<Cumulonimbus.Data.SuccessfulAuth>(),
   processing = ref(false),
   verifyIdentityModal = ref<typeof FormModal>(),
+  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
   OS = ref<string>(
     (navigator as any).userAgentData
       ? (navigator as any).userAgentData.platform
@@ -203,6 +206,7 @@ async function verifyIdentity(data: { name: string; password: string }) {
   }
   processing.value = true;
   try {
+    fullscreenLoadingBlurb.value!.show();
     const newSession = await fetch(
         `${BaseAPIURLs[import.meta.env.MODE]}/login`,
         {
@@ -224,6 +228,7 @@ async function verifyIdentity(data: { name: string; password: string }) {
 
     if (newSession.status === 201) {
       session.value = json;
+      fullscreenLoadingBlurb.value!.hide();
       await verifyIdentityModal.value!.hide();
     } else {
       const handled = await defaultErrorHandler(

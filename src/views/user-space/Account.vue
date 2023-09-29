@@ -219,6 +219,7 @@
     ref="deleteSessionsModal"
     title="Delete all Sessions"
     @submit="deleteSessions"
+    :disabled="user.loading"
   >
     <p>This is going to sign you out of:</p>
     <p><strong>Browsers</strong></p>
@@ -234,6 +235,7 @@
     ref="deleteFilesModal"
     title="Delete all Files"
     @submit="deleteFiles"
+    :disabled="user.loading"
   >
     <p>This is going to delete all files in your account.</p>
     <p>Please enter your password to confirm.</p>
@@ -280,11 +282,13 @@
       :disabled="user.loading"
     />
   </FormModal>
+  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
 </template>
 
 <script lang="ts" setup>
 import BackButton from "@/components/BackButton.vue";
 import LoadingBlurb from "@/components/LoadingBlurb.vue";
+import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
 import ContentBox from "@/components/ContentBox.vue";
 import FormModal from "@/components/FormModal.vue";
 import DomainModal from "@/components/DomainModal.vue";
@@ -312,6 +316,7 @@ const user = userStore(),
   deleteSessionsModal = ref<typeof FormModal>(),
   deleteFilesModal = ref<typeof ConfirmModal>(),
   deleteAccountModal = ref<typeof FormModal>(),
+  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
   online = useOnline();
 
 async function updateUsername(data: { username: string; password: string }) {
@@ -321,6 +326,7 @@ async function updateUsername(data: { username: string; password: string }) {
   }
   const oldUsername = user.account!.user.username;
   try {
+    fullscreenLoadingBlurb.value!.show();
     const res = await user.changeUsername(data.username, data.password);
     if (res instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(res, router);
@@ -335,6 +341,7 @@ async function updateUsername(data: { username: string; password: string }) {
       const token = user.accounts[oldUsername]!;
       delete user.accounts[oldUsername];
       user.accounts[data.username] = token;
+      fullscreenLoadingBlurb.value!.hide();
       usernameFormModal.value!.hide();
     }
   } catch (error) {
@@ -349,6 +356,7 @@ async function updateEmail(data: { email: string; password: string }) {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const res = await user.changeEmail(data.email, data.password);
     if (res instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(res, router);
@@ -360,6 +368,7 @@ async function updateEmail(data: { email: string; password: string }) {
         }
       }
     } else if (res) {
+      fullscreenLoadingBlurb.value!.hide();
       emailFormModal.value!.hide();
     }
   } catch (error) {
@@ -378,6 +387,7 @@ async function updatePassword(data: {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const res = await user.changePassword(
       data.newPassword,
       data.confirmNewPassword,
@@ -389,6 +399,7 @@ async function updatePassword(data: {
         toast.clientError();
       }
     } else if (res) {
+      fullscreenLoadingBlurb.value!.hide();
       passwordFormModal.value!.hide();
     }
   } catch (error) {
@@ -403,6 +414,7 @@ async function updateDomain(data: { domain: string; subdomain?: string }) {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const res = await user.changeDomain(data.domain, data.subdomain);
     if (res instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(res, router);
@@ -421,6 +433,7 @@ async function updateDomain(data: { domain: string; subdomain?: string }) {
         }
       }
     } else if (res) {
+      fullscreenLoadingBlurb.value!.hide();
       domainModal.value!.hide();
     }
   } catch (error) {
@@ -436,7 +449,7 @@ async function deleteSessions(data: { includeSelf: boolean }) {
   }
 
   try {
-    await deleteSessionsModal.value!.hide();
+    fullscreenLoadingBlurb.value!.show();
     const res = await user.revokeSessions(data.includeSelf);
     if (res instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(res, router);
@@ -444,6 +457,8 @@ async function deleteSessions(data: { includeSelf: boolean }) {
         toast.clientError();
       }
     } else if (res) {
+      fullscreenLoadingBlurb.value!.hide();
+      deleteSessionsModal.value!.hide();
       toast.show(`Deleted ${res} sessions.`);
       if (data.includeSelf) {
         toLogin(router);
@@ -461,6 +476,7 @@ async function deleteFiles(data: { password: string }) {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const res = await user.deleteFiles(data.password);
     if (res instanceof Cumulonimbus.ResponseError) {
       const handled = await defaultErrorHandler(res, router);
@@ -476,6 +492,7 @@ async function deleteFiles(data: { password: string }) {
       }
     } else {
       toast.show(`Deleted ${res} files.`);
+      fullscreenLoadingBlurb.value!.hide();
       deleteFilesModal.value!.hide();
     }
   } catch (error) {
@@ -490,6 +507,7 @@ async function deleteAccount(data: { username: string; password: string }) {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const res = await user.deleteAccount(data.username, data.password);
     if (res instanceof Cumulonimbus.ResponseError) {
       switch (res.code) {
@@ -504,6 +522,7 @@ async function deleteAccount(data: { username: string; password: string }) {
           break;
       }
     } else if (res) {
+      fullscreenLoadingBlurb.value!.hide();
       await deleteAccountModal.value!.hide();
       router.replace("/");
       toast.show("We're sad to see you go, but we understand.");

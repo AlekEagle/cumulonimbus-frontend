@@ -88,16 +88,19 @@
     ref="confirmModal"
     title="Are you sure?"
     @submit="deleteSelected"
+    :disabled="files.loading"
   >
     <p>Are you sure you want to delete these {{ selected.length }} files?</p>
     <p>They will be lost forever! (A long time!)</p>
   </ConfirmModal>
+  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
 </template>
 
 <script lang="ts" setup>
 import Paginator from "@/components/Paginator.vue";
 import PreviewContentBox from "@/components/PreviewContentBox.vue";
 import LoadingBlurb from "@/components/LoadingBlurb.vue";
+import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
 import BackButton from "@/components/BackButton.vue";
 import { filesStore } from "@/stores/user-space/files";
 import { toastStore } from "@/stores/toast";
@@ -116,7 +119,8 @@ const files = filesStore(),
   selected = ref<string[]>([]),
   online = useOnline(),
   router = useRouter(),
-  confirmModal = ref<typeof ConfirmModal>();
+  confirmModal = ref<typeof ConfirmModal>(),
+  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
 
 async function fetchFiles() {
   if (!online.value) {
@@ -178,6 +182,7 @@ async function deleteSelected(choice: boolean) {
     return;
   }
   try {
+    fullscreenLoadingBlurb.value!.show();
     const status = await files.deleteFiles(selected.value);
     if (status instanceof Cumulonimbus.ResponseError) {
       if ((status.code = "MISSING_FIELDS_ERROR")) {
@@ -197,12 +202,12 @@ async function deleteSelected(choice: boolean) {
       selected.value = [];
       selecting.value = false;
       await fetchFiles();
+      fullscreenLoadingBlurb.value!.hide();
+      await confirmModal.value!.hide();
     }
   } catch (e) {
     console.error(e);
     toast.clientError();
-  } finally {
-    confirmModal.value!.hide();
   }
 }
 
