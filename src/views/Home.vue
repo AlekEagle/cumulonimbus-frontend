@@ -43,8 +43,8 @@
     <div>
       <h2>Lets get started!</h2>
       <p>
-        Click <RouterLink to="/dashboard">here</RouterLink> to open the
-        dashboard!
+        Head to the <RouterLink to="/dashboard">dashboard</RouterLink> to get
+        started!
       </p>
     </div>
     <div>

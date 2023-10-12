@@ -213,7 +213,7 @@ async function verifyIdentity(data: { name: string; password: string }) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-Token-Name":
+            "X-Session-Name":
               data.name ||
               `${instruction.data ? instruction.data.name : "thing"} on ${OS}`,
           },
