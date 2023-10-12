@@ -6,6 +6,7 @@
           src="@/assets/images/Cumulonimbus.svg"
           alt="Cumulonimbus Logo"
           height="50"
+          width="50"
         />
         <p>Cumulonimbus</p>
       </div>
@@ -48,6 +49,7 @@
               :src="newTabIcon"
               alt="Icon indicating this link will open a new tab"
               height="24"
+              width="24"
             />
           </a>
         </li>
