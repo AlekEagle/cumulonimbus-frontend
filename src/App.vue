@@ -2,7 +2,11 @@
   <header>
     <RouterLink to="/">
       <div class="logo">
-        <img src="@/assets/images/Cumulonimbus.svg" alt="Cumulonimbus Logo" />
+        <img
+          src="@/assets/images/Cumulonimbus.svg"
+          alt="Cumulonimbus Logo"
+          height="50"
+        />
         <p>Cumulonimbus</p>
       </div>
     </RouterLink>
@@ -43,6 +47,7 @@
             <img
               :src="newTabIcon"
               alt="Icon indicating this link will open a new tab"
+              height="24"
             />
           </a>
         </li>
@@ -317,7 +322,7 @@ navigator.serviceWorker?.addEventListener("message", (event) => {
 html {
   --background: #fff;
   --foreground: #000;
-  --link-color: #00ccff;
+  --link-color: #0059ff;
   --logo-shadow: #818181;
   --code-background: #ddd;
   --ui-background: #f3f3f3;
@@ -338,6 +343,7 @@ html {
 html.dark-theme {
   --background: #212121;
   --foreground: #fff;
+  --link-color: #00ccff;
   --logo-shadow: #000;
   --code-background: #161616;
   --ui-background: #272727;
