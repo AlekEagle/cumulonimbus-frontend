@@ -2,6 +2,7 @@
   "name": "cumulonimbus-frontend-v4",
   "private": true,
   "version": "4.4.3",
+  "license": "GNU-GPL-3.0",
   "scripts": {
     "dev": "vite --host",
     "build-prod": "vue-tsc --noEmit && vite build",
