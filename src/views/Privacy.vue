@@ -16,7 +16,7 @@
     do not use Your data for advertising purposes. We do not use Your data for
     any purpose other than providing the Service.
   </p>
-  <h3>Agreements to These Terms</h3>
+  <h3>Agreement to These Terms</h3>
   <p>
     The personal information collected is used to provide security and insure
     usability for the Service. By using the Service, You agree to the collection
