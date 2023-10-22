@@ -1,6 +1,6 @@
 <template>
   <h1>Terms of Service</h1>
-  <h2>Last Updated: October 21st, 2023</h2>
+  <h2>Last Updated: October 22nd, 2023</h2>
   <p>
     <strong>
       This document describes the usage of Cumulonimbus (which from here on out
@@ -56,7 +56,7 @@
     one month after being disabled. Terminated accounts will be deleted
     immediately. If Your account is disabled, You may appeal the decision by
     emailing Us at
-    <a href="mailto:appeals@alekeagle.com">appeals@alekeagle.com</a>. If Your
+    <a href="mailto:appeals@alekeagle.me">appeals@alekeagle.me</a>. If Your
     account is terminated, You may not appeal the decision.
   </p>
   <h3>Digital Millennium Copyright Act (DMCA) Claims</h3>
