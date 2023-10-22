@@ -164,6 +164,16 @@
         external: false,
       },
       {
+        name: 'Terms of Service',
+        path: '/tos',
+        external: false,
+      },
+      {
+        name: 'Privacy Policy',
+        path: '/privacy',
+        external: false,
+      },
+      {
         name: 'Documentation',
         path: `https://docs.${host}/`,
         external: true,
