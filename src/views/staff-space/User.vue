@@ -32,7 +32,7 @@
                 >{{
                   otherUser.data.subdomain
                     ? `${otherUser.data.subdomain}.`
-                    : ""
+                    : ''
                 }}{{ otherUser.data.domain }}</code
               >
             </p>
@@ -53,12 +53,12 @@
               <code>{{
                 otherUser.data.bannedAt
                   ? toDateString(new Date(otherUser.data.bannedAt))
-                  : "Not yet..."
+                  : 'Not yet...'
               }}</code>
             </p>
             <p>
               Staff:
-              <code>{{ otherUser.data.staff ? "Yes" : "No" }}</code>
+              <code>{{ otherUser.data.staff ? 'Yes' : 'No' }}</code>
             </p>
           </ContentBox>
         </template>
@@ -269,7 +269,7 @@
     :disabled="otherUser.loading"
   >
     <p>
-      Are you sure you want to {{ otherUser.data?.staff ? "revoke" : "grant" }}
+      Are you sure you want to {{ otherUser.data?.staff ? 'revoke' : 'grant' }}
       <code>{{ otherUser.data?.username }}</code> staff status?
     </p>
   </ConfirmModal>
@@ -281,7 +281,7 @@
   >
     <p>
       Are you sure you want to
-      {{ otherUser.data?.bannedAt ? "unban" : "ban" }}
+      {{ otherUser.data?.bannedAt ? 'unban' : 'ban' }}
       <code>{{ otherUser.data?.username }}</code
       >?
     </p>
@@ -326,375 +326,378 @@
 </template>
 
 <script lang="ts" setup>
-import ContentBox from "@/components/ContentBox.vue";
-import BackButton from "@/components/BackButton.vue";
-import LoadingBlurb from "@/components/LoadingBlurb.vue";
-import FormModal from "@/components/FormModal.vue";
-import DomainModal from "@/components/DomainModal.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import { useRouter } from "vue-router";
-import { useOnline } from "@vueuse/core";
-import { toastStore } from "@/stores/toast";
-import { ref, onMounted, watch } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
-import { otherUserStore } from "@/stores/staff-space/user";
-import { usersStore } from "@/stores/staff-space/users";
-import backWithFallback from "@/utils/routerBackWithFallback";
-import toDateString from "@/utils/toDateString";
-import gearIcon from "@/assets/images/gear.svg";
-import fileIcon from "@/assets/images/file.svg";
-import defaultErrorHandler from "@/utils/defaultErrorHandler";
+  import ContentBox from '@/components/ContentBox.vue';
+  import BackButton from '@/components/BackButton.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FormModal from '@/components/FormModal.vue';
+  import DomainModal from '@/components/DomainModal.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import { useRouter } from 'vue-router';
+  import { useOnline } from '@vueuse/core';
+  import { toastStore } from '@/stores/toast';
+  import { ref, onMounted, watch } from 'vue';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import { otherUserStore } from '@/stores/staff-space/user';
+  import { usersStore } from '@/stores/staff-space/users';
+  import backWithFallback from '@/utils/routerBackWithFallback';
+  import toDateString from '@/utils/toDateString';
+  import gearIcon from '@/assets/images/gear.svg';
+  import fileIcon from '@/assets/images/file.svg';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
-const users = usersStore(),
-  otherUser = otherUserStore(),
-  router = useRouter(),
-  toast = toastStore(),
-  online = useOnline(),
-  changeUsernameModal = ref<typeof FormModal>(),
-  changeEmailModal = ref<typeof FormModal>(),
-  changePasswordModal = ref<typeof FormModal>(),
-  changeDomainModal = ref<typeof DomainModal>(),
-  changeStaffModal = ref<typeof ConfirmModal>(),
-  changeBanModal = ref<typeof ConfirmModal>(),
-  signOutModal = ref<typeof ConfirmModal>(),
-  deleteUserFilesModal = ref<typeof ConfirmModal>(),
-  deleteUserModal = ref<typeof ConfirmModal>();
+  const users = usersStore(),
+    otherUser = otherUserStore(),
+    router = useRouter(),
+    toast = toastStore(),
+    online = useOnline(),
+    changeUsernameModal = ref<typeof FormModal>(),
+    changeEmailModal = ref<typeof FormModal>(),
+    changePasswordModal = ref<typeof FormModal>(),
+    changeDomainModal = ref<typeof DomainModal>(),
+    changeStaffModal = ref<typeof ConfirmModal>(),
+    changeBanModal = ref<typeof ConfirmModal>(),
+    signOutModal = ref<typeof ConfirmModal>(),
+    deleteUserFilesModal = ref<typeof ConfirmModal>(),
+    deleteUserModal = ref<typeof ConfirmModal>();
 
-onMounted(async () => {
-  if (!online.value) {
-    const unwatchOnline = watch(online, () => {
-      if (online.value) {
-        if (
-          !otherUser.data ||
-          otherUser.data.id !== router.currentRoute.value.query.id
-        ) {
-          fetchUser();
+  onMounted(async () => {
+    if (!online.value) {
+      const unwatchOnline = watch(online, () => {
+        if (online.value) {
+          if (
+            !otherUser.data ||
+            otherUser.data.id !== router.currentRoute.value.query.id
+          ) {
+            fetchUser();
+          }
+          unwatchOnline();
         }
-        unwatchOnline();
-      }
-    });
-    return;
-  }
-  if (
-    !otherUser.data ||
-    otherUser.data.id !== router.currentRoute.value.query.id
-  ) {
-    fetchUser();
-  }
-});
-
-async function fetchUser() {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    const status = await otherUser.getUser(
-      router.currentRoute.value.query.id as string
-    );
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
-        }
-      }
+      });
+      return;
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
-  }
-}
-
-async function updateUsername(data: { username: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    const status = await otherUser.updateUsername(data.username);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
-        }
-      }
-    } else if (!status) {
-      toast.clientError();
-    } else {
-      toast.show("Username updated.");
-      changeUsernameModal.value!.hide();
+    if (
+      !otherUser.data ||
+      otherUser.data.id !== router.currentRoute.value.query.id
+    ) {
+      fetchUser();
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
-  }
-}
+  });
 
-async function updateEmail(data: { email: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    const status = await otherUser.updateEmail(data.email);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
-        }
-      }
-    } else if (!status) {
-      toast.clientError();
-    } else {
-      toast.show("Email updated.");
-      changeEmailModal.value!.hide();
+  async function fetchUser() {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
-  }
-}
-
-async function updatePassword(data: { password: string; confirm: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    const status = await otherUser.updatePassword(data.password, data.confirm);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
+    try {
+      const status = await otherUser.getUser(
+        router.currentRoute.value.query.id as string,
+      );
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
         }
       }
-    } else if (!status) {
+    } catch (error) {
       toast.clientError();
-    } else {
-      toast.show("Password updated.");
-      changePasswordModal.value!.hide();
+      console.error(error);
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
   }
-}
 
-async function updateDomain(data: { domain: string; subdomain?: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    const status = await otherUser.updateDomain(data.domain, data.subdomain);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
-            break;
-          case "INVALID_DOMAIN_ERROR":
-            toast.show("You just missed that domain.");
-            changeDomainModal.value!.reloadDomains();
-            break;
-          case "SUBDOMAIN_NOT_ALLOWED_ERROR":
-            toast.show("Subdomains are not supported.");
-            break;
-          case "SUBDOMAIN_TOO_LONG_ERROR":
-            toast.show("Subdomain cannot be longer than 63 characters.");
-            break;
-        }
-      }
-    } else if (!status) {
-      toast.clientError();
-    } else {
-      toast.show("Domain updated.");
-      changeDomainModal.value!.hide();
+  async function updateUsername(data: { username: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
-  }
-}
-
-async function updateStaff(choice: boolean) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  if (!choice) {
-    changeStaffModal.value!.hide();
-    return;
-  }
-  try {
-    const status = otherUser.data?.staff
-      ? await otherUser.revokeStaff()
-      : await otherUser.grantStaff();
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
+    try {
+      const status = await otherUser.updateUsername(data.username);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
         }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Username updated.');
+        changeUsernameModal.value!.hide();
       }
-    } else if (!status) {
+    } catch (error) {
       toast.clientError();
-    } else {
-      toast.show("Staff updated.");
+      console.error(error);
+    }
+  }
+
+  async function updateEmail(data: { email: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      const status = await otherUser.updateEmail(data.email);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
+        }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Email updated.');
+        changeEmailModal.value!.hide();
+      }
+    } catch (error) {
+      toast.clientError();
+      console.error(error);
+    }
+  }
+
+  async function updatePassword(data: { password: string; confirm: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      const status = await otherUser.updatePassword(
+        data.password,
+        data.confirm,
+      );
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
+        }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Password updated.');
+        changePasswordModal.value!.hide();
+      }
+    } catch (error) {
+      toast.clientError();
+      console.error(error);
+    }
+  }
+
+  async function updateDomain(data: { domain: string; subdomain?: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      const status = await otherUser.updateDomain(data.domain, data.subdomain);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+              break;
+            case 'INVALID_DOMAIN_ERROR':
+              toast.show('You just missed that domain.');
+              changeDomainModal.value!.reloadDomains();
+              break;
+            case 'SUBDOMAIN_NOT_ALLOWED_ERROR':
+              toast.show('Subdomains are not supported.');
+              break;
+            case 'SUBDOMAIN_TOO_LONG_ERROR':
+              toast.show('Subdomain cannot be longer than 63 characters.');
+              break;
+          }
+        }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Domain updated.');
+        changeDomainModal.value!.hide();
+      }
+    } catch (error) {
+      toast.clientError();
+      console.error(error);
+    }
+  }
+
+  async function updateStaff(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
       changeStaffModal.value!.hide();
+      return;
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
-  }
-}
-
-async function updateBan(choice: boolean) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  if (!choice) {
-    changeBanModal.value!.hide();
-    return;
-  }
-  try {
-    const status = otherUser.data?.bannedAt
-      ? await otherUser.unbanUser()
-      : await otherUser.banUser();
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
+    try {
+      const status = otherUser.data?.staff
+        ? await otherUser.revokeStaff()
+        : await otherUser.grantStaff();
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
         }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Staff updated.');
+        changeStaffModal.value!.hide();
       }
-    } else if (!status) {
+    } catch (error) {
       toast.clientError();
-    } else {
-      toast.show("Banned updated.");
+      console.error(error);
+    }
+  }
+
+  async function updateBan(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
       changeBanModal.value!.hide();
+      return;
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
-  }
-}
-
-async function signOut(choice: boolean) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  if (!choice) {
-    signOutModal.value!.hide();
-    return;
-  }
-  try {
-    const status = await otherUser.deleteAllSessions();
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
+    try {
+      const status = otherUser.data?.bannedAt
+        ? await otherUser.unbanUser()
+        : await otherUser.banUser();
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
         }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Banned updated.');
+        changeBanModal.value!.hide();
       }
-    } else if (!status) {
+    } catch (error) {
       toast.clientError();
-    } else {
-      toast.show("Signed out.");
+      console.error(error);
+    }
+  }
+
+  async function signOut(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
       signOutModal.value!.hide();
+      return;
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
-  }
-}
-
-async function deleteUserFiles(choice: boolean) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  if (!choice) {
-    deleteUserFilesModal.value!.hide();
-    return;
-  }
-  try {
-    const status = await otherUser.deleteAllFiles();
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
+    try {
+      const status = await otherUser.deleteAllSessions();
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
         }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Signed out.');
+        signOutModal.value!.hide();
       }
-    } else if (!status) {
+    } catch (error) {
       toast.clientError();
-    } else {
-      toast.show("Files deleted.");
+      console.error(error);
+    }
+  }
+
+  async function deleteUserFiles(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
       deleteUserFilesModal.value!.hide();
+      return;
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
-  }
-}
-
-async function deleteUser(choice: boolean) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  if (!choice) {
-    deleteUserModal.value!.hide();
-    return;
-  }
-  try {
-    const status = await otherUser.deleteUser();
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        switch (status.code) {
-          case "INVALID_USER_ERROR":
-            toast.show("This user does not exist.");
-            backWithFallback(router, "/staff/users", true);
+    try {
+      const status = await otherUser.deleteAllFiles();
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
         }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Files deleted.');
+        deleteUserFilesModal.value!.hide();
       }
-    } else if (!status) {
+    } catch (error) {
       toast.clientError();
-    } else {
-      toast.show("User deleted.");
-      otherUser.data = null;
-      await deleteUserModal.value!.hide();
-      await users.getUsers(users.page);
-      await backWithFallback(router, "/staff/users", true);
+      console.error(error);
     }
-  } catch (error) {
-    toast.clientError();
-    console.error(error);
   }
-}
+
+  async function deleteUser(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
+      deleteUserModal.value!.hide();
+      return;
+    }
+    try {
+      const status = await otherUser.deleteUser();
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
+        }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('User deleted.');
+        otherUser.data = null;
+        await deleteUserModal.value!.hide();
+        await users.getUsers(users.page);
+        await backWithFallback(router, '/staff/users', true);
+      }
+    } catch (error) {
+      toast.clientError();
+      console.error(error);
+    }
+  }
 </script>

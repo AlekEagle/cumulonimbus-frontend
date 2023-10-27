@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const usersStore = defineStore("staff-space-users", () => {
+export const usersStore = defineStore('staff-space-users', () => {
   const user = userStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.User> | null>(null);
@@ -11,7 +11,7 @@ export const usersStore = defineStore("staff-space-users", () => {
   const page = ref(0);
 
   async function getUsers(
-    p: number
+    p: number,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (user.client === null) return false;
     errored.value = false;
@@ -34,7 +34,7 @@ export const usersStore = defineStore("staff-space-users", () => {
   }
 
   async function deleteUsers(
-    users: string[]
+    users: string[],
   ): Promise<number | Cumulonimbus.ResponseError> {
     if (user.client === null) return -1;
     errored.value = false;

@@ -276,7 +276,10 @@
       @cancel="toast.show('cancelled domain modal')"
       domain="alekeagle.me"
     />
-    <ContentBox title="Display Fullscreen Loading Blurb Modal" @click="fullscreenLoadingBlurbModal!.show()">
+    <ContentBox
+      title="Display Fullscreen Loading Blurb Modal"
+      @click="fullscreenLoadingBlurbModal!.show()"
+    >
       Display Fullscreen Loading Blurb Modal
     </ContentBox>
     <ConfirmModal
@@ -328,107 +331,107 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from "vue";
-import { toastStore } from "@/stores/toast";
-import ContentBox from "@/components/ContentBox.vue";
-import EmphasizedBox from "@/components/EmphasizedBox.vue";
-import Form from "@/components/Form.vue";
-import Switch from "@/components/Switch.vue";
-import Modal from "@/components/Modal.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import FormModal from "@/components/FormModal.vue";
-import DomainModal from "@/components/DomainModal.vue";
-import Paginator from "@/components/Paginator.vue";
-import Loading from "@/components/Loading.vue";
-import LoadingBlurb from "@/components/LoadingBlurb.vue";
-import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
-import { wait } from "@/utils/wait";
-import cumulonimbusIcon from "@/assets/images/Cumulonimbus.svg";
+  import { ref, computed, onMounted } from 'vue';
+  import { toastStore } from '@/stores/toast';
+  import ContentBox from '@/components/ContentBox.vue';
+  import EmphasizedBox from '@/components/EmphasizedBox.vue';
+  import Form from '@/components/Form.vue';
+  import Switch from '@/components/Switch.vue';
+  import Modal from '@/components/Modal.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import FormModal from '@/components/FormModal.vue';
+  import DomainModal from '@/components/DomainModal.vue';
+  import Paginator from '@/components/Paginator.vue';
+  import Loading from '@/components/Loading.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import { wait } from '@/utils/wait';
+  import cumulonimbusIcon from '@/assets/images/Cumulonimbus.svg';
 
-enum CurrentItem {
-  CONTENT_BOXES,
-  BASIC_EMPHASIZED_BOX,
-  FORM_EMPHASIZED_BOX,
-  MODALS,
-  PAGINATOR,
-  LOADING,
-  LOADING_BLURB,
-  FULLSCREEN_LOADING_BLURB,
-}
-
-const Items = computed(() => {
-    return Object.keys(CurrentItem).filter((item) => {
-      return isNaN(Number(item));
-    });
-  }),
-  currentItem = ref<CurrentItem>(CurrentItem.CONTENT_BOXES),
-  toast = toastStore(),
-  emphasizedForm = ref<typeof Form>(),
-  basicModal = ref<typeof Modal>(),
-  basicDismissibleModal = ref<typeof Modal>(),
-  confirmModal = ref<typeof ConfirmModal>(),
-  meow = ref<typeof ConfirmModal>(),
-  formModal = ref<typeof FormModal>(),
-  domainModal = ref<typeof DomainModal>(),
-  paginatorPage = ref<number>(0),
-  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
-  fullscreenLoadingBlurbModal = ref<typeof ConfirmModal>();
-
-function meowMeow(choice: boolean) {
-  function* allNodes(node: Node): Generator<Node> {
-    for (const child of Array.from(node.childNodes)) {
-      yield child;
-      yield* allNodes(child);
-    }
+  enum CurrentItem {
+    CONTENT_BOXES,
+    BASIC_EMPHASIZED_BOX,
+    FORM_EMPHASIZED_BOX,
+    MODALS,
+    PAGINATOR,
+    LOADING,
+    LOADING_BLURB,
+    FULLSCREEN_LOADING_BLURB,
   }
 
-  function hehe() {
-    let count = 0;
-    for (const node of allNodes(document)) {
-      if (node instanceof Text) {
-        let text = node.textContent ?? "";
-        let match;
-        while ((match = text.match(/  /))) {
-          // this needs to be put in a museum for copilot
-          //console.log(`Replaced ${match[0]} with ${choice ? "meow" : "nyah"}`);
-          count++;
+  const Items = computed(() => {
+      return Object.keys(CurrentItem).filter((item) => {
+        return isNaN(Number(item));
+      });
+    }),
+    currentItem = ref<CurrentItem>(CurrentItem.CONTENT_BOXES),
+    toast = toastStore(),
+    emphasizedForm = ref<typeof Form>(),
+    basicModal = ref<typeof Modal>(),
+    basicDismissibleModal = ref<typeof Modal>(),
+    confirmModal = ref<typeof ConfirmModal>(),
+    meow = ref<typeof ConfirmModal>(),
+    formModal = ref<typeof FormModal>(),
+    domainModal = ref<typeof DomainModal>(),
+    paginatorPage = ref<number>(0),
+    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+    fullscreenLoadingBlurbModal = ref<typeof ConfirmModal>();
 
-          node.textContent = text = `${text.substring(
-            0,
-            match.index
-          )}\t${text.substring(match.index! + match[0].length)}`;
-        }
+  function meowMeow(choice: boolean) {
+    function* allNodes(node: Node): Generator<Node> {
+      for (const child of Array.from(node.childNodes)) {
+        yield child;
+        yield* allNodes(child);
       }
     }
-    toast.show(
-      `Replaced ${count} space-tabs with real tabs.\nTabs are superior, don't @ me. - danii\nSilence - alek`
-    );
+
+    function hehe() {
+      let count = 0;
+      for (const node of allNodes(document)) {
+        if (node instanceof Text) {
+          let text = node.textContent ?? '';
+          let match;
+          while ((match = text.match(/  /))) {
+            // this needs to be put in a museum for copilot
+            //console.log(`Replaced ${match[0]} with ${choice ? "meow" : "nyah"}`);
+            count++;
+
+            node.textContent = text = `${text.substring(
+              0,
+              match.index,
+            )}\t${text.substring(match.index! + match[0].length)}`;
+          }
+        }
+      }
+      toast.show(
+        `Replaced ${count} space-tabs with real tabs.\nTabs are superior, don't @ me. - danii\nSilence - alek`,
+      );
+    }
+
+    if (choice) hehe();
+    else toast.show('Good job! you avoided hell!');
   }
 
-  if (choice) hehe();
-  else toast.show("Good job! you avoided hell!");
-}
-
-async function fsb() {
-  await fullscreenLoadingBlurb.value!.show();
-  await wait(5000);
-  fullscreenLoadingBlurb.value!.hide();
-}
-
-async function fullscreenLoadingBlurbModalHandler(choice: boolean) {
-  if (!choice) {
-    await fullscreenLoadingBlurbModal.value!.hide();
-  } else {
+  async function fsb() {
     await fullscreenLoadingBlurb.value!.show();
     await wait(5000);
-    fullscreenLoadingBlurbModal.value!.hide();
-    await fullscreenLoadingBlurb.value!.hide();
+    fullscreenLoadingBlurb.value!.hide();
   }
-}
+
+  async function fullscreenLoadingBlurbModalHandler(choice: boolean) {
+    if (!choice) {
+      await fullscreenLoadingBlurbModal.value!.hide();
+    } else {
+      await fullscreenLoadingBlurb.value!.show();
+      await wait(5000);
+      fullscreenLoadingBlurbModal.value!.hide();
+      await fullscreenLoadingBlurb.value!.hide();
+    }
+  }
 </script>
 
 <style>
-.test-select {
-  margin: 0 0 1rem;
-}
+  .test-select {
+    margin: 0 0 1rem;
+  }
 </style>

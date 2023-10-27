@@ -1,16 +1,16 @@
-import Cumulonimbus from "cumulonimbus-wrapper";
-import { defineStore } from "pinia";
-import { ref } from "vue";
-import { userStore } from "../user";
+import Cumulonimbus from 'cumulonimbus-wrapper';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { userStore } from '../user';
 
-export const otherUserStore = defineStore("staff-space-user", () => {
+export const otherUserStore = defineStore('staff-space-user', () => {
   const user = userStore();
   const data = ref<Cumulonimbus.Data.User | null>(null);
   const loading = ref(false);
   const errored = ref(false);
 
   async function getUser(
-    id: string
+    id: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (user.client === null) return false;
     errored.value = false;
@@ -39,7 +39,7 @@ export const otherUserStore = defineStore("staff-space-user", () => {
       const result = await user.client!.editUsername(
         username,
         undefined,
-        data.value!.id
+        data.value!.id,
       );
       data.value = result.result;
     } catch (error) {
@@ -63,7 +63,7 @@ export const otherUserStore = defineStore("staff-space-user", () => {
       const result = await user.client!.editEmail(
         email,
         undefined,
-        data.value!.id
+        data.value!.id,
       );
       data.value = result.result;
     } catch (error) {
@@ -88,7 +88,7 @@ export const otherUserStore = defineStore("staff-space-user", () => {
         password,
         confirmPassword,
         undefined,
-        data.value!.id
+        data.value!.id,
       );
       data.value = result.result;
     } catch (error) {
@@ -112,7 +112,7 @@ export const otherUserStore = defineStore("staff-space-user", () => {
       const result = await user.client!.editDomainSelection(
         domain,
         subdomain,
-        data.value!.id
+        data.value!.id,
       );
       data.value = result.result;
     } catch (error) {

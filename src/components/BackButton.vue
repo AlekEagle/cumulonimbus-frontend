@@ -7,28 +7,28 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import backWithFallback from "@/utils/routerBackWithFallback";
+  import { ref, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import backWithFallback from '@/utils/routerBackWithFallback';
 
-const props = defineProps({
-    title: {
-      type: String,
-      default: "Back",
-    },
-    fallback: {
-      type: String,
-      default: "/",
-    },
-  }),
-  displayLink = ref(""),
-  router = useRouter();
+  const props = defineProps({
+      title: {
+        type: String,
+        default: 'Back',
+      },
+      fallback: {
+        type: String,
+        default: '/',
+      },
+    }),
+    displayLink = ref(''),
+    router = useRouter();
 
-onMounted(() => {
-  displayLink.value = window.history.state.back || props.fallback;
-});
+  onMounted(() => {
+    displayLink.value = window.history.state.back || props.fallback;
+  });
 
-async function navigate() {
-  await backWithFallback(router, props.fallback);
-}
+  async function navigate() {
+    await backWithFallback(router, props.fallback);
+  }
 </script>

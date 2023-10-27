@@ -1,16 +1,16 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const instructionStore = defineStore("user-space-instruction", () => {
+export const instructionStore = defineStore('user-space-instruction', () => {
   const user = userStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.Instruction | null>(null);
   const errored = ref(false);
 
   async function getInstruction(
-    id: string
+    id: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (user.client === null) return false;
     errored.value = false;

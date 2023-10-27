@@ -14,12 +14,14 @@
         {{
           instructions.data?.count
             ? instructions.data.count.toLocaleString()
-            : "some number of"
+            : 'some number of'
         }}
         setup guides in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else>Alek is individually reading the setup guides</h2>
+    <h2 class="animated-ellipsis" v-else
+      >Alek is individually reading the setup guides</h2
+    >
   </template>
   <template v-else>
     <h2>Alek can't read the setup guides because you are offline :(</h2>
@@ -135,163 +137,166 @@
 </template>
 
 <script lang="ts" setup>
-import SelectableContentBox from "@/components/SelectableContentBox.vue";
-import LoadingBlurb from "@/components/LoadingBlurb.vue";
-import Paginator from "@/components/Paginator.vue";
-import BackButton from "@/components/BackButton.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import FormModal from "@/components/FormModal.vue";
-import { userStore } from "@/stores/user";
-import { toastStore } from "@/stores/toast";
-import { instructionsStore } from "@/stores/staff-space/instructions";
-import defaultErrorHandler from "@/utils/defaultErrorHandler";
-import { useOnline } from "@vueuse/core";
-import { ref, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import Cumulonimbus from "cumulonimbus-wrapper";
-import gearIcon from "@/assets/images/gear.svg";
-import toDateString from "@/utils/toDateString";
+  import SelectableContentBox from '@/components/SelectableContentBox.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import Paginator from '@/components/Paginator.vue';
+  import BackButton from '@/components/BackButton.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import FormModal from '@/components/FormModal.vue';
+  import { userStore } from '@/stores/user';
+  import { toastStore } from '@/stores/toast';
+  import { instructionsStore } from '@/stores/staff-space/instructions';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import { useOnline } from '@vueuse/core';
+  import { ref, watch, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import gearIcon from '@/assets/images/gear.svg';
+  import toDateString from '@/utils/toDateString';
 
-const online = useOnline(),
-  router = useRouter(),
-  user = userStore(),
-  toast = toastStore(),
-  instructions = instructionsStore(),
-  selecting = ref(false),
-  selected = ref<string[]>([]),
-  page = ref(0),
-  manageInstructionModal = ref<typeof ConfirmModal>(),
-  bulkDeleteInstructionModal = ref<typeof ConfirmModal>(),
-  createInstructionModal = ref<typeof FormModal>(),
-  selectedInstruction = ref<Cumulonimbus.Data.Instruction | null>(null);
+  const online = useOnline(),
+    router = useRouter(),
+    user = userStore(),
+    toast = toastStore(),
+    instructions = instructionsStore(),
+    selecting = ref(false),
+    selected = ref<string[]>([]),
+    page = ref(0),
+    manageInstructionModal = ref<typeof ConfirmModal>(),
+    bulkDeleteInstructionModal = ref<typeof ConfirmModal>(),
+    createInstructionModal = ref<typeof FormModal>(),
+    selectedInstruction = ref<Cumulonimbus.Data.Instruction | null>(null);
 
-async function fetchInstructions() {
-  if (!online) {
-    toast.connectivityOffline();
-    return;
-  }
-  window.scrollTo(0, 0);
-  try {
-    const status = await instructions.getInstructions(page.value);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        toast.clientError();
-      }
-    } else if (!status) {
-      toast.clientError();
+  async function fetchInstructions() {
+    if (!online) {
+      toast.connectivityOffline();
+      return;
     }
-  } catch (e) {
-    console.error(e);
-    toast.clientError();
-  }
-}
-
-onMounted(async () => {
-  if (!online.value) {
-    const unwatchOnline = watch(online, () => {
-      if (online.value) {
-        if (!instructions.data || instructions.page !== page.value) {
-          fetchInstructions();
+    window.scrollTo(0, 0);
+    try {
+      const status = await instructions.getInstructions(page.value);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
-        unwatchOnline();
-      }
-    });
-    return;
-  }
-  if (!instructions.data || instructions.page !== page.value) {
-    fetchInstructions();
-  }
-});
-
-function onInstructionClick(instruction: Cumulonimbus.Data.Instruction) {
-  if (selecting.value) {
-    if (selected.value.includes(instruction.name)) {
-      selected.value = selected.value.filter(
-        (name) => name !== instruction.name
-      );
-    } else {
-      selected.value.push(instruction.name);
-    }
-  } else {
-    selectedInstruction.value = instruction;
-    manageInstructionModal.value!.show();
-  }
-}
-
-async function bulkDeleteInstructions(choice: boolean) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  if (!choice) {
-    bulkDeleteInstructionModal.value!.hide();
-    return;
-  }
-  try {
-    const result = await instructions.deleteInstructions(selected.value);
-    if (result instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(result, router);
-      if (!handled) {
+      } else if (!status) {
         toast.clientError();
       }
-    } else if (!result) {
+    } catch (e) {
+      console.error(e);
       toast.clientError();
-    } else {
-      toast.show(`Deleted ${result} instruction${result === 1 ? "" : "s"}.`);
-      selected.value = [];
-      selecting.value = false;
+    }
+  }
+
+  onMounted(async () => {
+    if (!online.value) {
+      const unwatchOnline = watch(online, () => {
+        if (online.value) {
+          if (!instructions.data || instructions.page !== page.value) {
+            fetchInstructions();
+          }
+          unwatchOnline();
+        }
+      });
+      return;
+    }
+    if (!instructions.data || instructions.page !== page.value) {
       fetchInstructions();
     }
-  } catch (e) {
-    console.error(e);
-    toast.clientError();
-  } finally {
-    bulkDeleteInstructionModal.value!.hide();
-  }
-}
+  });
 
-async function manageInstruction(choice: boolean) {
-  await manageInstructionModal.value!.hide();
-  if (!choice) {
-    selectedInstruction.value = null;
-    return;
-  }
-  await router.push(`/staff/setup-guide?id=${selectedInstruction.value!.id}`);
-}
-
-async function createInstruction(data: { name: string; description: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    const result = await instructions.createInstruction(
-      data.name,
-      data.description
-    );
-    if (result instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(result, router);
-      if (!handled) {
-        toast.clientError();
+  function onInstructionClick(instruction: Cumulonimbus.Data.Instruction) {
+    if (selecting.value) {
+      if (selected.value.includes(instruction.name)) {
+        selected.value = selected.value.filter(
+          (name) => name !== instruction.name,
+        );
+      } else {
+        selected.value.push(instruction.name);
       }
-    } else if (!result) {
-      await fetchInstructions();
-      toast.clientError();
     } else {
-      await fetchInstructions();
-      await createInstructionModal.value!.hide();
-      toast.show(`Created ${result.name}.`);
-      await router.push(`/staff/setup-guide?id=${result.name}`);
+      selectedInstruction.value = instruction;
+      manageInstructionModal.value!.show();
     }
-  } catch (e) {
-    console.error(e);
-    toast.clientError();
   }
-}
 
-function cancelSelection() {
-  selecting.value = false;
-  selected.value = [];
-}
+  async function bulkDeleteInstructions(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
+      bulkDeleteInstructionModal.value!.hide();
+      return;
+    }
+    try {
+      const result = await instructions.deleteInstructions(selected.value);
+      if (result instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(result, router);
+        if (!handled) {
+          toast.clientError();
+        }
+      } else if (!result) {
+        toast.clientError();
+      } else {
+        toast.show(`Deleted ${result} instruction${result === 1 ? '' : 's'}.`);
+        selected.value = [];
+        selecting.value = false;
+        fetchInstructions();
+      }
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    } finally {
+      bulkDeleteInstructionModal.value!.hide();
+    }
+  }
+
+  async function manageInstruction(choice: boolean) {
+    await manageInstructionModal.value!.hide();
+    if (!choice) {
+      selectedInstruction.value = null;
+      return;
+    }
+    await router.push(`/staff/setup-guide?id=${selectedInstruction.value!.id}`);
+  }
+
+  async function createInstruction(data: {
+    name: string;
+    description: string;
+  }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      const result = await instructions.createInstruction(
+        data.name,
+        data.description,
+      );
+      if (result instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(result, router);
+        if (!handled) {
+          toast.clientError();
+        }
+      } else if (!result) {
+        await fetchInstructions();
+        toast.clientError();
+      } else {
+        await fetchInstructions();
+        await createInstructionModal.value!.hide();
+        toast.show(`Created ${result.name}.`);
+        await router.push(`/staff/setup-guide?id=${result.name}`);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
+  }
+
+  function cancelSelection() {
+    selecting.value = false;
+    selected.value = [];
+  }
 </script>

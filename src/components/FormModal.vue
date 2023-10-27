@@ -19,67 +19,67 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import Form from "@/components/Form.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
+  import { ref } from 'vue';
+  import Form from '@/components/Form.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
 
-const emit = defineEmits<{
-  (
-    event: "submit",
-    data:
-      | {
-          [key: string]: string | number | boolean;
-        }
-      | any
-  ): void;
-  (event: "cancel"): void;
-}>();
-const props = defineProps({
-  title: {
-    type: String,
-    default: "Imagine leaving the title empty",
-  },
-  reset: {
-    type: Boolean,
-    default: false,
-  },
-  closeOnSubmit: Boolean,
-  disabled: Boolean,
-  confirmButton: {
-    type: String,
-    default: "I'm sure",
-  },
-  denyButton: {
-    type: String,
-    default: "Nevermind",
-  },
-});
-const confirmModal = ref<typeof ConfirmModal>(),
-  form = ref<typeof Form>();
+  const emit = defineEmits<{
+    (
+      event: 'submit',
+      data:
+        | {
+            [key: string]: string | number | boolean;
+          }
+        | any,
+    ): void;
+    (event: 'cancel'): void;
+  }>();
+  const props = defineProps({
+    title: {
+      type: String,
+      default: 'Imagine leaving the title empty',
+    },
+    reset: {
+      type: Boolean,
+      default: false,
+    },
+    closeOnSubmit: Boolean,
+    disabled: Boolean,
+    confirmButton: {
+      type: String,
+      default: "I'm sure",
+    },
+    denyButton: {
+      type: String,
+      default: 'Nevermind',
+    },
+  });
+  const confirmModal = ref<typeof ConfirmModal>(),
+    form = ref<typeof Form>();
 
-function modalSubmit(choice: boolean) {
-  if (!choice) {
-    emit("cancel");
-    confirmModal.value!.hide();
-  } else form.value!.submit();
-}
+  function modalSubmit(choice: boolean) {
+    if (!choice) {
+      emit('cancel');
+      confirmModal.value!.hide();
+    } else form.value!.submit();
+  }
 
-function formSubmit(data: any) {
-  emit("submit", data);
-  if (props.closeOnSubmit) confirmModal.value!.hide();
-}
+  function formSubmit(data: any) {
+    emit('submit', data);
+    if (props.closeOnSubmit) confirmModal.value!.hide();
+  }
 
-async function show() {
-  await confirmModal.value!.show();
-}
+  async function show() {
+    await confirmModal.value!.show();
+  }
 
-async function hide() {
-  await confirmModal.value!.hide();
-}
+  async function hide() {
+    await confirmModal.value!.hide();
+  }
 
-defineExpose({
-  form,
-  show,
-  hide,
-});
+  defineExpose({
+    form,
+    show,
+    hide,
+  });
 </script>

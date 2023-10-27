@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const domainsStore = defineStore("staff-space-domains", () => {
+export const domainsStore = defineStore('staff-space-domains', () => {
   const user = userStore(),
     data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Domain> | null>(null),
     loading = ref(false),

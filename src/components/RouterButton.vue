@@ -13,37 +13,37 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
+  import { useRouter } from 'vue-router';
 
-const props = defineProps({
-    title: {
-      type: String,
-      default: "Go to Place",
-    },
-    to: {
-      type: null,
-      required: true,
-    },
-  }),
-  router = useRouter(),
-  displayLink = router.resolve(props.to).href;
+  const props = defineProps({
+      title: {
+        type: String,
+        default: 'Go to Place',
+      },
+      to: {
+        type: null,
+        required: true,
+      },
+    }),
+    router = useRouter(),
+    displayLink = router.resolve(props.to).href;
 
-async function navigate() {
-  await router.push(props.to);
-}
+  async function navigate() {
+    await router.push(props.to);
+  }
 </script>
 
 <style>
-.quick-action-buttons-container a.router-button-link {
-  margin-left: 5px;
-  margin-right: 5px;
-}
+  .quick-action-buttons-container a.router-button-link {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
 
-a.router-button-link {
-  margin: 5px 0;
-}
+  a.router-button-link {
+    margin: 5px 0;
+  }
 
-a.router-button-link button {
-  margin: 0;
-}
+  a.router-button-link button {
+    margin: 0;
+  }
 </style>

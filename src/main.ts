@@ -1,10 +1,10 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import { createPinia } from "pinia";
-import { router } from "./router";
-import packageJson from "../package.json";
+import { createApp } from 'vue';
+import App from './App.vue';
+import { createPinia } from 'pinia';
+import { router } from './router';
+import packageJson from '../package.json';
 
-import "@/assets/fonts/fonts.css";
+import '@/assets/fonts/fonts.css';
 
 const app = createApp(App);
 
@@ -14,4 +14,4 @@ app.config.globalProperties.$devDependencies = packageJson.devDependencies;
 
 app.use(router);
 app.use(createPinia());
-app.mount("html body main");
+app.mount('html body main');

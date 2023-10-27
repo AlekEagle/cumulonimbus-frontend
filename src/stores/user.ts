@@ -1,18 +1,18 @@
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import persistPiniaStore from "@/utils/persistPinia";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import persistPiniaStore from '@/utils/persistPinia';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
 const BaseAPIURLs: { [key: string]: string } = {
   production: `${window.location.protocol}//${window.location.host}/api`,
-  ptb: "https://alekeagle.me/api",
-  development: "http://localhost:8000/api",
+  ptb: 'https://alekeagle.me/api',
+  development: 'http://localhost:8000/api',
 };
 
 const BaseThumbnailURLs: { [key: string]: string } = {
   production: `${window.location.protocol}//previews.${window.location.host}`,
-  ptb: "https://previews.alekeagle.me",
-  development: "http://localhost:8100",
+  ptb: 'https://previews.alekeagle.me',
+  development: 'http://localhost:8100',
 };
 
 export const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
@@ -20,7 +20,7 @@ export const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
   baseThumbnailURL: BaseThumbnailURLs[import.meta.env.MODE],
 };
 
-export const userStore = defineStore("user", () => {
+export const userStore = defineStore('user', () => {
   // --- Persistent Data ---
   // The store of user accounts in the account switcher.
   // If the user session is valid, the token value will be present.
@@ -30,25 +30,25 @@ export const userStore = defineStore("user", () => {
     [key: string]: string | false;
   }>({});
   // Persist the user accounts store.
-  persistPiniaStore(accounts, "accounts", { deep: true, immediate: true });
+  persistPiniaStore(accounts, 'accounts', { deep: true, immediate: true });
   // The current account information.
   const account = ref<{
     session: Cumulonimbus.Data.Session & { token: string };
     user: Cumulonimbus.Data.User;
   } | null>(null);
   // Persist the current account information.
-  persistPiniaStore(account, "account", { deep: true, immediate: true });
+  persistPiniaStore(account, 'account', { deep: true, immediate: true });
   // --- Non-Persistent Data ---
   // The Cumulonimbus client.
   const client = ref<Cumulonimbus | null>(null);
   // Is there actually a user logged in?
   const loggedIn = computed(
-    () => account.value !== null && client.value !== null
+    () => account.value !== null && client.value !== null,
   );
   const domain = computed(() => {
     if (account.value === null) return null;
     return `${
-      account.value.user.subdomain ? account.value.user.subdomain + "." : ""
+      account.value.user.subdomain ? account.value.user.subdomain + '.' : ''
     }${account.value.user.domain}`;
   });
   // Is the stored account information being modified?
@@ -56,11 +56,11 @@ export const userStore = defineStore("user", () => {
 
   // Migrate old account stores to the new format.
   if (
-    localStorage.getItem("user") !== null &&
-    localStorage.getItem("session") !== null
+    localStorage.getItem('user') !== null &&
+    localStorage.getItem('session') !== null
   ) {
-    const user = JSON.parse(localStorage.getItem("user") as string);
-    const session = JSON.parse(localStorage.getItem("session") as string);
+    const user = JSON.parse(localStorage.getItem('user') as string);
+    const session = JSON.parse(localStorage.getItem('session') as string);
     accounts.value[user.username] = session.token;
     account.value = {
       session: {
@@ -69,8 +69,8 @@ export const userStore = defineStore("user", () => {
       },
       user,
     };
-    localStorage.removeItem("user");
-    localStorage.removeItem("session");
+    localStorage.removeItem('user');
+    localStorage.removeItem('session');
   }
 
   // -- Functions --
@@ -123,8 +123,8 @@ export const userStore = defineStore("user", () => {
           // Create a temporary client with the stored token.
           const tempClient = new Cumulonimbus(
               accounts.value[username] as string,
-              cumulonimbusOptions
-          ),
+              cumulonimbusOptions,
+            ),
             // Get the session ID.
             sid = (await tempClient.getSession()).result.id.toString();
 
@@ -139,7 +139,7 @@ export const userStore = defineStore("user", () => {
         } catch (error) {
           // If the error is a Cumulonimbus ResponseError, check if the error was caused by an invalid session.
           if (error instanceof Cumulonimbus.ResponseError) {
-            if (error.code === "INVALID_SESSION_ERROR") {
+            if (error.code === 'INVALID_SESSION_ERROR') {
               // If it was, the session has already expired and we can pretend it was deleted successfully.
               delete accounts.value[username];
               return true;
@@ -164,7 +164,7 @@ export const userStore = defineStore("user", () => {
   async function login(
     username: string,
     password: string,
-    remember: boolean = false
+    remember: boolean = false,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
@@ -175,7 +175,7 @@ export const userStore = defineStore("user", () => {
         username,
         password,
         remember,
-        cumulonimbusOptions
+        cumulonimbusOptions,
       );
       // Get the session and user information.
       account.value = {
@@ -208,7 +208,7 @@ export const userStore = defineStore("user", () => {
     email: string,
     password: string,
     confirmPassword: string,
-    remember: boolean = false
+    remember: boolean = false,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
@@ -221,7 +221,7 @@ export const userStore = defineStore("user", () => {
         password,
         confirmPassword,
         remember,
-        cumulonimbusOptions
+        cumulonimbusOptions,
       );
       // Get the session and user information.
       account.value = {
@@ -273,7 +273,7 @@ export const userStore = defineStore("user", () => {
       // Check if the error is a Cumulonimbus ResponseError.
       if (error instanceof Cumulonimbus.ResponseError) {
         // If it is a Cumulonimbus ResponseError, check if the error was not caused by an invalid session.
-        if (error.code !== "INVALID_SESSION_ERROR") {
+        if (error.code !== 'INVALID_SESSION_ERROR') {
           // If it isn't, return the error.
           return error;
         } else {
@@ -303,14 +303,14 @@ export const userStore = defineStore("user", () => {
     // Create a new client with the stored session information.
     client.value = new Cumulonimbus(
       account.value.session.token,
-      cumulonimbusOptions
+      cumulonimbusOptions,
     );
   }
 
   // --- Account Switching ---
   // Switch to a different account.
   async function switchAccount(
-    username: string
+    username: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // If the requested account is already the current account, return true to signify success.
     if (account.value?.user.username === username) return true;
@@ -322,7 +322,7 @@ export const userStore = defineStore("user", () => {
     // If the account is not in the account switcher, reset the loading state and throw an error.
     if (accounts.value[username] === undefined) {
       loading.value = false;
-      throw new Error("Account not found.");
+      throw new Error('Account not found.');
     }
     // If the account is in the account switcher, but is false (the session is expired), reset the loading state and return false.
     // This will tell the frontend to prompt the user to login again.
@@ -333,7 +333,7 @@ export const userStore = defineStore("user", () => {
     // If the account is in the account switcher, and is not false, create the client with the stored token.
     client.value = new Cumulonimbus(
       accounts.value[username] as string,
-      cumulonimbusOptions
+      cumulonimbusOptions,
     );
     // Try to restore account and session information.
     try {
@@ -351,7 +351,7 @@ export const userStore = defineStore("user", () => {
       // If an error occurred, check if the error is a Cumulonimbus ResponseError.
       if (error instanceof Cumulonimbus.ResponseError) {
         // If it is, check if the error was not caused by an invalid session.
-        if (error.code !== "INVALID_SESSION_ERROR") {
+        if (error.code !== 'INVALID_SESSION_ERROR') {
           // If it isn't, return the error.
           return error;
         } else {
@@ -376,7 +376,7 @@ export const userStore = defineStore("user", () => {
   // Change the username of the current account.
   async function changeUsername(
     username: string,
-    password: string
+    password: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
@@ -404,7 +404,7 @@ export const userStore = defineStore("user", () => {
   // Change the email of the current account.
   async function changeEmail(
     email: string,
-    password: string
+    password: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
@@ -433,7 +433,7 @@ export const userStore = defineStore("user", () => {
   async function changePassword(
     newPassword: string,
     confirmNewPassword: string,
-    oldPassword: string
+    oldPassword: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
@@ -445,7 +445,7 @@ export const userStore = defineStore("user", () => {
         await client.value!.editPassword(
           newPassword,
           confirmNewPassword,
-          oldPassword
+          oldPassword,
         )
       ).result;
       // If nothing went wrong:
@@ -465,7 +465,7 @@ export const userStore = defineStore("user", () => {
   // Change the domain selection of the current account.
   async function changeDomain(
     domain: string,
-    subdomain?: string
+    subdomain?: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
@@ -491,14 +491,14 @@ export const userStore = defineStore("user", () => {
 
   // Revoke all sessions of the current account.
   async function revokeSessions(
-    includeSelf: boolean = false
+    includeSelf: boolean = false,
   ): Promise<number | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
     // Try to revoke all sessions.
     try {
       // Revoke all sessions.
-      const res = await client.value!.deleteAllSessions("me", includeSelf);
+      const res = await client.value!.deleteAllSessions('me', includeSelf);
       // If nothing went wrong:
       // Logout if the current session was included.
       if (includeSelf) await logout();
@@ -516,14 +516,14 @@ export const userStore = defineStore("user", () => {
 
   // Delete all files of the current account.
   async function deleteFiles(
-    password: string
+    password: string,
   ): Promise<number | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
     // Try to delete all files.
     try {
       // Delete all files and return the number of deleted files.
-      return (await client.value!.deleteAllFiles("me", password)).result.count!;
+      return (await client.value!.deleteAllFiles('me', password)).result.count!;
     } catch (error) {
       // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
       if (error instanceof Cumulonimbus.ResponseError) return error;
@@ -538,7 +538,7 @@ export const userStore = defineStore("user", () => {
   // Delete the current account.
   async function deleteAccount(
     username: string,
-    password: string
+    password: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
@@ -546,7 +546,7 @@ export const userStore = defineStore("user", () => {
     // Try to delete the account.
     try {
       // Delete the account. Use the username to ensure the user really wants to delete their account, and use the password to reauthenticate.
-      await client.value!.deleteUser("me", username, password);
+      await client.value!.deleteUser('me', username, password);
       // If nothing went wrong:
       // Reset the account value.
       account.value = null;

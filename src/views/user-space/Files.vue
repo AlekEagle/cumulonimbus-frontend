@@ -13,7 +13,7 @@
         {{
           files.data?.count
             ? files.data.count.toLocaleString()
-            : "some number of"
+            : 'some number of'
         }}
         files in total.
       </h2>
@@ -97,130 +97,130 @@
 </template>
 
 <script lang="ts" setup>
-import Paginator from "@/components/Paginator.vue";
-import PreviewContentBox from "@/components/PreviewContentBox.vue";
-import LoadingBlurb from "@/components/LoadingBlurb.vue";
-import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
-import BackButton from "@/components/BackButton.vue";
-import { filesStore } from "@/stores/user-space/files";
-import { toastStore } from "@/stores/toast";
-import { ref, onMounted, watch } from "vue";
-import toLogin from "@/utils/toLogin";
-import defaultErrorHandler from "@/utils/defaultErrorHandler";
-import Cumulonimbus from "cumulonimbus-wrapper";
-import { useOnline } from "@vueuse/core";
-import { useRouter } from "vue-router";
-import ConfirmModal from "@/components/ConfirmModal.vue";
+  import Paginator from '@/components/Paginator.vue';
+  import PreviewContentBox from '@/components/PreviewContentBox.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import BackButton from '@/components/BackButton.vue';
+  import { filesStore } from '@/stores/user-space/files';
+  import { toastStore } from '@/stores/toast';
+  import { ref, onMounted, watch } from 'vue';
+  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import { useOnline } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
 
-const files = filesStore(),
-  page = ref(0),
-  toast = toastStore(),
-  selecting = ref(false),
-  selected = ref<string[]>([]),
-  online = useOnline(),
-  router = useRouter(),
-  confirmModal = ref<typeof ConfirmModal>(),
-  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
+  const files = filesStore(),
+    page = ref(0),
+    toast = toastStore(),
+    selecting = ref(false),
+    selected = ref<string[]>([]),
+    online = useOnline(),
+    router = useRouter(),
+    confirmModal = ref<typeof ConfirmModal>(),
+    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
 
-async function fetchFiles() {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  window.scrollTo(0, 0);
-  try {
-    const status = await files.getFiles(page.value);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        toast.clientError();
-      }
-    } else if (!status) {
-      toast.show("You're not logged in.");
-      await toLogin(router);
+  async function fetchFiles() {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
     }
-  } catch (e) {
-    console.error(e);
-    toast.clientError();
-  }
-}
-
-onMounted(async () => {
-  if (!online.value) {
-    const unwatchOnline = watch(online, () => {
-      if (online.value) {
-        if (!files.data || files.page !== page.value) {
-          fetchFiles();
+    window.scrollTo(0, 0);
+    try {
+      const status = await files.getFiles(page.value);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
-        unwatchOnline();
+      } else if (!status) {
+        toast.show("You're not logged in.");
+        await toLogin(router);
       }
-    });
-    return;
-  }
-  if (!files.data || files.page !== page.value) {
-    fetchFiles();
-  }
-});
-
-function displayModal() {
-  if (selected.value.length > 0) {
-    confirmModal.value!.show();
-  } else {
-    toast.show("You must select at least one file to delete.");
-  }
-}
-
-async function deleteSelected(choice: boolean) {
-  if (!choice) {
-    selected.value = [];
-    selecting.value = false;
-    confirmModal.value!.hide();
-    return;
-  }
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    fullscreenLoadingBlurb.value!.show();
-    const status = await files.deleteFiles(selected.value);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      if ((status.code = "MISSING_FIELDS_ERROR")) {
-        if (selected.value.length > 0)
-          toast.show("You can only select up to 100 files at once.");
-        else toast.show("You must select at least one file to delete.");
-        return;
-      }
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        toast.clientError();
-      }
-    } else if (status < 0) {
+    } catch (e) {
+      console.error(e);
       toast.clientError();
+    }
+  }
+
+  onMounted(async () => {
+    if (!online.value) {
+      const unwatchOnline = watch(online, () => {
+        if (online.value) {
+          if (!files.data || files.page !== page.value) {
+            fetchFiles();
+          }
+          unwatchOnline();
+        }
+      });
+      return;
+    }
+    if (!files.data || files.page !== page.value) {
+      fetchFiles();
+    }
+  });
+
+  function displayModal() {
+    if (selected.value.length > 0) {
+      confirmModal.value!.show();
     } else {
-      toast.show(`Deleted ${status} file${status === 1 ? "" : "s"}.`);
+      toast.show('You must select at least one file to delete.');
+    }
+  }
+
+  async function deleteSelected(choice: boolean) {
+    if (!choice) {
       selected.value = [];
       selecting.value = false;
-      await fetchFiles();
-      fullscreenLoadingBlurb.value!.hide();
-      await confirmModal.value!.hide();
+      confirmModal.value!.hide();
+      return;
     }
-  } catch (e) {
-    console.error(e);
-    toast.clientError();
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const status = await files.deleteFiles(selected.value);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        if ((status.code = 'MISSING_FIELDS_ERROR')) {
+          if (selected.value.length > 0)
+            toast.show('You can only select up to 100 files at once.');
+          else toast.show('You must select at least one file to delete.');
+          return;
+        }
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
+        }
+      } else if (status < 0) {
+        toast.clientError();
+      } else {
+        toast.show(`Deleted ${status} file${status === 1 ? '' : 's'}.`);
+        selected.value = [];
+        selecting.value = false;
+        await fetchFiles();
+        fullscreenLoadingBlurb.value!.hide();
+        await confirmModal.value!.hide();
+      }
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
   }
-}
 
-function onFileClick(file: Cumulonimbus.Data.File) {
-  if (selected.value.includes(file.id)) {
-    selected.value = selected.value.filter((f) => f !== file.id);
-  } else {
-    selected.value.push(file.id);
+  function onFileClick(file: Cumulonimbus.Data.File) {
+    if (selected.value.includes(file.id)) {
+      selected.value = selected.value.filter((f) => f !== file.id);
+    } else {
+      selected.value.push(file.id);
+    }
   }
-}
 
-function cancelSelection() {
-  selecting.value = false;
-  selected.value = [];
-}
+  function cancelSelection() {
+    selecting.value = false;
+    selected.value = [];
+  }
 </script>

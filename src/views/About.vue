@@ -135,49 +135,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onMounted, computed, getCurrentInstance } from "vue";
-import { useFuzzyTimeString } from "@/utils/time";
-import ContentBox from "@/components/ContentBox.vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+  import { ref, Ref, onMounted, computed, getCurrentInstance } from 'vue';
+  import { useFuzzyTimeString } from '@/utils/time';
+  import ContentBox from '@/components/ContentBox.vue';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
 
-const global = getCurrentInstance()?.appContext.config.globalProperties;
-const backendVersion: Ref<string> = ref("Loading...");
-const thumbnailVersion: Ref<string> = ref("Loading...");
-const asOf = ref<Date | null | undefined>();
-const asOfTime = useFuzzyTimeString(asOf, 30e3);
-const dependencies = computed(() => {
-  return Object.keys(global!.$dependencies)
-    .map((key: string) => {
-      return `${key}: ${global?.$dependencies[key]}`;
-    })
-    .join("<br />");
-});
-const devDependencies = computed(() => {
-  return Object.keys(global!.$devDependencies)
-    .map((key: string) => {
-      return `${key}: ${global?.$devDependencies[key]}`;
-    })
-    .join("<br />");
-});
+  const global = getCurrentInstance()?.appContext.config.globalProperties;
+  const backendVersion: Ref<string> = ref('Loading...');
+  const thumbnailVersion: Ref<string> = ref('Loading...');
+  const asOf = ref<Date | null | undefined>();
+  const asOfTime = useFuzzyTimeString(asOf, 30e3);
+  const dependencies = computed(() => {
+    return Object.keys(global!.$dependencies)
+      .map((key: string) => {
+        return `${key}: ${global?.$dependencies[key]}`;
+      })
+      .join('<br />');
+  });
+  const devDependencies = computed(() => {
+    return Object.keys(global!.$devDependencies)
+      .map((key: string) => {
+        return `${key}: ${global?.$devDependencies[key]}`;
+      })
+      .join('<br />');
+  });
 
-async function update() {
-  asOf.value = null;
+  async function update() {
+    asOf.value = null;
 
-  await Promise.all([
-    (async () => {
-      backendVersion.value = (await Cumulonimbus.getAPIStatus()).version;
-    })(),
-    (async () => {
-      thumbnailVersion.value = (
-        await Cumulonimbus.getThumbnailAPIStatus()
-      ).version;
-    })(),
-  ]);
+    await Promise.all([
+      (async () => {
+        backendVersion.value = (await Cumulonimbus.getAPIStatus()).version;
+      })(),
+      (async () => {
+        thumbnailVersion.value = (
+          await Cumulonimbus.getThumbnailAPIStatus()
+        ).version;
+      })(),
+    ]);
 
-  asOf.value = new Date();
-}
+    asOf.value = new Date();
+  }
 
-onMounted(async () => {
-  await update();
-});
+  onMounted(async () => {
+    await update();
+  });
 </script>

@@ -193,7 +193,7 @@
         path: 'https://alekeagle.com/',
         external: true,
       },
-    ].filter(a => typeof a !== 'undefined') as Array<{
+    ].filter((a) => typeof a !== 'undefined') as Array<{
       name: string;
       path: string;
       external: boolean;
@@ -202,7 +202,7 @@
   const hamburgerMenu = ref(false);
   const ptbWarningModal = ref<typeof Modal>();
 
-  watch(hamburgerMenu, val => {
+  watch(hamburgerMenu, (val) => {
     if (val) {
       disableScrolling();
     } else {
@@ -210,7 +210,7 @@
     }
   });
 
-  watch(online, val => {
+  watch(online, (val) => {
     if (!val) {
       toast.connectivityChangeOffline();
     } else {
@@ -320,7 +320,7 @@
   user.restoreClient();
 
   // Register a message handler for the service worker
-  navigator.serviceWorker?.addEventListener('message', event => {
+  navigator.serviceWorker?.addEventListener('message', (event) => {
     const payload = event.data;
     switch (payload.type) {
       case 'update-nag':

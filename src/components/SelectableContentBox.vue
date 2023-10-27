@@ -65,44 +65,44 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useRouter } from "vue-router";
-import "./ContentBox.vue";
+  import { computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import './ContentBox.vue';
 
-const emit = defineEmits<{
-  (event: "click"): void;
-}>();
+  const emit = defineEmits<{
+    (event: 'click'): void;
+  }>();
 
-const props = defineProps({
-    title: {
-      type: String,
-      default: "Imagine leaving the title empty",
-    },
-    src: {
-      type: String,
-      default: undefined,
-    },
-    selecting: Boolean,
-    selected: Boolean,
-    themeSafe: Boolean,
-    to: {
-      type: null,
-      default: undefined,
-    },
-  }),
-  router = useRouter();
+  const props = defineProps({
+      title: {
+        type: String,
+        default: 'Imagine leaving the title empty',
+      },
+      src: {
+        type: String,
+        default: undefined,
+      },
+      selecting: Boolean,
+      selected: Boolean,
+      themeSafe: Boolean,
+      to: {
+        type: null,
+        default: undefined,
+      },
+    }),
+    router = useRouter();
 
-const location = computed(() => {
-  return props.to ? router.resolve(props.to) : null;
-});
+  const location = computed(() => {
+    return props.to ? router.resolve(props.to) : null;
+  });
 
-async function spanClicked() {
-  if (!props.selecting && location.value) return;
-  emit("click");
-}
+  async function spanClicked() {
+    if (!props.selecting && location.value) return;
+    emit('click');
+  }
 
-async function linkClicked() {
-  if (props.selecting || !location.value) return;
-  await router.push(location.value);
-}
+  async function linkClicked() {
+    if (props.selecting || !location.value) return;
+    await router.push(location.value);
+  }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <h1>Staff Dashboard</h1>
-  <h2>Welcome, {{ user.account ? user.account.user.username : "person" }}!</h2>
+  <h2>Welcome, {{ user.account ? user.account.user.username : 'person' }}!</h2>
   <div class="quick-action-buttons-container">
     <RouterButton to="/dashboard" title="Go to User Dashboard">
       User Dashboard
@@ -28,13 +28,13 @@
 </template>
 
 <script lang="ts" setup>
-import RouterButton from "@/components/RouterButton.vue";
-import ContentBox from "@/components/ContentBox.vue";
-import profileIcon from "@/assets/images/profile.svg";
-import fileIcon from "@/assets/images/file.svg";
-import infoIcon from "@/assets/images/info.svg";
-import gearIcon from "@/assets/images/gear.svg";
-import { userStore } from "@/stores/user";
+  import RouterButton from '@/components/RouterButton.vue';
+  import ContentBox from '@/components/ContentBox.vue';
+  import profileIcon from '@/assets/images/profile.svg';
+  import fileIcon from '@/assets/images/file.svg';
+  import infoIcon from '@/assets/images/info.svg';
+  import gearIcon from '@/assets/images/gear.svg';
+  import { userStore } from '@/stores/user';
 
-const user = userStore();
+  const user = userStore();
 </script>

@@ -1,4 +1,4 @@
-import { ref, onUnmounted, Ref, unref, watch } from "vue";
+import { ref, onUnmounted, Ref, unref, watch } from 'vue';
 
 // Take milliseconds and return how many hours, minutes and seconds it is
 export function toTimeString(ms: number): string {
@@ -11,18 +11,18 @@ export function toTimeString(ms: number): string {
   // The number of seconds
   const seconds = Math.floor(((ms % 360000) % 60000) / 1000);
   // The string to return
-  let str = "";
+  let str = '';
   // Check if there are hours
   if (hours) {
     // If there are, add them to the string
     // If seconds is present and minutes is not or vice versa, separate them with " and "
     // If seconds and minutes are both present, separate them with ", "
-    str += `${hours} hour${hours === 1 ? "" : "s"}${
+    str += `${hours} hour${hours === 1 ? '' : 's'}${
       (seconds && !minutes) || (!seconds && minutes)
-        ? " and "
+        ? ' and '
         : seconds && minutes
-        ? ", "
-        : ""
+        ? ', '
+        : ''
     }`;
   }
   // Check if there are minutes
@@ -30,18 +30,18 @@ export function toTimeString(ms: number): string {
     // If there are, add them to the string
     // If seconds is present, separate them with " and "
     // If hours is also present, put a comma before the " and " for proper grammar
-    str += `${minutes} minute${minutes === 1 ? "" : "s"}${
-      seconds ? (hours ? ", and " : " and ") : ""
+    str += `${minutes} minute${minutes === 1 ? '' : 's'}${
+      seconds ? (hours ? ', and ' : ' and ') : ''
     }`;
   }
   // Check if there are seconds
   if (seconds) {
     // If there are, add them to the string
-    str += `${seconds} second${seconds === 1 ? "" : "s"}`;
+    str += `${seconds} second${seconds === 1 ? '' : 's'}`;
   }
 
   // Return the string
-  return str.length > 0 ? str : "Now";
+  return str.length > 0 ? str : 'Now';
 }
 
 // Take milliseconds and return a fuzzy time string (e.g. "less than a minute ago", "about 2 hours ago", "about 3 days ago", etc.)
@@ -60,26 +60,26 @@ export function toFuzzyTimeString(ms: number): string {
   // Check if there are hours
   if (hours) {
     // If there are, return "about x hours ago" for negative numbers and "about x hours from now" for positive numbers
-    return `about ${hours} hour${hours === 1 ? "" : "s"} ${
-      inPast ? "ago" : "from now"
+    return `about ${hours} hour${hours === 1 ? '' : 's'} ${
+      inPast ? 'ago' : 'from now'
     }`;
   } else {
     // If there are not, check if there are minutes
     if (minutes) {
       // If there are, return "about x minutes ago" for negative numbers and "about x minutes from now" for positive numbers
-      return `about ${minutes} minute${minutes === 1 ? "" : "s"} ${
-        inPast ? "ago" : "from now"
+      return `about ${minutes} minute${minutes === 1 ? '' : 's'} ${
+        inPast ? 'ago' : 'from now'
       }`;
     } else {
       // If there are not, check if there are seconds
       if (seconds) {
         // If there are, return "about x seconds ago" for negative numbers and "about x seconds from now" for positive numbers
-        return `about ${seconds} second${seconds === 1 ? "" : "s"} ${
-          inPast ? "ago" : "from now"
+        return `about ${seconds} second${seconds === 1 ? '' : 's'} ${
+          inPast ? 'ago' : 'from now'
         }`;
       } else {
         // If there are not, return "Now"
-        return "Now";
+        return 'Now';
       }
     }
   }
@@ -88,14 +88,14 @@ export function toFuzzyTimeString(ms: number): string {
 // Reactive fuzzy time passed since a date
 export function useTimeString(
   date: Ref<Date | null | undefined>,
-  updateInterval = 1000
+  updateInterval = 1000,
 ) {
   let unrefDate = unref(date);
   // The time passed since the date
   const time = ref(
     unrefDate
       ? toTimeString(Date.now() - unrefDate.getTime())
-      : "Time travel detected!"
+      : 'Time travel detected!',
   );
   // The interval to update the time
   let interval: number | null = null;
@@ -104,7 +104,7 @@ export function useTimeString(
   const update = () => {
     time.value = unrefDate
       ? toTimeString(Date.now() - unrefDate.getTime())
-      : "Time travel detected!";
+      : 'Time travel detected!';
   };
 
   // Call update for the first time
@@ -134,7 +134,7 @@ export function useTimeString(
       update();
       interval = setInterval(update, updateInterval);
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   // Return the time
@@ -144,14 +144,14 @@ export function useTimeString(
 // Reactive fuzzy time passed since a date (e.g. "less than a minute ago", "about 2 hours ago", "about 3 days ago", etc.)
 export function useFuzzyTimeString(
   date: Ref<Date | null | undefined>,
-  updateInterval = 1000
+  updateInterval = 1000,
 ) {
   let unrefDate = unref(date);
   // The time passed since the date
   const time = ref(
     unrefDate
       ? toFuzzyTimeString(unrefDate.getTime() - Date.now())
-      : "Time travel detected!"
+      : 'Time travel detected!',
   );
   // The interval to update the time
   let interval: number | null = null;
@@ -160,7 +160,7 @@ export function useFuzzyTimeString(
   const update = () => {
     time.value = unrefDate
       ? toFuzzyTimeString(unrefDate.getTime() - Date.now())
-      : "Time travel detected!";
+      : 'Time travel detected!';
   };
 
   // Call update for the first time
@@ -190,7 +190,7 @@ export function useFuzzyTimeString(
       update();
       interval = setInterval(update, updateInterval);
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   // Return the time

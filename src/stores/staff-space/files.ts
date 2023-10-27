@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const filesStore = defineStore("staff-space-files", () => {
+export const filesStore = defineStore('staff-space-files', () => {
   const user = userStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.File> | null>(null);
@@ -12,7 +12,7 @@ export const filesStore = defineStore("staff-space-files", () => {
   const selectedUser = ref<Cumulonimbus.Data.User | null>(null);
 
   async function getFiles(
-    p: number
+    p: number,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (user.client === null) return false;
     errored.value = false;
@@ -23,13 +23,13 @@ export const filesStore = defineStore("staff-space-files", () => {
         result = await (user.client as Cumulonimbus).getFiles(
           selectedUser.value.id,
           50,
-          50 * p
+          50 * p,
         );
       } else {
         result = await (user.client as Cumulonimbus).getFiles(
           undefined,
           50,
-          50 * p
+          50 * p,
         );
       }
       page.value = p;
@@ -48,7 +48,7 @@ export const filesStore = defineStore("staff-space-files", () => {
   }
 
   async function deleteFiles(
-    files: string[]
+    files: string[],
   ): Promise<number | Cumulonimbus.ResponseError> {
     if (user.client === null) return -1;
     errored.value = false;

@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const instructionsStore = defineStore("user-space-instructions", () => {
+export const instructionsStore = defineStore('user-space-instructions', () => {
   const user = userStore();
   const loading = ref(false);
   const data =
@@ -12,7 +12,7 @@ export const instructionsStore = defineStore("user-space-instructions", () => {
   const page = ref(0);
 
   async function getInstructions(
-    p: number
+    p: number,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (user.client === null) return false;
     errored.value = false;
@@ -20,7 +20,7 @@ export const instructionsStore = defineStore("user-space-instructions", () => {
     try {
       const result = await (user.client as Cumulonimbus).getInstructions(
         50,
-        50 * p
+        50 * p,
       );
       page.value = p;
       data.value = result.result;

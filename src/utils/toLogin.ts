@@ -9,7 +9,7 @@ export default async function toLogin(router: Router) {
   return await router.replace({
     name: 'account-switcher',
     query: {
-      redirect: router.currentRoute.value.fullPath
-    }
+      redirect: router.currentRoute.value.fullPath,
+    },
   });
 }

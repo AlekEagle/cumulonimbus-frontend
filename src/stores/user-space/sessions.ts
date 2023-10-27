@@ -1,28 +1,28 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const sessionsStore = defineStore("user-space-sessions", () => {
+export const sessionsStore = defineStore('user-space-sessions', () => {
   const user = userStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(
-    null
+    null,
   );
   const errored = ref(false);
   const page = ref(0);
 
   async function getSessions(
-    p: number
+    p: number,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
       const result = await (user.client as Cumulonimbus).getSessions(
-        "me",
+        'me',
         50,
-        50 * p
+        50 * p,
       );
       page.value = p;
       data.value = result.result;
@@ -59,14 +59,14 @@ export const sessionsStore = defineStore("user-space-sessions", () => {
   }
 
   async function deleteSessions(
-    sessions: string[]
+    sessions: string[],
   ): Promise<number | Cumulonimbus.ResponseError> {
     if (user.client === null) return -1;
     errored.value = false;
     loading.value = true;
     try {
       const result = await (user.client as Cumulonimbus).deleteSessions(
-        sessions
+        sessions,
       );
       return result.result.count!;
     } catch (error) {
@@ -81,6 +81,13 @@ export const sessionsStore = defineStore("user-space-sessions", () => {
     }
   }
 
+  async function clear(): Promise<void> {
+    data.value = null;
+    page.value = 0;
+    loading.value = false;
+    errored.value = false;
+  }
+
   return {
     data,
     loading,
@@ -89,5 +96,6 @@ export const sessionsStore = defineStore("user-space-sessions", () => {
     getSessions,
     deleteSession,
     deleteSessions,
+    clear,
   };
 });

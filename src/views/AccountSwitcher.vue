@@ -84,262 +84,271 @@
 </template>
 
 <script lang="ts" setup>
-import BackButton from "@/components/BackButton.vue";
-import EmphasizedBox from "@/components/EmphasizedBox.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
-import LoadingBlurb from "@/components/LoadingBlurb.vue";
-import { ref, onBeforeMount, computed } from "vue";
-import { userStore } from "@/stores/user";
-import { useRouter, useRoute } from "vue-router";
-import { toastStore } from "@/stores/toast";
-import profileIcon from "@/assets/images/profile.svg";
-import plusIcon from "@/assets/images/plus.svg";
-import closeIcon from "@/assets/images/close.svg";
-import defaultErrorHandler from "@/utils/defaultErrorHandler";
-import { useOnline } from "@vueuse/core";
+  import BackButton from '@/components/BackButton.vue';
+  import EmphasizedBox from '@/components/EmphasizedBox.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import { ref, onBeforeMount, computed } from 'vue';
+  import { userStore } from '@/stores/user';
+  import { useRouter, useRoute } from 'vue-router';
+  import { toastStore } from '@/stores/toast';
+  import { fileStore } from '@/stores/user-space/file';
+  import { filesStore } from '@/stores/user-space/files';
+  import { sessionsStore } from '@/stores/user-space/sessions';
+  import profileIcon from '@/assets/images/profile.svg';
+  import plusIcon from '@/assets/images/plus.svg';
+  import closeIcon from '@/assets/images/close.svg';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import { useOnline } from '@vueuse/core';
 
-const user = userStore(),
-  router = useRouter(),
-  route = useRoute(),
-  toast = toastStore(),
-  online = useOnline(),
-  managingAccounts = ref(false),
-  selectedAccount = ref<string | null>(null),
-  removeAllAccountsModal = ref<typeof ConfirmModal>(),
-  removeAccountModal = ref<typeof ConfirmModal>(),
-  redirectLoc = computed(() =>
-    route.query.redirect ? (route.query.redirect as string) : "/dashboard"
-  );
+  const user = userStore(),
+    router = useRouter(),
+    route = useRoute(),
+    toast = toastStore(),
+    online = useOnline(),
+    file = fileStore(),
+    files = filesStore(),
+    sessions = sessionsStore(),
+    managingAccounts = ref(false),
+    selectedAccount = ref<string | null>(null),
+    removeAllAccountsModal = ref<typeof ConfirmModal>(),
+    removeAccountModal = ref<typeof ConfirmModal>(),
+    redirectLoc = computed(() =>
+      route.query.redirect ? (route.query.redirect as string) : '/dashboard',
+    );
 
-async function redirect() {
-  await router.replace(redirectLoc.value);
-}
+  async function redirect() {
+    await router.replace(redirectLoc.value);
+  }
 
-async function handleAccountClick(account: string) {
-  if (user.loading) return;
-  if (managingAccounts.value) {
-    selectedAccount.value = account;
-    removeAccountModal.value?.show();
-  } else {
-    try {
-      const res = await user.switchAccount(account);
-      if (typeof res === "boolean") {
-        if (res) {
-          toast.show(`Switched to ${user.account?.user.username}.`);
+  async function handleAccountClick(account: string) {
+    if (user.loading) return;
+    if (managingAccounts.value) {
+      selectedAccount.value = account;
+      removeAccountModal.value?.show();
+    } else {
+      try {
+        const res = await user.switchAccount(account);
+        if (typeof res === 'boolean') {
+          if (res) {
+            await file.clear();
+            await files.clear();
+            await sessions.clear();
+            toast.show(`Switched to ${user.account?.user.username}.`);
 
-          redirect();
-        } else
-          router.replace({
-            path: "/auth",
-            query: {
-              redirect: redirectLoc.value,
-              username: account,
-            },
-            hash: "#login",
-          });
-      } else {
-        toast.show(`Failed to switch to ${account}: ${res.message}`);
-      }
-    } catch (e) {
-      if (e instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(e, router);
-        if (!handled) toast.show(`Failed to switch to ${account}.`);
-      } else {
-        toast.clientError();
+            redirect();
+          } else
+            router.replace({
+              path: '/auth',
+              query: {
+                redirect: redirectLoc.value,
+                username: account,
+              },
+              hash: '#login',
+            });
+        } else {
+          toast.show(`Failed to switch to ${account}: ${res.message}`);
+        }
+      } catch (e) {
+        if (e instanceof Cumulonimbus.ResponseError) {
+          const handled = await defaultErrorHandler(e, router);
+          if (!handled) toast.show(`Failed to switch to ${account}.`);
+        } else {
+          toast.clientError();
+        }
       }
     }
   }
-}
 
-function addAccount() {
-  router.replace({
-    path: "/auth",
-    query: {
-      redirect: redirectLoc.value,
-    },
-    hash: "#login",
-  });
-}
+  function addAccount() {
+    router.replace({
+      path: '/auth',
+      query: {
+        redirect: redirectLoc.value,
+      },
+      hash: '#login',
+    });
+  }
 
-async function removeAllAccountsConfirm(choice: boolean) {
-  if (choice) {
-    for (const account in user.accounts) {
+  async function removeAllAccountsConfirm(choice: boolean) {
+    if (choice) {
+      for (const account in user.accounts) {
+        try {
+          const res = await user.removeAccount(account);
+          if (res) {
+            if (res !== true) {
+              console.error(res);
+              toast.clientError();
+              break;
+            }
+          }
+        } catch (error) {
+          console.error(error);
+          toast.clientError();
+          break;
+        }
+      }
+      toast.show('All accounts removed.');
+      router.replace({
+        path: '/auth',
+        query: {
+          redirect: redirectLoc.value,
+        },
+        hash: '#login',
+      });
+    }
+  }
+
+  async function removeAccountConfirm(choice: boolean) {
+    if (choice) {
       try {
-        const res = await user.removeAccount(account);
+        const res = await user.removeAccount(selectedAccount.value as string);
         if (res) {
-          if (res !== true) {
+          if (res === true) {
+            toast.show('Account removed.');
+            selectedAccount.value = null;
+            removeAccountModal.value?.hide();
+          } else {
             console.error(res);
             toast.clientError();
-            break;
           }
         }
       } catch (error) {
         console.error(error);
         toast.clientError();
-        break;
+      }
+    } else {
+      removeAccountModal.value?.hide();
+    }
+  }
+
+  onBeforeMount(async () => {
+    if (Object.keys(user.accounts).length < 1) {
+      router.replace({
+        path: '/auth',
+        query: {
+          redirect: redirectLoc.value,
+        },
+        hash: '#login',
+      });
+    } else if (Object.keys(user.accounts).length < 2 && !user.loggedIn) {
+      const res = await user.switchAccount(Object.keys(user.accounts)[0]);
+      if (typeof res === 'boolean') {
+        if (res)
+          router.replace({
+            path: redirectLoc.value,
+          });
+        else
+          router.replace({
+            path: '/auth',
+            query: {
+              redirect: redirectLoc.value,
+              username: Object.keys(user.accounts)[0],
+            },
+            hash: '#login',
+          });
       }
     }
-    toast.show("All accounts removed.");
-    router.replace({
-      path: "/auth",
-      query: {
-        redirect: redirectLoc.value,
-      },
-      hash: "#login",
-    });
-  }
-}
-
-async function removeAccountConfirm(choice: boolean) {
-  if (choice) {
-    try {
-      const res = await user.removeAccount(selectedAccount.value as string);
-      if (res) {
-        if (res === true) {
-          toast.show("Account removed.");
-          selectedAccount.value = null;
-          removeAccountModal.value?.hide();
-        } else {
-          console.error(res);
-          toast.clientError();
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      toast.clientError();
-    }
-  } else {
-    removeAccountModal.value?.hide();
-  }
-}
-
-onBeforeMount(async () => {
-  if (Object.keys(user.accounts).length < 1) {
-    router.replace({
-      path: "/auth",
-      query: {
-        redirect: redirectLoc.value,
-      },
-      hash: "#login",
-    });
-  } else if (Object.keys(user.accounts).length < 2 && !user.loggedIn) {
-    const res = await user.switchAccount(Object.keys(user.accounts)[0]);
-    if (typeof res === "boolean") {
-      if (res)
-        router.replace({
-          path: redirectLoc.value,
-        });
-      else
-        router.replace({
-          path: "/auth",
-          query: {
-            redirect: redirectLoc.value,
-            username: Object.keys(user.accounts)[0],
-          },
-          hash: "#login",
-        });
-    }
-  }
-});
+  });
 </script>
 
 <style>
-.account-switcher-accounts {
-  width: fit-content;
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  flex-direction: column;
-}
+  .account-switcher-accounts {
+    width: fit-content;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    flex-direction: column;
+  }
 
-.account-switcher-account {
-  display: grid;
-  grid: 1fr 1fr / 50px 4fr;
-  align-items: center;
-  padding: 25px 30px;
-  gap: 0 5px;
-  border-bottom: 1px solid var(--ui-border);
-  cursor: pointer;
-  transition: background-color 0.25s, border-color 0.25s, color 0.25s;
-}
+  .account-switcher-account {
+    display: grid;
+    grid: 1fr 1fr / 50px 4fr;
+    align-items: center;
+    padding: 25px 30px;
+    gap: 0 5px;
+    border-bottom: 1px solid var(--ui-border);
+    cursor: pointer;
+    transition: background-color 0.25s, border-color 0.25s, color 0.25s;
+  }
 
-.account-switcher-account:hover,
-.account-switcher-account:focus {
-  background-color: var(--ui-background-hover);
-}
+  .account-switcher-account:hover,
+  .account-switcher-account:focus {
+    background-color: var(--ui-background-hover);
+  }
 
-.account-switcher-account:first-child {
-  border-radius: 1rem 1rem 0 0;
-}
+  .account-switcher-account:first-child {
+    border-radius: 1rem 1rem 0 0;
+  }
 
-.account-switcher-account:last-child {
-  border-radius: 0 0 1rem 1rem;
-  border-bottom-width: none;
-  border-bottom-style: none;
-}
+  .account-switcher-account:last-child {
+    border-radius: 0 0 1rem 1rem;
+    border-bottom-width: none;
+    border-bottom-style: none;
+  }
 
-.account-switcher-account:only-child {
-  border-radius: 1rem;
-  border-bottom-width: none;
-  border-bottom-style: none;
-}
+  .account-switcher-account:only-child {
+    border-radius: 1rem;
+    border-bottom-width: none;
+    border-bottom-style: none;
+  }
 
-.account-switcher-account.disabled {
-  cursor: not-allowed;
-  background-color: var(--ui-background-disabled);
-  color: var(--ui-foreground-disabled);
-}
+  .account-switcher-account.disabled {
+    cursor: not-allowed;
+    background-color: var(--ui-background-disabled);
+    color: var(--ui-foreground-disabled);
+  }
 
-.account-switcher-account img {
-  transition: filter 0.25s;
-  width: 50px;
-  justify-self: left;
-  align-self: center;
-  grid-row: 1 / span 2;
-  grid-column: 1 / 2;
-  user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-}
+  .account-switcher-account img {
+    transition: filter 0.25s;
+    width: 50px;
+    justify-self: left;
+    align-self: center;
+    grid-row: 1 / span 2;
+    grid-column: 1 / 2;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+  }
 
-html.dark-theme .account-switcher-account img {
-  filter: invert(100%);
-}
+  html.dark-theme .account-switcher-account img {
+    filter: invert(100%);
+  }
 
-html.dark-theme .account-switcher-account.disabled img {
-  filter: invert(calc(148 / 255));
-}
+  html.dark-theme .account-switcher-account.disabled img {
+    filter: invert(calc(148 / 255));
+  }
 
-.account-switcher-account p {
-  margin: 0;
-  text-align: left;
-  transition: color 0.25s;
-}
+  .account-switcher-account p {
+    margin: 0;
+    text-align: left;
+    transition: color 0.25s;
+  }
 
-.account-switcher-account.disabled p {
-  color: var(--ui-foreground-disabled);
-}
+  .account-switcher-account.disabled p {
+    color: var(--ui-foreground-disabled);
+  }
 
-.account-switcher-account p:first-of-type {
-  font-size: 24px;
-  font-weight: bold;
-  font-family: var(--font-heading);
-  grid-column: 2 / 2;
-  grid-row: 1 / 2;
-}
+  .account-switcher-account p:first-of-type {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: var(--font-heading);
+    grid-column: 2 / 2;
+    grid-row: 1 / 2;
+  }
 
-.account-switcher-account p:first-of-type:not(:only-of-type) {
-  align-self: end;
-}
+  .account-switcher-account p:first-of-type:not(:only-of-type) {
+    align-self: end;
+  }
 
-.account-switcher-account p:last-of-type:not(:only-of-type) {
-  align-self: start;
-  grid-column: 2 / 2;
-  grid-row: 2 / 2;
-}
+  .account-switcher-account p:last-of-type:not(:only-of-type) {
+    align-self: start;
+    grid-column: 2 / 2;
+    grid-row: 2 / 2;
+  }
 
-.account-switcher-account p:only-of-type {
-  grid-row: 1 / span 2;
-}
+  .account-switcher-account p:only-of-type {
+    grid-row: 1 / span 2;
+  }
 </style>

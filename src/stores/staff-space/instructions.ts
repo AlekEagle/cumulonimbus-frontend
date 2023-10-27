@@ -1,12 +1,12 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const instructionsStore = defineStore("staff-space-instructions", () => {
+export const instructionsStore = defineStore('staff-space-instructions', () => {
   const user = userStore(),
     data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Instruction> | null>(
-      null
+      null,
     ),
     loading = ref(false),
     errored = ref(false),
@@ -58,11 +58,11 @@ export const instructionsStore = defineStore("staff-space-instructions", () => {
     loading.value = true;
     try {
       const result = await user.client!.createInstruction(
-        name.toLowerCase().replace(/\s/g, "-"),
+        name.toLowerCase().replace(/\s/g, '-'),
         name,
         description,
         [],
-        "{{token}}"
+        '{{token}}',
       );
       return result.result;
     } catch (error) {

@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const fileStore = defineStore("staff-space-file", () => {
+export const fileStore = defineStore('staff-space-file', () => {
   const user = userStore(),
     data = ref<Cumulonimbus.Data.File | null>(null),
     loading = ref(false),
@@ -18,7 +18,7 @@ export const fileStore = defineStore("staff-space-file", () => {
       const result = await (user.client as Cumulonimbus).getFile(id);
       data.value = result.result;
       const uploaderResult = await (user.client as Cumulonimbus).getUser(
-        data.value.userID
+        data.value.userID,
       );
       uploader.value = uploaderResult.result;
     } catch (error) {
@@ -35,7 +35,7 @@ export const fileStore = defineStore("staff-space-file", () => {
   }
 
   async function editFilename(
-    filename?: string
+    filename?: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (data.value === null) return false;
     if (user.client === null) return false;
@@ -44,7 +44,7 @@ export const fileStore = defineStore("staff-space-file", () => {
     try {
       const result = await (user.client as Cumulonimbus).editFilename(
         data.value.id,
-        filename
+        filename,
       );
       data.value = result.result;
     } catch (error) {
@@ -61,7 +61,7 @@ export const fileStore = defineStore("staff-space-file", () => {
   }
 
   async function editFileExtension(
-    fileExtension: string
+    fileExtension: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (data.value === null) return false;
     if (user.client === null) return false;
@@ -70,7 +70,7 @@ export const fileStore = defineStore("staff-space-file", () => {
     try {
       const result = await (user.client as Cumulonimbus).editFileExtension(
         data.value.id,
-        fileExtension
+        fileExtension,
       );
       data.value = result.result;
     } catch (error) {
@@ -93,7 +93,7 @@ export const fileStore = defineStore("staff-space-file", () => {
     loading.value = true;
     try {
       const result = await (user.client as Cumulonimbus).deleteFile(
-        data.value.id
+        data.value.id,
       );
       data.value = null;
       return true;

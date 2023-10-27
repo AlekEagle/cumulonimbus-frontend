@@ -14,7 +14,7 @@
         {{
           sessions.data?.count
             ? sessions.data.count.toLocaleString()
-            : "some number of"
+            : 'some number of'
         }}
         logged in sessions in total.
       </h2>
@@ -120,172 +120,174 @@
 </template>
 
 <script lang="ts" setup>
-import Paginator from "@/components/Paginator.vue";
-import BackButton from "@/components/BackButton.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import LoadingBlurb from "@/components/LoadingBlurb.vue";
-import SelectableContentBox from "@/components/SelectableContentBox.vue";
-import { toastStore } from "@/stores/toast";
-import { userStore } from "@/stores/user";
-import defaultErrorHandler from "@/utils/defaultErrorHandler";
-import toDateString from "@/utils/toDateString";
-import { useOnline } from "@vueuse/core";
-import { ref, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { sessionsStore } from "@/stores/user-space/sessions";
-import Cumulonimbus from "cumulonimbus-wrapper";
-import infoIcon from "@/assets/images/info.svg";
-import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
+  import Paginator from '@/components/Paginator.vue';
+  import BackButton from '@/components/BackButton.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import SelectableContentBox from '@/components/SelectableContentBox.vue';
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import toDateString from '@/utils/toDateString';
+  import { useOnline } from '@vueuse/core';
+  import { ref, watch, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { sessionsStore } from '@/stores/user-space/sessions';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import infoIcon from '@/assets/images/info.svg';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
 
-const router = useRouter(),
-  online = useOnline(),
-  sessions = sessionsStore(),
-  user = userStore(),
-  toast = toastStore(),
-  selecting = ref(false),
-  selected = ref<string[]>([]),
-  confirmDeleteModal = ref<typeof ConfirmModal>(),
-  manageSessionModal = ref<typeof ConfirmModal>(),
-  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
-  page = ref(0),
-  selectedSession = ref<Cumulonimbus.Data.Session | null>(null);
+  const router = useRouter(),
+    online = useOnline(),
+    sessions = sessionsStore(),
+    user = userStore(),
+    toast = toastStore(),
+    selecting = ref(false),
+    selected = ref<string[]>([]),
+    confirmDeleteModal = ref<typeof ConfirmModal>(),
+    manageSessionModal = ref<typeof ConfirmModal>(),
+    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+    page = ref(0),
+    selectedSession = ref<Cumulonimbus.Data.Session | null>(null);
 
-async function fetchSessions() {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  window.scrollTo(0, 0);
-  try {
-    const status = await sessions.getSessions(page.value);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
-        toast.clientError();
-      }
-    } else if (!status) {
-      toast.clientError();
+  async function fetchSessions() {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
     }
-  } catch (e) {
-    console.error(e);
-    toast.clientError();
-  }
-}
-
-async function onSessionClick(session: Cumulonimbus.Data.Session) {
-  if (selecting.value) {
-    if (selected.value.includes(session.id + "")) {
-      selected.value = selected.value.filter((id) => id !== session.id + "");
-    } else {
-      selected.value.push(session.id + "");
-    }
-  } else {
-    manageSessionModal.value!.show();
-    selectedSession.value = (
-      await user.client!.getSession(session.id + "")
-    ).result;
-  }
-}
-
-onMounted(async () => {
-  if (!online.value) {
-    const unwatchOnline = watch(online, () => {
-      if (online.value) {
-        if (!sessions.data || sessions.page !== page.value) {
-          fetchSessions();
+    window.scrollTo(0, 0);
+    try {
+      const status = await sessions.getSessions(page.value);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
         }
-        unwatchOnline();
-      }
-    });
-    return;
-  }
-  if (!sessions.data || sessions.page !== page.value) {
-    fetchSessions();
-  }
-});
-
-async function onManageSessionChoice(choice: boolean) {
-  if (choice) {
-    fullscreenLoadingBlurb.value!.show();
-    const status = await sessions.deleteSession(selectedSession.value!.id + "");
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
+      } else if (!status) {
         toast.clientError();
       }
-    } else if (!status) {
-      fullscreenLoadingBlurb.value!.hide();
+    } catch (e) {
+      console.error(e);
       toast.clientError();
-    } else {
-      if (selectedSession.value?.id === user.account?.session.id) {
-        fullscreenLoadingBlurb.value!.hide();
-        await manageSessionModal.value!.hide();
-        await user.logout();
-      } else {
-        selectedSession.value = null;
-        toast.show("Session deleted.");
-        await fetchSessions();
-        fullscreenLoadingBlurb.value!.hide();
-        await manageSessionModal.value!.hide();
-      }
     }
   }
-}
 
-async function onDeleteSessionsChoice(choice: boolean) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
+  async function onSessionClick(session: Cumulonimbus.Data.Session) {
+    if (selecting.value) {
+      if (selected.value.includes(session.id + '')) {
+        selected.value = selected.value.filter((id) => id !== session.id + '');
+      } else {
+        selected.value.push(session.id + '');
+      }
+    } else {
+      manageSessionModal.value!.show();
+      selectedSession.value = (
+        await user.client!.getSession(session.id + '')
+      ).result;
+    }
   }
-  if (!choice) {
-    await confirmDeleteModal.value!.hide();
-    selected.value = [];
-    selecting.value = false;
-    return;
-  }
-  try {
-    const status = await sessions.deleteSessions(selected.value);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      switch (status.code) {
-        case "INVALID_SESSION_ERROR":
-          toast.show("It appears that session doesn't exist anymore.");
-          await fetchSessions();
-          selectedSession.value = null;
+
+  onMounted(async () => {
+    if (!online.value) {
+      const unwatchOnline = watch(online, () => {
+        if (online.value) {
+          if (!sessions.data || sessions.page !== page.value) {
+            fetchSessions();
+          }
+          unwatchOnline();
+        }
+      });
+      return;
+    }
+    if (!sessions.data || sessions.page !== page.value) {
+      fetchSessions();
+    }
+  });
+
+  async function onManageSessionChoice(choice: boolean) {
+    if (choice) {
+      fullscreenLoadingBlurb.value!.show();
+      const status = await sessions.deleteSession(
+        selectedSession.value!.id + '',
+      );
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
+        }
+      } else if (!status) {
+        fullscreenLoadingBlurb.value!.hide();
+        toast.clientError();
+      } else {
+        if (selectedSession.value?.id === user.account?.session.id) {
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
-          break;
-        default:
-          const handled = await defaultErrorHandler(status, router);
-          if (!handled) {
-            toast.clientError();
-          }
+          await user.logout();
+        } else {
+          selectedSession.value = null;
+          toast.show('Session deleted.');
+          await fetchSessions();
           fullscreenLoadingBlurb.value!.hide();
-      }
-    } else if (!status) {
-      fullscreenLoadingBlurb.value!.hide();
-      toast.clientError();
-    } else {
-      if (selected.value.includes(user.account?.session.id + "")) {
-        fullscreenLoadingBlurb.value!.hide();
-        await manageSessionModal.value!.hide();
-        await user.logout();
-      } else {
-        selected.value = [];
-        selecting.value = false;
-        toast.show(`Deleted ${status} sessions.`);
-        await fetchSessions();
-        fullscreenLoadingBlurb.value!.hide();
-        await manageSessionModal.value!.hide();
+          await manageSessionModal.value!.hide();
+        }
       }
     }
-  } catch (e) {
-    console.error(e);
-    toast.clientError();
   }
-}
 
-function cancelSelection() {
-  selected.value = [];
-  selecting.value = false;
-}
+  async function onDeleteSessionsChoice(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
+      await confirmDeleteModal.value!.hide();
+      selected.value = [];
+      selecting.value = false;
+      return;
+    }
+    try {
+      const status = await sessions.deleteSessions(selected.value);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        switch (status.code) {
+          case 'INVALID_SESSION_ERROR':
+            toast.show("It appears that session doesn't exist anymore.");
+            await fetchSessions();
+            selectedSession.value = null;
+            fullscreenLoadingBlurb.value!.hide();
+            await manageSessionModal.value!.hide();
+            break;
+          default:
+            const handled = await defaultErrorHandler(status, router);
+            if (!handled) {
+              toast.clientError();
+            }
+            fullscreenLoadingBlurb.value!.hide();
+        }
+      } else if (!status) {
+        fullscreenLoadingBlurb.value!.hide();
+        toast.clientError();
+      } else {
+        if (selected.value.includes(user.account?.session.id + '')) {
+          fullscreenLoadingBlurb.value!.hide();
+          await manageSessionModal.value!.hide();
+          await user.logout();
+        } else {
+          selected.value = [];
+          selecting.value = false;
+          toast.show(`Deleted ${status} sessions.`);
+          await fetchSessions();
+          fullscreenLoadingBlurb.value!.hide();
+          await manageSessionModal.value!.hide();
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
+  }
+
+  function cancelSelection() {
+    selected.value = [];
+    selecting.value = false;
+  }
 </script>

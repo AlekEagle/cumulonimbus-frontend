@@ -1,8 +1,8 @@
-import { defineStore } from "pinia";
-import { computed, Ref, ref, unref, watch, WatchStopHandle } from "vue";
-import { wait, waitFor } from "@/utils/wait";
-import Cumulonimbus from "cumulonimbus-wrapper";
-import { addSeconds, useTimeString } from "@/utils/time";
+import { defineStore } from 'pinia';
+import { computed, Ref, ref, unref, watch, WatchStopHandle } from 'vue';
+import { wait, waitFor } from '@/utils/wait';
+import Cumulonimbus from 'cumulonimbus-wrapper';
+import { addSeconds, useTimeString } from '@/utils/time';
 
 const toastTransitionDuration = 500;
 
@@ -11,9 +11,9 @@ function capitalizeFirstLetter(string: string): string {
 }
 
 // A store for managing toast messages
-export const toastStore = defineStore("toast", () => {
+export const toastStore = defineStore('toast', () => {
   // The current text of the toast
-  const text = ref("");
+  const text = ref('');
   // Watcher for reactive text
   const watcher = ref<WatchStopHandle | null>(null);
   // The current visibility of the toast
@@ -39,7 +39,7 @@ export const toastStore = defineStore("toast", () => {
     // Set the text of the toast
     text.value = unref(msg);
     // If the text is reactive, watch it
-    if (typeof msg !== "string") {
+    if (typeof msg !== 'string') {
       watcher.value = watch(msg, (newMsg) => {
         text.value = newMsg;
       });
@@ -99,18 +99,18 @@ export const toastStore = defineStore("toast", () => {
   // A toast for when a user that is banned makes an API call.
   const banned = async () => {
     await show(
-      "You have been banned from Cumulonimbus. Sorry for the inconvenience."
+      'You have been banned from Cumulonimbus. Sorry for the inconvenience.',
     );
   };
 
   // A toast for when a user's session is invalid or has expired.
   const session = async () => {
-    await show("Your session has expired. Please log in again.");
+    await show('Your session has expired. Please log in again.');
   };
 
   // A toast for when a user tries to do something that requires them to be logged in.
   const login = async () => {
-    await show("Whoops! Looks like you need to log in before we do that!");
+    await show('Whoops! Looks like you need to log in before we do that!');
   };
 
   // A toast for when a user tries to access an endpoint they don't have permission to.
@@ -120,27 +120,27 @@ export const toastStore = defineStore("toast", () => {
 
   // A toast for a client-side error.
   const clientError = async () => {
-    await show("I did something wrong, give me a second and try again.");
+    await show('I did something wrong, give me a second and try again.');
   };
 
   // A toast for a server-side error.
   const serverError = async () => {
     await show(
-      "The server did something wrong, give it a second and try again."
+      'The server did something wrong, give it a second and try again.',
     );
   };
 
   // A toast for a generic error.
   const genericError = async () => {
     await show(
-      "Someone did something wrong, I don't know who. Give it a second and try again."
+      "Someone did something wrong, I don't know who. Give it a second and try again.",
     );
   };
 
   // A toast for a new version of Cumulonimbus being available.
   const newVersion = async () => {
     await show(
-      "A new version of Cumulonimbus is available! Please refresh the page to apply the update."
+      'A new version of Cumulonimbus is available! Please refresh the page to apply the update.',
     );
   };
 
@@ -152,10 +152,10 @@ export const toastStore = defineStore("toast", () => {
         ? capitalizeFirstLetter(fields[0])
         : fields
             .map(capitalizeFirstLetter)
-            .join(", ")
-            .replace(/, ([^,]*)$/, ", and $1");
+            .join(', ')
+            .replace(/, ([^,]*)$/, ', and $1');
     await show(
-      `Whoops! Looks like you missed something! Please double-check: ${fieldsNormalized}`
+      `Whoops! Looks like you missed something! Please double-check: ${fieldsNormalized}`,
     );
   };
 
@@ -166,12 +166,12 @@ export const toastStore = defineStore("toast", () => {
 
   // The function to display a toast regarding an incorrect password
   const invalidPassword = async () => {
-    await show("No, that is not the password.");
+    await show('No, that is not the password.');
   };
 
   // The function to display a toast regarding client internet connectivity
   const connectivityOffline = async () => {
-    await show("It seems like you are offline. Please try again later.");
+    await show('It seems like you are offline. Please try again later.');
   };
 
   // The function to display a toast regarding the client's internet connectivity changing to online

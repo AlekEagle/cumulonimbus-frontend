@@ -14,12 +14,14 @@
         {{
           instructions.data?.count
             ? instructions.data.count.toLocaleString()
-            : "some number of"
+            : 'some number of'
         }}
         setup guides in total.
       </h2>
     </template>
-    <h2 class="animated-ellipsis" v-else>Speed reading each individual setup guide</h2>
+    <h2 class="animated-ellipsis" v-else
+      >Speed reading each individual setup guide</h2
+    >
   </template>
   <template v-else>
     <h2>You're offline. Please connect to the internet to continue.</h2>
@@ -75,63 +77,63 @@
 </template>
 
 <script lang="ts" setup>
-import ContentBox from "@/components/ContentBox.vue";
-import Paginator from "@/components/Paginator.vue";
-import BackButton from "@/components/BackButton.vue";
-import LoadingBlurb from "@/components/LoadingBlurb.vue";
-import { userStore } from "@/stores/user";
-import { instructionsStore } from "@/stores/user-space/instructions";
-import { toastStore } from "@/stores/toast";
-import { ref, onMounted, watch } from "vue";
-import defaultErrorHandler from "@/utils/defaultErrorHandler";
-import Cumulonimbus from "cumulonimbus-wrapper";
-import { useRouter } from "vue-router";
-import { useOnline } from "@vueuse/core";
-import infoIcon from "@/assets/images/info.svg";
+  import ContentBox from '@/components/ContentBox.vue';
+  import Paginator from '@/components/Paginator.vue';
+  import BackButton from '@/components/BackButton.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import { userStore } from '@/stores/user';
+  import { instructionsStore } from '@/stores/user-space/instructions';
+  import { toastStore } from '@/stores/toast';
+  import { ref, onMounted, watch } from 'vue';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import { useRouter } from 'vue-router';
+  import { useOnline } from '@vueuse/core';
+  import infoIcon from '@/assets/images/info.svg';
 
-const user = userStore(),
-  instructions = instructionsStore(),
-  toast = toastStore(),
-  router = useRouter(),
-  online = useOnline(),
-  page = ref(0);
+  const user = userStore(),
+    instructions = instructionsStore(),
+    toast = toastStore(),
+    router = useRouter(),
+    online = useOnline(),
+    page = ref(0);
 
-async function fetchInstructions() {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  window.scrollTo(0, 0);
-  try {
-    const status = await instructions.getInstructions(page.value);
-    if (status instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(status, router);
-      if (!handled) {
+  async function fetchInstructions() {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    window.scrollTo(0, 0);
+    try {
+      const status = await instructions.getInstructions(page.value);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.clientError();
+        }
+      } else if (!status) {
         toast.clientError();
       }
-    } else if (!status) {
+    } catch (e) {
+      console.error(e);
       toast.clientError();
     }
-  } catch (e) {
-    console.error(e);
-    toast.clientError();
   }
-}
 
-onMounted(async () => {
-  if (!online.value) {
-    const unwatchOnline = watch(online, () => {
-      if (online.value) {
-        if (!instructions.data || instructions.page !== page.value) {
-          fetchInstructions();
+  onMounted(async () => {
+    if (!online.value) {
+      const unwatchOnline = watch(online, () => {
+        if (online.value) {
+          if (!instructions.data || instructions.page !== page.value) {
+            fetchInstructions();
+          }
+          unwatchOnline();
         }
-        unwatchOnline();
-      }
-    });
-    return;
-  }
-  if (!instructions.data || instructions.page !== page.value) {
-    fetchInstructions();
-  }
-});
+      });
+      return;
+    }
+    if (!instructions.data || instructions.page !== page.value) {
+      fetchInstructions();
+    }
+  });
 </script>

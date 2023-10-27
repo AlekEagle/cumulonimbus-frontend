@@ -34,7 +34,7 @@
           }}</code>
         </p>
         <p>
-          Staff: <code>{{ user.account.user!.staff ? "Yes" : "No" }}</code>
+          Staff: <code>{{ user.account.user!.staff ? 'Yes' : 'No' }}</code>
         </p>
       </ContentBox>
     </div>
@@ -286,252 +286,252 @@
 </template>
 
 <script lang="ts" setup>
-import BackButton from "@/components/BackButton.vue";
-import LoadingBlurb from "@/components/LoadingBlurb.vue";
-import FullscreenLoadingBlurb from "@/components/FullscreenLoadingBlurb.vue";
-import ContentBox from "@/components/ContentBox.vue";
-import FormModal from "@/components/FormModal.vue";
-import DomainModal from "@/components/DomainModal.vue";
-import Switch from "@/components/Switch.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import profileIcon from "@/assets/images/profile.svg";
-import gearIcon from "@/assets/images/gear.svg";
-import { userStore } from "@/stores/user";
-import { toastStore } from "@/stores/toast";
-import toDateString from "@/utils/toDateString";
-import toLogin from "@/utils/toLogin";
-import defaultErrorHandler from "@/utils/defaultErrorHandler";
-import { useOnline } from "@vueuse/core";
-import { useRouter } from "vue-router";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+  import BackButton from '@/components/BackButton.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import ContentBox from '@/components/ContentBox.vue';
+  import FormModal from '@/components/FormModal.vue';
+  import DomainModal from '@/components/DomainModal.vue';
+  import Switch from '@/components/Switch.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import profileIcon from '@/assets/images/profile.svg';
+  import gearIcon from '@/assets/images/gear.svg';
+  import { userStore } from '@/stores/user';
+  import { toastStore } from '@/stores/toast';
+  import toDateString from '@/utils/toDateString';
+  import toLogin from '@/utils/toLogin';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import { useOnline } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
+  import { ref } from 'vue';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
 
-const user = userStore(),
-  toast = toastStore(),
-  router = useRouter(),
-  usernameFormModal = ref<typeof FormModal>(),
-  emailFormModal = ref<typeof FormModal>(),
-  passwordFormModal = ref<typeof FormModal>(),
-  domainModal = ref<typeof DomainModal>(),
-  deleteSessionsModal = ref<typeof FormModal>(),
-  deleteFilesModal = ref<typeof ConfirmModal>(),
-  deleteAccountModal = ref<typeof FormModal>(),
-  fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
-  online = useOnline();
+  const user = userStore(),
+    toast = toastStore(),
+    router = useRouter(),
+    usernameFormModal = ref<typeof FormModal>(),
+    emailFormModal = ref<typeof FormModal>(),
+    passwordFormModal = ref<typeof FormModal>(),
+    domainModal = ref<typeof DomainModal>(),
+    deleteSessionsModal = ref<typeof FormModal>(),
+    deleteFilesModal = ref<typeof ConfirmModal>(),
+    deleteAccountModal = ref<typeof FormModal>(),
+    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+    online = useOnline();
 
-async function updateUsername(data: { username: string; password: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
+  async function updateUsername(data: { username: string; password: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    const oldUsername = user.account!.user.username;
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const res = await user.changeUsername(data.username, data.password);
+      if (res instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          switch (res.code) {
+            case 'USER_EXISTS_ERROR':
+              toast.show('Someone already has that username!');
+              break;
+          }
+        }
+        fullscreenLoadingBlurb.value!.hide();
+      } else if (res) {
+        const token = user.accounts[oldUsername]!;
+        delete user.accounts[oldUsername];
+        user.accounts[data.username] = token;
+        fullscreenLoadingBlurb.value!.hide();
+        usernameFormModal.value!.hide();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
+    }
   }
-  const oldUsername = user.account!.user.username;
-  try {
-    fullscreenLoadingBlurb.value!.show();
-    const res = await user.changeUsername(data.username, data.password);
-    if (res instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(res, router);
-      if (!handled) {
-        switch (res.code) {
-          case "USER_EXISTS_ERROR":
-            toast.show("Someone already has that username!");
-            break;
+
+  async function updateEmail(data: { email: string; password: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const res = await user.changeEmail(data.email, data.password);
+      if (res instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          switch (res.code) {
+            case 'USER_EXISTS_ERROR':
+              toast.show('Someone already has that email!');
+              break;
+          }
+        }
+        fullscreenLoadingBlurb.value!.hide();
+      } else if (res) {
+        fullscreenLoadingBlurb.value!.hide();
+        emailFormModal.value!.hide();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
+    }
+  }
+
+  async function updatePassword(data: {
+    newPassword: string;
+    confirmNewPassword: string;
+    password: string;
+  }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const res = await user.changePassword(
+        data.newPassword,
+        data.confirmNewPassword,
+        data.password,
+      );
+      if (res instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          toast.clientError();
+        }
+      } else if (res) {
+        fullscreenLoadingBlurb.value!.hide();
+        passwordFormModal.value!.hide();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
+    }
+  }
+
+  async function updateDomain(data: { domain: string; subdomain?: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const res = await user.changeDomain(data.domain, data.subdomain);
+      if (res instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          switch (res.code) {
+            case 'INVALID_DOMAIN_ERROR':
+              toast.show('You just missed that domain.');
+              domainModal.value!.reloadDomains();
+              break;
+            case 'SUBDOMAIN_NOT_ALLOWED_ERROR':
+              toast.show('Subdomains are not supported.');
+              break;
+            case 'SUBDOMAIN_TOO_LONG_ERROR':
+              toast.show('Subdomain cannot be longer than 63 characters.');
+              break;
+          }
+        }
+      } else if (res) {
+        fullscreenLoadingBlurb.value!.hide();
+        domainModal.value!.hide();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
+    }
+  }
+
+  async function deleteSessions(data: { includeSelf: boolean }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const res = await user.revokeSessions(data.includeSelf);
+      if (res instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          toast.clientError();
+        }
+      } else if (res) {
+        fullscreenLoadingBlurb.value!.hide();
+        deleteSessionsModal.value!.hide();
+        toast.show(`Deleted ${res} sessions.`);
+        if (data.includeSelf) {
+          toLogin(router);
         }
       }
-      fullscreenLoadingBlurb.value!.hide();
-    } else if (res) {
-      const token = user.accounts[oldUsername]!;
-      delete user.accounts[oldUsername];
-      user.accounts[data.username] = token;
-      fullscreenLoadingBlurb.value!.hide();
-      usernameFormModal.value!.hide();
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
     }
-  } catch (error) {
-    console.error(error);
-    toast.clientError();
   }
-}
 
-async function updateEmail(data: { email: string; password: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    fullscreenLoadingBlurb.value!.show();
-    const res = await user.changeEmail(data.email, data.password);
-    if (res instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(res, router);
-      if (!handled) {
-        switch (res.code) {
-          case "USER_EXISTS_ERROR":
-            toast.show("Someone already has that email!");
-            break;
+  async function deleteFiles(data: { password: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const res = await user.deleteFiles(data.password);
+      if (res instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          switch (res.code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show("You don't have any files to delete.");
+              break;
+            default:
+              toast.clientError();
+              break;
+          }
         }
+      } else {
+        toast.show(`Deleted ${res} files.`);
+        fullscreenLoadingBlurb.value!.hide();
+        deleteFilesModal.value!.hide();
       }
-      fullscreenLoadingBlurb.value!.hide();
-    } else if (res) {
-      fullscreenLoadingBlurb.value!.hide();
-      emailFormModal.value!.hide();
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
     }
-  } catch (error) {
-    console.error(error);
-    toast.clientError();
   }
-}
 
-async function updatePassword(data: {
-  newPassword: string;
-  confirmNewPassword: string;
-  password: string;
-}) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    fullscreenLoadingBlurb.value!.show();
-    const res = await user.changePassword(
-      data.newPassword,
-      data.confirmNewPassword,
-      data.password
-    );
-    if (res instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(res, router);
-      if (!handled) {
-        toast.clientError();
-      }
-    } else if (res) {
-      fullscreenLoadingBlurb.value!.hide();
-      passwordFormModal.value!.hide();
+  async function deleteAccount(data: { username: string; password: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    toast.clientError();
-  }
-}
-
-async function updateDomain(data: { domain: string; subdomain?: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    fullscreenLoadingBlurb.value!.show();
-    const res = await user.changeDomain(data.domain, data.subdomain);
-    if (res instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(res, router);
-      if (!handled) {
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const res = await user.deleteAccount(data.username, data.password);
+      if (res instanceof Cumulonimbus.ResponseError) {
         switch (res.code) {
-          case "INVALID_DOMAIN_ERROR":
-            toast.show("You just missed that domain.");
-            domainModal.value!.reloadDomains();
-            break;
-          case "SUBDOMAIN_NOT_ALLOWED_ERROR":
-            toast.show("Subdomains are not supported.");
-            break;
-          case "SUBDOMAIN_TOO_LONG_ERROR":
-            toast.show("Subdomain cannot be longer than 63 characters.");
-            break;
-        }
-      }
-    } else if (res) {
-      fullscreenLoadingBlurb.value!.hide();
-      domainModal.value!.hide();
-    }
-  } catch (error) {
-    console.error(error);
-    toast.clientError();
-  }
-}
-
-async function deleteSessions(data: { includeSelf: boolean }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-
-  try {
-    fullscreenLoadingBlurb.value!.show();
-    const res = await user.revokeSessions(data.includeSelf);
-    if (res instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(res, router);
-      if (!handled) {
-        toast.clientError();
-      }
-    } else if (res) {
-      fullscreenLoadingBlurb.value!.hide();
-      deleteSessionsModal.value!.hide();
-      toast.show(`Deleted ${res} sessions.`);
-      if (data.includeSelf) {
-        toLogin(router);
-      }
-    }
-  } catch (error) {
-    console.error(error);
-    toast.clientError();
-  }
-}
-
-async function deleteFiles(data: { password: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    fullscreenLoadingBlurb.value!.show();
-    const res = await user.deleteFiles(data.password);
-    if (res instanceof Cumulonimbus.ResponseError) {
-      const handled = await defaultErrorHandler(res, router);
-      if (!handled) {
-        switch (res.code) {
-          case "INVALID_FILE_ERROR":
-            toast.show("You don't have any files to delete.");
+          case 'INVALID_USERNAME_ERROR':
+            toast.show('That is not your username.');
             break;
           default:
-            toast.clientError();
+            const handled = await defaultErrorHandler(res, router);
+            if (!handled) {
+              toast.clientError();
+            }
             break;
         }
+      } else if (res) {
+        fullscreenLoadingBlurb.value!.hide();
+        await deleteAccountModal.value!.hide();
+        router.replace('/');
+        toast.show("We're sad to see you go, but we understand.");
       }
-    } else {
-      toast.show(`Deleted ${res} files.`);
-      fullscreenLoadingBlurb.value!.hide();
-      deleteFilesModal.value!.hide();
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
     }
-  } catch (error) {
-    console.error(error);
-    toast.clientError();
   }
-}
-
-async function deleteAccount(data: { username: string; password: string }) {
-  if (!online.value) {
-    toast.connectivityOffline();
-    return;
-  }
-  try {
-    fullscreenLoadingBlurb.value!.show();
-    const res = await user.deleteAccount(data.username, data.password);
-    if (res instanceof Cumulonimbus.ResponseError) {
-      switch (res.code) {
-        case "INVALID_USERNAME_ERROR":
-          toast.show("That is not your username.");
-          break;
-        default:
-          const handled = await defaultErrorHandler(res, router);
-          if (!handled) {
-            toast.clientError();
-          }
-          break;
-      }
-    } else if (res) {
-      fullscreenLoadingBlurb.value!.hide();
-      await deleteAccountModal.value!.hide();
-      router.replace("/");
-      toast.show("We're sad to see you go, but we understand.");
-    }
-  } catch (error) {
-    console.error(error);
-    toast.clientError();
-  }
-}
 </script>

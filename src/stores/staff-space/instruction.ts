@@ -1,12 +1,11 @@
-import { defineStore } from "pinia";
-import { userStore } from "../user";
-import { instructionsStore } from "./instructions";
-import { ref } from "vue";
-import Cumulonimbus from "cumulonimbus-wrapper";
+import { defineStore } from 'pinia';
+import { userStore } from '../user';
+import { instructionsStore } from './instructions';
+import { ref } from 'vue';
+import Cumulonimbus from 'cumulonimbus-wrapper';
 
-export const instructionStore = defineStore("staff-space-instruction", () => {
+export const instructionStore = defineStore('staff-space-instruction', () => {
   const user = userStore(),
-    instructions = instructionsStore(),
     data = ref<Cumulonimbus.Data.Instruction | null>(null),
     loading = ref(false),
     errored = ref(false);
@@ -59,7 +58,7 @@ export const instructionStore = defineStore("staff-space-instruction", () => {
     try {
       const result = await user.client!.editInstructionName(
         data.value!.id,
-        displayName
+        displayName,
       );
       data.value = result.result;
       return true;
@@ -83,7 +82,7 @@ export const instructionStore = defineStore("staff-space-instruction", () => {
     try {
       const result = await user.client!.editInstructionDescription(
         data.value!.id,
-        description
+        description,
       );
       data.value = result.result;
       return true;
@@ -108,7 +107,7 @@ export const instructionStore = defineStore("staff-space-instruction", () => {
       const result = await user.client!.editInstructionFile(
         data.value!.id,
         content,
-        filename === undefined || filename === "" ? undefined : filename
+        filename === undefined || filename === '' ? undefined : filename,
       );
       data.value = result.result;
       return true;
@@ -132,7 +131,7 @@ export const instructionStore = defineStore("staff-space-instruction", () => {
     try {
       const result = await user.client!.editInstructionSteps(
         data.value!.id,
-        steps
+        steps,
       );
       data.value = result.result;
       return true;

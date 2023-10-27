@@ -7,7 +7,7 @@ export interface RouteParams {
 }
 
 export type RouteHandler = (
-  options: RouteParams
+  options: RouteParams,
 ) => Promise<Response | undefined>;
 
 export class Route {
@@ -16,7 +16,7 @@ export class Route {
     | RegExp
     | ((options: RouteParams) => boolean | Promise<boolean>);
   public handler: (
-    options: RouteParams
+    options: RouteParams,
   ) => Promise<Response | false> | Response | false;
   public method?: string | string[];
 
@@ -26,9 +26,9 @@ export class Route {
       | RegExp
       | ((options: RouteParams) => boolean | Promise<boolean>),
     handler: (
-      options: RouteParams
+      options: RouteParams,
     ) => Promise<Response | false> | Response | false,
-    method?: string | string[]
+    method?: string | string[],
   ) {
     this.matcher = matcher;
     this.handler = handler;
@@ -46,9 +46,9 @@ export class Router {
       | ((options: RouteParams) => boolean | Promise<boolean>)
       | Route,
     handler: (
-      options: RouteParams
+      options: RouteParams,
     ) => Promise<Response | false> | Response | false,
-    method?: string | string[]
+    method?: string | string[],
   ) {
     if (matcher instanceof Route) {
       this.routes.push(matcher);
@@ -69,7 +69,7 @@ export class Router {
             !(await route.matcher({
               url: reqURL,
               request: event.request,
-              event
+              event,
             }))
           ) {
             continue;
@@ -79,7 +79,7 @@ export class Router {
         case 'object':
           if (!(route.matcher instanceof RegExp)) {
             throw new Error(
-              'Route matcher must be a string, RegExp, or function.'
+              'Route matcher must be a string, RegExp, or function.',
             );
           }
           if (!route.matcher.test(event.request.url)) {
@@ -88,7 +88,7 @@ export class Router {
           break;
         default:
           throw new Error(
-            'Route matcher must be a string, RegExp, or function.'
+            'Route matcher must be a string, RegExp, or function.',
           );
       }
       // If the route has a method, check if the request method matches.
@@ -101,7 +101,7 @@ export class Router {
       const response = await route.handler({
         url: reqURL,
         request: event.request,
-        event
+        event,
       });
       // If the handler returns false, continue to the next route.
       if (response === false) continue;
