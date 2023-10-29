@@ -57,9 +57,14 @@
     </nav>
   </header>
 
+  <!-- The main element that contains the real deal content -->
   <main class="content">
+    <!-- The real deal content -->
     <RouterView />
+    <!-- The end of the real deal content -->
   </main>
+  <!-- The end of the main element that contains the real deal content -->
+
   <Modal ref="ptbWarningModal" title="Warning">
     <template #default>
       This is the preview of frontend of Cumulonimbus, it may be unstable and
@@ -72,15 +77,16 @@
       to the stable version. You will not see this message again if you
       continue.
     </template>
+
     <template #footer>
       <button @click="acceptPtbWarning">Continue</button>
-
       <button @click="gotoStable">Go to stable version</button>
     </template>
   </Modal>
-  <transition name="toast">
+
+  <Transition name="toast">
     <div class="toast-box" v-text="toast.text" v-if="toast.visible" />
-  </transition>
+  </Transition>
 </template>
 
 <script lang="ts" setup>
