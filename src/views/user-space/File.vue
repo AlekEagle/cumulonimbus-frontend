@@ -61,7 +61,11 @@
             </p>
             <p>
               Uploaded at:
-              <code v-text="toDateString(new Date(file.data.createdAt))" />
+              <code
+                v-text="
+                  toDateString(new Date(file.data.createdAt))
+                "
+              />
             </p>
             <p>
               Size:

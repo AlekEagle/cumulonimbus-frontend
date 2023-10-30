@@ -4,11 +4,10 @@
       <input
         class="toggle-state"
         type="checkbox"
-        v-model="__checked"
+        v-model="checked"
         :disabled="props.disabled"
         :name="props.name"
         @click="($event.target as HTMLInputElement).blur()"
-        @change="emit('change', __checked)"
       />
       <div class="toggle">
         <div class="indicator" />
@@ -21,25 +20,35 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
 
-  const emit = defineEmits<{
-    (event: 'change', value: boolean): void;
-  }>();
-
-  const props = defineProps<{
-    disabled?: boolean;
-    checked?: boolean;
-    name?: string;
-  }>();
-
-  const __checked = ref<boolean>(false);
-
-  __checked.value = props!.checked ?? false;
-
-  defineExpose({
-    checked: __checked,
+  // Props
+  const props = defineProps({
+    name: String,
+    disabled: Boolean,
+    checked: Boolean,
   });
+
+  // Emit
+  const emit = defineEmits(['update:checked']);
+
+  // Data
+  const checked = ref(props.checked);
+
+  // Watchers
+  watch(
+    () => props.checked,
+    (value) => {
+      checked.value = value;
+    },
+  );
+
+  watch(
+    () => checked.value,
+    (value) => {
+      emit('update:checked', value);
+    },
+  );
 </script>
 
 <style>

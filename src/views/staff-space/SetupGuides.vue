@@ -5,7 +5,7 @@
       <h2>
         Showing page {{ (page + 1).toLocaleString() }} of
         {{
-          (instructions.data
+          (instructions.data?.count !== 0
             ? Math.ceil(instructions.data?.count / 50)
             : 1
           ).toLocaleString()

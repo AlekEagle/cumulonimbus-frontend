@@ -10,7 +10,10 @@
         <br />
         Showing page {{ (page + 1).toLocaleString() }} of
         {{
-          (files.data ? Math.ceil(files.data.count / 50) : 1).toLocaleString()
+          (files.data?.count !== 0
+            ? Math.ceil(files.data.count / 50)
+            : 1
+          ).toLocaleString()
         }}
         <br />
         {{

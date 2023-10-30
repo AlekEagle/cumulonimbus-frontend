@@ -78,6 +78,7 @@
 <style>
   .modal-container {
     background-color: var(--ui-fs-overlay-background);
+    transition: background-color 0.25s;
     width: 100%;
     height: calc(100% + 15px);
     position: fixed;

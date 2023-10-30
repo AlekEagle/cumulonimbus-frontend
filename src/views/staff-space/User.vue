@@ -335,10 +335,10 @@
   import { useRouter } from 'vue-router';
   import { useOnline } from '@vueuse/core';
   import { toastStore } from '@/stores/toast';
+  import { usersStore } from '@/stores/staff-space/users';
+  import { otherUserStore } from '@/stores/staff-space/user';
   import { ref, onMounted, watch } from 'vue';
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { otherUserStore } from '@/stores/staff-space/user';
-  import { usersStore } from '@/stores/staff-space/users';
   import backWithFallback from '@/utils/routerBackWithFallback';
   import toDateString from '@/utils/toDateString';
   import gearIcon from '@/assets/images/gear.svg';

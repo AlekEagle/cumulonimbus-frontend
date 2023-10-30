@@ -40,6 +40,14 @@
     </div>
     <div class="content-box-container" v-if="online">
       <ContentBox
+        title="Display Preferences"
+        :src="gearIcon"
+        theme-safe
+        @click="displayPrefsModal!.show()"
+      >
+        Change your display preferences.
+      </ContentBox>
+      <ContentBox
         title="Update Username"
         :src="gearIcon"
         theme-safe
@@ -109,6 +117,16 @@
     </div>
   </template>
   <LoadingBlurb v-else />
+  <Modal dismissible title="Display Preferences" ref="displayPrefsModal">
+    <p>Change the look and feel of Cumulonimbus to your liking.</p>
+    <br />
+    <Switch v-model:checked="displayPref.hour12">
+      Use a 12 hour time format?
+    </Switch>
+    <br />
+    <p>Current theme: <code v-text="displayPref.dark ? 'Dark' : 'Light'" /></p>
+    <p><i>Change the theme in the navigation bar.</i></p>
+  </Modal>
   <FormModal
     ref="usernameFormModal"
     title="Update Username"
@@ -290,6 +308,7 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
   import ContentBox from '@/components/ContentBox.vue';
+  import Modal from '@/components/Modal.vue';
   import FormModal from '@/components/FormModal.vue';
   import DomainModal from '@/components/DomainModal.vue';
   import Switch from '@/components/Switch.vue';
@@ -298,6 +317,7 @@
   import gearIcon from '@/assets/images/gear.svg';
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
+  import { displayPrefStore } from '@/stores/displayPref';
   import toDateString from '@/utils/toDateString';
   import toLogin from '@/utils/toLogin';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
@@ -309,6 +329,8 @@
   const user = userStore(),
     toast = toastStore(),
     router = useRouter(),
+    displayPref = displayPrefStore(),
+    displayPrefsModal = ref<typeof Modal>(),
     usernameFormModal = ref<typeof FormModal>(),
     emailFormModal = ref<typeof FormModal>(),
     passwordFormModal = ref<typeof FormModal>(),

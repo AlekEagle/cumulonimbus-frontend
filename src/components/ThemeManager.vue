@@ -4,7 +4,7 @@
       type="checkbox"
       id="theme-switch"
       ref="themeSwitch"
-      v-model="theme.enabled"
+      v-model="displayPref.dark"
       :tabindex="props.noTabIndex ? '0' : '-1'"
       @click="($event.target as HTMLInputElement).blur()"
     />
@@ -15,13 +15,13 @@
 </template>
 
 <script lang="ts" setup>
-  import { darkThemeStore } from '@/stores/darkTheme';
+  import { displayPrefStore } from '@/stores/displayPref';
 
   const props = defineProps({
     noTabIndex: Boolean,
   });
 
-  let theme = darkThemeStore();
+  let displayPref = displayPrefStore();
 </script>
 
 <style scoped>

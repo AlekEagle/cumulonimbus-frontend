@@ -5,7 +5,7 @@
       <h2>
         Showing page {{ (page + 1).toLocaleString() }} of
         {{
-          (sessions.data
+          (sessions.data?.count !== 0
             ? Math.ceil(sessions.data?.count / 50)
             : 1
           ).toLocaleString()

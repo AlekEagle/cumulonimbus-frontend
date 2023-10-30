@@ -5,7 +5,7 @@
       <h2>
         Showing page {{ (page + 1).toLocaleString() }} of
         {{
-          (sessions.data
+          (sessions.data?.count !== 0
             ? Math.ceil(sessions.data?.count / 50)
             : 0
           ).toLocaleString()
@@ -97,11 +97,15 @@
       <br />
       <p>
         Created At:
-        <code>{{ toDateString(new Date(selectedSession.id * 1000)) }}</code>
+        <code>{{
+          toDateString(new Date(selectedSession.id * 1000))
+        }}</code>
       </p>
       <p>
         Expires At:
-        <code>{{ toDateString(new Date(selectedSession.exp * 1000)) }}</code>
+        <code>{{
+          toDateString(new Date(selectedSession.exp * 1000))
+        }}</code>
       </p>
       <p>If you delete this session, they will have to sign back in.</p>
     </template>

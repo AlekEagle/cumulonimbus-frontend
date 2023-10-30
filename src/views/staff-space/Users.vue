@@ -7,7 +7,10 @@
         <br />
         Showing page {{ (page + 1).toLocaleString() }} of
         {{
-          (users.data ? Math.ceil(users.data?.count / 50) : 1).toLocaleString()
+          (users.data?.count !== 0
+            ? Math.ceil(users.data?.count / 50)
+            : 1
+          ).toLocaleString()
         }}
         <br />
         {{

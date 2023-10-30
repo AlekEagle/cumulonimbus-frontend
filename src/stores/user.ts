@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import persistPiniaStore from '@/utils/persistPinia';
+import persistPiniaRef from '@/utils/persistPiniaRef';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
 const BaseAPIURLs: { [key: string]: string } = {
@@ -21,7 +21,7 @@ export const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
 };
 
 export const userStore = defineStore('user', () => {
-  // --- Persistent Data ---
+  // --- Persistent Refs ---
   // The store of user accounts in the account switcher.
   // If the user session is valid, the token value will be present.
   // If it isn't, the account will remain on the list but be false, indicating the session expired.
@@ -30,14 +30,14 @@ export const userStore = defineStore('user', () => {
     [key: string]: string | false;
   }>({});
   // Persist the user accounts store.
-  persistPiniaStore(accounts, 'accounts', { deep: true, immediate: true });
+  persistPiniaRef(accounts, 'accounts', { deep: true, immediate: true });
   // The current account information.
   const account = ref<{
     session: Cumulonimbus.Data.Session & { token: string };
     user: Cumulonimbus.Data.User;
   } | null>(null);
   // Persist the current account information.
-  persistPiniaStore(account, 'account', { deep: true, immediate: true });
+  persistPiniaRef(account, 'account', { deep: true, immediate: true });
   // --- Non-Persistent Data ---
   // The Cumulonimbus client.
   const client = ref<Cumulonimbus | null>(null);

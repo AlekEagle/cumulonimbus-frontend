@@ -1,16 +1,16 @@
 import { Ref, watch, WatchOptions } from 'vue';
 
-export default function persistPiniaStore(
-  value: Ref<any>,
+export default function persistPiniaRef<T extends unknown>(
+  ref: Ref<T>,
   key: string,
   watchOptions?: WatchOptions,
 ) {
   if (localStorage.getItem(key)) {
-    value.value = JSON.parse(localStorage.getItem(key) as string);
+    ref.value = JSON.parse(localStorage.getItem(key) as string);
   }
 
   watch(
-    value,
+    ref,
     (newVal) => {
       localStorage.setItem(key, JSON.stringify(newVal));
     },
