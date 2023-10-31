@@ -26,7 +26,7 @@
   <Paginator
     v-model="page"
     @page-change="fetchFiles"
-    :max="files.data ? Math.ceil(files.data?.count / 50) - 1 : 0"
+    :item-count="files.data ? files.data.count : 0"
     :disabled="files.loading || !online"
   >
     <Online>
