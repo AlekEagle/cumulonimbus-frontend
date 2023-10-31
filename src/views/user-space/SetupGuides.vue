@@ -1,41 +1,16 @@
 <template>
   <h1>Setup Guides</h1>
-  <template v-if="online || instructions.data">
-    <template v-if="instructions.data">
-      <h2>
-        Showing page {{ (page + 1).toLocaleString() }} of
-        {{
-          (instructions.data
-            ? Math.ceil(instructions.data?.count / 50)
-            : 1
-          ).toLocaleString()
-        }}
-        <br />
-        {{
-          instructions.data?.count
-            ? instructions.data.count.toLocaleString()
-            : 'some number of'
-        }}
-        setup guides in total.
-      </h2>
-    </template>
-    <h2 class="animated-ellipsis" v-else
-      >Speed reading each individual setup guide</h2
-    >
-  </template>
-  <template v-else>
-    <h2>You're offline. Please connect to the internet to continue.</h2>
-  </template>
+  <h2>Let's help you get set up.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
   </div>
   <Paginator
     v-model="page"
     @page-change="fetchInstructions"
-    :max="instructions.data ? Math.ceil(instructions.data?.count / 50) - 1 : 0"
+    :item-count="instructions.data?.count || 0"
     :disabled="instructions.loading || !online"
   >
-    <template v-if="online || instructions.data">
+    <Online>
       <template v-if="!instructions.loading">
         <template v-if="!instructions.errored">
           <div
@@ -66,13 +41,7 @@
         </template>
       </template>
       <LoadingBlurb v-else />
-    </template>
-    <template v-else>
-      <h1>Offline</h1>
-      <h2>
-        You are currently offline. Please connect to the internet to continue.
-      </h2>
-    </template>
+    </Online>
   </Paginator>
 </template>
 
@@ -81,7 +50,7 @@
   import Paginator from '@/components/Paginator.vue';
   import BackButton from '@/components/BackButton.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import { userStore } from '@/stores/user';
+  import Online from '@/components/Online.vue';
   import { instructionsStore } from '@/stores/user-space/instructions';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
@@ -91,8 +60,7 @@
   import { useOnline } from '@vueuse/core';
   import infoIcon from '@/assets/images/info.svg';
 
-  const user = userStore(),
-    instructions = instructionsStore(),
+  const instructions = instructionsStore(),
     toast = toastStore(),
     router = useRouter(),
     online = useOnline(),

@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { userStore } from '../user';
+import { displayPrefStore } from '../displayPref';
 import { ref } from 'vue';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
 export const instructionsStore = defineStore('user-space-instructions', () => {
   const user = userStore();
+  const displayPref = displayPrefStore();
   const loading = ref(false);
   const data =
     ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Instruction> | null>(null);
@@ -19,8 +21,8 @@ export const instructionsStore = defineStore('user-space-instructions', () => {
     loading.value = true;
     try {
       const result = await (user.client as Cumulonimbus).getInstructions(
-        50,
-        50 * p,
+        displayPref.itemsPerPage,
+        displayPref.itemsPerPage * p,
       );
       page.value = p;
       data.value = result.result;

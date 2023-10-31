@@ -12,7 +12,7 @@
     <h2>I am broken</h2>
   </template>
   <EmphasizedBox>
-    <template v-if="online">
+    <Online>
       <button
         @click="toggleState"
         class="state-toggle"
@@ -97,13 +97,7 @@
       <template v-else>
         <h1>How</h1>
       </template>
-    </template>
-    <template v-else>
-      <h1>Offline</h1>
-      <h2>
-        You are currently offline. Please connect to the internet to continue.
-      </h2>
-    </template>
+    </Online>
   </EmphasizedBox>
 </template>
 
@@ -114,6 +108,7 @@
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import Switch from '@/components/Switch.vue';
   import Form from '@/components/Form.vue';
+  import Online from '@/components/Online.vue';
   import { toastStore } from '@/stores/toast';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useNetwork } from '@vueuse/core';

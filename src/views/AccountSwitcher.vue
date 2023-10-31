@@ -21,8 +21,8 @@
       Remove All Accounts
     </button>
   </div>
-  <EmphasizedBox :no-padding="!user.loading && online">
-    <template v-if="online">
+  <Online>
+    <EmphasizedBox :no-padding="!user.loading">
       <div v-if="!user.loading" class="account-switcher-accounts">
         <div
           :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
@@ -55,11 +55,8 @@
         </div>
       </div>
       <LoadingBlurb v-else />
-    </template>
-    <template v-else>
-      <p>You are offline.</p>
-    </template>
-  </EmphasizedBox>
+    </EmphasizedBox>
+  </Online>
   <ConfirmModal
     title="Remove All Accounts"
     ref="removeAllAccountsModal"
@@ -89,6 +86,7 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import Online from '@/components/Online.vue';
   import { ref, onBeforeMount, computed } from 'vue';
   import { userStore } from '@/stores/user';
   import { useRouter, useRoute } from 'vue-router';

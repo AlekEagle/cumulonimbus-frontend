@@ -124,8 +124,15 @@
       Use a 12 hour time format?
     </Switch>
     <br />
-    <p>Current theme: <code v-text="displayPref.dark ? 'Dark' : 'Light'" /></p>
-    <p><i>Change the theme in the navigation bar.</i></p>
+    <p>Number of items per page:</p>
+    <input
+      type="number"
+      :value="displayPref.itemsPerPage"
+      min="1"
+      max="50"
+      @change="onItemsPerPageChange"
+      @input="validateItemsPerPage"
+    />
   </Modal>
   <FormModal
     ref="usernameFormModal"
@@ -342,10 +349,8 @@
     online = useOnline();
 
   async function updateUsername(data: { username: string; password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+    if (!online.value) return toast.connectivityOffline();
+
     const oldUsername = user.account!.user.username;
     try {
       fullscreenLoadingBlurb.value!.show();
@@ -374,10 +379,8 @@
   }
 
   async function updateEmail(data: { email: string; password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+    if (!online.value) return toast.connectivityOffline();
+
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changeEmail(data.email, data.password);
@@ -406,10 +409,8 @@
     confirmNewPassword: string;
     password: string;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+    if (!online.value) return toast.connectivityOffline();
+
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changePassword(
@@ -433,10 +434,8 @@
   }
 
   async function updateDomain(data: { domain: string; subdomain?: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+    if (!online.value) return toast.connectivityOffline();
+
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changeDomain(data.domain, data.subdomain);
@@ -467,10 +466,7 @@
   }
 
   async function deleteSessions(data: { includeSelf: boolean }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+    if (!online.value) return toast.connectivityOffline();
 
     try {
       fullscreenLoadingBlurb.value!.show();
@@ -495,10 +491,8 @@
   }
 
   async function deleteFiles(data: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+    if (!online.value) return toast.connectivityOffline();
+
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.deleteFiles(data.password);
@@ -526,10 +520,8 @@
   }
 
   async function deleteAccount(data: { username: string; password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+    if (!online.value) return toast.connectivityOffline();
+
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.deleteAccount(data.username, data.password);
@@ -554,6 +546,31 @@
     } catch (error) {
       console.error(error);
       toast.clientError();
+    }
+  }
+
+  function onItemsPerPageChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.value === '') {
+      input.value = displayPref.itemsPerPage + '';
+      return;
+    }
+    if (Number(input.value) < 1) {
+      displayPref.itemsPerPage = 1;
+    } else if (Number(input.value) > 50) {
+      displayPref.itemsPerPage = 50;
+    } else {
+      displayPref.itemsPerPage = Number(input.value);
+    }
+  }
+
+  function validateItemsPerPage(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.value === '') return;
+    if (Number(input.value) < 1) {
+      input.value = '1';
+    } else if (Number(input.value) > 50) {
+      input.value = '50';
     }
   }
 </script>

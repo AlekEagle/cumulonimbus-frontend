@@ -1,23 +1,30 @@
 <template>
+  <p
+    v-text="
+      `Page ${pageCount.toLocaleString()} of ${displayMax.toLocaleString()} (${itemCount.toLocaleString()} item${
+        itemCount === 1 ? '' : 's'
+      })`
+    "
+  />
   <div class="paginator-controls paginator-controls-top">
     <button
       @click="prevPage"
-      :disabled="props.min >= props.modelValue || props.disabled"
+      :disabled="0 >= props.modelValue || props.disabled"
     >
       Prev
     </button>
     <input
       type="number"
-      :value="props.modelValue + 1"
-      :min="props.min + 1"
-      :max="props.max + 1"
+      :value="pageCount"
+      min="0"
+      :max="displayMax"
       :disabled="props.disabled"
       @change="onInputChange"
       @input="validateInput"
     />
     <button
       @click="nextPage"
-      :disabled="props.max <= props.modelValue || props.disabled"
+      :disabled="maxPage <= props.modelValue || props.disabled"
     >
       Next
     </button>
@@ -27,21 +34,24 @@
 
     <h2>This is a paginator component.</h2>
 
-    <p>We're on page {{ props.modelValue + 1 }} of {{ props.max + 1 }}</p>
+    <p
+      >We're on page {{ pageCount.toLocaleString() }} of
+      {{ displayMax.toLocaleString() }}</p
+    >
   </slot>
 
   <div class="paginator-controls paginator-controls-bottom">
     <button
       @click="prevPage"
-      :disabled="props.min >= props.modelValue || props.disabled"
+      :disabled="0 >= props.modelValue || props.disabled"
     >
       Prev
     </button>
     <input
       type="number"
-      :value="props.modelValue + 1"
-      :min="props.min + 1"
-      :max="props.max + 1"
+      :value="pageCount"
+      min="0"
+      :max="displayMax"
       step="1"
       :disabled="props.disabled"
       @change="onInputChange"
@@ -49,16 +59,24 @@
     />
     <button
       @click="nextPage"
-      :disabled="props.max <= props.modelValue || props.disabled"
+      :disabled="maxPage <= props.modelValue || props.disabled"
     >
       Next
     </button>
   </div>
+  <p
+    v-text="
+      `Page ${pageCount.toLocaleString()} of ${displayMax.toLocaleString()} (${itemCount.toLocaleString()} item${
+        itemCount === 1 ? '' : 's'
+      })`
+    "
+  />
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, watch } from 'vue';
+  import { onMounted, watch, computed } from 'vue';
   import { useRouter } from 'vue-router';
+  import { displayPrefStore } from '@/stores/displayPref';
 
   const emit = defineEmits(['update:modelValue', 'pageChange']);
   const props = defineProps({
@@ -66,17 +84,22 @@
       type: Number,
       required: true,
     },
-    min: {
-      type: Number,
-      default: 0,
-    },
-    max: {
+    itemCount: {
       type: Number,
       default: 0,
     },
     disabled: Boolean,
   });
-  const router = useRouter();
+
+  const router = useRouter(),
+    displayPref = displayPrefStore(),
+    pageCount = computed(() => props.modelValue + 1),
+    maxPage = computed(() => {
+      let a = Math.ceil(props.itemCount / displayPref.itemsPerPage) - 1;
+      if (isNaN(a)) return 0;
+      else return a;
+    }),
+    displayMax = computed(() => (maxPage.value < 0 ? 1 : maxPage.value + 1));
 
   function prevPage() {
     emit('update:modelValue', props.modelValue - 1);
@@ -94,10 +117,10 @@
       input.value = props.modelValue + 1 + '';
       return;
     }
-    if (Number(input.value) <= props.min + 1) {
-      emit('update:modelValue', props.min);
-    } else if (Number(input.value) >= props.max + 1) {
-      emit('update:modelValue', props.max);
+    if (Number(input.value) <= 0) {
+      emit('update:modelValue', 0);
+    } else if (Number(input.value) >= maxPage.value + 1) {
+      emit('update:modelValue', maxPage.value);
     } else {
       emit('update:modelValue', Number(input.value) - 1);
     }
@@ -135,10 +158,10 @@
   function validateInput(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.value === '') return;
-    if (Number(input.value) < props.min + 1) {
-      input.value = props.min + 1 + '';
-    } else if (Number(input.value) > props.max + 1) {
-      input.value = props.max + 1 + '';
+    if (Number(input.value) < 1) {
+      input.value = '1';
+    } else if (Number(input.value) > displayMax.value + 1) {
+      input.value = displayMax.value + '';
     }
   }
 </script>

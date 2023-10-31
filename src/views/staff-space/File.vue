@@ -1,16 +1,6 @@
 <template>
   <h1>File Details</h1>
-  <template v-if="online || file.data">
-    <template v-if="file.data">
-      <h2>View and manage this file.</h2>
-    </template>
-    <template v-else>
-      <h2 class="animated-ellipsis">Rummaging through the files</h2>
-    </template>
-  </template>
-  <template v-else>
-    <h2>You're offline. Please connect to the internet to continue.</h2>
-  </template>
+  <h2>View and manage this file.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff/files" />
     <button
@@ -44,51 +34,36 @@
       Edit Extension
     </button>
   </div>
-  <div class="content-box-container" v-if="online || file.data">
+  <Online>
     <template v-if="!file.loading">
       <template v-if="!file.errored">
-        <template v-if="file.data">
-          <ContentBox
-            :title="file.data.name ?? file.data.id"
-            :src="fileIcon"
-            :to="fileUrl"
-            theme-safe
-            nowrap
-          >
-            <p>
-              Saved on Cumulonimbus as:
-              <code>{{ file.data.id }}</code>
-            </p>
-            <p>
-              Uploaded at:
-              <code>{{ toDateString(new Date(file.data.createdAt)) }}</code>
-            </p>
-            <p>
-              Size:
-              <code>{{ size(file.data.size) }}</code>
-            </p>
-            <p>Click me to open the file in a new tab.</p>
-          </ContentBox>
-        </template>
-        <LoadingBlurb v-else />
-      </template>
-      <div v-else>
-        <h1>Something went wrong.</h1>
-        <button @click="fetchFile">Retry</button>
-      </div>
-    </template>
-    <LoadingBlurb v-else />
-  </div>
-  <div v-else>
-    <h1>Offline</h1>
-    <h2>
-      You are currently offline. Please connect to the internet to continue.
-    </h2>
-  </div>
-  <template v-if="!file.loading">
-    <template v-if="!file.errored">
-      <template v-if="file.uploader">
         <div class="content-box-container">
+          <template v-if="file.data">
+            <ContentBox
+              :title="file.data.name ?? file.data.id"
+              :src="fileIcon"
+              :to="fileUrl"
+              theme-safe
+              nowrap
+            >
+              <p>
+                Saved on Cumulonimbus as:
+                <code>{{ file.data.id }}</code>
+              </p>
+              <p>
+                Uploaded at:
+                <code>{{ toDateString(new Date(file.data.createdAt)) }}</code>
+              </p>
+              <p>
+                Size:
+                <code>{{ size(file.data.size) }}</code>
+              </p>
+              <p>Click me to open the file in a new tab.</p>
+            </ContentBox>
+          </template>
+          <LoadingBlurb v-else />
+        </div>
+        <div class="content-box-container" v-if="file.uploader">
           <ContentBox
             title="Uploaded by"
             :src="profileIcon"
@@ -102,8 +77,13 @@
           </ContentBox>
         </div>
       </template>
+      <div v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchFile">Retry</button>
+      </div>
     </template>
-  </template>
+    <LoadingBlurb v-else />
+  </Online>
   <ConfirmModal
     ref="deleteFileModal"
     @submit="deleteFile"
@@ -165,6 +145,7 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
+  import Online from '@/components/Online.vue';
   import toDateString from '@/utils/toDateString';
   import size from '@/utils/size';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';

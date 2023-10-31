@@ -1,42 +1,32 @@
 <template>
   <h1>Setup Guide</h1>
-  <template v-if="online || instruction.data">
-    <h2 v-if="instruction.data">
-      It won't take you more than a few minutes to set this up.
-    </h2>
-    <h2 class="animated-ellipsis" v-else>Speed reading the setup guide</h2>
-  </template>
-  <h2 v-else>You're offline. Please connect to the internet to continue.</h2>
+  <h2>It won't take you more than a few minutes to get set up.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard/setup-guides" />
   </div>
-  <div class="content-box-container" v-if="online || instruction.data">
-    <template v-if="!instruction.loading">
-      <template v-if="!instruction.errored">
-        <template v-if="instruction.data">
-          <ContentBox
-            v-for="(step, index) in instruction.data.steps"
-            :title="`Step ${index + 1}`"
-            @click="index === 0 ? getSetupFile() : undefined"
-          >
-            {{ step }}
-          </ContentBox>
+  <Online>
+    <div class="content-box-container" v-if="instruction.data">
+      <template v-if="!instruction.loading">
+        <template v-if="!instruction.errored">
+          <template v-if="instruction.data">
+            <ContentBox
+              v-for="(step, index) in instruction.data.steps"
+              :title="`Step ${index + 1}`"
+              @click="index === 0 ? getSetupFile() : undefined"
+            >
+              {{ step }}
+            </ContentBox>
+          </template>
+          <LoadingBlurb v-else />
         </template>
-        <LoadingBlurb v-else />
+        <div v-else>
+          <h1>Something went wrong.</h1>
+          <button @click="fetchInstruction">Retry</button>
+        </div>
       </template>
-      <div v-else>
-        <h1>Something went wrong.</h1>
-        <button @click="fetchInstruction">Retry</button>
-      </div>
-    </template>
-    <LoadingBlurb v-else />
-  </div>
-  <div v-else>
-    <h1>Offline</h1>
-    <h2>
-      You are currently offline. Please connect to the internet to continue.
-    </h2>
-  </div>
+      <LoadingBlurb v-else />
+    </div>
+  </Online>
   <FormModal
     title="Verify Your Identity"
     ref="verifyIdentityModal"
@@ -87,6 +77,7 @@
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
   import BackButton from '@/components/BackButton.vue';
   import FormModal from '@/components/FormModal.vue';
+  import Online from '@/components/Online.vue';
   import { instructionStore } from '@/stores/user-space/instruction';
   import { instructionsStore } from '@/stores/user-space/instructions';
   import { userStore } from '@/stores/user';

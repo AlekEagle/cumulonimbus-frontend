@@ -1,16 +1,6 @@
 <template>
   <h1>File Details</h1>
-  <template v-if="online || file.data">
-    <template v-if="file.data">
-      <h2>View and manage this file.</h2>
-    </template>
-    <template v-else>
-      <h2 class="animated-ellipsis">Rummaging through your files</h2>
-    </template>
-  </template>
-  <template v-else>
-    <h2>You're offline. Please connect to the internet to continue.</h2>
-  </template>
+  <h2>View and manage this file.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard/files" />
     <button
@@ -44,51 +34,43 @@
       Edit Extension
     </button>
   </div>
-  <div class="content-box-container" v-if="online">
-    <template v-if="!file.loading">
-      <template v-if="!file.errored">
-        <template v-if="file.data">
-          <ContentBox
-            :title="filename"
-            :src="fileIcon"
-            :to="fileUrl"
-            theme-safe
-            nowrap
-          >
-            <p>
-              Saved on Cumulonimbus as:
-              <code v-text="file.data.id" />
-            </p>
-            <p>
-              Uploaded at:
-              <code
-                v-text="
-                  toDateString(new Date(file.data.createdAt))
-                "
-              />
-            </p>
-            <p>
-              Size:
-              <code v-text="size(file.data.size)" />
-            </p>
-            <p>Click me to open the file in a new tab.</p>
-          </ContentBox>
+  <Online>
+    <div class="content-box-container">
+      <template v-if="!file.loading">
+        <template v-if="!file.errored">
+          <template v-if="file.data">
+            <ContentBox
+              :title="filename"
+              :src="fileIcon"
+              :to="fileUrl"
+              theme-safe
+              nowrap
+            >
+              <p>
+                Saved on Cumulonimbus as:
+                <code v-text="file.data.id" />
+              </p>
+              <p>
+                Uploaded at:
+                <code v-text="toDateString(new Date(file.data.createdAt))" />
+              </p>
+              <p>
+                Size:
+                <code v-text="size(file.data.size)" />
+              </p>
+              <p>Click me to open the file in a new tab.</p>
+            </ContentBox>
+          </template>
+          <LoadingBlurb v-else />
         </template>
-        <LoadingBlurb v-else />
+        <div v-else>
+          <h1>Something went wrong.</h1>
+          <button @click="fetchFile">Retry</button>
+        </div>
       </template>
-      <div v-else>
-        <h1>Something went wrong.</h1>
-        <button @click="fetchFile">Retry</button>
-      </div>
-    </template>
-    <LoadingBlurb v-else />
-  </div>
-  <div v-else>
-    <h1>Offline</h1>
-    <h2>
-      You are currently offline. Please connect to the internet to continue.
-    </h2>
-  </div>
+      <LoadingBlurb v-else />
+    </div>
+  </Online>
   <ConfirmModal
     ref="deleteFileModal"
     @submit="deleteFile"
@@ -155,6 +137,7 @@
   import BackButton from '@/components/BackButton.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import Online from '@/components/Online.vue';
   import { fileStore } from '@/stores/user-space/file';
   import { filesStore } from '@/stores/user-space/files';
   import { toastStore } from '@/stores/toast';

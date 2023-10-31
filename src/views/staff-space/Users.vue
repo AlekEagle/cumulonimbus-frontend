@@ -1,34 +1,6 @@
 <template>
   <h1>All Users</h1>
-  <template v-if="online">
-    <template v-if="users.data">
-      <h2>
-        All users registered on Cumulonimbus.
-        <br />
-        Showing page {{ (page + 1).toLocaleString() }} of
-        {{
-          (users.data?.count !== 0
-            ? Math.ceil(users.data?.count / 50)
-            : 1
-          ).toLocaleString()
-        }}
-        <br />
-        {{
-          users.data?.count
-            ? users.data.count.toLocaleString()
-            : 'some number of'
-        }}
-        users in total.
-      </h2>
-    </template>
-    <h2 class="animated-ellipsis" v-else
-      >Alek is individually counting the users</h2
-    >
-  </template>
-  <template v-else>
-    <h2>Alek can't count the users because you are offline :(</h2>
-  </template>
-
+  <h2>A list of all users.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff" />
     <button
@@ -49,10 +21,10 @@
   <Paginator
     v-model="page"
     @page-change="fetchUsers"
-    :max="users.data ? Math.ceil(users.data?.count / 50) - 1 : 0"
+    :item-count="users.data?.count || 0"
     :disabled="users.loading || !online"
   >
-    <template v-if="online">
+    <Online>
       <template v-if="!users.loading">
         <template v-if="!users.errored">
           <div
@@ -82,13 +54,7 @@
         </template>
       </template>
       <LoadingBlurb v-else />
-    </template>
-    <template v-else>
-      <h1>Offline</h1>
-      <h2>
-        You are currently offline. Please connect to the internet to continue.
-      </h2>
-    </template>
+    </Online>
   </Paginator>
   <ConfirmModal
     ref="confirmModal"
@@ -107,6 +73,7 @@
   import Paginator from '@/components/Paginator.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import BackButton from '@/components/BackButton.vue';
+  import Online from '@/components/Online.vue';
   import { userStore } from '@/stores/user';
   import { usersStore } from '@/stores/staff-space/users';
   import { toastStore } from '@/stores/toast';

@@ -1,31 +1,6 @@
 <template>
   <h1>Setup Guides</h1>
-  <template v-if="online">
-    <template v-if="instructions.data">
-      <h2>
-        Showing page {{ (page + 1).toLocaleString() }} of
-        {{
-          (instructions.data?.count !== 0
-            ? Math.ceil(instructions.data?.count / 50)
-            : 1
-          ).toLocaleString()
-        }}
-        <br />
-        {{
-          instructions.data?.count
-            ? instructions.data.count.toLocaleString()
-            : 'some number of'
-        }}
-        setup guides in total.
-      </h2>
-    </template>
-    <h2 class="animated-ellipsis" v-else
-      >Alek is individually reading the setup guides</h2
-    >
-  </template>
-  <template v-else>
-    <h2>Alek can't read the setup guides because you are offline :(</h2>
-  </template>
+  <h2>The available setup guides.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff" />
     <template v-if="!selecting">
@@ -53,7 +28,8 @@
   </div>
   <Paginator
     v-model="page"
-    :max="instructions.data ? Math.ceil(instructions.data.count / 50) - 1 : 0"
+    :item-count="instructions.data?.count || 0"
+    @page-change="fetchInstructions"
     :disabled="instructions.loading || !online"
   >
     <template v-if="!instructions.loading">
@@ -143,7 +119,7 @@
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import { userStore } from '@/stores/user';
+  import Online from '@/components/Online.vue';
   import { toastStore } from '@/stores/toast';
   import { instructionsStore } from '@/stores/staff-space/instructions';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
@@ -152,11 +128,9 @@
   import { useRouter } from 'vue-router';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import gearIcon from '@/assets/images/gear.svg';
-  import toDateString from '@/utils/toDateString';
 
   const online = useOnline(),
     router = useRouter(),
-    user = userStore(),
     toast = toastStore(),
     instructions = instructionsStore(),
     selecting = ref(false),

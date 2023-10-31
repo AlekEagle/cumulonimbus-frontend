@@ -7,7 +7,7 @@
   </div>
 
   <EmphasizedBox>
-    <template v-if="online">
+    <Online>
       <div
         class="file-drop-zone"
         ref="fileDropZone"
@@ -26,13 +26,7 @@
         <h1 v-else>Drop it here!</h1>
         <h2>Or click to select a file.</h2>
       </div>
-    </template>
-    <template v-else>
-      <h1>Offline</h1>
-      <h2>
-        You are currently offline. Please connect to the internet to continue.
-      </h2>
-    </template>
+    </Online>
     <div class="upload-buttons-container">
       <button :disabled="!file" @click="file = undefined">Deselect File</button>
       <button :disabled="!file" @click="uploadFile">To Mars it goes!</button>
@@ -65,6 +59,7 @@
   import BackButton from '@/components/BackButton.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import Online from '@/components/Online.vue';
   import { useOnline, useClipboard, useDropZone } from '@vueuse/core';
   import { useRouter } from 'vue-router';
   import { ref, onMounted } from 'vue';

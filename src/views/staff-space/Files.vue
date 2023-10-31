@@ -1,36 +1,11 @@
 <template>
   <h1>All Files</h1>
-  <template v-if="online || files.data">
-    <template v-if="files.data">
-      <h2>
-        Check out everything
-        {{
-          files.selectedUser ? `${files.selectedUser.username} has ` : ''
-        }}uploaded.
-        <br />
-        Showing page {{ (page + 1).toLocaleString() }} of
-        {{
-          (files.data?.count !== 0
-            ? Math.ceil(files.data.count / 50)
-            : 1
-          ).toLocaleString()
-        }}
-        <br />
-        {{
-          files.data?.count
-            ? files.data.count.toLocaleString()
-            : 'some number of'
-        }}
-        files in total.
-      </h2>
-    </template>
-    <h2 class="animated-ellipsis" v-else
-      >Alek is individually counting the files</h2
-    >
-  </template>
-  <template v-else>
-    <h2>Alek can't count the files because you are offline :(</h2>
-  </template>
+  <h2 v-if="files.data">
+    Check out everything
+    {{
+      files.selectedUser ? `${files.selectedUser.username} has ` : ''
+    }}uploaded.
+  </h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff" />
     <button
@@ -54,7 +29,7 @@
     :max="files.data ? Math.ceil(files.data?.count / 50) - 1 : 0"
     :disabled="files.loading || !online"
   >
-    <template v-if="online || files.data">
+    <Online>
       <template v-if="!files.loading">
         <template v-if="!files.errored">
           <div
@@ -88,13 +63,7 @@
       <div class="no-content-container" v-else>
         <LoadingBlurb />
       </div>
-    </template>
-    <div class="no-content-container" v-else>
-      <h1>Offline</h1>
-      <h2>
-        You are currently offline. Please connect to the internet to continue.
-      </h2>
-    </div>
+    </Online>
   </Paginator>
   <ConfirmModal
     ref="confirmModal"
@@ -112,6 +81,7 @@
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import Online from '@/components/Online.vue';
   import { filesStore } from '@/stores/staff-space/files';
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';

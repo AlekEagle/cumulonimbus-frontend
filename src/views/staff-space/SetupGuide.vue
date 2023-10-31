@@ -1,12 +1,11 @@
 <template>
   <h1>Edit Setup Guide</h1>
-  <template v-if="online || instruction.data">
+  <Online no-msg>
     <h2 v-if="instruction.data">
       Editing setup guide {{ instruction.data.name }}.
     </h2>
-    <h2 class="animated-ellipsis" v-else>Alek is reading the setup guide</h2>
-  </template>
-  <h2 v-else>Alek can't read the setup guide because you are offline :(</h2>
+    <h2 class="animated-ellipsis" v-else>Fetching setup guide</h2>
+  </Online>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff/setup-guides" />
     <button
@@ -22,47 +21,43 @@
       Manage Setup Guide
     </button>
   </div>
-  <div class="content-box-container" v-if="online">
-    <template v-if="!instruction.loading">
-      <template v-if="!instruction.errored">
-        <template v-if="instruction.data">
-          <ContentBox
-            v-for="(step, index) in instruction.data.steps"
-            :title="`Step ${index + 1}`"
-            :src="infoIcon"
-            @click="onInstructionStepClick(index)"
-            theme-safe
-          >
-            <template v-if="index === 0">
-              <strong> This step gives the setup file. </strong>
-              <br />
-            </template>
-            {{ step }}
-          </ContentBox>
-          <ContentBox
-            title="Add Step"
-            :src="plusIcon"
-            @click="onInstructionStepClick(instruction.data!.steps.length)"
-            theme-safe
-          >
-            Add a new step
-          </ContentBox>
+  <Online>
+    <div class="content-box-container">
+      <template v-if="!instruction.loading">
+        <template v-if="!instruction.errored">
+          <template v-if="instruction.data">
+            <ContentBox
+              v-for="(step, index) in instruction.data.steps"
+              :title="`Step ${index + 1}`"
+              :src="infoIcon"
+              @click="onInstructionStepClick(index)"
+              theme-safe
+            >
+              <template v-if="index === 0">
+                <strong> This step gives the setup file. </strong>
+                <br />
+              </template>
+              {{ step }}
+            </ContentBox>
+            <ContentBox
+              title="Add Step"
+              :src="plusIcon"
+              @click="onInstructionStepClick(instruction.data!.steps.length)"
+              theme-safe
+            >
+              Add a new step
+            </ContentBox>
+          </template>
+          <LoadingBlurb v-else />
         </template>
-        <LoadingBlurb v-else />
+        <div v-else>
+          <h1>Something went wrong.</h1>
+          <button @click="fetchInstruction">Retry</button>
+        </div>
       </template>
-      <div v-else>
-        <h1>Something went wrong.</h1>
-        <button @click="fetchInstruction">Retry</button>
-      </div>
-    </template>
-    <LoadingBlurb v-else />
-  </div>
-  <div v-else>
-    <h1>Offline</h1>
-    <h2>
-      You are currently offline. Please connect to the internet to continue.
-    </h2>
-  </div>
+      <LoadingBlurb v-else />
+    </div>
+  </Online>
   <Modal dismissible title="Info" ref="setupGuideInfoModal">
     <template v-if="instruction.data">
       <p>
@@ -213,7 +208,7 @@
   import FormModal from '@/components/FormModal.vue';
   import BackButton from '@/components/BackButton.vue';
   import Modal from '@/components/Modal.vue';
-  import { userStore } from '@/stores/user';
+  import Online from '@/components/Online.vue';
   import { toastStore } from '@/stores/toast';
   import { instructionStore } from '@/stores/staff-space/instruction';
   import { instructionsStore } from '@/stores/staff-space/instructions';
@@ -229,7 +224,6 @@
 
   const online = useOnline(),
     router = useRouter(),
-    user = userStore(),
     toast = toastStore(),
     instruction = instructionStore(),
     instructions = instructionsStore(),

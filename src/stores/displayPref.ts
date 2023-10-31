@@ -13,6 +13,9 @@ export const displayPrefStore = defineStore('displayPref', () => {
   // -- Time Format --
   const hour12 = ref(true);
   persistPiniaRef(hour12, 'hour12', { immediate: true });
+  // -- Items Per Page --
+  const itemsPerPage = ref(50);
+  persistPiniaRef(itemsPerPage, 'itemsPerPage', { immediate: true });
   // More persistent refs can be added here
   // --- End Persistent Refs ---
   // --- Internal Values ---
@@ -52,7 +55,7 @@ export const displayPrefStore = defineStore('displayPref', () => {
   watch(dark, (newVal: boolean) => {
     setTheme(newVal);
   });
-  
+
   // Wait 500ms before removing the 'no-theme' class to allow the theme to be set
   setTimeout(() => {
     html.classList.remove('no-theme');
@@ -68,5 +71,6 @@ export const displayPrefStore = defineStore('displayPref', () => {
   return {
     dark,
     hour12,
+    itemsPerPage,
   };
 });

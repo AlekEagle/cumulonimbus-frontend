@@ -1,31 +1,6 @@
 <template>
   <h1>Your Files</h1>
-  <template v-if="online || files.data">
-    <template v-if="files.data">
-      <h2>
-        Check out everything you've uploaded.
-        <br />
-        Showing page {{ (page + 1).toLocaleString() }} of
-        {{
-          (files.data?.count !== 0
-            ? Math.ceil(files.data.count / 50)
-            : 1
-          ).toLocaleString()
-        }}
-        <br />
-        {{
-          files.data?.count
-            ? files.data.count.toLocaleString()
-            : 'some number of'
-        }}
-        files in total.
-      </h2>
-    </template>
-    <h2 class="animated-ellipsis" v-else>Counting each individual file</h2>
-  </template>
-  <template v-else>
-    <h2>You're offline. Please connect to the internet to continue.</h2>
-  </template>
+  <h2>What you've uploaded is right here.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
     <button
@@ -45,10 +20,10 @@
   <Paginator
     v-model="page"
     @page-change="fetchFiles"
-    :max="files.data ? Math.ceil(files.data?.count / 50) - 1 : 0"
+    :item-count="files.data?.count || 0"
     :disabled="files.loading || !online"
   >
-    <template v-if="online || files.data">
+    <Online>
       <template v-if="!files.loading">
         <template v-if="!files.errored">
           <div
@@ -79,13 +54,7 @@
       <div class="no-content-container" v-else>
         <LoadingBlurb />
       </div>
-    </template>
-    <div class="no-content-container" v-else>
-      <h1>Offline</h1>
-      <h2>
-        You are currently offline. Please connect to the internet to continue.
-      </h2>
-    </div>
+    </Online>
   </Paginator>
   <ConfirmModal
     ref="confirmModal"
@@ -105,6 +74,8 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
   import BackButton from '@/components/BackButton.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import Online from '@/components/Online.vue';
   import { filesStore } from '@/stores/user-space/files';
   import { toastStore } from '@/stores/toast';
   import { ref, onMounted, watch } from 'vue';
@@ -113,7 +84,6 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
 
   const files = filesStore(),
     page = ref(0),

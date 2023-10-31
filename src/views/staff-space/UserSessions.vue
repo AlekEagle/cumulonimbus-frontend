@@ -1,27 +1,6 @@
 <template>
   <h1>Active Sessions</h1>
-  <template v-if="online">
-    <template v-if="sessions.data">
-      <h2>
-        Showing page {{ (page + 1).toLocaleString() }} of
-        {{
-          (sessions.data?.count !== 0
-            ? Math.ceil(sessions.data?.count / 50)
-            : 0
-          ).toLocaleString()
-        }}
-        <br />
-        {{
-          sessions.data?.count
-            ? sessions.data.count.toLocaleString()
-            : 'some number of'
-        }}
-        logged in sessions in total.
-      </h2>
-    </template>
-    <h2 v-else class="animated-ellipsis">Alek is seeing who is logged in</h2>
-  </template>
-  <h2 v-else>Alek can't see who is logged in because you're offline :(</h2>
+  <h2>Active user sessions.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff/users" />
     <button
@@ -44,40 +23,42 @@
   <Paginator
     v-model="page"
     @page-change="fetchSessions"
-    :max="sessions.data ? Math.ceil(sessions.data?.count / 50) - 1 : 0"
+    :item-count="sessions.data?.count || 0"
     :disabled="sessions.loading || !online"
   >
-    <template v-if="!sessions.loading">
-      <template v-if="!sessions.errored">
-        <div
-          v-if="sessions.data && sessions.data.count > 0"
-          class="content-box-container"
-        >
-          <SelectableContentBox
-            v-for="session in sessions.data.items"
-            :title="session.name"
-            :selecting="selecting"
-            :src="infoIcon"
-            theme-safe
-            :selected="selected.includes(session.id + '')"
-            @click="onSessionClick(session)"
+    <Online>
+      <template v-if="!sessions.loading">
+        <template v-if="!sessions.errored">
+          <div
+            v-if="sessions.data && sessions.data.count > 0"
+            class="content-box-container"
           >
-            Click me to manage this session.
-          </SelectableContentBox>
-        </div>
-        <div v-else class="no-content-container">
-          <h1>This user has no active sessions.</h1>
-          <h2>They have not used their account.</h2>
+            <SelectableContentBox
+              v-for="session in sessions.data.items"
+              :title="session.name"
+              :selecting="selecting"
+              :src="infoIcon"
+              theme-safe
+              :selected="selected.includes(session.id + '')"
+              @click="onSessionClick(session)"
+            >
+              Click me to manage this session.
+            </SelectableContentBox>
+          </div>
+          <div v-else class="no-content-container">
+            <h1>This user has no active sessions.</h1>
+            <h2>They have not used their account.</h2>
+          </div>
+        </template>
+        <div class="no-content-container" v-else>
+          <h1>Something went wrong.</h1>
+          <button @click="fetchSessions">Retry</button>
         </div>
       </template>
-      <div class="no-content-container" v-else>
-        <h1>Something went wrong.</h1>
-        <button @click="fetchSessions">Retry</button>
+      <div v-else class="no-content-container">
+        <LoadingBlurb />
       </div>
-    </template>
-    <div v-else class="no-content-container">
-      <LoadingBlurb />
-    </div>
+    </Online>
   </Paginator>
   <ConfirmModal
     ref="confirmDeleteModal"
@@ -97,15 +78,11 @@
       <br />
       <p>
         Created At:
-        <code>{{
-          toDateString(new Date(selectedSession.id * 1000))
-        }}</code>
+        <code>{{ toDateString(new Date(selectedSession.id * 1000)) }}</code>
       </p>
       <p>
         Expires At:
-        <code>{{
-          toDateString(new Date(selectedSession.exp * 1000))
-        }}</code>
+        <code>{{ toDateString(new Date(selectedSession.exp * 1000)) }}</code>
       </p>
       <p>If you delete this session, they will have to sign back in.</p>
     </template>
@@ -119,6 +96,7 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
+  import Online from '@/components/Online.vue';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';

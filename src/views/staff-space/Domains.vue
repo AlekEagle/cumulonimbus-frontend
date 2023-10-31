@@ -1,31 +1,6 @@
 <template>
   <h1>Domains</h1>
-  <template v-if="online || domains.data">
-    <template v-if="domains.data">
-      <h2>
-        Showing page {{ (page + 1).toLocaleString() }} of
-        {{
-          (domains.data
-            ? Math.ceil(domains.data?.count / 50)
-            : 1
-          ).toLocaleString()
-        }}
-        <br />
-        {{
-          domains.data?.count
-            ? domains.data.count.toLocaleString()
-            : 'some number of'
-        }}
-        domains in total.
-      </h2>
-    </template>
-    <h2 v-else class="animated-ellipsis"
-      >Alek is remembering what domains there are</h2
-    >
-  </template>
-  <h2 v-else>
-    Alek can't remember what domains there are because you're offline :(
-  </h2>
+  <h2>All of the usable domains.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff" />
     <template v-if="!selecting">
@@ -51,46 +26,48 @@
 
   <Paginator
     v-model="page"
-    :max="domains.data ? Math.ceil(domains.data.count / 50) - 1 : 0"
+    :item-count="domains.data?.count || 0"
     :disabled="domains.loading || !online"
     @page-change="fetchDomains"
   >
-    <template v-if="!domains.loading">
-      <template v-if="!domains.errored">
-        <div
-          class="content-box-container"
-          v-if="domains.data && domains.data.count > 0"
-        >
-          <SelectableContentBox
-            v-for="domain in domains.data.items"
-            :title="domain.id"
-            :selecting="selecting"
-            :src="gearIcon"
-            theme-safe
-            :selected="selected.includes(domain.id)"
-            @click="onDomainClick(domain)"
+    <Online>
+      <template v-if="!domains.loading">
+        <template v-if="!domains.errored">
+          <div
+            class="content-box-container"
+            v-if="domains.data && domains.data.count > 0"
           >
-            <p>
-              Subdomains are
-              <code>{{ domain.subdomains ? 'allowed' : 'not allowed' }}</code
-              >.
-            </p>
-          </SelectableContentBox>
-        </div>
-        <div v-else class="no-content-container">
-          <h1>There are no domains.</h1>
-          <h2>You should probably fix that.</h2>
-          <button @click="createDomainModal!.show()">Create</button>
+            <SelectableContentBox
+              v-for="domain in domains.data.items"
+              :title="domain.id"
+              :selecting="selecting"
+              :src="gearIcon"
+              theme-safe
+              :selected="selected.includes(domain.id)"
+              @click="onDomainClick(domain)"
+            >
+              <p>
+                Subdomains are
+                <code>{{ domain.subdomains ? 'allowed' : 'not allowed' }}</code
+                >.
+              </p>
+            </SelectableContentBox>
+          </div>
+          <div v-else class="no-content-container">
+            <h1>There are no domains.</h1>
+            <h2>You should probably fix that.</h2>
+            <button @click="createDomainModal!.show()">Create</button>
+          </div>
+        </template>
+        <div class="no-content-container" v-else>
+          <h1>Something went wrong.</h1>
+          <button @click="fetchDomains">Retry</button>
         </div>
       </template>
-      <div class="no-content-container" v-else>
-        <h1>Something went wrong.</h1>
-        <button @click="fetchDomains">Retry</button>
+      <div v-else class="no-content-container">
+        <LoadingBlurb />
       </div>
-    </template>
-    <div v-else class="no-content-container">
-      <LoadingBlurb />
-    </div>
+    </Online>
   </Paginator>
   <ConfirmModal
     ref="bulkDeleteDomainModal"
@@ -170,6 +147,7 @@
   import Switch from '@/components/Switch.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
+  import Online from '@/components/Online.vue';
   import { domainsStore } from '@/stores/staff-space/domains';
   import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
