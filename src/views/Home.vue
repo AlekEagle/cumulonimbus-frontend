@@ -24,7 +24,7 @@
     <div>
       <h2>Support for uploading services.</h2>
       <p>
-        With official support for ShareX and ShareNiX, we are always looking to
+        With official support for ShareX and other programs, we are always looking to
         expand what is officially supported, just let us know what you want to
         see added and we'll see what we can do!
       </p>
