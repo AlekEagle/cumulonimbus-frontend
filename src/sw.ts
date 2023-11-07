@@ -76,12 +76,27 @@ router.addRoute(
     return true;
   },
   async (options) => {
-    const cachedResponse = await caches.match(options.request);
-    const indexHTML = (await caches.match('/index.html')) as Response;
-    if (cachedResponse) return cachedResponse;
-    if (!self.navigator.onLine) return indexHTML;
+    // Implement a cache-first strategy with network fallback, revalidating the cache in the background.
+    // If the cache is not available, use the network.
+    // If the network fails, use the cache.
+    // If the network succeeds, update the cache.
+    const cache = await caches.open('offline-cache');
+    const response = await cache.match(options.url);
+    if (response !== undefined) {
+      // Cache hit
+      // Revalidate the cache in the background
+      options.event.waitUntil(cache.add(options.url));
+      return response;
+    }
+    // Cache miss
+    // Fetch from network
     const freshResponse = await fetch(options.request);
-    if (freshResponse.status === 404) return indexHTML;
+    if (freshResponse.status === 404) {
+      // If the network returns a 404, return the offline page.
+      return (await caches.match('/index.html')) as Response;
+    }
+    // If the network returns a 200, cache the response and return it.
+    cache.put(options.url, freshResponse.clone());
     return freshResponse;
   },
 );
