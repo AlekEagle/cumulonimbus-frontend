@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { userStore } from '../user';
+import { displayPrefStore } from '../displayPref';
 import { ref } from 'vue';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
 export const domainsStore = defineStore('staff-space-domains', () => {
   const user = userStore(),
+    displayPref = displayPrefStore(),
     data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Domain> | null>(null),
     loading = ref(false),
     errored = ref(false),
@@ -15,7 +17,10 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     loading.value = true;
     errored.value = false;
     try {
-      const result = await user.client.getDomains(50, 50 * p);
+      const result = await user.client.getDomains(
+        displayPref.itemsPerPage,
+        displayPref.itemsPerPage * p,
+      );
       data.value = result.result;
       page.value = p;
       return true;

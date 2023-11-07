@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { userStore } from '../user';
+import { displayPrefStore } from '../displayPref';
 import { ref } from 'vue';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
 export const filesStore = defineStore('staff-space-files', () => {
   const user = userStore();
+  const displayPref = displayPrefStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.File> | null>(null);
   const errored = ref(false);
@@ -22,14 +24,14 @@ export const filesStore = defineStore('staff-space-files', () => {
       if (selectedUser.value !== null) {
         result = await (user.client as Cumulonimbus).getFiles(
           selectedUser.value.id,
-          50,
-          50 * p,
+          displayPref.itemsPerPage,
+          displayPref.itemsPerPage * p,
         );
       } else {
         result = await (user.client as Cumulonimbus).getFiles(
           undefined,
-          50,
-          50 * p,
+          displayPref.itemsPerPage,
+          displayPref.itemsPerPage * p,
         );
       }
       page.value = p;

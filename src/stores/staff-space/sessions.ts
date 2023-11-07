@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { userStore } from '../user';
+import { displayPrefStore } from '../displayPref';
 import { ref } from 'vue';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 
 export const sessionsStore = defineStore('staff-space-sessions', () => {
   const user = userStore(),
+    displayPref = displayPrefStore(),
     data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(null),
     loading = ref(false),
     errored = ref(false),
@@ -19,8 +21,8 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     try {
       const result = await user.client!.getSessions(
         sessionOwner.value.id,
-        50,
-        p * 50,
+        displayPref.itemsPerPage,
+        p * displayPref.itemsPerPage,
       );
       page.value = p;
       data.value = result.result;
