@@ -12,7 +12,11 @@
       </div>
     </RouterLink>
     <nav :class="hamburgerMenu ? 'active' : ''">
-      <div @click="hamburgerMenu = !hamburgerMenu" tabindex="0">
+      <div
+        @click="hamburgerMenu = !hamburgerMenu"
+        @keydown="navMenuKeydown"
+        tabindex="0"
+      >
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -334,6 +338,13 @@
         break;
     }
   });
+
+  function navMenuKeydown(e: KeyboardEvent) {
+    console.log(e);
+    if (e.key === 'Enter' || e.key === ' ') {
+      hamburgerMenu.value = !hamburgerMenu.value;
+    }
+  }
 </script>
 
 <style>
@@ -563,7 +574,6 @@
   }
 
   header nav.active .bar:nth-child(2) {
-    transform: translateX(-10px);
     opacity: 0;
   }
 
