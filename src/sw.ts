@@ -77,7 +77,8 @@ router.addRoute(
   async (options) => {
     if (
       options.request.method !== 'GET' || // Only cache GET requests
-      options.url.pathname.match(/^\/api\/?/) || // Don't cache API requests options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE]) || // Don't cache thumbnails, they have their own cache.
+      options.url.pathname.match(/^\/api\/?/) || // Don't cache API requests
+      options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE]) || // Don't cache thumbnails, they have their own cache.
       options.url.protocol === 'chrome-extension:' // Don't cache chrome extensions
     ){
       debugLog('ServiceWorkerOfflineCacheManager', 'Rejected request for caching',  `URL: ${options.url}`);
