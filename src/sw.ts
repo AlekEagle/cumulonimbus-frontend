@@ -5,11 +5,11 @@ declare var self: ServiceWorkerGlobalScope;
 import { Router, RouteParams } from './utils/swRouter';
 
 function debugLog(component: string = 'ServiceWorker', ...data: any[]) {
-  console.debug(`[${component}] `, ...data);
+  console.debug(`[${component}]`, ...data);
 }
 
 function errorLog(component: string = 'ServiceWorker', ...data: any[]) {
-  console.error(`[${component}] `, ...data);
+  console.error(`[${component}]`, ...data);
 }
 
 const router = new Router();
@@ -77,9 +77,7 @@ router.addRoute(
   async (options) => {
     if (
       options.request.method !== 'GET' || // Only cache GET requests
-      options.url.pathname.match(/^\/api\/?/) || // Don't cache API requests
-      (await caches.match(options.url)) || // Don't cache if the URL is already in the cache
-      options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE]) || // Don't cache thumbnails, they have their own cache.
+      options.url.pathname.match(/^\/api\/?/) || // Don't cache API requests options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE]) || // Don't cache thumbnails, they have their own cache.
       options.url.protocol === 'chrome-extension:' // Don't cache chrome extensions
     ){
       debugLog('ServiceWorkerOfflineCacheManager', 'Rejected request for caching',  `URL: ${options.url}`);
