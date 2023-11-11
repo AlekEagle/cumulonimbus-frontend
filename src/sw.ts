@@ -34,7 +34,7 @@ const precacheManifest = self.__WB_MANIFEST;
 async function nagToUpdate(claim: boolean = false): Promise<void> {
   debugLog('ServiceWorkerUpdateNag', 'Nagging clients to update...');
   if (claim) {
-    debugLog('ServiceWorkerUpdateNag', 'Claming clients...');
+    debugLog('ServiceWorkerUpdateNag', 'Claiming clients...');
     await self.clients.claim();
   }
   const clients = await self.clients.matchAll();
@@ -80,11 +80,19 @@ router.addRoute(
       options.url.pathname.match(/^\/api\/?/) || // Don't cache API requests
       options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE]) || // Don't cache thumbnails, they have their own cache.
       options.url.protocol === 'chrome-extension:' // Don't cache chrome extensions
-    ){
-      debugLog('ServiceWorkerOfflineCacheManager', 'Rejected request for caching',  `URL: ${options.url}`);
+    ) {
+      debugLog(
+        'ServiceWorkerOfflineCacheManager',
+        'Rejected request for caching',
+        `URL: ${options.url}`,
+      );
       return false;
     }
-    debugLog('ServiceWorkerOfflineCacheManager', 'Request passed all checks for cache', `URL: ${options.url}`);
+    debugLog(
+      'ServiceWorkerOfflineCacheManager',
+      'Request passed all checks for cache',
+      `URL: ${options.url}`,
+    );
     return true;
   },
   async (options) => {
@@ -97,9 +105,17 @@ router.addRoute(
     if (response !== undefined) {
       // Cache hit
       // Revalidate the cache in the background
-      debugLog('ServiceWorkerOfflineCacheManager', 'Cache hit', `URL: ${options.url}`);
+      debugLog(
+        'ServiceWorkerOfflineCacheManager',
+        'Cache hit',
+        `URL: ${options.url}`,
+      );
       if (navigator.onLine) {
-        debugLog('ServiceWorkerOfflineCacheManager', 'Revalidating cache', `URL: ${options.url}`);
+        debugLog(
+          'ServiceWorkerOfflineCacheManager',
+          'Revalidating cache',
+          `URL: ${options.url}`,
+        );
         options.event.waitUntil(cache.add(options.url));
       }
       return response;
@@ -107,21 +123,41 @@ router.addRoute(
     // Cache miss
     // Fetch from network
     // If we aren't online, return the offline page.
-    debugLog('ServiceWorkerOfflineCacheManager', 'Cache miss', `URL: ${options.url}`);
-    if (!navigator.onLine){
-      debugLog('ServiceWorkerOfflineCacheManager', 'Offline, serving default route', `URL: ${options.url}`);
+    debugLog(
+      'ServiceWorkerOfflineCacheManager',
+      'Cache miss',
+      `URL: ${options.url}`,
+    );
+    if (!navigator.onLine) {
+      debugLog(
+        'ServiceWorkerOfflineCacheManager',
+        'Offline, serving default route',
+        `URL: ${options.url}`,
+      );
       return (await caches.match('/index.html')) as Response;
     }
     // Otherwise, fetch from the network.
-    debugLog('ServiceWorkerOfflineCacheManager', 'Fetching fresh resource...', `URL: ${options.url}`);
+    debugLog(
+      'ServiceWorkerOfflineCacheManager',
+      'Fetching fresh resource...',
+      `URL: ${options.url}`,
+    );
     const freshResponse = await fetch(options.request);
     if (freshResponse.status === 404) {
       // If the network returns a 404, return the offline page.
-      debugLog('ServiceWorkerOfflineCacheManager', 'Fresh resource returned 404, serving default route', `URL: ${options.url}`);
+      debugLog(
+        'ServiceWorkerOfflineCacheManager',
+        'Fresh resource returned 404, serving default route',
+        `URL: ${options.url}`,
+      );
       return (await caches.match('/index.html')) as Response;
     }
     // If the network returns a 200, cache the response and return it.
-    debugLog('ServiceWorkerOfflineCacheManager', 'Fresh resource OK, serving and caching', `URL: ${options.url}`);
+    debugLog(
+      'ServiceWorkerOfflineCacheManager',
+      'Fresh resource OK, serving and caching',
+      `URL: ${options.url}`,
+    );
     cache.put(options.url, freshResponse.clone());
     return freshResponse;
   },
@@ -142,11 +178,17 @@ async function previewThumbnailHandler(
   const thumb = await cache.match((options.event as FetchEvent).request);
   // If there is a thumbnail in cache, return it.
   if (thumb) {
-    debugLog('ServiceWorkerThumbnailCacheManager', 'Serving thumbnail from cache');
+    debugLog(
+      'ServiceWorkerThumbnailCacheManager',
+      'Serving thumbnail from cache',
+    );
     return thumb;
   }
   // Otherwise, fetch the thumbnail
-  debugLog('ServiceWorkerThumbnailCacheManager', 'Cache miss, fetching fresh thumbnail');
+  debugLog(
+    'ServiceWorkerThumbnailCacheManager',
+    'Cache miss, fetching fresh thumbnail',
+  );
   const freshThumb = await fetch((options.event as FetchEvent).request);
   // Check if the thumbnail's status is one of the allowable statuses (200, 415)
   switch (freshThumb.status) {
@@ -154,19 +196,28 @@ async function previewThumbnailHandler(
       // If the status is 200, Check if the thumbnail actually has content.
       if (freshThumb.headers.get('content-length') === '0') {
         // The thumbnail server timed out, FFMPEG is still processing the thumbnail. Return Gateway Timeout.
-      debugLog('ServiceWorkerThumbnailCacheManager', 'Thumbnail failed to generate, not caching.')
+        debugLog(
+          'ServiceWorkerThumbnailCacheManager',
+          'Thumbnail failed to generate, not caching.',
+        );
         return new Response(null, {
           status: 504,
           statusText: 'Gateway Timeout',
         });
       }
-      debugLog('ServiceWorkerThumbnailCacheManager', 'Successfully fetch fresh thumbnail, caching and serving');
+      debugLog(
+        'ServiceWorkerThumbnailCacheManager',
+        'Successfully fetched fresh thumbnail, caching and serving',
+      );
       // The thumbnail server returned a thumbnail. Cache it and return it.
       cache.put((options.event as FetchEvent).request, freshThumb.clone());
       return freshThumb;
     case 415:
       // The thumbnail server can't process the file. Cache it so we don't have to keep asking for it and return it.
-      debugLog('ServiceWorkerThumbnailCacheManager', 'Thumbnail not available, caching nonavailability');
+      debugLog(
+        'ServiceWorkerThumbnailCacheManager',
+        'Thumbnail not available, caching nonavailability',
+      );
       cache.put((options.event as FetchEvent).request, freshThumb.clone());
       return freshThumb;
     default:
@@ -196,17 +247,26 @@ async function shareTargetHandler(options: RouteParams): Promise<Response> {
   const file = formData.get('file');
   if (!file) {
     // If the file is not provided, redirect to upload page with no file.
-    debugLog('ServiceWorkerShareTargetHandler', 'No file provided to share target, ignoring');
+    debugLog(
+      'ServiceWorkerShareTargetHandler',
+      'No file provided to share target, ignoring',
+    );
     return Response.redirect('/dashboard/upload');
   }
   // Add file to share-target-cache.
-  debugLog('ServiceWorkerShareTargetHandler', 'Adding shared file to share cache...');
+  debugLog(
+    'ServiceWorkerShareTargetHandler',
+    'Adding shared file to share cache...',
+  );
   const cache = await caches.open('share-target-cache');
   await cache.put(
     'shared-file',
     new Response(file, { headers: { Filename: (file as File).name } }),
   );
   // Redirect to upload page with the file.
-  debugLog('ServiceWorkerShareTargetHandler', 'Redirecting user to upload view');
+  debugLog(
+    'ServiceWorkerShareTargetHandler',
+    'Redirecting user to upload view',
+  );
   return Response.redirect(`/dashboard/upload?shared-file`);
 }
