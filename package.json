@@ -1,7 +1,7 @@
 {
   "name": "cumulonimbus-frontend-v4",
   "private": true,
-  "version": "4.4.5",
+  "version": "4.4.6",
   "license": "GNU-GPL-3.0",
   "scripts": {
     "dev": "vite --host",
