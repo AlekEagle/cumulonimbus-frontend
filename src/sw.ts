@@ -97,8 +97,11 @@ router.addRoute(
     if (response !== undefined) {
       // Cache hit
       // Revalidate the cache in the background
-      debugLog('ServiceWorkerOfflineCacheManager', 'Cache hit, serving and revalidating', `URL: ${options.url}`);
-      options.event.waitUntil(cache.add(options.url));
+      debugLog('ServiceWorkerOfflineCacheManager', 'Cache hit', `URL: ${options.url}`);
+      if (navigator.onLine) {
+        debugLog('ServiceWorkerOfflineCacheManager', 'Revalidating cache', `URL: ${options.url}`);
+        options.event.waitUntil(cache.add(options.url));
+      }
       return response;
     }
     // Cache miss
