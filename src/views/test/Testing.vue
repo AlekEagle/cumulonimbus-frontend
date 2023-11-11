@@ -295,7 +295,6 @@
     <div class="paginator-container">
       <Paginator
         v-model="paginatorPage"
-        :items-per-page="5"
         :item-count="25"
         @page-change="toast.show('User changed page')"
       />

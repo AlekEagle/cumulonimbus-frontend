@@ -3,6 +3,12 @@
   <h2>Make yourself at home.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
+    <button
+      @click="refreshUser()"
+      title="Refresh account details"
+      :disabled="user.loading"
+      >Refresh</button
+    >
   </div>
   <template v-if="!!user && !user.loading && !!user.account">
     <div class="content-box-container">
@@ -571,6 +577,25 @@
       input.value = '1';
     } else if (Number(input.value) > 50) {
       input.value = '50';
+    }
+  }
+
+  async function refreshUser() {
+    if (!online.value) return toast.connectivityOffline();
+
+    try {
+      const res = await user.refetch();
+      if (res instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          toast.clientError();
+        }
+      } else {
+        toast.show('Refreshed account details.');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.clientError();
     }
   }
 </script>
