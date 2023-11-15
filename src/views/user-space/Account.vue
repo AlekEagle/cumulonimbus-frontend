@@ -25,6 +25,14 @@
           Email: <code>{{ user.account!.user.email }}</code>
         </p>
         <p>
+          Verified:
+          <code>{{
+            user.account!.user.verifiedAt
+              ? toDateString(new Date(user.account.user!.updatedAt))
+              : 'Not yet...'
+          }}</code>
+        </p>
+        <p>
           Domain: <code>{{ user.domain }}</code>
         </p>
         <p>
@@ -68,6 +76,15 @@
         @click="emailFormModal!.show()"
       >
         Update your email.
+      </ContentBox>
+      <ContentBox
+        v-if="!user.account!.user.verifiedAt"
+        title="Resend Verification Email"
+        :src="gearIcon"
+        theme-safe
+        @click="resendVerificationEmailModal!.show()"
+      >
+        Resend your verification email.
       </ContentBox>
       <ContentBox
         title="Update Password"
@@ -171,6 +188,9 @@
     :disabled="user.loading"
     @submit="updateEmail"
   >
+    <p>
+      Changing your email will require you to verify your new email address.
+    </p>
     <input
       hidden
       type="text"
@@ -197,6 +217,18 @@
       required
     />
   </FormModal>
+  <ConfirmModal
+    ref="resendVerificationEmailModal"
+    title="Resend Verification Email"
+    @submit="resendVerificationEmail"
+    :disabled="user.loading"
+  >
+    <p>
+      Are you sure you want to resend your verification email? This will send
+      another verification email to your email address and the previous one will
+      no longer be valid.
+    </p>
+  </ConfirmModal>
   <FormModal
     ref="passwordFormModal"
     title="Update Password"
@@ -346,6 +378,7 @@
     displayPrefsModal = ref<typeof Modal>(),
     usernameFormModal = ref<typeof FormModal>(),
     emailFormModal = ref<typeof FormModal>(),
+    resendVerificationEmailModal = ref<typeof ConfirmModal>(),
     passwordFormModal = ref<typeof FormModal>(),
     domainModal = ref<typeof DomainModal>(),
     deleteSessionsModal = ref<typeof FormModal>(),
@@ -405,6 +438,35 @@
         emailFormModal.value!.hide();
       }
     } catch (error) {
+      console.error(error);
+      toast.clientError();
+    }
+  }
+
+  async function resendVerificationEmail(choice: boolean) {
+    if (!choice) return;
+    if (!online.value) return toast.connectivityOffline();
+
+    try {
+      fullscreenLoadingBlurb.value!.show();
+      const res = await user.resendVerificationEmail();
+      if (res instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(res, router);
+        if (!handled) {
+          switch (res.code) {
+            case 'EMAIL_ALREADY_VERIFIED_ERROR':
+              toast.show('You are already verified!');
+              break;
+          }
+        }
+        fullscreenLoadingBlurb.value!.hide();
+      } else if (res) {
+        toast.show('Sent! Check your email.');
+        fullscreenLoadingBlurb.value!.hide();
+        resendVerificationEmailModal.value!.hide();
+      }
+    } catch (error) {
+      fullscreenLoadingBlurb.value!.hide();
       console.error(error);
       toast.clientError();
     }

@@ -79,6 +79,57 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     return true;
   }
 
+  async function verifyEmail() {
+    if (user.client === null) return false;
+    errored.value = false;
+    loading.value = true;
+    try {
+      await user.client!.verifyEmail(data.value!.id);
+      return true;
+    } catch (error) {
+      errored.value = true;
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function unverifyEmail() {
+    if (user.client === null) return false;
+    errored.value = false;
+    loading.value = true;
+    try {
+      await user.client!.unverifyEmail(data.value!.id);
+      return true;
+    } catch (error) {
+      errored.value = true;
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function resendVerificationEmail() {
+    if (user.client === null) return false;
+    errored.value = false;
+    loading.value = true;
+    try {
+      await user.client!.resendVerificationEmail(data.value!.id);
+      return true;
+    } catch (error) {
+      errored.value = true;
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function updatePassword(password: string, confirmPassword: string) {
     if (user.client === null) return false;
     errored.value = false;
@@ -168,12 +219,12 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     return true;
   }
 
-  async function banUser() {
+  async function banUser(reason: string) {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.banUser(data.value!.id);
+      const result = await user.client!.banUser(data.value!.id, reason);
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -272,6 +323,9 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     getUser,
     updateUsername,
     updateEmail,
+    verifyEmail,
+    unverifyEmail,
+    resendVerificationEmail,
     updatePassword,
     updateDomain,
     grantStaff,

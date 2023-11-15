@@ -429,6 +429,54 @@ export const userStore = defineStore('user', () => {
     }
   }
 
+  // Verify the email of the current account.
+  async function verifyEmail(
+    token: string,
+  ): Promise<boolean | Cumulonimbus.ResponseError> {
+    // Set the loading state.
+    loading.value = true;
+    // Try to verify the email.
+    try {
+      // Verify the email.
+      await client.value!.verifyEmail('me', token);
+      // If nothing went wrong:
+      // Return true to signify success.
+      return true;
+    } catch (error) {
+      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
+      if (error instanceof Cumulonimbus.ResponseError) return error;
+      // Otherwise, throw the error.
+      throw error;
+    } finally {
+      // Reset the loading state.
+      loading.value = false;
+    }
+  }
+
+  // Resend the verification email of the current account.
+  async function resendVerificationEmail(): Promise<
+    boolean | Cumulonimbus.ResponseError
+  > {
+    // Set the loading state.
+    loading.value = true;
+    // Try to resend the verification email.
+    try {
+      // Resend the verification email.
+      await client.value!.resendVerificationEmail();
+      // If nothing went wrong:
+      // Return true to signify success.
+      return true;
+    } catch (error) {
+      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
+      if (error instanceof Cumulonimbus.ResponseError) return error;
+      // Otherwise, throw the error.
+      throw error;
+    } finally {
+      // Reset the loading state.
+      loading.value = false;
+    }
+  }
+
   // Change the password of the current account.
   async function changePassword(
     newPassword: string,
@@ -613,6 +661,8 @@ export const userStore = defineStore('user', () => {
     switchAccount,
     changeUsername,
     changeEmail,
+    verifyEmail,
+    resendVerificationEmail,
     changePassword,
     changeDomain,
     revokeSessions,

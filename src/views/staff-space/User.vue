@@ -91,6 +91,17 @@
         </p>
       </ContentBox>
       <ContentBox
+        title="Toggle Verified Status"
+        :src="gearIcon"
+        theme-safe
+        @click="changeVerifiedModal!.show()"
+      >
+        <p>
+          Toggle <code>{{ otherUser.data.username }}</code
+          >'s verified status.
+        </p>
+      </ContentBox>
+      <ContentBox
         title="Change Password"
         :src="gearIcon"
         theme-safe
@@ -220,6 +231,19 @@
       :disabled="otherUser.loading"
     />
   </FormModal>
+  <ConfirmModal
+    ref="changeVerifiedModal"
+    title="Change Verified Status"
+    @submit="updateVerified"
+    :disabled="otherUser.loading"
+  >
+    <p>
+      Are you sure you want to
+      {{ otherUser.data?.verifiedAt ? 'unverify' : 'verify' }}
+      <code>{{ otherUser.data?.username }}</code
+      >?
+    </p>
+  </ConfirmModal>
   <FormModal
     ref="changePasswordModal"
     title="Change Password"
@@ -261,7 +285,7 @@
       <code>{{ otherUser.data?.username }}</code> staff status?
     </p>
   </ConfirmModal>
-  <ConfirmModal
+  <FormModal
     ref="changeBanModal"
     title="Change Ban Status"
     @submit="updateBan"
@@ -273,7 +297,13 @@
       <code>{{ otherUser.data?.username }}</code
       >?
     </p>
-  </ConfirmModal>
+    <textarea
+      v-if="!otherUser.data?.bannedAt"
+      name="reason"
+      placeholder="Provide your reasoning..."
+      required
+    />
+  </FormModal>
   <ConfirmModal
     ref="signOutModal"
     title="Sign User Out Everywhere"
@@ -341,10 +371,11 @@
     online = useOnline(),
     changeUsernameModal = ref<typeof FormModal>(),
     changeEmailModal = ref<typeof FormModal>(),
+    changeVerifiedModal = ref<typeof ConfirmModal>(),
     changePasswordModal = ref<typeof FormModal>(),
     changeDomainModal = ref<typeof DomainModal>(),
     changeStaffModal = ref<typeof ConfirmModal>(),
-    changeBanModal = ref<typeof ConfirmModal>(),
+    changeBanModal = ref<typeof FormModal>(),
     signOutModal = ref<typeof ConfirmModal>(),
     deleteUserFilesModal = ref<typeof ConfirmModal>(),
     deleteUserModal = ref<typeof ConfirmModal>();
@@ -446,6 +477,46 @@
       } else {
         toast.show('Email updated.');
         changeEmailModal.value!.hide();
+      }
+    } catch (error) {
+      toast.clientError();
+      console.error(error);
+    }
+  }
+
+  async function updateVerified(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
+      changeVerifiedModal.value!.hide();
+      return;
+    }
+    try {
+      const status = otherUser.data?.verifiedAt
+        ? await otherUser.unverifyEmail()
+        : await otherUser.verifyEmail();
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'EMAIL_ALREADY_VERIFIED_ERROR':
+              toast.show('This email is already verified.');
+              break;
+            case 'EMAIL_NOT_VERIFIED_ERROR':
+              toast.show('This email is not verified.');
+              break;
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
+          }
+        }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Verified status updated.');
+        changeVerifiedModal.value!.hide();
       }
     } catch (error) {
       toast.clientError();
@@ -557,19 +628,15 @@
     }
   }
 
-  async function updateBan(choice: boolean) {
+  async function updateBan(data: { reason: string }) {
     if (!online.value) {
       toast.connectivityOffline();
-      return;
-    }
-    if (!choice) {
-      changeBanModal.value!.hide();
       return;
     }
     try {
       const status = otherUser.data?.bannedAt
         ? await otherUser.unbanUser()
-        : await otherUser.banUser();
+        : await otherUser.banUser(data.reason);
       if (status instanceof Cumulonimbus.ResponseError) {
         const handled = await defaultErrorHandler(status, router);
         if (!handled) {

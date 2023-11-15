@@ -45,6 +45,14 @@
           <p v-if="managingAccounts">Click to remove this account.</p>
         </div>
         <div
+          v-if="Object.keys(user.accounts).length < 1"
+          class="account-switcher-account"
+        >
+          <img :src="profileIcon" alt="Generic account icon" />
+          <p>Nobody here but us chickens!</p>
+          <p>Click the "Add Account" button to add an account.</p>
+        </div>
+        <div
           v-if="!managingAccounts"
           :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
           @click="addAccount"
@@ -188,13 +196,7 @@
         }
       }
       toast.show('All accounts removed.');
-      router.replace({
-        path: '/auth',
-        query: {
-          redirect: redirectLoc.value,
-        },
-        hash: '#login',
-      });
+      managingAccounts.value = false;
     }
   }
 
@@ -206,6 +208,9 @@
           if (res === true) {
             toast.show('Account removed.');
             selectedAccount.value = null;
+            if (Object.keys(user.accounts).length < 1) {
+              managingAccounts.value = false;
+            }
             removeAccountModal.value?.hide();
           } else {
             console.error(res);
