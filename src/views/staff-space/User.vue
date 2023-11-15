@@ -18,6 +18,14 @@
                 Email: <code>{{ otherUser.data.email }}</code>
               </p>
               <p>
+                Verified:
+                <code>{{
+                  otherUser.data!.verifiedAt
+                    ? toDateString(new Date(otherUser.data!.updatedAt))
+                    : 'Not yet...'
+                }}</code>
+              </p>
+              <p>
                 Domain:
                 <code
                   >{{
