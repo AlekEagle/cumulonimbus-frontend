@@ -110,6 +110,17 @@
         </p>
       </ContentBox>
       <ContentBox
+        title="Resend Verification Email"
+        :src="gearIcon"
+        theme-safe
+        @click="resendVerificationEmailModal!.show()"
+      >
+        <p>
+          Resend <code>{{ otherUser.data.username }}</code> a verification
+          email.
+        </p>
+      </ContentBox>
+      <ContentBox
         title="Change Password"
         :src="gearIcon"
         theme-safe
@@ -252,6 +263,19 @@
       >?
     </p>
   </ConfirmModal>
+  <ConfirmModal
+    ref="resendVerificationEmailModal"
+    title="Resend Verification Email"
+    @submit="resendVerificationEmail"
+    :disabled="otherUser.loading"
+  >
+    <p>
+      Are you sure you want to send a verification email to
+      <code>{{ otherUser.data?.username }}</code
+      >?
+    </p>
+    <p>If they have already requested one, it will be invalidated.</p>
+  </ConfirmModal>
   <FormModal
     ref="changePasswordModal"
     title="Change Password"
@@ -380,6 +404,7 @@
     changeUsernameModal = ref<typeof FormModal>(),
     changeEmailModal = ref<typeof FormModal>(),
     changeVerifiedModal = ref<typeof ConfirmModal>(),
+    resendVerificationEmailModal = ref<typeof ConfirmModal>(),
     changePasswordModal = ref<typeof FormModal>(),
     changeDomainModal = ref<typeof DomainModal>(),
     changeStaffModal = ref<typeof ConfirmModal>(),
@@ -525,6 +550,34 @@
       } else {
         toast.show('Verified status updated.');
         changeVerifiedModal.value!.hide();
+      }
+    } catch (error) {
+      toast.clientError();
+      console.error(error);
+    }
+  }
+
+  async function resendVerificationEmail(choice: boolean) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    if (!choice) {
+      resendVerificationEmailModal.value!.hide();
+      return;
+    }
+    try {
+      const status = await otherUser.resendVerificationEmail();
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          toast.show('This email is already verified.');
+        }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('Verification email sent.');
+        resendVerificationEmailModal.value!.hide();
       }
     } catch (error) {
       toast.clientError();
