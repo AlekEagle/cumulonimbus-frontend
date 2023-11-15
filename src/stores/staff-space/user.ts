@@ -84,7 +84,8 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      await user.client!.verifyEmail(data.value!.id);
+      const result = await user.client!.verifyEmail(data.value!.id);
+      data.value = result.result;
       return true;
     } catch (error) {
       errored.value = true;
@@ -101,7 +102,8 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      await user.client!.unverifyEmail(data.value!.id);
+      const result = await user.client!.unverifyEmail(data.value!.id);
+      data.value = result.result;
       return true;
     } catch (error) {
       errored.value = true;

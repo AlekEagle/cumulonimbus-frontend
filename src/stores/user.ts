@@ -438,8 +438,11 @@ export const userStore = defineStore('user', () => {
     // Try to verify the email.
     try {
       // Verify the email.
-      await client.value!.verifyEmail('me', token);
+      const result = await client.value!.verifyEmail('me', token);
+
       // If nothing went wrong:
+      // Update the account information.
+      account.value!.user = result.result;
       // Return true to signify success.
       return true;
     } catch (error) {
