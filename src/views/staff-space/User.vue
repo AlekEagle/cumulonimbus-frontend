@@ -110,6 +110,7 @@
         </p>
       </ContentBox>
       <ContentBox
+        v-if="!otherUser.data!.verifiedAt"
         title="Resend Verification Email"
         :src="gearIcon"
         theme-safe
