@@ -368,7 +368,7 @@
     if (file.data) {
       const a = document.createElement('a');
       a.href = fileUrl.value;
-      a.download = file.data.id;
+      a.download = file.data.name ?? file.data.id;
       a.click();
     }
   }
