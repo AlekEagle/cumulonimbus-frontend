@@ -22,17 +22,16 @@ export const filesStore = defineStore('staff-space-files', () => {
     try {
       let result;
       if (selectedUser.value !== null) {
-        result = await (user.client as Cumulonimbus).getFiles(
-          selectedUser.value.id,
-          displayPref.itemsPerPage,
-          displayPref.itemsPerPage * p,
-        );
+        result = await (user.client as Cumulonimbus).getFiles({
+          user: selectedUser.value.id,
+          limit: displayPref.itemsPerPage,
+          offset: displayPref.itemsPerPage * p,
+        });
       } else {
-        result = await (user.client as Cumulonimbus).getFiles(
-          undefined,
-          displayPref.itemsPerPage,
-          displayPref.itemsPerPage * p,
-        );
+        result = await (user.client as Cumulonimbus).getFiles({
+          limit: displayPref.itemsPerPage,
+          offset: displayPref.itemsPerPage * p,
+        });
       }
       page.value = p;
       data.value = result.result;

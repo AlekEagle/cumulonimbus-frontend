@@ -172,9 +172,7 @@ export const userStore = defineStore('user', () => {
     try {
       // Use the static login function to create a new client with the provided credentials.
       client.value = await Cumulonimbus.login(
-        username,
-        password,
-        remember,
+        { username, password, rememberMe: remember },
         cumulonimbusOptions,
       );
       // Get the session and user information.
@@ -216,11 +214,7 @@ export const userStore = defineStore('user', () => {
     try {
       // Use the static register function to create a new client with the provided credentials.
       client.value = await Cumulonimbus.register(
-        username,
-        email,
-        password,
-        confirmPassword,
-        remember,
+        { username, email, password, confirmPassword, rememberMe: remember },
         cumulonimbusOptions,
       );
       // Get the session and user information.
@@ -385,7 +379,7 @@ export const userStore = defineStore('user', () => {
       // Change the username. Use the password to reauthenticate.
       // Only provide the username, that way we aren't changing data that we don't need to.
       account.value!.user = (
-        await client.value!.editUsername(username, password)
+        await client.value!.editUsername({ username, password })
       ).result;
       // If nothing went wrong:
       // Return true to signify success.
@@ -413,7 +407,7 @@ export const userStore = defineStore('user', () => {
       // Change the email. Use the password to reauthenticate.
       // Only provide the email, that way we aren't changing data that we don't need to.
       account.value!.user = (
-        await client.value!.editEmail(email, password)
+        await client.value!.editEmail({ email, password })
       ).result;
       // If nothing went wrong:
       // Return true to signify success.
@@ -438,7 +432,7 @@ export const userStore = defineStore('user', () => {
     // Try to verify the email.
     try {
       // Verify the email.
-      const result = await client.value!.verifyEmail('me', token);
+      const result = await client.value!.verifyEmail({ token });
 
       // If nothing went wrong:
       // Update the account information.
@@ -484,7 +478,7 @@ export const userStore = defineStore('user', () => {
   async function changePassword(
     newPassword: string,
     confirmNewPassword: string,
-    oldPassword: string,
+    password: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     // Set the loading state.
     loading.value = true;
@@ -493,11 +487,11 @@ export const userStore = defineStore('user', () => {
       // Change the password. Use the old password to reauthenticate.
       // Only provide the password, that way we aren't changing data that we don't need to.
       account.value!.user = (
-        await client.value!.editPassword(
+        await client.value!.editPassword({
           newPassword,
           confirmNewPassword,
-          oldPassword,
-        )
+          password,
+        })
       ).result;
       // If nothing went wrong:
       // Return true to signify success.
@@ -524,7 +518,7 @@ export const userStore = defineStore('user', () => {
     try {
       // Change the domain, and if a subdomain is provided, change that too.
       account.value!.user = (
-        await client.value!.editDomainSelection(domain, subdomain)
+        await client.value!.editDomainSelection({ domain, subdomain })
       ).result;
       // If nothing went wrong:
       // Return true to signify success.
@@ -549,7 +543,7 @@ export const userStore = defineStore('user', () => {
     // Try to revoke all sessions.
     try {
       // Revoke all sessions.
-      const res = await client.value!.deleteAllSessions('me', includeSelf);
+      const res = await client.value!.deleteAllSessions(includeSelf);
       // If nothing went wrong:
       // Logout if the current session was included.
       if (includeSelf) await logout();
@@ -574,7 +568,7 @@ export const userStore = defineStore('user', () => {
     // Try to delete all files.
     try {
       // Delete all files and return the number of deleted files.
-      return (await client.value!.deleteAllFiles('me', password)).result.count!;
+      return (await client.value!.deleteAllFiles({ password })).result.count!;
     } catch (error) {
       // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
       if (error instanceof Cumulonimbus.ResponseError) return error;
@@ -597,7 +591,7 @@ export const userStore = defineStore('user', () => {
     // Try to delete the account.
     try {
       // Delete the account. Use the username to ensure the user really wants to delete their account, and use the password to reauthenticate.
-      await client.value!.deleteUser('me', username, password);
+      await client.value!.deleteUser({ username, password });
       // If nothing went wrong:
       // Reset the account value.
       account.value = null;

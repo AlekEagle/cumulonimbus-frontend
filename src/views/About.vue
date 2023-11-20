@@ -119,6 +119,8 @@
         Frontend Version:
         <code v-text="`v${$version}`" />
         <br />
+        Wrapper Version: <code v-text="`v${Cumulonimbus.VERSION}`" />
+        <br />
         Backend Version: <code v-text="`v${backendVersion}`" />
         <br />
         Thumbnailer Version: <code v-text="`v${thumbnailVersion}`" />

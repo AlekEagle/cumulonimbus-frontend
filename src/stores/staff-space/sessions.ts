@@ -19,11 +19,11 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.getSessions(
-        sessionOwner.value.id,
-        displayPref.itemsPerPage,
-        p * displayPref.itemsPerPage,
-      );
+      const result = await user.client!.getSessions({
+        user: sessionOwner.value.id,
+        limit: displayPref.itemsPerPage,
+        offset: p * displayPref.itemsPerPage,
+      });
       page.value = p;
       data.value = result.result;
     } catch (error) {
@@ -45,10 +45,10 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteSession(
-        id,
-        sessionOwner.value.id,
-      );
+      const result = await user.client!.deleteSession({
+        session: id,
+        user: sessionOwner.value.id,
+      });
       return true;
     } catch (error) {
       errored.value = true;

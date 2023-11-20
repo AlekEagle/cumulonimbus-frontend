@@ -19,10 +19,10 @@ export const usersStore = defineStore('staff-space-users', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getUsers(
-        displayPref.itemsPerPage,
-        displayPref.itemsPerPage * p,
-      );
+      const result = await (user.client as Cumulonimbus).getUsers({
+        limit: displayPref.itemsPerPage,
+        offset: displayPref.itemsPerPage * p,
+      });
       page.value = p;
       data.value = result.result;
     } catch (error) {

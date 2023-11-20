@@ -35,7 +35,7 @@ export const fileStore = defineStore('staff-space-file', () => {
   }
 
   async function editFilename(
-    filename?: string,
+    filename: string,
   ): Promise<boolean | Cumulonimbus.ResponseError> {
     if (data.value === null) return false;
     if (user.client === null) return false;
@@ -45,6 +45,31 @@ export const fileStore = defineStore('staff-space-file', () => {
       const result = await (user.client as Cumulonimbus).editFilename(
         data.value.id,
         filename,
+      );
+      data.value = result.result;
+    } catch (error) {
+      errored.value = true;
+      if (error instanceof Cumulonimbus.ResponseError) {
+        return error;
+      } else {
+        throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+    return true;
+  }
+
+  async function deleteFilename(): Promise<
+    boolean | Cumulonimbus.ResponseError
+  > {
+    if (data.value === null) return false;
+    if (user.client === null) return false;
+    errored.value = false;
+    loading.value = true;
+    try {
+      const result = await (user.client as Cumulonimbus).deleteFilename(
+        data.value.id,
       );
       data.value = result.result;
     } catch (error) {
@@ -116,6 +141,7 @@ export const fileStore = defineStore('staff-space-file', () => {
     uploader,
     getFile,
     editFilename,
+    deleteFilename,
     editFileExtension,
     deleteFile,
   };

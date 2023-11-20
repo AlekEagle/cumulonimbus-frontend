@@ -36,11 +36,10 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editUsername(
+      const result = await user.client!.editUsername({
         username,
-        undefined,
-        data.value!.id,
-      );
+        user: data.value!.id,
+      });
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -60,11 +59,10 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editEmail(
+      const result = await user.client!.editEmail({
         email,
-        undefined,
-        data.value!.id,
-      );
+        user: data.value!.id,
+      });
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -84,7 +82,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.verifyEmail(data.value!.id);
+      const result = await user.client!.verifyEmail({ user: data.value!.id });
       data.value = result.result;
       return true;
     } catch (error) {
@@ -137,12 +135,11 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editPassword(
-        password,
-        confirmPassword,
-        undefined,
-        data.value!.id,
-      );
+      const result = await user.client!.editPassword({
+        newPassword: password,
+        confirmNewPassword: confirmPassword,
+        user: data.value!.id,
+      });
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -163,8 +160,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     loading.value = true;
     try {
       const result = await user.client!.editDomainSelection(
-        domain,
-        subdomain,
+        { domain, subdomain },
         data.value!.id,
       );
       data.value = result.result;
@@ -285,7 +281,9 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteAllFiles(data.value!.id);
+      const result = await user.client!.deleteAllFiles({
+        user: data.value!.id,
+      });
       return result.result.count;
     } catch (error) {
       errored.value = true;
@@ -304,7 +302,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteUser(data.value!.id);
+      const result = await user.client!.deleteUser({ user: data.value!.id });
       return true;
     } catch (error) {
       errored.value = true;

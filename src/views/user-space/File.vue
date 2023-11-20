@@ -99,8 +99,12 @@
       type="text"
       :placeholder="file.data!.id"
       :value="file.data!.name ?? ''"
+      required
       name="filename"
     />
+    <template v-slot:additional-buttons>
+      <button @click="deleteFilename"> Clear Name </button>
+    </template>
   </FormModal>
   <FormModal
     ref="editFileExtensionModal"
@@ -237,7 +241,7 @@
     }
   });
 
-  async function renameFile(data: { filename?: string }) {
+  async function renameFile(data: { filename: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
@@ -261,6 +265,36 @@
         toast.show('File renamed.');
         await files.getFiles(files.page);
         fullscreenLoadingBlurb.value!.hide();
+        await renameFileModal.value!.hide();
+      }
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
+  }
+
+  async function deleteFilename() {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      const status = await file.deleteFilename();
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status, router);
+        if (!handled) {
+          switch (status.code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('That file does not exist.');
+              await files.getFiles(files.page);
+              await backWithFallback(router, '/dashboard/files', true);
+          }
+        }
+      } else if (!status) {
+        toast.clientError();
+      } else {
+        toast.show('File renamed.');
+        await files.getFiles(files.page);
         await renameFileModal.value!.hide();
       }
     } catch (e) {

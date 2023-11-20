@@ -17,10 +17,10 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     loading.value = true;
     errored.value = false;
     try {
-      const result = await user.client.getDomains(
-        displayPref.itemsPerPage,
-        displayPref.itemsPerPage * p,
-      );
+      const result = await user.client.getDomains({
+        limit: displayPref.itemsPerPage,
+        offset: displayPref.itemsPerPage * p,
+      });
       data.value = result.result;
       page.value = p;
       return true;

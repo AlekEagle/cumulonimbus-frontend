@@ -21,11 +21,10 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getSessions(
-        'me',
-        displayPref.itemsPerPage,
-        displayPref.itemsPerPage * p,
-      );
+      const result = await (user.client as Cumulonimbus).getSessions({
+        limit: displayPref.itemsPerPage,
+        offset: displayPref.itemsPerPage * p,
+      });
       page.value = p;
       data.value = result.result;
     } catch (error) {

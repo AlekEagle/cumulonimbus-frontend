@@ -20,10 +20,10 @@ export const instructionsStore = defineStore('user-space-instructions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getInstructions(
-        displayPref.itemsPerPage,
-        displayPref.itemsPerPage * p,
-      );
+      const result = await (user.client as Cumulonimbus).getInstructions({
+        limit: displayPref.itemsPerPage,
+        offset: displayPref.itemsPerPage * p,
+      });
       page.value = p;
       data.value = result.result;
     } catch (error) {

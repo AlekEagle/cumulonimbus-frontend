@@ -19,10 +19,10 @@ export const instructionsStore = defineStore('staff-space-instructions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.getInstructions(
-        displayPref.itemsPerPage,
-        p * displayPref.itemsPerPage,
-      );
+      const result = await user.client!.getInstructions({
+        limit: displayPref.itemsPerPage,
+        offset: p * displayPref.itemsPerPage,
+      });
       page.value = p;
       data.value = result.result;
     } catch (error) {
@@ -62,13 +62,13 @@ export const instructionsStore = defineStore('staff-space-instructions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.createInstruction(
-        name.toLowerCase().replace(/\s/g, '-'),
+      const result = await user.client!.createInstruction({
+        id: name.toLowerCase().replace(/\s/g, '-'),
         name,
         description,
-        [],
-        '{{token}}',
-      );
+        steps: [],
+        content: '{{token}}',
+      });
       return result.result;
     } catch (error) {
       errored.value = true;

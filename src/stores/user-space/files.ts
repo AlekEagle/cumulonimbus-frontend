@@ -19,11 +19,11 @@ export const filesStore = defineStore('user-space-files', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getFiles(
-        'me',
-        displayPref.itemsPerPage,
-        displayPref.itemsPerPage * p,
-      );
+      const result = await (user.client as Cumulonimbus).getFiles({
+        user: 'me',
+        limit: displayPref.itemsPerPage,
+        offset: displayPref.itemsPerPage * p,
+      });
       page.value = p;
       data.value = result.result;
     } catch (error) {

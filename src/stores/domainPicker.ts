@@ -14,7 +14,9 @@ export const domainPickerStore = defineStore('domainPicker', () => {
     if (user.client === null) return false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getDomains('all');
+      const result = await (user.client as Cumulonimbus).getDomains({
+        limit: 'all',
+      });
       domains.value = result.result;
     } catch (error) {
       if (error instanceof Cumulonimbus.ResponseError) {
