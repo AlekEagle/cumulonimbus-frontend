@@ -137,11 +137,19 @@ export const toastStore = defineStore('toast', () => {
     );
   };
 
-  // A toast for a new version of Cumulonimbus being available.
-  const newVersion = async () => {
-    await show(
-      'A new version of Cumulonimbus is available! Please refresh the page to apply the update.',
-    );
+  // A toast for when a new version of Cumulonimbus is being acquired.
+  const updating = async () => {
+    await show('Updating Cumulonimbus, please wait...');
+  };
+
+  // A toast for when a new version of Cumulonimbus is available.
+  const updateComplete = async () => {
+    await show('Cumulonimbus has been updated! Refresh to see the changes.');
+  };
+
+  // A toast for when we failed updating Cumulonimbus.
+  const updateFailed = async () => {
+    await show('Cumulonimbus failed to update. Please refresh to try again.');
   };
 
   // A toast to inform the user that they are missing required fields.
@@ -197,7 +205,9 @@ export const toastStore = defineStore('toast', () => {
     clientError,
     serverError,
     genericError,
-    newVersion,
+    updating,
+    updateComplete,
+    updateFailed,
     missingFields,
     invalidUsernameEmail: userNotFound,
     invalidPassword,

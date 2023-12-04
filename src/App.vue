@@ -333,8 +333,14 @@
   navigator.serviceWorker?.addEventListener('message', (event) => {
     const payload = event.data;
     switch (payload.type) {
-      case 'update-nag':
-        toast.newVersion();
+      case 'update-begin':
+        toast.updating();
+        break;
+      case 'update-complete':
+        toast.updateComplete();
+        break;
+      case 'update-failed':
+        toast.updateFailed();
         break;
     }
   });

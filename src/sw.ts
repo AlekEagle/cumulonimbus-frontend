@@ -4,6 +4,25 @@ declare var self: ServiceWorkerGlobalScope;
 
 import { Router, RouteParams } from './utils/swRouter';
 
+// ---- Constants ----
+
+///@ts-ignore
+const precacheManifest = self.__WB_MANIFEST;
+
+// Router setup
+const router = new Router();
+
+// BaseThumbnailURLs is a map of environments to regexps that match the base URL of the thumbnail server.
+const BaseThumbnailURLs: { [key: string]: RegExp } = {
+  production: new RegExp(
+    `previews\\.${self.location.hostname.replace('.', '\\.')}`,
+  ),
+  ptb: new RegExp('previews\\.alekeagle\\.me'),
+  development: /localhost(?::\d{1,5})?/,
+};
+
+// ---- Debugging functions ----
+
 function debugLog(component: string = 'ServiceWorker', ...data: any[]) {
   console.debug(`[${component}]`, ...data);
 }
@@ -12,8 +31,7 @@ function errorLog(component: string = 'ServiceWorker', ...data: any[]) {
   console.error(`[${component}]`, ...data);
 }
 
-const router = new Router();
-
+// Bind router to fetch event
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     (async () => {
@@ -28,48 +46,72 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-///@ts-ignore
-const precacheManifest = self.__WB_MANIFEST;
+// ---- Helper functions ----
 
-async function nagToUpdate(claim: boolean = false): Promise<void> {
-  debugLog('ServiceWorkerUpdateNag', 'Nagging clients to update...');
-  if (claim) {
-    debugLog('ServiceWorkerUpdateNag', 'Claiming clients...');
-    await self.clients.claim();
-  }
-  const clients = await self.clients.matchAll();
-  for (const client of clients) {
-    client.postMessage({ type: 'update-nag' });
-  }
+async function claimClients(skipWaiting: boolean = false): Promise<void> {
+  debugLog('ServiceWorkerClaimClients', 'Claiming clients...');
+  if (skipWaiting) await self.skipWaiting();
+  return await self.clients.claim();
 }
 
+async function messageClients(message: any): Promise<void> {
+  debugLog('ServiceWorkerMessageClients', 'Messaging clients...', message);
+  const clients = await self.clients.matchAll();
+  for (const client of clients) {
+    client.postMessage(message);
+  }
+  debugLog('ServiceWorkerMessageClients', 'Messaging complete.');
+}
+
+// Create our own precache function that uses multiple threads to precache.
+// that way we can precache
+async function threadedPrecache(urls: string[], threads: number = 4) {
+  debugLog('ServiceWorkerThreadedPrecache', 'Precaching...');
+  const chunkSize = Math.ceil(urls.length / threads);
+  const chunks = [];
+  for (let i = 0; i < urls.length; i += chunkSize) {
+    chunks.push(urls.slice(i, i + chunkSize));
+  }
+  const promises = [];
+  for (const chunk of chunks) {
+    promises.push(
+      new Promise<void>(async (resolve, reject) => {
+        const cache = await caches.open('offline-cache');
+        for (const url of chunk) {
+          try {
+            debugLog('ServiceWorkerThreadedPrecache', `URL: ${url}`);
+            await cache.add(url);
+          } catch (err) {
+            reject(err);
+          }
+        }
+        resolve();
+      }),
+    );
+  }
+  await Promise.all(promises);
+  debugLog('ServiceWorkerThreadedPrecache', 'Precaching complete.');
+}
+
+// ---- Service worker lifecycle ----
+
 self.addEventListener('install', async (event) => {
-  debugLog('ServiceWorkerInstallManager', 'Install Event');
+  debugLog('ServiceWorkerInstall', 'Install Event!');
+  const urlsToCache = precacheManifest.map((entry: any) => entry.url);
   try {
-    await self.skipWaiting();
-    await caches.delete('offline-cache');
-    await caches.delete('share-target-cache');
-    const cache = await caches.open('offline-cache');
-    for (const file of precacheManifest) {
-      debugLog('ServiceWorkerInstallManager', `Caching ${file.url}...`);
-      await cache.add(new Request(file.url));
-    }
-    debugLog('ServiceWorkerInstallManager', `Caching complete.`);
-    // Nag clients to update.
-    await nagToUpdate(true);
-  } catch (e) {
-    errorLog('ServiceWorkerInstallManager', 'Install event failed', e);
-    self.reportError(e);
+    await threadedPrecache(urlsToCache);
+    await claimClients(true);
+    await messageClients({ type: 'update-complete' });
+  } catch (err) {
+    errorLog('ServiceWorkerInstall', err);
+    await claimClients(true);
+    await messageClients({ type: 'update-failed' });
+    // Unregister the service worker if precaching fails so that the user can still use the site.
+    self.registration.unregister();
   }
 });
 
-const BaseThumbnailURLs: { [key: string]: RegExp } = {
-  production: new RegExp(
-    `previews\\.${self.location.hostname.replace('.', '\\.')}`,
-  ),
-  ptb: new RegExp('previews\\.alekeagle\\.me'),
-  development: /localhost(?::\d{1,5})?/,
-};
+// ---- Router routes ----
 
 // Make SPA available offline
 // Register a route to serve /index.html from the cache when the user is offline or the webserver returns a 404.
