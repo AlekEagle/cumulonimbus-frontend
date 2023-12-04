@@ -213,6 +213,8 @@
           await manageSessionModal.value!.hide();
         }
       }
+    } else {
+      await manageSessionModal.value!.hide();
     }
   }
 
