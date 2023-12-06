@@ -158,7 +158,7 @@
         }
       } catch (e) {
         if (e instanceof Cumulonimbus.ResponseError) {
-          const handled = await defaultErrorHandler(e, router);
+          const handled = await defaultErrorHandler(e);
           if (!handled) toast.show(`Failed to switch to ${account}.`);
         } else {
           toast.clientError();

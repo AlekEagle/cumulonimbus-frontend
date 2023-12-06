@@ -130,13 +130,9 @@
     try {
       const status = await sessions.getSessions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (!status) {
-        toast.clientError();
-      }
+        const handled = await defaultErrorHandler(status);
+        if (!handled) toast.genericError();
+      } else toast.genericError();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -178,7 +174,7 @@
                 ).result;
               } catch (e) {
                 if (e instanceof Cumulonimbus.ResponseError) {
-                  const handled = await defaultErrorHandler(e, router);
+                  const handled = await defaultErrorHandler(e);
                   if (!handled) {
                     switch (e.code) {
                       case 'INVALID_USER_ERROR':
@@ -217,7 +213,7 @@
           ).result;
         } catch (e) {
           if (e instanceof Cumulonimbus.ResponseError) {
-            const handled = await defaultErrorHandler(e, router);
+            const handled = await defaultErrorHandler(e);
             if (!handled) {
               switch (e.code) {
                 case 'INVALID_USER_ERROR':
@@ -227,7 +223,7 @@
             }
           } else {
             console.error(e);
-            toast.clientError();
+            toast.genericError();
           }
         }
       }
@@ -248,13 +244,13 @@
             selectedSession.value = null;
             break;
           default:
-            const handled = await defaultErrorHandler(status, router);
+            const handled = await defaultErrorHandler(status);
             if (!handled) {
               toast.clientError();
             }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         if (selectedSession.value?.id === user.account?.session.id) {
           await user.logout();
@@ -289,13 +285,13 @@
             selectedSession.value = null;
             break;
           default:
-            const handled = await defaultErrorHandler(status, router);
+            const handled = await defaultErrorHandler(status);
             if (!handled) {
               toast.clientError();
             }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         if (selected.value.includes(user.account?.session.id + '')) {
           await user.logout();

@@ -359,7 +359,7 @@
     --foreground: #000;
     --link-color: #0059ff;
     --logo-shadow: #818181;
-    --code-background: #ddd;
+    --ui-code-background: #ddd;
     --ui-background: #f3f3f3;
     --ui-foreground: #000;
     --ui-border: #aaaaaa;
@@ -380,7 +380,7 @@
     --foreground: #fff;
     --link-color: #00ccff;
     --logo-shadow: #000;
-    --code-background: #161616;
+    --ui-code-background: #161616;
     --ui-background: #272727;
     --ui-foreground: #fff;
     --ui-border: #424242;
@@ -489,7 +489,7 @@
     display: inline-block;
     font-family: var(--font-code);
     padding: 0 10px;
-    background-color: var(--code-background);
+    background-color: var(--ui-code-background);
     border-radius: 4px;
     transition: background-color 0.25s;
   }

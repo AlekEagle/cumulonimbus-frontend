@@ -70,6 +70,7 @@
       </template>
       <LoadingBlurb v-else />
     </div>
+    <Separator />
     <div
       class="content-box-container"
       v-if="
@@ -291,6 +292,7 @@
       autocomplete="off"
       :disabled="otherUser.loading"
     />
+    <br />
     <input
       type="password"
       placeholder="Confirm Password"
@@ -384,6 +386,7 @@
   import DomainModal from '@/components/DomainModal.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import Online from '@/components/Online.vue';
+  import Separator from '@/components/Separator.vue';
   import { useRouter } from 'vue-router';
   import { useOnline } from '@vueuse/core';
   import { toastStore } from '@/stores/toast';
@@ -447,15 +450,15 @@
         router.currentRoute.value.query.id as string,
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
+        const handled = await defaultErrorHandler(status);
+        if (!handled)
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
               backWithFallback(router, '/staff/users', true);
           }
-        }
-      }
+        else toast.genericError();
+      } else toast.genericError();
     } catch (error) {
       toast.clientError();
       console.error(error);
@@ -470,7 +473,7 @@
     try {
       const status = await otherUser.updateUsername(data.username);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -479,7 +482,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Username updated.');
         changeUsernameModal.value!.hide();
@@ -498,7 +501,7 @@
     try {
       const status = await otherUser.updateEmail(data.email);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -507,7 +510,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Email updated.');
         changeEmailModal.value!.hide();
@@ -532,7 +535,7 @@
         ? await otherUser.unverifyEmail()
         : await otherUser.verifyEmail();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'EMAIL_ALREADY_VERIFIED_ERROR':
@@ -547,7 +550,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Verified status updated.');
         changeVerifiedModal.value!.hide();
@@ -570,12 +573,12 @@
     try {
       const status = await otherUser.resendVerificationEmail();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           toast.show('This email is already verified.');
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Verification email sent.');
         resendVerificationEmailModal.value!.hide();
@@ -597,7 +600,7 @@
         data.confirm,
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -606,7 +609,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Password updated.');
         changePasswordModal.value!.hide();
@@ -625,7 +628,7 @@
     try {
       const status = await otherUser.updateDomain(data.domain, data.subdomain);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -645,7 +648,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Domain updated.');
         changeDomainModal.value!.hide();
@@ -670,7 +673,7 @@
         ? await otherUser.revokeStaff()
         : await otherUser.grantStaff();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -679,7 +682,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Staff updated.');
         changeStaffModal.value!.hide();
@@ -700,7 +703,7 @@
         ? await otherUser.unbanUser()
         : await otherUser.banUser(data.reason);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -709,7 +712,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Banned updated.');
         changeBanModal.value!.hide();
@@ -732,7 +735,7 @@
     try {
       const status = await otherUser.deleteAllSessions();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -741,7 +744,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Signed out.');
         signOutModal.value!.hide();
@@ -764,7 +767,7 @@
     try {
       const status = await otherUser.deleteAllFiles();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -773,7 +776,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Files deleted.');
         deleteUserFilesModal.value!.hide();
@@ -796,7 +799,7 @@
     try {
       const status = await otherUser.deleteUser();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -805,7 +808,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('User deleted.');
         otherUser.data = null;

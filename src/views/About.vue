@@ -62,6 +62,7 @@
       </p>
     </div>
   </div>
+  <Separator />
   <div class="content-box-container">
     <ContentBox
       title="Frontend"
@@ -111,6 +112,7 @@
       </p>
     </ContentBox>
   </div>
+  <Separator />
   <div class="content-box-container">
     <ContentBox title="Info">
       <template v-if="asOf">
@@ -141,9 +143,12 @@
   import { useFuzzyTimeString } from '@/utils/time';
   import ContentBox from '@/components/ContentBox.vue';
   import Cumulonimbus from 'cumulonimbus-wrapper';
+  import Separator from '@/components/Separator.vue';
+  import { userStore } from '@/stores/user';
 
   const global = getCurrentInstance()?.appContext.config.globalProperties;
   const backendVersion: Ref<string> = ref('Loading...');
+  const user = userStore();
   const thumbnailVersion: Ref<string> = ref('Loading...');
   const asOf = ref<Date | null | undefined>();
   const asOfTime = useFuzzyTimeString(asOf, 30e3);
@@ -167,11 +172,11 @@
 
     await Promise.all([
       (async () => {
-        backendVersion.value = (await Cumulonimbus.getAPIStatus()).version;
+        backendVersion.value = (await user.client!.getAPIStatus()).version;
       })(),
       (async () => {
         thumbnailVersion.value = (
-          await Cumulonimbus.getThumbnailAPIStatus()
+          await user.client!.getThumbnailAPIStatus()
         ).version;
       })(),
     ]);

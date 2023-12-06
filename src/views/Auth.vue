@@ -113,7 +113,6 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useNetwork } from '@vueuse/core';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import { wait } from '@/utils/wait';
 
   const user = userStore(),
     router = useRouter(),
@@ -126,27 +125,30 @@
     { isOnline: online } = useNetwork();
 
   async function toggleState() {
-    if (action.value === 'login') {
-      action.value = 'register';
-      router.replace({
-        ...route,
-        hash: '#register',
-      });
-    } else if (action.value === 'register') {
-      action.value = 'login';
-      router.replace({
-        ...route,
-        hash: '#login',
-      });
-    } else {
-      action.value = 'login';
-      router.replace({
-        ...route,
-        hash: '#login',
-      });
+    switch (action.value) {
+      case 'login':
+        action.value = 'register';
+        await router.replace({
+          ...route,
+          hash: '#register',
+        });
+        break;
+      case 'register':
+        action.value = 'login';
+        await router.replace({
+          ...route,
+          hash: '#login',
+        });
+        break;
+      default:
+        action.value = 'login';
+        await router.replace({
+          ...route,
+          hash: '#login',
+        });
+        break;
     }
 
-    await wait(100);
     if (route.query.username) {
       document.querySelector<HTMLInputElement>(
         'input[name="username"]',
@@ -217,7 +219,7 @@
           toast.show('This should not be seen');
         }
       } else {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           switch (res.code) {
             case 'INVALID_USER_ERROR':
@@ -268,7 +270,7 @@
           toast.show('This should not be seen');
         }
       } else {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           switch (res.code) {
             case 'USER_EXISTS_ERROR':

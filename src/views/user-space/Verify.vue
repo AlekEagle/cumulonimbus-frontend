@@ -63,7 +63,7 @@
         window.location.search.split('token=')[1],
       );
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handleResult = await defaultErrorHandler(res, router);
+        const handleResult = await defaultErrorHandler(res);
         if (!handleResult) {
           switch (res.code) {
             case 'EMAIL_ALREADY_VERIFIED_ERROR':

@@ -52,6 +52,7 @@
         </p>
       </ContentBox>
     </div>
+    <Separator />
     <div class="content-box-container" v-if="online">
       <ContentBox
         title="Display Preferences"
@@ -150,6 +151,7 @@
     <p>Number of items per page:</p>
     <input
       type="number"
+      inputmode="numeric"
       :value="displayPref.itemsPerPage"
       min="1"
       max="50"
@@ -276,7 +278,7 @@
     :subdomain="user.account?.user.subdomain"
     :disabled="user.loading"
     @submit="updateDomain"
-    @no-session="toLogin(router)"
+    @no-session="toLogin()"
   />
   <FormModal
     ref="deleteSessionsModal"
@@ -370,6 +372,7 @@
   import { useRouter } from 'vue-router';
   import { ref } from 'vue';
   import Cumulonimbus from 'cumulonimbus-wrapper';
+  import Separator from '@/components/Separator.vue';
 
   const user = userStore(),
     toast = toastStore(),
@@ -395,7 +398,7 @@
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changeUsername(data.username, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           switch (res.code) {
             case 'USER_EXISTS_ERROR':
@@ -424,7 +427,7 @@
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changeEmail(data.email, data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           switch (res.code) {
             case 'USER_EXISTS_ERROR':
@@ -451,7 +454,7 @@
       fullscreenLoadingBlurb.value!.show();
       const res = await user.resendVerificationEmail();
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           switch (res.code) {
             case 'EMAIL_ALREADY_VERIFIED_ERROR':
@@ -487,7 +490,7 @@
         data.password,
       );
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           toast.clientError();
         }
@@ -508,7 +511,7 @@
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changeDomain(data.domain, data.subdomain);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           switch (res.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -540,7 +543,7 @@
       fullscreenLoadingBlurb.value!.show();
       const res = await user.revokeSessions(data.includeSelf);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           toast.clientError();
         }
@@ -549,7 +552,7 @@
         deleteSessionsModal.value!.hide();
         toast.show(`Deleted ${res} sessions.`);
         if (data.includeSelf) {
-          toLogin(router);
+          toLogin();
         }
       }
     } catch (error) {
@@ -565,7 +568,7 @@
       fullscreenLoadingBlurb.value!.show();
       const res = await user.deleteFiles(data.password);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           switch (res.code) {
             case 'INVALID_FILE_ERROR':
@@ -599,7 +602,7 @@
             toast.show('That is not your username.');
             break;
           default:
-            const handled = await defaultErrorHandler(res, router);
+            const handled = await defaultErrorHandler(res);
             if (!handled) {
               toast.clientError();
             }
@@ -648,7 +651,7 @@
     try {
       const res = await user.refetch();
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
+        const handled = await defaultErrorHandler(res);
         if (!handled) {
           toast.clientError();
         }

@@ -2,16 +2,18 @@ import Cumulonimbus from 'cumulonimbus-wrapper';
 import toLogin from './toLogin';
 import { toastStore } from '@/stores/toast';
 import { userStore } from '@/stores/user';
-import { Router } from 'vue-router';
+import { useRouter } from 'vue-router';
+
+// TODO: Unify error handling across the app. Behavior between components and pages is inconsistent to say the least.
 
 // Handle common errors from the API
 export default async function defaultErrorHandler(
   error: Cumulonimbus.ResponseError,
-  router: Router,
 ): Promise<boolean> {
   // Get the stores and components we need
   const user = userStore(),
-    toast = toastStore();
+    toast = toastStore(),
+    router = useRouter();
 
   switch (error.code) {
     // If the user's account has been banned.
@@ -24,7 +26,7 @@ export default async function defaultErrorHandler(
         user.account = null;
         user.client = null;
         // Send the user to the login page.
-        await toLogin(router);
+        await toLogin();
       }
       // Return true to indicate that the error was handled.
       return true;
@@ -39,7 +41,7 @@ export default async function defaultErrorHandler(
       // Display the invalid session message.
       toast.session();
       // Log the user out.
-      await toLogin(router);
+      await toLogin();
       // Return true to indicate that the error was handled.
       return true;
     // If the user tries to perform an action that they do not have permission to perform.

@@ -119,7 +119,6 @@
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import Online from '@/components/Online.vue';
   import { toastStore } from '@/stores/toast';
   import { instructionsStore } from '@/stores/staff-space/instructions';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
@@ -150,13 +149,9 @@
     try {
       const status = await instructions.getInstructions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (!status) {
-        toast.clientError();
-      }
+        const handled = await defaultErrorHandler(status);
+        if (!handled) toast.clientError();
+      } else toast.genericError();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -207,7 +202,7 @@
     try {
       const result = await instructions.deleteInstructions(selected.value);
       if (result instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(result, router);
+        const handled = await defaultErrorHandler(result);
         if (!handled) {
           toast.clientError();
         }
@@ -250,7 +245,7 @@
         data.description,
       );
       if (result instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(result, router);
+        const handled = await defaultErrorHandler(result);
         if (!handled) {
           toast.clientError();
         }

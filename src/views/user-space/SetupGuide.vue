@@ -122,7 +122,7 @@
         router.currentRoute.value.query.id as string,
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -232,7 +232,6 @@
             ),
             reset: Number(newSession.headers.get('Ratelimit-Reset') || '0'),
           }),
-          router,
         );
         if (!handled) {
           switch (json.code) {

@@ -116,7 +116,7 @@
       await copyToClipboard();
     } catch (error) {
       if (error instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(error, router);
+        const handled = await defaultErrorHandler(error);
         if (!handled) {
           switch (error.code) {
             case 'BODY_TOO_LARGE_ERROR':

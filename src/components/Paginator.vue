@@ -15,6 +15,7 @@
     </button>
     <input
       type="number"
+      inputmode="numeric"
       :value="pageCount"
       min="0"
       :max="displayMax"
@@ -49,6 +50,7 @@
     </button>
     <input
       type="number"
+      inputmode="numeric"
       :value="pageCount"
       min="0"
       :max="displayMax"

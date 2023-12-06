@@ -182,13 +182,37 @@
     try {
       const status = await domains.getDomains(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
+        if (!handled) toast.genericError();
+      } else toast.genericError();
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
+  }
+
+  async function fetchDomain(id: string) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      const status = await user.client!.getDomain(id);
+      if (status instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
-          toast.clientError();
+          switch (status.code) {
+            case 'INVALID_DOMAIN_ERROR':
+              toast.show('That domain does not exist.');
+              await fetchDomains();
+              break;
+          }
         }
-      } else if (!status) {
-        toast.clientError();
-      }
+      } else if (!status) toast.genericError();
+      else
+        selectedDomain.value = (
+          await user.client!.getDomain(selectedDomain.value!.id)
+        ).result;
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -203,7 +227,7 @@
         selected.value.push(domain.id);
       }
     } else {
-      selectedDomain.value = (await user.client!.getDomain(domain.id)).result;
+      await fetchDomain(domain.id);
       manageDomainModal.value!.show();
     }
   }
@@ -231,7 +255,7 @@
     try {
       const status = await domains.deleteDomain(selectedDomain.value!.id);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -242,7 +266,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Domain deleted.');
         deselect();
@@ -266,7 +290,7 @@
     try {
       const status = await domains.deleteDomains(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           toast.clientError();
         }
@@ -289,7 +313,7 @@
     try {
       const status = await domains.enableSubdomains(selectedDomain.value!.id);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -300,7 +324,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Domain updated.');
         selectedDomain.value = (
@@ -322,7 +346,7 @@
     try {
       const status = await domains.disableSubdomains(selectedDomain.value!.id);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -333,7 +357,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Domain updated.');
         selectedDomain.value = (
@@ -378,7 +402,7 @@
     try {
       const status = await domains.createDomain(data.id, data.subdomains);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'DOMAIN_EXISTS_ERROR':
@@ -387,7 +411,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Domain created.');
         createDomainModal.value!.hide();

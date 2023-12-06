@@ -122,7 +122,7 @@
                 ).result;
               } catch (e) {
                 if (e instanceof Cumulonimbus.ResponseError) {
-                  const handled = await defaultErrorHandler(e, router);
+                  const handled = await defaultErrorHandler(e);
                   if (!handled) {
                     switch (e.code) {
                       case 'INVALID_USER_ERROR':
@@ -154,7 +154,7 @@
           ).result;
         } catch (e) {
           if (e instanceof Cumulonimbus.ResponseError) {
-            const handled = await defaultErrorHandler(e, router);
+            const handled = await defaultErrorHandler(e);
             if (!handled) {
               switch (e.code) {
                 case 'INVALID_USER_ERROR':
@@ -183,17 +183,15 @@
     try {
       const status = await files.getFiles(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
+        const handled = await defaultErrorHandler(status);
+        if (!handled)
           switch (status.code) {
             case 'INVALID_USER_ERROR':
               toast.show('This user does not exist.');
               backWithFallback(router, '/staff/users');
           }
-        }
-      } else if (!status) {
-        toast.clientError();
-      }
+        else toast.genericError();
+      } else toast.genericError();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -237,12 +235,10 @@
           else toast.show('You must select at least one file to delete.');
           return;
         }
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          toast.clientError();
-        }
+        const handled = await defaultErrorHandler(status);
+        if (!handled) toast.clientError();
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         selecting.value = false;
         selected.value = [];

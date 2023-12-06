@@ -1,0 +1,26 @@
+[
+  {
+    "file": "src/App.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/TOS.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/Privacy.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/Home.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/404.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/About.vue",
+    "decorator": "✓"
+  }
+]

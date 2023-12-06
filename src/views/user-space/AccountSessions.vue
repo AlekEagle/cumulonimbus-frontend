@@ -141,7 +141,7 @@
     try {
       const status = await sessions.getSessions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           toast.clientError();
         }
@@ -193,7 +193,7 @@
         selectedSession.value!.id + '',
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           toast.clientError();
         }
@@ -241,7 +241,7 @@
             await manageSessionModal.value!.hide();
             break;
           default:
-            const handled = await defaultErrorHandler(status, router);
+            const handled = await defaultErrorHandler(status);
             if (!handled) {
               toast.clientError();
             }

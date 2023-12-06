@@ -246,8 +246,8 @@
         router.currentRoute.value.query.id as string,
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
+        const handled = await defaultErrorHandler(status);
+        if (!handled)
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
               toast.show('This setup guide does not exist.');
@@ -255,11 +255,11 @@
               await backWithFallback(router, '/staff/setup-guides', true);
               break;
           }
-        }
-      }
+        else toast.genericError();
+      } else toast.genericError();
     } catch (e) {
       console.error(e);
-      toast.serverError();
+      toast.clientError();
     }
   }
 
@@ -305,7 +305,7 @@
     try {
       const status = instruction.updateInstructionSteps(steps);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -316,7 +316,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Step updated successfully.');
         editStepModal.value!.hide();
@@ -324,7 +324,7 @@
       }
     } catch (e) {
       console.error(e);
-      toast.serverError();
+      toast.clientError();
     }
   }
 
@@ -338,7 +338,7 @@
     try {
       const status = instruction.updateInstructionSteps(steps);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -349,7 +349,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Step deleted successfully.');
         editStepModal.value!.hide();
@@ -357,7 +357,7 @@
       }
     } catch (e) {
       console.error(e);
-      toast.serverError();
+      toast.clientError();
     }
   }
 
@@ -393,7 +393,7 @@
     try {
       const status = await instruction.deleteInstruction();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -404,7 +404,7 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Setup guide deleted successfully.');
         await instructions.getInstructions(instructions.page);
@@ -412,7 +412,7 @@
       }
     } catch (e) {
       console.error(e);
-      toast.serverError();
+      toast.clientError();
     }
   }
 
@@ -424,7 +424,7 @@
     try {
       const status = await instruction.updateInstructionDisplayName(data.name);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -435,14 +435,14 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Display name updated successfully.');
         editDisplayNameModal.value!.hide();
       }
     } catch (e) {
       console.error(e);
-      toast.serverError();
+      toast.clientError();
     }
   }
 
@@ -456,7 +456,7 @@
         data.description,
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -467,14 +467,14 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('Description updated successfully.');
         editDescriptionModal.value!.hide();
       }
     } catch (e) {
       console.error(e);
-      toast.serverError();
+      toast.clientError();
     }
   }
 
@@ -489,7 +489,7 @@
         data.filename,
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
+        const handled = await defaultErrorHandler(status);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_INSTRUCTION_ERROR':
@@ -500,14 +500,14 @@
           }
         }
       } else if (!status) {
-        toast.clientError();
+        toast.genericError();
       } else {
         toast.show('File updated successfully.');
         editFileModal.value!.hide();
       }
     } catch (e) {
       console.error(e);
-      toast.serverError();
+      toast.clientError();
     }
   }
 </script>
