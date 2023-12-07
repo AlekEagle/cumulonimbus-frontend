@@ -24,8 +24,7 @@ export const domainPickerStore = defineStore('domainPicker', () => {
       domains.value = result.result;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return true to signify success.
           return false;

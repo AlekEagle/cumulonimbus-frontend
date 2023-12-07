@@ -208,8 +208,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -258,8 +257,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -315,10 +313,9 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router, [
-        'INVALID_SESSION_ERROR',
-      ]);
-      switch (reason) {
+      switch (
+        await defaultErrorHandler(error, router, ['INVALID_SESSION_ERROR'])
+      ) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -401,8 +398,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -454,8 +450,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -502,8 +497,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -547,8 +541,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -589,8 +582,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -639,8 +631,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -683,8 +674,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -730,8 +720,7 @@ export const userStore = defineStore('user', () => {
       return res.result.count!;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return -1 to represent us handling the error.
           return -1;
@@ -758,8 +747,7 @@ export const userStore = defineStore('user', () => {
       return (await client.value!.deleteAllFiles({ password })).result.count!;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return -1 to represent us handling the error.
           return -1;
@@ -807,8 +795,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -852,8 +839,7 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return false.
           return false;

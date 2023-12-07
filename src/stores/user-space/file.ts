@@ -1,17 +1,21 @@
-import { defineStore } from 'pinia';
 import { userStore } from '../user';
+import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import { toastStore } from '../toast';
+
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import Cumulonimbus from 'cumulonimbus-wrapper';
+import { useRouter } from 'vue-router';
 
 export const fileStore = defineStore('user-space-file', () => {
   const user = userStore();
+  const toast = toastStore();
+  const router = useRouter();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.File | null>(null);
   const errored = ref(false);
 
-  async function getFile(
-    fileId: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function getFile(fileId: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
@@ -20,10 +24,25 @@ export const fileStore = defineStore('user-space-file', () => {
       data.value = result.result;
     } catch (error) {
       errored.value = true;
-      if (error instanceof Cumulonimbus.ResponseError) {
-        return error;
-      } else {
-        throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('That file does not exist.');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       loading.value = false;

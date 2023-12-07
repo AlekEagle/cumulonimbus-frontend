@@ -110,17 +110,14 @@
   import Online from '@/components/Online.vue';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import toDateString from '@/utils/toDateString';
   import { useOnline } from '@vueuse/core';
   import { ref, watch, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
   import { sessionsStore } from '@/stores/user-space/sessions';
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
 
-  const router = useRouter(),
-    online = useOnline(),
+  const online = useOnline(),
     sessions = sessionsStore(),
     user = userStore(),
     toast = toastStore(),
@@ -155,9 +152,16 @@
       }
     } else {
       manageSessionModal.value!.show();
-      selectedSession.value = (
-        await user.client!.getSession(session.id + '')
-      ).result;
+      try {
+        selectedSession.value = (
+          await user.client!.getSession(session.id + '')
+        ).result;
+      } catch (e) {
+        console.error(e);
+        toast.clientError();
+        await fetchSessions();
+        manageSessionModal.value!.hide();
+      }
     }
   }
 
@@ -196,7 +200,7 @@
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
         }
-      }
+      } else fullscreenLoadingBlurb.value!.hide();
     } else {
       await manageSessionModal.value!.hide();
     }
@@ -227,7 +231,7 @@
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
         }
-      }
+      } else fullscreenLoadingBlurb.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();

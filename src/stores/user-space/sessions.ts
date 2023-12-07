@@ -34,8 +34,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     } catch (error) {
       errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return true to signify success.
           return false;
@@ -62,10 +61,9 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     } catch (error) {
       errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router, [
-        'INVALID_SESSION_ERROR',
-      ]);
-      switch (reason) {
+      switch (
+        await defaultErrorHandler(error, router, ['INVALID_SESSION_ERROR'])
+      ) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -100,8 +98,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     } catch (error) {
       errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           // If the error was handled, return true to signify success.
           return -1;
