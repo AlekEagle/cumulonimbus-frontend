@@ -2,18 +2,31 @@ import Cumulonimbus from 'cumulonimbus-wrapper';
 import toLogin from './toLogin';
 import { toastStore } from '@/stores/toast';
 import { userStore } from '@/stores/user';
-import { useRouter } from 'vue-router';
+import { Router } from 'vue-router';
 
 // TODO: Unify error handling across the app. Behavior between components and pages is inconsistent to say the least.
 
+export type ErrorHandledReason = 'NOT_RESPONSE_ERROR' | 'NOT_HANDLED' | 'OK';
+
 // Handle common errors from the API
 export default async function defaultErrorHandler(
-  error: Cumulonimbus.ResponseError,
-): Promise<boolean> {
+  error: any,
+  router: Router,
+): Promise<ErrorHandledReason> {
   // Get the stores and components we need
   const user = userStore(),
-    toast = toastStore(),
-    router = useRouter();
+    toast = toastStore();
+
+  if (!(error instanceof Cumulonimbus.ResponseError)) {
+    // Log the error to the console.
+    console.trace(
+      'Non-ResponseError Error Passed to Handler. Dropping...',
+      error,
+    );
+    // Display generic error message.
+    toast.genericError();
+    return 'NOT_RESPONSE_ERROR';
+  }
 
   switch (error.code) {
     // If the user's account has been banned.
@@ -26,24 +39,21 @@ export default async function defaultErrorHandler(
         user.account = null;
         user.client = null;
         // Send the user to the login page.
-        await toLogin();
+        await toLogin(router);
       }
-      // Return true to indicate that the error was handled.
-      return true;
+      return 'OK';
     // If the user encounters a ratelimit.
     case 'RATELIMITED_ERROR':
       // Display the ratelimit message.
       toast.rateLimit(error);
-      // Return true to indicate that the error was handled.
-      return true;
+      return 'OK';
     // If the user encounters an invalid/expired session.
     case 'INVALID_SESSION_ERROR':
       // Display the invalid session message.
       toast.session();
       // Log the user out.
-      await toLogin();
-      // Return true to indicate that the error was handled.
-      return true;
+      await toLogin(router);
+      return 'OK';
     // If the user tries to perform an action that they do not have permission to perform.
     case 'INSUFFICIENT_PERMISSIONS_ERROR':
       // Display the insufficient permissions message.
@@ -52,29 +62,33 @@ export default async function defaultErrorHandler(
       await user.refetch();
       // Send the user to the home page.
       await router.push('/');
-      // Return true to indicate that the error was handled.
-      return true;
+      return 'OK';
     // If the user encounters an internal server error.
     case 'INTERNAL_ERROR':
       // Display the internal server error message.
       toast.serverError();
-      // Return true to indicate that the error was handled.
-      return true;
+      return 'OK';
     case 'MISSING_FIELDS_ERROR':
       // Display the missing fields message.
       toast.missingFields(error.fields!);
-      // Return true to indicate that the error was handled.
-      return true;
+      return 'OK';
     // If the user encounters an invalid password error.
     case 'INVALID_PASSWORD_ERROR':
       // Display the invalid password message.
       toast.invalidPassword();
-      // Return true to indicate that the error was handled.
-      return true;
+      return 'OK';
+    // If the user encounters an email not verified error.
+    case 'EMAIL_NOT_VERIFIED_ERROR':
+      // Display the email not verified message.
+      toast.emailNotVerified();
+      return 'OK';
     default:
       // Log the error to the console.
-      console.error(error);
+      console.trace(
+        'ResponseError unable to be handled by default handler. Dropping... ',
+        error,
+      );
       // The error was not handled, so return false.
-      return false;
+      return 'NOT_HANDLED';
   }
 }

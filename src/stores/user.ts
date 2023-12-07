@@ -1,7 +1,12 @@
+import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import { toastStore } from './toast';
+import persistPiniaRef from '@/utils/persistPiniaRef';
+import { domainPickerStore } from './domainPicker';
+
+import Cumulonimbus from 'cumulonimbus-wrapper';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import persistPiniaRef from '@/utils/persistPiniaRef';
-import Cumulonimbus from 'cumulonimbus-wrapper';
+import { useRouter } from 'vue-router';
 
 const BaseAPIURLs: { [key: string]: string } = {
   production: `${window.location.protocol}//${window.location.host}/api`,
@@ -73,24 +78,33 @@ export const userStore = defineStore('user', () => {
     localStorage.removeItem('session');
   }
 
+  // --- External Stores ---
+
+  // The router store.
+  const router = useRouter(),
+    // The toast store.
+    toast = toastStore(),
+    // Domain picker store.
+    domainPicker = domainPickerStore();
+
   // -- Functions --
 
   // --- Account Switcher Management ---
 
   // Add an account to the account switcher.
-  function addAccount(username: string, token: string) {
+  function addAccount(username: string, token: string): typeof accounts.value {
     accounts.value[username] = token;
     return accounts.value;
   }
 
   // Mark account session as expired.
-  function markAccountExpired(username: string) {
+  function markAccountExpired(username: string): typeof accounts.value {
     accounts.value[username] = false;
     return accounts.value;
   }
 
   // Remove an account from the account switcher.
-  async function removeAccount(username: string) {
+  async function removeAccount(username: string): Promise<boolean> {
     if (accounts.value[username] === false) {
       // If the account isn't logged in, but simply in the account switcher, simply remove the account from the account switcher.
       delete accounts.value[username];
@@ -122,34 +136,37 @@ export const userStore = defineStore('user', () => {
         try {
           // Create a temporary client with the stored token.
           const tempClient = new Cumulonimbus(
-              accounts.value[username] as string,
-              cumulonimbusOptions,
-            ),
-            // Get the session ID.
-            sid = (await tempClient.getSession()).result.id.toString();
+            accounts.value[username] as string,
+            cumulonimbusOptions,
+          );
 
           // Delete the session.
-          const res = await tempClient.deleteSession(sid);
+          await tempClient.deleteSession();
 
-          if (res) {
-            // Success, remove the account from the account switcher.
-            delete accounts.value[username];
-            return true;
-          }
+          // Success, remove the account from the account switcher.
+          delete accounts.value[username];
+          return true;
         } catch (error) {
-          // If the error is a Cumulonimbus ResponseError, check if the error was caused by an invalid session.
-          if (error instanceof Cumulonimbus.ResponseError) {
-            if (error.code === 'INVALID_SESSION_ERROR') {
-              // If it was, the session has already expired and we can pretend it was deleted successfully.
-              delete accounts.value[username];
-              return true;
-            } else {
-              // If it wasn't, pass the error on to the function caller.
-              return error;
-            }
-          } else {
-            // If the error wasn't a Cumulonimbus ResponseError, pass it on to the function caller.
-            throw error;
+          // Pass our error to the default error handler and check if it was handled.
+          const reason = await defaultErrorHandler(error, router);
+          switch (reason) {
+            case 'OK':
+              // If the error was handled, return false.
+              return false;
+            case 'NOT_HANDLED':
+              // Handle special cases.
+              switch ((error as Cumulonimbus.ResponseError).code) {
+                case 'INVALID_SESSION_ERROR':
+                  delete accounts.value[username];
+                  return true;
+                default:
+                  // If it still wasn't handled, throw the error.
+                  throw error;
+              }
+            case 'NOT_RESPONSE_ERROR':
+            default:
+              // If the error wasn't handled, throw it.
+              throw error;
           }
         } finally {
           loading.value = false;
@@ -165,7 +182,7 @@ export const userStore = defineStore('user', () => {
     username: string,
     password: string,
     remember: boolean = false,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  ): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to login with the provided credentials.
@@ -190,10 +207,18 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -207,7 +232,7 @@ export const userStore = defineStore('user', () => {
     password: string,
     confirmPassword: string,
     remember: boolean = false,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  ): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to register with the provided credentials.
@@ -232,10 +257,36 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'USER_EXISTS_ERROR':
+              toast.show('Someone already has that username or email!');
+              return false;
+            case 'INVALID_USERNAME_ERROR':
+              toast.show('Invalid username!');
+              return false;
+            case 'INVALID_EMAIL_ERROR':
+              toast.show('Invalid email!');
+              return false;
+            case 'PASSWORDS_DO_NOT_MATCH_ERROR':
+              toast.show('Passwords do not match!');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -244,7 +295,7 @@ export const userStore = defineStore('user', () => {
 
   // Logout of the current account.
   // This will not remove the account from the account switcher.
-  async function logout(): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function logout(): Promise<boolean> {
     // Don't bother if there's no account logged in.
     if (!account.value) return true;
     // Set the loading state.
@@ -263,25 +314,32 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, the session may have already expired.
-      // Check if the error is a Cumulonimbus ResponseError.
-      if (error instanceof Cumulonimbus.ResponseError) {
-        // If it is a Cumulonimbus ResponseError, check if the error was not caused by an invalid session.
-        if (error.code !== 'INVALID_SESSION_ERROR') {
-          // If it isn't, return the error.
-          return error;
-        } else {
-          // If it is, the session has already expired and we can pretend it was deleted successfully.
-          // Reset the client and account information.
-          client.value = null;
-          account.value = null;
-          // Tell the account switcher that the account is logged out (but still present) and return true to signify success.
-          markAccountExpired(username);
-          return true;
-        }
-      } else {
-        // If it isn't a Cumulonimbus ResponseError, throw the error.
-        throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_SESSION_ERROR':
+              // If it was, the session has already expired and we can pretend it was deleted successfully.
+              // Reset the client and account information.
+              client.value = null;
+              account.value = null;
+              // Mark the account as logged out (but still present) in the account switcher.
+              markAccountExpired(username);
+              // Return true to signify success.
+              return true;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       // Reset the loading state.
@@ -303,9 +361,7 @@ export const userStore = defineStore('user', () => {
 
   // --- Account Switching ---
   // Switch to a different account.
-  async function switchAccount(
-    username: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function switchAccount(username: string): Promise<boolean> {
     // If the requested account is already the current account, return true to signify success.
     if (account.value?.user.username === username) return true;
     // Set the loading state.
@@ -342,22 +398,32 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, check if the error is a Cumulonimbus ResponseError.
-      if (error instanceof Cumulonimbus.ResponseError) {
-        // If it is, check if the error was not caused by an invalid session.
-        if (error.code !== 'INVALID_SESSION_ERROR') {
-          // If it isn't, return the error.
-          return error;
-        } else {
-          // If it is, the session is expired.
-          // Mark the account as expired in the account switcher and return false.
-          // This will tell the frontend to prompt the user to login again.
-          markAccountExpired(username);
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
           return false;
-        }
-      } else {
-        // If it isn't a Cumulonimbus ResponseError, throw the error.
-        throw error;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_SESSION_ERROR':
+              // If it was, the session has already expired and we can pretend it was deleted successfully.
+              // Reset the client and account information.
+              client.value = null;
+              account.value = null;
+              // Mark the account as logged out (but still present) in the account switcher.
+              markAccountExpired(username);
+              // Return true to signify success.
+              return true;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       // Reset the loading state.
@@ -371,7 +437,7 @@ export const userStore = defineStore('user', () => {
   async function changeUsername(
     username: string,
     password: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  ): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to change the username.
@@ -385,10 +451,30 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'USER_EXISTS_ERROR':
+              toast.show('Someone already has that username!');
+              return false;
+            case 'INVALID_USERNAME_ERROR':
+              toast.show('Invalid username!');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -399,7 +485,7 @@ export const userStore = defineStore('user', () => {
   async function changeEmail(
     email: string,
     password: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  ): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to change the email.
@@ -413,10 +499,30 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'USER_EXISTS_ERROR':
+              toast.show('Someone already has that email!');
+              return false;
+            case `INVALID_EMAIL_ERROR`:
+              toast.show('Invalid email!');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -424,9 +530,7 @@ export const userStore = defineStore('user', () => {
   }
 
   // Verify the email of the current account.
-  async function verifyEmail(
-    token: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function verifyEmail(token: string): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to verify the email.
@@ -440,10 +544,30 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'EMAIL_ALREADY_VERIFIED_ERROR':
+              toast.show('Your email is already verified!');
+              return false;
+            case `INVALID_VERIFICATION_TOKEN_ERROR`:
+              toast.show('Invalid verification token!');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -451,9 +575,7 @@ export const userStore = defineStore('user', () => {
   }
 
   // Resend the verification email of the current account.
-  async function resendVerificationEmail(): Promise<
-    boolean | Cumulonimbus.ResponseError
-  > {
+  async function resendVerificationEmail(): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to resend the verification email.
@@ -464,10 +586,27 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'EMAIL_ALREADY_VERIFIED_ERROR':
+              toast.show('Your email is already verified!');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -479,7 +618,7 @@ export const userStore = defineStore('user', () => {
     newPassword: string,
     confirmNewPassword: string,
     password: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  ): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to change the password.
@@ -497,10 +636,27 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'PASSWORDS_DO_NOT_MATCH_ERROR':
+              toast.show('These passwords do not match!');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -511,7 +667,7 @@ export const userStore = defineStore('user', () => {
   async function changeDomain(
     domain: string,
     subdomain?: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  ): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to change the domain.
@@ -524,10 +680,34 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_DOMAIN_ERROR':
+              toast.show('You just missed that domain.');
+              await domainPicker.sync();
+              return false;
+            case 'SUBDOMAIN_NOT_ALLOWED_ERROR':
+              toast.show('Subdomains are not supported.');
+              return false;
+            case 'SUBDOMAIN_TOO_LONG_ERROR':
+              toast.show('Subdomain cannot be longer than 63 characters.');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -535,9 +715,7 @@ export const userStore = defineStore('user', () => {
   }
 
   // Revoke all sessions of the current account.
-  async function revokeSessions(
-    includeSelf: boolean = false,
-  ): Promise<number | Cumulonimbus.ResponseError> {
+  async function revokeSessions(includeSelf: boolean = false): Promise<number> {
     // Set the loading state.
     loading.value = true;
     // Try to revoke all sessions.
@@ -549,10 +727,19 @@ export const userStore = defineStore('user', () => {
       if (includeSelf) await logout();
       return res.result.count!;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return -1 to represent us handling the error.
+          return -1;
+        case 'NOT_HANDLED':
+        // No special cases to handle here.
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -560,9 +747,7 @@ export const userStore = defineStore('user', () => {
   }
 
   // Delete all files of the current account.
-  async function deleteFiles(
-    password: string,
-  ): Promise<number | Cumulonimbus.ResponseError> {
+  async function deleteFiles(password: string): Promise<number> {
     // Set the loading state.
     loading.value = true;
     // Try to delete all files.
@@ -570,10 +755,27 @@ export const userStore = defineStore('user', () => {
       // Delete all files and return the number of deleted files.
       return (await client.value!.deleteAllFiles({ password })).result.count!;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return -1 to represent us handling the error.
+          return -1;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show("You don't have any files to delete.");
+              return -1;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -584,7 +786,7 @@ export const userStore = defineStore('user', () => {
   async function deleteAccount(
     username: string,
     password: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  ): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Temporarily store the username to later remove it from the account switcher.
@@ -602,10 +804,27 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_USERNAME_ERROR':
+              toast.show('That is not your username.');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
@@ -613,7 +832,7 @@ export const userStore = defineStore('user', () => {
   }
 
   // Manually refetch account and session data.
-  async function refetch(): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function refetch(): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to refetch.
@@ -630,17 +849,26 @@ export const userStore = defineStore('user', () => {
       // Return true to signify success.
       return true;
     } catch (error) {
-      // If an error occurred, and it's a Cumulonimbus ResponseError, return it.
-      if (error instanceof Cumulonimbus.ResponseError) return error;
-      // Otherwise, throw the error.
-      throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      const reason = await defaultErrorHandler(error, router);
+      switch (reason) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+        // No special cases to handle here.
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     } finally {
       // Reset the loading state.
       loading.value = false;
     }
   }
 
-  // Return account, client, loading, loggedIn, and all functions.
+  // Export all functions and values.
   return {
     accounts,
     account,

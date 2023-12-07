@@ -1,6 +1,6 @@
 <template>
   <h1>Dashboard</h1>
-  <h2>Welcome to your dashboard, {{ user.account?.user.username }}.</h2>
+  <h2>Welcome to your dashboard, {{ user.account!.user.username }}.</h2>
   <div class="quick-action-buttons-container">
     <button
       @click="logout"
@@ -68,28 +68,9 @@
     processing.value = true;
     try {
       let res = await user.logout();
-      if (typeof res === 'boolean') {
+      if (res) {
         router.push('/');
-      } else {
-        switch (res.code) {
-          case 'BANNED_ERROR':
-            toast.banned();
-            user.logout();
-            router.push('/');
-            break;
-          case 'INVALID_SESSION_ERROR':
-            user.logout();
-            router.push('/');
-            break;
-          case 'INTERNAL_ERROR':
-            toast.serverError();
-            break;
-          default:
-            toast.clientError();
-            console.error(res);
-            break;
-        }
-      }
+      } else toast.genericError();
     } catch (e) {
       toast.clientError();
       console.error(e);

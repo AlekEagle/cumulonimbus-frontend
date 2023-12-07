@@ -104,13 +104,13 @@
     try {
       const status = await files.getFiles(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.clientError();
         }
       } else if (!status) {
         toast.show("You're not logged in.");
-        await toLogin();
+        await toLogin(router);
       }
     } catch (e) {
       console.error(e);
@@ -164,7 +164,7 @@
           else toast.show('You must select at least one file to delete.');
           return;
         }
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.clientError();
         }

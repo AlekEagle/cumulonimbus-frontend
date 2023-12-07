@@ -122,7 +122,7 @@
                 ).result;
               } catch (e) {
                 if (e instanceof Cumulonimbus.ResponseError) {
-                  const handled = await defaultErrorHandler(e);
+                  const handled = await defaultErrorHandler(e, router);
                   if (!handled) {
                     switch (e.code) {
                       case 'INVALID_USER_ERROR':
@@ -154,7 +154,7 @@
           ).result;
         } catch (e) {
           if (e instanceof Cumulonimbus.ResponseError) {
-            const handled = await defaultErrorHandler(e);
+            const handled = await defaultErrorHandler(e, router);
             if (!handled) {
               switch (e.code) {
                 case 'INVALID_USER_ERROR':
@@ -183,7 +183,7 @@
     try {
       const status = await files.getFiles(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled)
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -235,7 +235,7 @@
           else toast.show('You must select at least one file to delete.');
           return;
         }
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) toast.clientError();
       } else if (!status) {
         toast.genericError();

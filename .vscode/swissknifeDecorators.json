@@ -22,5 +22,57 @@
   {
     "file": "src/views/About.vue",
     "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/Dashboard.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/Account.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/user.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/Auth.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/AccountSwitcher.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/Dashboard.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/components/DomainModal.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/domainPicker.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/displayPref.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/toast.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/ptb.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/user-space/sessions.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/AccountSessions.vue",
+    "decorator": "✓"
   }
 ]

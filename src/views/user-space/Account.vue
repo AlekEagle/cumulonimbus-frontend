@@ -278,7 +278,7 @@
     :subdomain="user.account?.user.subdomain"
     :disabled="user.loading"
     @submit="updateDomain"
-    @no-session="toLogin()"
+    @no-session="toLogin(router)"
   />
   <FormModal
     ref="deleteSessionsModal"
@@ -367,11 +367,9 @@
   import { displayPrefStore } from '@/stores/displayPref';
   import toDateString from '@/utils/toDateString';
   import toLogin from '@/utils/toLogin';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
   import { ref } from 'vue';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
   import Separator from '@/components/Separator.vue';
 
   const user = userStore(),
@@ -397,23 +395,13 @@
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changeUsername(data.username, data.password);
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          switch (res.code) {
-            case 'USER_EXISTS_ERROR':
-              toast.show('Someone already has that username!');
-              break;
-          }
-        }
-        fullscreenLoadingBlurb.value!.hide();
-      } else if (res) {
+      if (res) {
         const token = user.accounts[oldUsername]!;
         delete user.accounts[oldUsername];
         user.accounts[data.username] = token;
         fullscreenLoadingBlurb.value!.hide();
         usernameFormModal.value!.hide();
-      }
+      } else toast.genericError();
     } catch (error) {
       console.error(error);
       toast.clientError();
@@ -426,20 +414,10 @@
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changeEmail(data.email, data.password);
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          switch (res.code) {
-            case 'USER_EXISTS_ERROR':
-              toast.show('Someone already has that email!');
-              break;
-          }
-        }
-        fullscreenLoadingBlurb.value!.hide();
-      } else if (res) {
+      if (res) {
         fullscreenLoadingBlurb.value!.hide();
         emailFormModal.value!.hide();
-      }
+      } else toast.genericError();
     } catch (error) {
       console.error(error);
       toast.clientError();
@@ -453,17 +431,7 @@
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.resendVerificationEmail();
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          switch (res.code) {
-            case 'EMAIL_ALREADY_VERIFIED_ERROR':
-              toast.show('You are already verified!');
-              break;
-          }
-        }
-        fullscreenLoadingBlurb.value!.hide();
-      } else if (res) {
+      if (res) {
         toast.show('Sent! Check your email.');
         fullscreenLoadingBlurb.value!.hide();
         resendVerificationEmailModal.value!.hide();
@@ -489,15 +457,10 @@
         data.confirmNewPassword,
         data.password,
       );
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (res) {
+      if (res) {
         fullscreenLoadingBlurb.value!.hide();
         passwordFormModal.value!.hide();
-      }
+      } else toast.genericError();
     } catch (error) {
       console.error(error);
       toast.clientError();
@@ -510,26 +473,10 @@
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.changeDomain(data.domain, data.subdomain);
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          switch (res.code) {
-            case 'INVALID_DOMAIN_ERROR':
-              toast.show('You just missed that domain.');
-              domainModal.value!.reloadDomains();
-              break;
-            case 'SUBDOMAIN_NOT_ALLOWED_ERROR':
-              toast.show('Subdomains are not supported.');
-              break;
-            case 'SUBDOMAIN_TOO_LONG_ERROR':
-              toast.show('Subdomain cannot be longer than 63 characters.');
-              break;
-          }
-        }
-      } else if (res) {
+      if (res) {
         fullscreenLoadingBlurb.value!.hide();
         domainModal.value!.hide();
-      }
+      } else toast.genericError();
     } catch (error) {
       console.error(error);
       toast.clientError();
@@ -542,19 +489,14 @@
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.revokeSessions(data.includeSelf);
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (res) {
+      if (res >= 0) {
         fullscreenLoadingBlurb.value!.hide();
         deleteSessionsModal.value!.hide();
         toast.show(`Deleted ${res} sessions.`);
         if (data.includeSelf) {
-          toLogin();
+          toLogin(router);
         }
-      }
+      } else toast.genericError();
     } catch (error) {
       console.error(error);
       toast.clientError();
@@ -567,23 +509,11 @@
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.deleteFiles(data.password);
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          switch (res.code) {
-            case 'INVALID_FILE_ERROR':
-              toast.show("You don't have any files to delete.");
-              break;
-            default:
-              toast.clientError();
-              break;
-          }
-        }
-      } else {
+      if (res >= 0) {
         toast.show(`Deleted ${res} files.`);
         fullscreenLoadingBlurb.value!.hide();
         deleteFilesModal.value!.hide();
-      }
+      } else toast.genericError();
     } catch (error) {
       console.error(error);
       toast.clientError();
@@ -596,24 +526,12 @@
     try {
       fullscreenLoadingBlurb.value!.show();
       const res = await user.deleteAccount(data.username, data.password);
-      if (res instanceof Cumulonimbus.ResponseError) {
-        switch (res.code) {
-          case 'INVALID_USERNAME_ERROR':
-            toast.show('That is not your username.');
-            break;
-          default:
-            const handled = await defaultErrorHandler(res);
-            if (!handled) {
-              toast.clientError();
-            }
-            break;
-        }
-      } else if (res) {
+      if (res) {
         fullscreenLoadingBlurb.value!.hide();
         await deleteAccountModal.value!.hide();
         router.replace('/');
         toast.show("We're sad to see you go, but we understand.");
-      }
+      } else toast.genericError();
     } catch (error) {
       console.error(error);
       toast.clientError();
@@ -650,14 +568,9 @@
 
     try {
       const res = await user.refetch();
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else {
+      if (res) {
         toast.show('Refreshed account details.');
-      }
+      } else toast.genericError();
     } catch (error) {
       console.error(error);
       toast.clientError();

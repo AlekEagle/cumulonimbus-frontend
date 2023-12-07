@@ -110,9 +110,7 @@
   import Form from '@/components/Form.vue';
   import Online from '@/components/Online.vue';
   import { toastStore } from '@/stores/toast';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
   import { useNetwork } from '@vueuse/core';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
   const user = userStore(),
     router = useRouter(),
@@ -212,32 +210,11 @@
     processing.value = true;
     try {
       const res = await user.login(data.username, data.password, data.remember);
-      if (typeof res === 'boolean') {
-        if (res) {
-          await redirect();
-        } else {
-          toast.show('This should not be seen');
-        }
-      } else {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          switch (res.code) {
-            case 'INVALID_USER_ERROR':
-              toast.invalidUsernameEmail();
-              break;
-            case 'INVALID_PASSWORD_ERROR':
-              toast.invalidPassword();
-              break;
-            default:
-              toast.genericError();
-              console.error(res);
-              break;
-          }
-        }
-      }
+      if (res) {
+        await redirect();
+      } else toast.genericError();
     } catch (e) {
-      toast.clientError();
-      console.error(e);
+      toast.show((e as Error).message);
     } finally {
       processing.value = false;
     }
@@ -263,36 +240,11 @@
         data.confirmPassword,
         data.remember,
       );
-      if (typeof res === 'boolean') {
-        if (res) {
-          await redirect();
-        } else {
-          toast.show('This should not be seen');
-        }
-      } else {
-        const handled = await defaultErrorHandler(res);
-        if (!handled) {
-          switch (res.code) {
-            case 'USER_EXISTS_ERROR':
-              toast.show('Someone already has that username!');
-              break;
-            case 'INVALID_USERNAME_ERROR':
-              toast.show(
-                'Uh oh! Looks like your username contains invalid characters!',
-              );
-              break;
-            case 'INVALID_EMAIL_ERROR':
-              toast.show('Uh oh! Looks like you provided an invalid email!');
-              break;
-            default:
-              toast.genericError();
-              console.error(res);
-              break;
-          }
-        }
-      }
+      if (res) {
+        await redirect();
+      } else toast.genericError();
     } catch (e) {
-      toast.show((e as Cumulonimbus.ResponseError).message);
+      toast.show((e as Error).message);
     } finally {
       processing.value = false;
     }

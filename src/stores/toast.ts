@@ -172,6 +172,13 @@ export const toastStore = defineStore('toast', () => {
     await show("I can't find anyone with that username!");
   };
 
+  // A toast to inform a user that their email is not verified
+  const emailNotVerified = async () => {
+    await show(
+      'Your email is not verified. Please check your email and try again.',
+    );
+  };
+
   // The function to display a toast regarding an incorrect password
   const invalidPassword = async () => {
     await show('No, that is not the password.');
@@ -209,7 +216,8 @@ export const toastStore = defineStore('toast', () => {
     updateComplete,
     updateFailed,
     missingFields,
-    invalidUsernameEmail: userNotFound,
+    userNotFound,
+    emailNotVerified,
     invalidPassword,
     connectivityOffline,
     connectivityChangeOnline,

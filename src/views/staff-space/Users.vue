@@ -129,7 +129,7 @@
     try {
       const res = users.getUsers(page.value);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) toast.clientError();
       } else toast.genericError();
     } catch (error) {
@@ -146,7 +146,7 @@
     try {
       const res = await users.deleteUsers(selected.value);
       if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res);
+        const handled = await defaultErrorHandler(res, router);
         if (!handled) {
           toast.clientError();
         }

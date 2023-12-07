@@ -140,14 +140,7 @@
     window.scrollTo(0, 0);
     try {
       const status = await sessions.getSessions(page.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (!status) {
-        toast.clientError();
-      }
+      if (!status) toast.genericError();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -192,15 +185,7 @@
       const status = await sessions.deleteSession(
         selectedSession.value!.id + '',
       );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (!status) {
-        fullscreenLoadingBlurb.value!.hide();
-        toast.clientError();
-      } else {
+      if (status) {
         if (selectedSession.value?.id === user.account?.session.id) {
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
@@ -212,7 +197,7 @@
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
         }
-      }
+      } else toast.genericError();
     } else {
       await manageSessionModal.value!.hide();
     }
@@ -231,26 +216,7 @@
     }
     try {
       const status = await sessions.deleteSessions(selected.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'INVALID_SESSION_ERROR':
-            toast.show("It appears that session doesn't exist anymore.");
-            await fetchSessions();
-            selectedSession.value = null;
-            fullscreenLoadingBlurb.value!.hide();
-            await manageSessionModal.value!.hide();
-            break;
-          default:
-            const handled = await defaultErrorHandler(status);
-            if (!handled) {
-              toast.clientError();
-            }
-            fullscreenLoadingBlurb.value!.hide();
-        }
-      } else if (!status) {
-        fullscreenLoadingBlurb.value!.hide();
-        toast.clientError();
-      } else {
+      if (status) {
         if (selected.value.includes(user.account?.session.id + '')) {
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
@@ -263,7 +229,7 @@
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
         }
-      }
+      } else toast.genericError();
     } catch (e) {
       console.error(e);
       toast.clientError();

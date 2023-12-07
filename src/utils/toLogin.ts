@@ -1,9 +1,8 @@
-import { useRouter } from 'vue-router';
+import { Router } from 'vue-router';
 import { userStore } from '@/stores/user';
 
-export default async function toLogin() {
-  const user = userStore(),
-    router = useRouter();
+export default async function toLogin(router: Router) {
+  const user = userStore();
   if (user.loggedIn) {
     await user.logout();
   }

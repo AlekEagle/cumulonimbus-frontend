@@ -130,7 +130,7 @@
     try {
       const status = await sessions.getSessions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) toast.genericError();
       } else toast.genericError();
     } catch (e) {
@@ -174,7 +174,7 @@
                 ).result;
               } catch (e) {
                 if (e instanceof Cumulonimbus.ResponseError) {
-                  const handled = await defaultErrorHandler(e);
+                  const handled = await defaultErrorHandler(e, router);
                   if (!handled) {
                     switch (e.code) {
                       case 'INVALID_USER_ERROR':
@@ -213,7 +213,7 @@
           ).result;
         } catch (e) {
           if (e instanceof Cumulonimbus.ResponseError) {
-            const handled = await defaultErrorHandler(e);
+            const handled = await defaultErrorHandler(e, router);
             if (!handled) {
               switch (e.code) {
                 case 'INVALID_USER_ERROR':
@@ -244,7 +244,7 @@
             selectedSession.value = null;
             break;
           default:
-            const handled = await defaultErrorHandler(status);
+            const handled = await defaultErrorHandler(status, router);
             if (!handled) {
               toast.clientError();
             }
@@ -285,7 +285,7 @@
             selectedSession.value = null;
             break;
           default:
-            const handled = await defaultErrorHandler(status);
+            const handled = await defaultErrorHandler(status, router);
             if (!handled) {
               toast.clientError();
             }

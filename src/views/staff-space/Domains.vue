@@ -182,7 +182,7 @@
     try {
       const status = await domains.getDomains(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) toast.genericError();
       } else toast.genericError();
     } catch (e) {
@@ -199,7 +199,7 @@
     try {
       const status = await user.client!.getDomain(id);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -255,7 +255,7 @@
     try {
       const status = await domains.deleteDomain(selectedDomain.value!.id);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -290,7 +290,7 @@
     try {
       const status = await domains.deleteDomains(selected.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.clientError();
         }
@@ -313,7 +313,7 @@
     try {
       const status = await domains.enableSubdomains(selectedDomain.value!.id);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -346,7 +346,7 @@
     try {
       const status = await domains.disableSubdomains(selectedDomain.value!.id);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_DOMAIN_ERROR':
@@ -402,7 +402,7 @@
     try {
       const status = await domains.createDomain(data.id, data.subdomains);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'DOMAIN_EXISTS_ERROR':

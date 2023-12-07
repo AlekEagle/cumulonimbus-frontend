@@ -149,7 +149,7 @@
     try {
       const status = await instructions.getInstructions(page.value);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) toast.clientError();
       } else toast.genericError();
     } catch (e) {
@@ -202,7 +202,7 @@
     try {
       const result = await instructions.deleteInstructions(selected.value);
       if (result instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(result);
+        const handled = await defaultErrorHandler(result, router);
         if (!handled) {
           toast.clientError();
         }
@@ -245,7 +245,7 @@
         data.description,
       );
       if (result instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(result);
+        const handled = await defaultErrorHandler(result, router);
         if (!handled) {
           toast.clientError();
         }

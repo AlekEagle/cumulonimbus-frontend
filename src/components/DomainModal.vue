@@ -176,22 +176,7 @@
       return;
     }
     const res = await domainPicker.sync();
-    if (res instanceof Cumulonimbus.ResponseError) {
-      switch (res.code) {
-        case 'INVALID_SESSION_ERROR':
-          toast.session();
-          emit('no-session');
-          break;
-        case 'BANNED_ERROR':
-          toast.banned();
-          break;
-        case 'INTERNAL_ERROR':
-          toast.serverError();
-          break;
-        default:
-          toast.clientError();
-      }
-    }
+    if (!res) toast.genericError();
     return;
   }
 

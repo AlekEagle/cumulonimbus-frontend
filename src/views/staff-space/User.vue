@@ -450,7 +450,7 @@
         router.currentRoute.value.query.id as string,
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled)
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -473,7 +473,7 @@
     try {
       const status = await otherUser.updateUsername(data.username);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -501,7 +501,7 @@
     try {
       const status = await otherUser.updateEmail(data.email);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -535,7 +535,7 @@
         ? await otherUser.unverifyEmail()
         : await otherUser.verifyEmail();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'EMAIL_ALREADY_VERIFIED_ERROR':
@@ -573,7 +573,7 @@
     try {
       const status = await otherUser.resendVerificationEmail();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           toast.show('This email is already verified.');
         }
@@ -600,7 +600,7 @@
         data.confirm,
       );
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -628,7 +628,7 @@
     try {
       const status = await otherUser.updateDomain(data.domain, data.subdomain);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -673,7 +673,7 @@
         ? await otherUser.revokeStaff()
         : await otherUser.grantStaff();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -703,7 +703,7 @@
         ? await otherUser.unbanUser()
         : await otherUser.banUser(data.reason);
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -735,7 +735,7 @@
     try {
       const status = await otherUser.deleteAllSessions();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -767,7 +767,7 @@
     try {
       const status = await otherUser.deleteAllFiles();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':
@@ -799,7 +799,7 @@
     try {
       const status = await otherUser.deleteUser();
       if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status);
+        const handled = await defaultErrorHandler(status, router);
         if (!handled) {
           switch (status.code) {
             case 'INVALID_USER_ERROR':

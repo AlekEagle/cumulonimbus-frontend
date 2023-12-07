@@ -92,7 +92,6 @@
   import BackButton from '@/components/BackButton.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
   import { ref, onBeforeMount, computed } from 'vue';
@@ -105,7 +104,6 @@
   import profileIcon from '@/assets/images/profile.svg';
   import plusIcon from '@/assets/images/plus.svg';
   import closeIcon from '@/assets/images/close.svg';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import { useOnline } from '@vueuse/core';
 
   const user = userStore(),
@@ -136,33 +134,25 @@
     } else {
       try {
         const res = await user.switchAccount(account);
-        if (typeof res === 'boolean') {
-          if (res) {
-            await file.clear();
-            await files.clear();
-            await sessions.clear();
-            toast.show(`Switched to ${user.account?.user.username}.`);
+        if (res) {
+          await file.clear();
+          await files.clear();
+          await sessions.clear();
+          toast.show(`Switched to ${user.account?.user.username}.`);
 
-            redirect();
-          } else
-            router.replace({
-              path: '/auth',
-              query: {
-                redirect: redirectLoc.value,
-                username: account,
-              },
-              hash: '#login',
-            });
-        } else {
-          toast.show(`Failed to switch to ${account}: ${res.message}`);
-        }
+          redirect();
+        } else
+          router.replace({
+            path: '/auth',
+            query: {
+              redirect: redirectLoc.value,
+              username: account,
+            },
+            hash: '#login',
+          });
       } catch (e) {
-        if (e instanceof Cumulonimbus.ResponseError) {
-          const handled = await defaultErrorHandler(e);
-          if (!handled) toast.show(`Failed to switch to ${account}.`);
-        } else {
-          toast.clientError();
-        }
+        console.error(e);
+        toast.clientError();
       }
     }
   }
@@ -237,21 +227,19 @@
       });
     } else if (Object.keys(user.accounts).length < 2 && !user.loggedIn) {
       const res = await user.switchAccount(Object.keys(user.accounts)[0]);
-      if (typeof res === 'boolean') {
-        if (res)
-          router.replace({
-            path: redirectLoc.value,
-          });
-        else
-          router.replace({
-            path: '/auth',
-            query: {
-              redirect: redirectLoc.value,
-              username: Object.keys(user.accounts)[0],
-            },
-            hash: '#login',
-          });
-      }
+      if (res)
+        router.replace({
+          path: redirectLoc.value,
+        });
+      else
+        router.replace({
+          path: '/auth',
+          query: {
+            redirect: redirectLoc.value,
+            username: Object.keys(user.accounts)[0],
+          },
+          hash: '#login',
+        });
     }
   });
 </script>
