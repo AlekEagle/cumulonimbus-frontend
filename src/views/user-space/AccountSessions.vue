@@ -139,8 +139,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await sessions.getSessions(page.value);
-      if (!status) toast.genericError();
+      await sessions.getSessions(page.value);
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -197,7 +196,7 @@
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
         }
-      } else toast.genericError();
+      }
     } else {
       await manageSessionModal.value!.hide();
     }
@@ -222,14 +221,13 @@
           await manageSessionModal.value!.hide();
           await user.logout();
         } else {
-          selected.value = [];
-          selecting.value = false;
+          cancelSelection();
           toast.show(`Deleted ${status} sessions.`);
           await fetchSessions();
           fullscreenLoadingBlurb.value!.hide();
           await manageSessionModal.value!.hide();
         }
-      } else toast.genericError();
+      }
     } catch (e) {
       console.error(e);
       toast.clientError();

@@ -7,11 +7,21 @@ import { Router } from 'vue-router';
 // TODO: Unify error handling across the app. Behavior between components and pages is inconsistent to say the least.
 
 export type ErrorHandledReason = 'NOT_RESPONSE_ERROR' | 'NOT_HANDLED' | 'OK';
+export type HandledErrors =
+  | 'BANNED_ERROR'
+  | 'RATELIMITED_ERROR'
+  | 'INVALID_SESSION_ERROR'
+  | 'INSUFFICIENT_PERMISSIONS_ERROR'
+  | 'INTERNAL_ERROR'
+  | 'MISSING_FIELDS_ERROR'
+  | 'INVALID_PASSWORD_ERROR'
+  | 'EMAIL_NOT_VERIFIED_ERROR';
 
 // Handle common errors from the API
 export default async function defaultErrorHandler(
   error: any,
   router: Router,
+  override: HandledErrors[] = [],
 ): Promise<ErrorHandledReason> {
   // Get the stores and components we need
   const user = userStore(),
@@ -31,6 +41,8 @@ export default async function defaultErrorHandler(
   switch (error.code) {
     // If the user's account has been banned.
     case 'BANNED_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('BANNED_ERROR')) return 'NOT_HANDLED';
       // Display the banned message
       toast.banned();
       // If the user is logged in, log them out.
@@ -44,11 +56,15 @@ export default async function defaultErrorHandler(
       return 'OK';
     // If the user encounters a ratelimit.
     case 'RATELIMITED_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('RATELIMITED_ERROR')) return 'NOT_HANDLED';
       // Display the ratelimit message.
       toast.rateLimit(error);
       return 'OK';
     // If the user encounters an invalid/expired session.
     case 'INVALID_SESSION_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('INVALID_SESSION_ERROR')) return 'NOT_HANDLED';
       // Display the invalid session message.
       toast.session();
       // Log the user out.
@@ -56,6 +72,9 @@ export default async function defaultErrorHandler(
       return 'OK';
     // If the user tries to perform an action that they do not have permission to perform.
     case 'INSUFFICIENT_PERMISSIONS_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('INSUFFICIENT_PERMISSIONS_ERROR'))
+        return 'NOT_HANDLED';
       // Display the insufficient permissions message.
       toast.insufficientPermissions();
       // Refresh stale user data.
@@ -65,20 +84,28 @@ export default async function defaultErrorHandler(
       return 'OK';
     // If the user encounters an internal server error.
     case 'INTERNAL_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('INTERNAL_ERROR')) return 'NOT_HANDLED';
       // Display the internal server error message.
       toast.serverError();
       return 'OK';
     case 'MISSING_FIELDS_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('MISSING_FIELDS_ERROR')) return 'NOT_HANDLED';
       // Display the missing fields message.
       toast.missingFields(error.fields!);
       return 'OK';
     // If the user encounters an invalid password error.
     case 'INVALID_PASSWORD_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('INVALID_PASSWORD_ERROR')) return 'NOT_HANDLED';
       // Display the invalid password message.
       toast.invalidPassword();
       return 'OK';
     // If the user encounters an email not verified error.
     case 'EMAIL_NOT_VERIFIED_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('EMAIL_NOT_VERIFIED_ERROR')) return 'NOT_HANDLED';
       // Display the email not verified message.
       toast.emailNotVerified();
       return 'OK';

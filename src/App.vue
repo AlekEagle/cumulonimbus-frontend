@@ -351,6 +351,11 @@
       hamburgerMenu.value = !hamburgerMenu.value;
     }
   }
+
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error(event);
+    toast.clientError();
+  });
 </script>
 
 <style>

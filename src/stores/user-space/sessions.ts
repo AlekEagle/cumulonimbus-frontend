@@ -1,4 +1,5 @@
 import { userStore } from '../user';
+import { toastStore } from '../toast';
 import { displayPrefStore } from '../displayPref';
 import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
@@ -9,6 +10,7 @@ import { useRouter } from 'vue-router';
 
 export const sessionsStore = defineStore('user-space-sessions', () => {
   const user = userStore();
+  const toast = toastStore();
   const displayPref = displayPrefStore();
   const router = useRouter();
   const loading = ref(false);
@@ -60,13 +62,22 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     } catch (error) {
       errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
+      const reason = await defaultErrorHandler(error, router, [
+        'INVALID_SESSION_ERROR',
+      ]);
       switch (reason) {
         case 'OK':
           // If the error was handled, return false.
           return false;
         case 'NOT_HANDLED':
-        // No special cases to handle here.
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            // If the session the user is trying to delete is invalid.
+            case 'INVALID_SESSION_ERROR':
+              // Display the invalid session message.
+              toast.show("That session doesn't exist.");
+              return false;
+          }
         case 'NOT_RESPONSE_ERROR':
         default:
           // If the error wasn't handled, throw it.

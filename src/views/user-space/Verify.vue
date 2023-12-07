@@ -62,23 +62,7 @@
       const res = await user.verifyEmail(
         window.location.search.split('token=')[1],
       );
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handleResult = await defaultErrorHandler(res, router);
-        if (!handleResult) {
-          switch (res.code) {
-            case 'EMAIL_ALREADY_VERIFIED_ERROR':
-              statusText.value = 'Your email is already verified!';
-              return await returnToDashboard();
-            case 'INVALID_VERIFICATION_TOKEN_ERROR':
-              statusText.value =
-                'Your verification link is invalid or expired!';
-              return await returnToDashboard();
-            default:
-              statusText.value = 'Something went wrong!';
-              return await returnToDashboard();
-          }
-        }
-      } else {
+      if (res) {
         statusText.value = 'Thank you for verifying your email!';
         return await returnToDashboard();
       }
