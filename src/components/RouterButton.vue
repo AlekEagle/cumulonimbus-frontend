@@ -25,6 +25,15 @@
   // External Modules
   import { useRouter } from 'vue-router';
 
+  function checkDomain(url: string) {
+    if ( url.indexOf('//') === 0 ) { url = location.protocol + url; }
+    return url.toLowerCase().replace(/([a-z])?:\/\//,'$1').split('/')[0];
+  }
+
+  function isExternal(url: string) {
+    return ( ( url.indexOf(':') > -1 || url.indexOf('//') > -1 ) && checkDomain(location.href) !== checkDomain(url) );
+  }
+
   const props = defineProps({
       title: {
         type: String,
@@ -39,7 +48,8 @@
     displayLink = router.resolve(props.to).href;
 
   async function navigate() {
-    await router.push(props.to);
+    if (!isExternal(props.to)) await router.push(props.to);
+    else window.open(props.to, '_blank');
   }
 </script>
 

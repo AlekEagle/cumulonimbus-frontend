@@ -106,18 +106,27 @@
     );
   });
 
+  function checkDomain(url: string) {
+    if ( url.indexOf('//') === 0 ) { url = location.protocol + url; }
+    return url.toLowerCase().replace(/([a-z])?:\/\//,'$1').split('/')[0];
+  }
+
+  function isExternal(url: string) {
+    return ( ( url.indexOf(':') > -1 || url.indexOf('//') > -1 ) && checkDomain(location.href) !== checkDomain(url) );
+  }
+
   async function linkClicked() {
     if (props.disabled) return;
     // if the link is a string
     if (typeof props.to === 'string') {
       // if it is, check if its relative or absolute
-      if (props.to.startsWith('/')) {
+      if (!isExternal(props.to)) 
         // if it is, use the router to navigate to it
         await router.push(props.to);
-      } else {
+       else 
         // if it is not, use window.open to open it in a new tab
         window.open(props.to, '_blank');
-      }
+      
     } else {
       await router.push(props.to);
     }

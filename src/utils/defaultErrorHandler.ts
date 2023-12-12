@@ -4,8 +4,6 @@ import { toastStore } from '@/stores/toast';
 import { userStore } from '@/stores/user';
 import { Router } from 'vue-router';
 
-// TODO: Unify error handling across the app. Behavior between components and pages is inconsistent to say the least.
-
 export type ErrorHandledReason = 'NOT_RESPONSE_ERROR' | 'NOT_HANDLED' | 'OK';
 export type HandledErrors =
   | 'BANNED_ERROR'

@@ -17,7 +17,7 @@
   // No Store Modules to import here.
 
   // External Modules
-  import { ref, onMounted } from 'vue';
+  import { computed } from 'vue';
   import { useRouter } from 'vue-router';
 
   const props = defineProps({
@@ -30,12 +30,8 @@
         default: '/',
       },
     }),
-    displayLink = ref(''),
+    displayLink = computed(() => window.history.state.back || props.fallback),
     router = useRouter();
-
-  onMounted(() => {
-    displayLink.value = window.history.state.back || props.fallback;
-  });
 
   async function navigate() {
     await backWithFallback(router, props.fallback, true);
