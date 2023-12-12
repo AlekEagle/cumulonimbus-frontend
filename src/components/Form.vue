@@ -51,7 +51,8 @@
             data[element.name] = element.checked;
             break;
           case 'number':
-            data[element.name] = Number(element.value);
+            if (element.value === '') data[element.name] = undefined;
+            else data[element.name] = Number(element.value);
             break;
           case 'text':
           case 'password':
