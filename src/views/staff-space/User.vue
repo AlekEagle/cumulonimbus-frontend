@@ -392,12 +392,11 @@
   import Separator from '@/components/Separator.vue';
 
   // In-House Modules
-  import Cumulonimbus from 'cumulonimbus-wrapper';
   import backWithFallback from '@/utils/routerBackWithFallback';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import fileIcon from '@/assets/images/file.svg';
   import gearIcon from '@/assets/images/gear.svg';
   import toDateString from '@/utils/toDateString';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
 
   // Store Modules
   import { otherUserStore } from '@/stores/staff-space/user';
@@ -405,7 +404,7 @@
   import { usersStore } from '@/stores/staff-space/users';
 
   // External Modules
-  import { ref, onMounted, watch } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
@@ -426,28 +425,9 @@
     deleteUserFilesModal = ref<typeof ConfirmModal>(),
     deleteUserModal = ref<typeof ConfirmModal>();
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (
-            !otherUser.data ||
-            otherUser.data.id !== router.currentRoute.value.query.id
-          ) {
-            fetchUser();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (
-      !otherUser.data ||
-      otherUser.data.id !== router.currentRoute.value.query.id
-    ) {
-      fetchUser();
-    }
-  });
+  onMounted(async () => 
+    loadWhenOnline(fetchUser, !otherUser.data ||
+            otherUser.data.id !== router.currentRoute.value.query.id));
 
   async function fetchUser() {
     if (!online.value) {

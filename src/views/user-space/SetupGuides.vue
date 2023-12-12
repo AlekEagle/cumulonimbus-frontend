@@ -64,11 +64,9 @@
   // External Modules
   import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
-  import { useRouter } from 'vue-router';
 
   const instructions = instructionsStore(),
     toast = toastStore(),
-    router = useRouter(),
     online = useOnline(),
     page = ref(0);
 

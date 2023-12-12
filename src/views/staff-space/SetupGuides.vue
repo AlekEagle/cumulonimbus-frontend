@@ -134,6 +134,7 @@
   import { ref, watch, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
+import loadWhenOnline from '@/utils/loadWhenOnline';
 
   const online = useOnline(),
     router = useRouter(),
@@ -161,22 +162,9 @@
     }
   }
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (!instructions.data || instructions.page !== page.value) {
-            fetchInstructions();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (!instructions.data || instructions.page !== page.value) {
-      fetchInstructions();
-    }
-  });
+  onMounted(async () => 
+    loadWhenOnline(fetchInstructions, !instructions.data || instructions.page !== page.value)
+   );
 
   function onInstructionClick(instruction: Cumulonimbus.Data.Instruction) {
     if (selecting.value) {

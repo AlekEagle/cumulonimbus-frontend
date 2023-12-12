@@ -79,7 +79,6 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import profileIcon from '@/assets/images/profile.svg';
 
   // Store Modules

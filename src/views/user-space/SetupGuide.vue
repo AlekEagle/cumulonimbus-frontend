@@ -82,7 +82,6 @@
 
   // Store Modules
   import { instructionStore } from '@/stores/user-space/instruction';
-  import { instructionsStore } from '@/stores/user-space/instructions';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
 
@@ -98,7 +97,6 @@
   };
 
   const instruction = instructionStore(),
-    instructions = instructionsStore(),
     user = userStore(),
     toast = toastStore(),
     router = useRouter(),
@@ -137,8 +135,7 @@
 
     loadWhenOnline(
       fetchInstruction,
-      !instruction.data,
-      instruction.data?.name !== router.currentRoute.value.query.id,
+      !instruction.data || instruction.data?.name !== router.currentRoute.value.query.id,
     );
   });
 

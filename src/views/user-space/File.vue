@@ -220,8 +220,7 @@
   onMounted(() =>
     loadWhenOnline(
       fetchFile,
-      !file.data,
-      file.data?.id !== router.currentRoute.value.query.id,
+      !file.data || file.data?.id !== router.currentRoute.value.query.id,
     ),
   );
 
