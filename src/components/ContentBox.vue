@@ -106,13 +106,8 @@
     );
   });
 
-  function checkDomain(url: string) {
-    if ( url.indexOf('//') === 0 ) { url = location.protocol + url; }
-    return url.toLowerCase().replace(/([a-z])?:\/\//,'$1').split('/')[0];
-  }
-
   function isExternal(url: string) {
-    return ( ( url.indexOf(':') > -1 || url.indexOf('//') > -1 ) && checkDomain(location.href) !== checkDomain(url) );
+    return ( ( url.indexOf(':') > -1 || url.indexOf('//') > -1 ) );
   }
 
   async function linkClicked() {
