@@ -7,9 +7,18 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
+  // No Vue Components to import here.
+
+  // In-House Modules
+  import backWithFallback from '@/utils/routerBackWithFallback';
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
   import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import backWithFallback from '@/utils/routerBackWithFallback';
 
   const props = defineProps({
       title: {
@@ -29,6 +38,6 @@
   });
 
   async function navigate() {
-    await backWithFallback(router, props.fallback);
+    await backWithFallback(router, props.fallback, true);
   }
 </script>

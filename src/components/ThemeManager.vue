@@ -15,7 +15,17 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
+  // No Vue Components to import here.
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
   import { displayPrefStore } from '@/stores/displayPref';
+
+  // External Modules
+  // No External Modules to import here.
 
   const props = defineProps({
     noTabIndex: Boolean,

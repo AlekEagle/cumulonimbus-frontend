@@ -7,9 +7,17 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import { wait } from '@/utils/wait';
+  // Vue Components
   import LoadingBlurb from './LoadingBlurb.vue';
+
+  // In-House Modules
+  import { wait } from '@/utils/wait';
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
+  import { ref } from 'vue';
 
   const isVisible = ref(false);
 

@@ -101,33 +101,41 @@
 </template>
 
 <script lang="ts" setup>
-  import Paginator from '@/components/Paginator.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
-  import toDateString from '@/utils/toDateString';
-  import { useOnline } from '@vueuse/core';
-  import { ref, watch, onMounted } from 'vue';
-  import { sessionsStore } from '@/stores/user-space/sessions';
+  import Paginator from '@/components/Paginator.vue';
+  import SelectableContentBox from '@/components/SelectableContentBox.vue';
+
+  // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import toDateString from '@/utils/toDateString';
 
-  const online = useOnline(),
-    sessions = sessionsStore(),
-    user = userStore(),
-    toast = toastStore(),
-    selecting = ref(false),
-    selected = ref<string[]>([]),
-    confirmDeleteModal = ref<typeof ConfirmModal>(),
-    manageSessionModal = ref<typeof ConfirmModal>(),
+  // Store Modules
+  import { sessionsStore } from '@/stores/user-space/sessions';
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref, onMounted } from 'vue';
+  import { useOnline } from '@vueuse/core';
+
+  const confirmDeleteModal = ref<typeof ConfirmModal>(),
     fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+    manageSessionModal = ref<typeof ConfirmModal>(),
+    online = useOnline(),
     page = ref(0),
-    selectedSession = ref<Cumulonimbus.Data.Session | null>(null);
+    selected = ref<string[]>([]),
+    selectedSession = ref<Cumulonimbus.Data.Session | null>(null),
+    selecting = ref(false),
+    sessions = sessionsStore(),
+    toast = toastStore(),
+    user = userStore();
 
   async function fetchSessions() {
     if (!online.value) {
@@ -165,22 +173,12 @@
     }
   }
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (!sessions.data || sessions.page !== page.value) {
-            fetchSessions();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (!sessions.data || sessions.page !== page.value) {
-      fetchSessions();
-    }
-  });
+  onMounted(() =>
+    loadWhenOnline(
+      fetchSessions,
+      !sessions.data || sessions.page !== page.value,
+    ),
+  );
 
   async function onManageSessionChoice(choice: boolean) {
     if (choice) {

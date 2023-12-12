@@ -94,123 +94,130 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
   import ThemeManager from '@/components/ThemeManager.vue';
-  import { userStore } from '@/stores/user';
-  import { ref, onMounted, watch, computed } from 'vue';
-  import { toastStore } from '@/stores/toast';
-  import { useRouter, useRoute } from 'vue-router';
-  import { useNetwork } from '@vueuse/core';
-  import { ptbStore } from '@/stores/ptb';
-  import { enableScrolling, disableScrolling } from '@/utils/scrollHandler';
   import Modal from '@/components/Modal.vue';
-  import newTabIcon from '@/assets/images/newtab.svg';
 
-  const user = userStore();
-  const toast = toastStore();
-  const router = useRouter();
-  const route = useRoute();
-  const { isOnline: online } = useNetwork();
-  const ptb = ptbStore();
-  const host = window.location.host;
-  const menuItems = computed(() => {
-    const currentLoc = route.fullPath;
-    return [
-      {
-        name: 'Home',
-        path: '/',
-        external: false,
-      },
-      ...(user.account
-        ? [
-            {
-              name: 'Dashboard',
-              path: {
-                name: 'user-space-dashboard',
-              },
-              external: false,
-            },
-            {
-              name: 'Upload',
-              path: {
-                name: 'user-space-upload',
-              },
-              external: false,
-            },
-            {
-              name: 'Switch Accounts',
-              path: {
-                name: 'account-switcher',
-                query: {
-                  redirect: currentLoc,
+  // In-House Modules
+  import newTabIcon from '@/assets/images/newtab.svg';
+  import { enableScrolling, disableScrolling } from '@/utils/scrollHandler';
+
+  // Store Modules
+  import { userStore } from '@/stores/user';
+  import { toastStore } from '@/stores/toast';
+  import { ptbStore } from '@/stores/ptb';
+
+  // External Modules
+  import { ref, onMounted, watch, computed } from 'vue';
+  import { useRouter, useRoute } from 'vue-router';
+  import { useOnline } from '@vueuse/core';
+
+  const user = userStore(),
+    toast = toastStore(),
+    router = useRouter(),
+    route = useRoute(),
+    online = useOnline(),
+    ptb = ptbStore(),
+    host = window.location.host,
+    menuItems = computed(() => {
+      const currentLoc = route.fullPath;
+      return [
+        {
+          name: 'Home',
+          path: '/',
+          external: false,
+        },
+        ...(user.account
+          ? [
+              {
+                name: 'Dashboard',
+                path: {
+                  name: 'user-space-dashboard',
                 },
+                external: false,
               },
-              external: false,
-            },
-          ]
-        : [
-            {
-              name: 'Login to Dashboard',
-              path: {
-                name: 'account-switcher',
-                query: {
-                  redirect: '/dashboard',
+              {
+                name: 'Upload',
+                path: {
+                  name: 'user-space-upload',
                 },
+                external: false,
+              },
+              {
+                name: 'Switch Accounts',
+                path: {
+                  name: 'account-switcher',
+                  query: {
+                    redirect: currentLoc,
+                  },
+                },
+                external: false,
+              },
+            ]
+          : [
+              {
+                name: 'Login to Dashboard',
+                path: {
+                  name: 'account-switcher',
+                  query: {
+                    redirect: '/dashboard',
+                  },
+                },
+                external: false,
+              },
+            ]),
+        user.account && user.account.user.staff
+          ? {
+              name: 'Staff Dashboard',
+              path: {
+                name: 'staff-space-dashboard',
               },
               external: false,
-            },
-          ]),
-      user.account && user.account.user.staff
-        ? {
-            name: 'Staff Dashboard',
-            path: {
-              name: 'staff-space-dashboard',
-            },
-            external: false,
-          }
-        : undefined,
-      {
-        name: 'About',
-        path: '/about',
-        external: false,
-      },
-      {
-        name: 'Terms of Service',
-        path: '/tos',
-        external: false,
-      },
-      {
-        name: 'Privacy Policy',
-        path: '/privacy',
-        external: false,
-      },
-      {
-        name: 'Documentation',
-        path: `https://docs.${host}/`,
-        external: true,
-      },
-      {
-        name: 'GitHub',
-        path: 'https://github.com/AlekEagle/cumulonimbus-frontend',
-        external: true,
-      },
-      {
-        name: 'Discord',
-        path: 'https://alekeagle.com/d',
-        external: true,
-      },
-      {
-        name: 'About the Dev',
-        path: 'https://alekeagle.com/',
-        external: true,
-      },
-    ].filter((a) => typeof a !== 'undefined') as Array<{
-      name: string;
-      path: string;
-      external: boolean;
-    }>;
-  });
-  const hamburgerMenu = ref(false);
-  const ptbWarningModal = ref<typeof Modal>();
+            }
+          : undefined,
+        {
+          name: 'About',
+          path: '/about',
+          external: false,
+        },
+        {
+          name: 'Terms of Service',
+          path: '/tos',
+          external: false,
+        },
+        {
+          name: 'Privacy Policy',
+          path: '/privacy',
+          external: false,
+        },
+        {
+          name: 'Documentation',
+          path: `https://docs.${host}/`,
+          external: true,
+        },
+        {
+          name: 'GitHub',
+          path: 'https://github.com/AlekEagle/cumulonimbus-frontend',
+          external: true,
+        },
+        {
+          name: 'Discord',
+          path: 'https://alekeagle.com/d',
+          external: true,
+        },
+        {
+          name: 'About the Dev',
+          path: 'https://alekeagle.com/',
+          external: true,
+        },
+      ].filter((a) => typeof a !== 'undefined') as Array<{
+        name: string;
+        path: string;
+        external: boolean;
+      }>;
+    }),
+    hamburgerMenu = ref(false),
+    ptbWarningModal = ref<typeof Modal>();
 
   watch(hamburgerMenu, (val) => {
     if (val) {
@@ -331,11 +338,7 @@
 
   // Register a message handler for the service worker
   navigator.serviceWorker?.addEventListener('message', (event) => {
-    const payload = event.data;
-    switch (payload.type) {
-      case 'update-begin':
-        toast.updating();
-        break;
+    switch (event.data.type) {
       case 'update-complete':
         toast.updateComplete();
         break;
@@ -353,7 +356,13 @@
   }
 
   window.addEventListener('unhandledrejection', (event) => {
+    console.error(
+      'An unhandled promise rejection occurred:',
+      event.reason,
+      '\nFull event trace:',
+    );
     console.error(event);
+
     toast.clientError();
   });
 </script>

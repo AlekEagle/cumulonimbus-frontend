@@ -113,20 +113,27 @@
 </template>
 
 <script lang="ts" setup>
-  import SelectableContentBox from '@/components/SelectableContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import Paginator from '@/components/Paginator.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import { toastStore } from '@/stores/toast';
-  import { instructionsStore } from '@/stores/staff-space/instructions';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import { useOnline } from '@vueuse/core';
-  import { ref, watch, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import Paginator from '@/components/Paginator.vue';
+  import SelectableContentBox from '@/components/SelectableContentBox.vue';
+
+  // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import gearIcon from '@/assets/images/gear.svg';
+
+  // Store Modules
+  import { instructionsStore } from '@/stores/staff-space/instructions';
+  import { toastStore } from '@/stores/toast';
+
+  // External Modules
+  import { ref, watch, onMounted } from 'vue';
+  import { useOnline } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
 
   const online = useOnline(),
     router = useRouter(),
@@ -147,11 +154,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await instructions.getInstructions(page.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) toast.clientError();
-      } else toast.genericError();
+      await instructions.getInstructions(page.value);
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -201,14 +204,7 @@
     }
     try {
       const result = await instructions.deleteInstructions(selected.value);
-      if (result instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(result, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (!result) {
-        toast.clientError();
-      } else {
+      if (result) {
         toast.show(`Deleted ${result} instruction${result === 1 ? '' : 's'}.`);
         selected.value = [];
         selecting.value = false;
@@ -244,19 +240,9 @@
         data.name,
         data.description,
       );
-      if (result instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(result, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (!result) {
-        await fetchInstructions();
-        toast.clientError();
-      } else {
+      if (result) {
         await fetchInstructions();
         await createInstructionModal.value!.hide();
-        toast.show(`Created ${result.name}.`);
-        await router.push(`/staff/setup-guide?id=${result.name}`);
       }
     } catch (e) {
       console.error(e);

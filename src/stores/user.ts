@@ -1,9 +1,13 @@
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
-import { toastStore } from './toast';
-import persistPiniaRef from '@/utils/persistPiniaRef';
-import { domainPickerStore } from './domainPicker';
-
+// In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
+import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import persistPiniaRef from '@/utils/persistPiniaRef';
+
+// Other Store Modules
+import { domainPickerStore } from './domainPicker';
+import { toastStore } from './toast';
+
+// External Modules
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
@@ -25,6 +29,7 @@ export const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
   baseThumbnailURL: BaseThumbnailURLs[import.meta.env.MODE],
 };
 
+// Store Definition
 export const userStore = defineStore('user', () => {
   // --- Persistent Refs ---
   // The store of user accounts in the account switcher.

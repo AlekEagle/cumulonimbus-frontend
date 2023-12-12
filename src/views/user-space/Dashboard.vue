@@ -48,16 +48,23 @@
 </template>
 
 <script lang="ts" setup>
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  // Vue Components
   import ContentBox from '@/components/ContentBox.vue';
   import RouterButton from '@/components/RouterButton.vue';
-  import profileIcon from '@/assets/images/profile.svg';
+
+  // In-House Modules
   import fileIcon from '@/assets/images/file.svg';
   import infoIcon from '@/assets/images/info.svg';
+  import profileIcon from '@/assets/images/profile.svg';
   import uploadIcon from '@/assets/images/upload.svg';
+
+  // Store Modules
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
   const user = userStore(),
     toast = toastStore(),

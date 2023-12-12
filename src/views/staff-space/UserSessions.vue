@@ -91,23 +91,31 @@
 </template>
 
 <script lang="ts" setup>
-  import Paginator from '@/components/Paginator.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import Online from '@/components/Online.vue';
+  import Paginator from '@/components/Paginator.vue';
+  import SelectableContentBox from '@/components/SelectableContentBox.vue';
+
+  // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import backWithFallback from '@/utils/routerBackWithFallback';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import infoIcon from '@/assets/images/info.svg';
+  import toDateString from '@/utils/toDateString';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+
+  // Store Modules
+  import { sessionsStore } from '@/stores/staff-space/sessions';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import toDateString from '@/utils/toDateString';
+
+  // External Modules
+  import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
-  import { ref, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import { sessionsStore } from '@/stores/staff-space/sessions';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import infoIcon from '@/assets/images/info.svg';
-  import backWithFallback from '@/utils/routerBackWithFallback';
 
   const router = useRouter(),
     online = useOnline(),
@@ -128,11 +136,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await sessions.getSessions(page.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) toast.genericError();
-      } else toast.genericError();
+      await sessions.getSessions(page.value);
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -152,113 +156,47 @@
     }
   }
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, async () => {
-        if (online.value) {
-          if (
-            !sessions.data ||
-            sessions.page !== page.value ||
-            (sessions.sessionOwner &&
-              sessions.sessionOwner.id !== router.currentRoute.value.query.id)
-          ) {
-            if (
-              !sessions.sessionOwner ||
-              sessions.sessionOwner.id !== router.currentRoute.value.query.id
-            ) {
-              try {
-                sessions.sessionOwner = (
-                  await user.client!.getUser(
-                    router.currentRoute.value.query.id as string,
-                  )
-                ).result;
-              } catch (e) {
-                if (e instanceof Cumulonimbus.ResponseError) {
-                  const handled = await defaultErrorHandler(e, router);
-                  if (!handled) {
-                    switch (e.code) {
-                      case 'INVALID_USER_ERROR':
-                        toast.show('This user does not exist.');
-                        backWithFallback(router, '/staff/users', true);
-                    }
-                  }
-                } else {
-                  console.error(e);
-                  toast.clientError();
-                }
-              }
-            }
-            fetchSessions();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (
+  onMounted(async () =>
+    loadWhenOnline(
+      initPage,
       !sessions.data ||
-      sessions.page !== page.value ||
-      (sessions.sessionOwner &&
-        sessions.sessionOwner.id !== router.currentRoute.value.query.id)
-    ) {
-      if (
-        !sessions.sessionOwner ||
-        sessions.sessionOwner.id !== router.currentRoute.value.query.id
-      ) {
-        try {
-          sessions.sessionOwner = (
-            await user.client!.getUser(
-              router.currentRoute.value.query.id as string,
-            )
-          ).result;
-        } catch (e) {
-          if (e instanceof Cumulonimbus.ResponseError) {
-            const handled = await defaultErrorHandler(e, router);
-            if (!handled) {
-              switch (e.code) {
-                case 'INVALID_USER_ERROR':
-                  toast.show('This user does not exist.');
-                  backWithFallback(router, '/staff/users', true);
-              }
-            }
-          } else {
-            console.error(e);
-            toast.genericError();
+        sessions.page !== page.value ||
+        sessions.sessionOwner?.id !== router.currentRoute.value.query.id,
+    ),
+  );
+
+  async function initPage() {
+    try {
+      sessions.sessionOwner = (
+        await user.client!.getUser(router.currentRoute.value.query.id as string)
+      ).result;
+    } catch (e) {
+      if (e instanceof Cumulonimbus.ResponseError) {
+        const handled = await defaultErrorHandler(e, router);
+        if (!handled) {
+          switch (e.code) {
+            case 'INVALID_USER_ERROR':
+              toast.show('This user does not exist.');
+              backWithFallback(router, '/staff/users', true);
           }
         }
+      } else {
+        console.error(e);
+        toast.genericError();
       }
-      fetchSessions();
     }
-  });
+    fetchSessions();
+  }
 
   async function onManageSessionChoice(choice: boolean) {
     if (choice) {
       const status = await sessions.deleteSession(
         selectedSession.value!.id + '',
       );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'INVALID_SESSION_ERROR':
-            toast.show("It appears that session doesn't exist anymore.");
-            await fetchSessions();
-            selectedSession.value = null;
-            break;
-          default:
-            const handled = await defaultErrorHandler(status, router);
-            if (!handled) {
-              toast.clientError();
-            }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
-        if (selectedSession.value?.id === user.account?.session.id) {
-          await user.logout();
-        } else {
-          selectedSession.value = null;
-          toast.show('Session deleted.');
-          await fetchSessions();
-        }
+      if (status) {
+        selectedSession.value = null;
+        toast.show('Session deleted.');
+        await fetchSessions();
       }
     }
     await manageSessionModal.value!.hide();
@@ -277,22 +215,7 @@
     }
     try {
       const status = await sessions.deleteSessions(selected.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        switch (status.code) {
-          case 'INVALID_SESSION_ERROR':
-            toast.show("It appears that session doesn't exist anymore.");
-            await fetchSessions();
-            selectedSession.value = null;
-            break;
-          default:
-            const handled = await defaultErrorHandler(status, router);
-            if (!handled) {
-              toast.clientError();
-            }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status) {
         if (selected.value.includes(user.account?.session.id + '')) {
           await user.logout();
         } else {

@@ -76,21 +76,29 @@
 </template>
 
 <script lang="ts" setup>
-  import PreviewContentBox from '@/components/PreviewContentBox.vue';
-  import Paginator from '@/components/Paginator.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
+  import Paginator from '@/components/Paginator.vue';
+  import PreviewContentBox from '@/components/PreviewContentBox.vue';
+
+  // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import backWithFallback from '@/utils/routerBackWithFallback';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+
+  // Store Modules
   import { filesStore } from '@/stores/staff-space/files';
-  import { userStore } from '@/stores/user';
   import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref, watch, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
-  import { ref, watch, onMounted } from 'vue';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import backWithFallback from '@/utils/routerBackWithFallback';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
 
   const online = useOnline(),
     router = useRouter(),
@@ -103,76 +111,43 @@
     confirmModal = ref<typeof ConfirmModal>();
 
   onMounted(async () => {
-    if (
+    loadWhenOnline(
+      initPage,
       !files.data ||
-      files.page !== page.value ||
-      (files.selectedUser &&
-        files.selectedUser.id !== router.currentRoute.value.query.user) ||
-      (!files.selectedUser && router.currentRoute.value.query.user)
-    ) {
-      if (!online.value) {
-        const unwatchOnline = watch(online, async () => {
-          if (online.value) {
-            if (router.currentRoute.value.query.user) {
-              try {
-                files.selectedUser = (
-                  await user.client!.getUser(
-                    router.currentRoute.value.query.user as string,
-                  )
-                ).result;
-              } catch (e) {
-                if (e instanceof Cumulonimbus.ResponseError) {
-                  const handled = await defaultErrorHandler(e, router);
-                  if (!handled) {
-                    switch (e.code) {
-                      case 'INVALID_USER_ERROR':
-                        toast.show('This user does not exist.');
-                        backWithFallback(router, '/staff/users');
-                    }
-                  }
-                } else {
-                  console.error(e);
-                  toast.clientError();
-                }
-              }
-            } else {
-              files.selectedUser = null;
-            }
-            fetchFiles();
-
-            unwatchOnline();
-          }
-        });
-        return;
-      }
-      if (router.currentRoute.value.query.user) {
-        try {
-          files.selectedUser = (
-            await user.client!.getUser(
-              router.currentRoute.value.query.user as string,
-            )
-          ).result;
-        } catch (e) {
-          if (e instanceof Cumulonimbus.ResponseError) {
-            const handled = await defaultErrorHandler(e, router);
-            if (!handled) {
-              switch (e.code) {
-                case 'INVALID_USER_ERROR':
-                  toast.show('This user does not exist.');
-                  backWithFallback(router, '/staff/users');
-              }
-            }
-          } else {
-            console.error(e);
-            toast.clientError();
-          }
-        }
-      } else {
-        files.selectedUser = null;
-      }
-      fetchFiles();
-    }
+        files.page !== page.value ||
+        files.selectedUser?.id !== router.currentRoute.value.query.user ||
+        (!files.selectedUser && router.currentRoute.value.query.user),
+    );
   });
+
+  async function initPage() {
+    if (router.currentRoute.value.query.user) {
+      try {
+        files.selectedUser = (
+          await user.client!.getUser(
+            router.currentRoute.value.query.user as string,
+          )
+        ).result;
+      } catch (e) {
+        if (e instanceof Cumulonimbus.ResponseError) {
+          const handled = await defaultErrorHandler(e, router);
+          if (!handled) {
+            switch (e.code) {
+              case 'INVALID_USER_ERROR':
+                toast.show('This user does not exist.');
+                backWithFallback(router, '/staff/users');
+            }
+          }
+        } else {
+          console.error(e);
+          toast.clientError();
+        }
+      }
+    } else {
+      files.selectedUser = null;
+    }
+    fetchFiles();
+  }
 
   async function fetchFiles() {
     if (!online.value) {
@@ -181,17 +156,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await files.getFiles(page.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled)
-          switch (status.code) {
-            case 'INVALID_USER_ERROR':
-              toast.show('This user does not exist.');
-              backWithFallback(router, '/staff/users');
-          }
-        else toast.genericError();
-      } else toast.genericError();
+      await files.getFiles(page.value);
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -228,18 +193,7 @@
     }
     try {
       const status = await files.deleteFiles(selected.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        if ((status.code = 'MISSING_FIELDS_ERROR')) {
-          if (selected.value.length > 0)
-            toast.show('You can only select up to 100 files at once.');
-          else toast.show('You must select at least one file to delete.');
-          return;
-        }
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) toast.clientError();
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status >= 0) {
         selecting.value = false;
         selected.value = [];
         confirmModal.value!.hide();

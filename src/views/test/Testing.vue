@@ -333,23 +333,30 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, onMounted } from 'vue';
-  import { toastStore } from '@/stores/toast';
+  // Vue Components
+  import ConfirmModal from '@/components/ConfirmModal.vue';
   import ContentBox from '@/components/ContentBox.vue';
+  import DomainModal from '@/components/DomainModal.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import Form from '@/components/Form.vue';
-  import Switch from '@/components/Switch.vue';
-  import Modal from '@/components/Modal.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import DomainModal from '@/components/DomainModal.vue';
-  import Paginator from '@/components/Paginator.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
   import Loading from '@/components/Loading.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import Modal from '@/components/Modal.vue';
+  import Paginator from '@/components/Paginator.vue';
   import Separator from '@/components/Separator.vue';
-  import { wait } from '@/utils/wait';
+  import Switch from '@/components/Switch.vue';
+
+  // In-House Modules
   import cumulonimbusIcon from '@/assets/images/Cumulonimbus.svg';
+  import { wait } from '@/utils/wait';
+
+  // Store Modules
+  import { toastStore } from '@/stores/toast';
+
+  // External Modules
+  import { ref, computed } from 'vue';
 
   enum CurrentItem {
     CONTENT_BOXES,

@@ -1,12 +1,17 @@
-import { userStore } from '../user';
+// In-House Modules
+import Cumulonimbus from 'cumulonimbus-wrapper';
 import defaultErrorHandler from '@/utils/defaultErrorHandler';
-import { toastStore } from '../toast';
 
+// Other Store Modules
+import { toastStore } from '../toast';
+import { userStore } from '../user';
+
+// External Modules
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import Cumulonimbus from 'cumulonimbus-wrapper';
 import { useRouter } from 'vue-router';
 
+// Store Definition
 export const fileStore = defineStore('user-space-file', () => {
   const user = userStore();
   const toast = toastStore();
@@ -50,9 +55,7 @@ export const fileStore = defineStore('user-space-file', () => {
     return true;
   }
 
-  async function editFilename(
-    filename: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function editFilename(filename: string): Promise<boolean> {
     if (data.value === null) return false;
     if (user.client === null) return false;
     errored.value = false;
@@ -65,10 +68,25 @@ export const fileStore = defineStore('user-space-file', () => {
       data.value = result.result;
     } catch (error) {
       errored.value = true;
-      if (error instanceof Cumulonimbus.ResponseError) {
-        return error;
-      } else {
-        throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('That file does not exist.');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       loading.value = false;
@@ -76,9 +94,7 @@ export const fileStore = defineStore('user-space-file', () => {
     return true;
   }
 
-  async function deleteFilename(): Promise<
-    boolean | Cumulonimbus.ResponseError
-  > {
+  async function deleteFilename(): Promise<boolean> {
     if (data.value === null) return false;
     if (user.client === null) return false;
     errored.value = false;
@@ -90,10 +106,25 @@ export const fileStore = defineStore('user-space-file', () => {
       data.value = result.result;
     } catch (error) {
       errored.value = true;
-      if (error instanceof Cumulonimbus.ResponseError) {
-        return error;
-      } else {
-        throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('That file does not exist.');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       loading.value = false;
@@ -101,9 +132,7 @@ export const fileStore = defineStore('user-space-file', () => {
     return true;
   }
 
-  async function editFileExtension(
-    fileExtension: string,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function editFileExtension(fileExtension: string): Promise<boolean> {
     if (data.value === null) return false;
     if (user.client === null) return false;
     errored.value = false;
@@ -116,10 +145,25 @@ export const fileStore = defineStore('user-space-file', () => {
       data.value = result.result;
     } catch (error) {
       errored.value = true;
-      if (error instanceof Cumulonimbus.ResponseError) {
-        return error;
-      } else {
-        throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('That file does not exist.');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       loading.value = false;
@@ -127,7 +171,7 @@ export const fileStore = defineStore('user-space-file', () => {
     return true;
   }
 
-  async function deleteFile(): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function deleteFile(): Promise<boolean> {
     if (data.value === null) return false;
     if (user.client === null) return false;
     errored.value = false;
@@ -138,10 +182,25 @@ export const fileStore = defineStore('user-space-file', () => {
       return true;
     } catch (error) {
       errored.value = true;
-      if (error instanceof Cumulonimbus.ResponseError) {
-        return error;
-      } else {
-        throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_FILE_ERROR':
+              toast.show('That file does not exist.');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       loading.value = false;

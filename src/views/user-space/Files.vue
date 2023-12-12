@@ -69,21 +69,26 @@
 </template>
 
 <script lang="ts" setup>
-  import Paginator from '@/components/Paginator.vue';
-  import PreviewContentBox from '@/components/PreviewContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
+  import Paginator from '@/components/Paginator.vue';
+  import PreviewContentBox from '@/components/PreviewContentBox.vue';
+
+  // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+
+  // Store Modules
   import { filesStore } from '@/stores/user-space/files';
   import { toastStore } from '@/stores/toast';
-  import { ref, onMounted, watch } from 'vue';
-  import toLogin from '@/utils/toLogin';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
+
+  // External Modules
+  import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
-  import { useRouter } from 'vue-router';
 
   const files = filesStore(),
     page = ref(0),
@@ -91,7 +96,6 @@
     selecting = ref(false),
     selected = ref<string[]>([]),
     online = useOnline(),
-    router = useRouter(),
     confirmModal = ref<typeof ConfirmModal>(),
     fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
 
@@ -102,38 +106,16 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await files.getFiles(page.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (!status) {
-        toast.show("You're not logged in.");
-        await toLogin(router);
-      }
+      await files.getFiles(page.value);
     } catch (e) {
       console.error(e);
       toast.clientError();
     }
   }
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (!files.data || files.page !== page.value) {
-            fetchFiles();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (!files.data || files.page !== page.value) {
-      fetchFiles();
-    }
-  });
+  onMounted(() =>
+    loadWhenOnline(fetchFiles, !files.data || files.page !== page.value),
+  );
 
   function displayModal() {
     if (selected.value.length > 0) {
@@ -157,20 +139,7 @@
     try {
       fullscreenLoadingBlurb.value!.show();
       const status = await files.deleteFiles(selected.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        if ((status.code = 'MISSING_FIELDS_ERROR')) {
-          if (selected.value.length > 0)
-            toast.show('You can only select up to 100 files at once.');
-          else toast.show('You must select at least one file to delete.');
-          return;
-        }
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (status < 0) {
-        toast.clientError();
-      } else {
+      if (status >= 0) {
         toast.show(`Deleted ${status} file${status === 1 ? '' : 's'}.`);
         selected.value = [];
         selecting.value = false;

@@ -63,6 +63,7 @@
           </template>
           <LoadingBlurb v-else />
         </div>
+        <Separator v-if="file.data && !file.errored" />
         <div class="content-box-container" v-if="file.uploader">
           <ContentBox
             title="Uploaded by"
@@ -111,7 +112,7 @@
       name="filename"
     />
     <template v-slot:additional-buttons>
-      <button @click="deleteFilename"> Clear Name </button>
+      <button @click="deleteFilename" v-if="file.data?.name">Clear Name</button>
     </template>
   </FormModal>
   <FormModal
@@ -143,26 +144,35 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
-  import toDateString from '@/utils/toDateString';
-  import size from '@/utils/size';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import Separator from '@/components/Separator.vue';
+
+  // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper';
   import backWithFallback from '@/utils/routerBackWithFallback';
-  import { ref, watch, onMounted, computed } from 'vue';
-  import { useRouter } from 'vue-router';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import fileIcon from '@/assets/images/file.svg';
+  import profileIcon from '@/assets/images/profile.svg';
+  import size from '@/utils/size';
+  import toDateString from '@/utils/toDateString';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+
+  // Store Modules
   import { fileStore } from '@/stores/staff-space/file';
   import { filesStore } from '@/stores/staff-space/files';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref, onMounted, computed } from 'vue';
   import { useOnline, useClipboard, useShare } from '@vueuse/core';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import fileIcon from '@/assets/images/file.svg';
-  import profileIcon from '@/assets/images/profile.svg';
+  import { useRouter } from 'vue-router';
 
   const toast = toastStore(),
     user = userStore(),
@@ -203,41 +213,19 @@
       return;
     }
     try {
-      const status = await file.getFile(
-        router.currentRoute.value.query.id as string,
-      );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled)
-          switch (status.code) {
-            case 'INVALID_FILE_ERROR':
-              toast.show('This file does not exist.');
-              await files.getFiles(files.page);
-              await backWithFallback(router, '/staff/files', true);
-              break;
-          }
-        else toast.genericError();
-      } else toast.genericError();
+      await file.getFile(router.currentRoute.value.query.id as string);
     } catch (e) {
       console.error(e);
       toast.clientError();
     }
   }
 
-  onMounted(async () => {
-    if (!file.data || file.data.id !== router.currentRoute.value.query.id) {
-      if (!online.value) {
-        const unwatchOnline = watch(online, async () => {
-          if (online.value) {
-            fetchFile();
-            unwatchOnline();
-          }
-        });
-        return;
-      }
-      fetchFile();
-    }
-  });
+  onMounted(async () =>
+    loadWhenOnline(
+      fetchFile,
+      !file.data || file.data.id !== router.currentRoute.value.query.id,
+    ),
+  );
 
   async function renameFile(data: { filename: string }) {
     if (!online.value) {
@@ -246,19 +234,7 @@
     }
     try {
       const status = await file.editFilename(data.filename);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_FILE_ERROR':
-              toast.show('That file does not exist.');
-              await files.getFiles(files.page);
-              await backWithFallback(router, '/staff/files', true);
-          }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status) {
         toast.show('File renamed.');
         await files.getFiles(files.page);
         await renameFileModal.value!.hide();
@@ -276,20 +252,8 @@
     }
     try {
       const status = await file.deleteFilename();
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_FILE_ERROR':
-              toast.show('That file does not exist.');
-              await files.getFiles(files.page);
-              await backWithFallback(router, '/staff/files', true);
-          }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
-        toast.show('File renamed.');
+      if (status) {
+        toast.show('Removed filename.');
         await files.getFiles(files.page);
         await renameFileModal.value!.hide();
       }
@@ -306,19 +270,7 @@
     }
     try {
       const status = await file.editFileExtension(data.extension);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_FILE_ERROR':
-              toast.show('That file does not exist.');
-              await files.getFiles(files.page);
-              await backWithFallback(router, '/dashboard/files', true);
-          }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status) {
         toast.show('File extension edited.');
         await files.getFiles(files.page);
         await router.replace({
@@ -345,20 +297,7 @@
     }
     try {
       const status = await file.deleteFile();
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_FILE_ERROR':
-              toast.show('This file does not exist.');
-              await files.getFiles(files.page);
-              await backWithFallback(router, '/staff/files', true);
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status) {
         toast.show('File deleted.');
         await deleteFileModal.value!.hide();
         await files.getFiles(files.page);
@@ -394,7 +333,7 @@
     if (file.data) {
       const a = document.createElement('a');
       a.href = fileUrl.value;
-      a.download = file.data.id;
+      a.download = filename.value;
       a.click();
     }
   }

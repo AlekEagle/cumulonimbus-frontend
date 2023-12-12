@@ -46,19 +46,25 @@
 </template>
 
 <script lang="ts" setup>
-  import ContentBox from '@/components/ContentBox.vue';
-  import Paginator from '@/components/Paginator.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
+  import ContentBox from '@/components/ContentBox.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
+  import Paginator from '@/components/Paginator.vue';
+
+  // In-House Modules
+  import infoIcon from '@/assets/images/info.svg';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+
+  // Store Modules
   import { instructionsStore } from '@/stores/user-space/instructions';
   import { toastStore } from '@/stores/toast';
-  import { ref, onMounted, watch } from 'vue';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { useRouter } from 'vue-router';
+
+  // External Modules
+  import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
-  import infoIcon from '@/assets/images/info.svg';
+  import { useRouter } from 'vue-router';
 
   const instructions = instructionsStore(),
     toast = toastStore(),
@@ -73,15 +79,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const status = await instructions.getInstructions(page.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else if (!status) {
-        toast.clientError();
-      }
+      await instructions.getInstructions(page.value);
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -89,19 +87,9 @@
   }
 
   onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (!instructions.data || instructions.page !== page.value) {
-            fetchInstructions();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (!instructions.data || instructions.page !== page.value) {
-      fetchInstructions();
-    }
+    loadWhenOnline(
+      fetchInstructions,
+      !instructions.data || instructions.page !== page.value,
+    );
   });
 </script>

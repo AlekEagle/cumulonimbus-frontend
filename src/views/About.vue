@@ -139,33 +139,41 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, Ref, onMounted, computed, getCurrentInstance } from 'vue';
-  import { useFuzzyTimeString } from '@/utils/time';
+  // Vue Components
   import ContentBox from '@/components/ContentBox.vue';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
   import Separator from '@/components/Separator.vue';
+
+  // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import { useFuzzyTimeString } from '@/utils/time';
+
+  // Store Modules
   import { userStore } from '@/stores/user';
 
-  const global = getCurrentInstance()?.appContext.config.globalProperties;
-  const backendVersion: Ref<string> = ref('Loading...');
-  const user = userStore();
-  const thumbnailVersion: Ref<string> = ref('Loading...');
-  const asOf = ref<Date | null | undefined>();
-  const asOfTime = useFuzzyTimeString(asOf, 30e3);
-  const dependencies = computed(() => {
-    return Object.keys(global!.$dependencies)
-      .map((key: string) => {
-        return `${key}: ${global?.$dependencies[key]}`;
-      })
-      .join('<br />');
-  });
-  const devDependencies = computed(() => {
-    return Object.keys(global!.$devDependencies)
-      .map((key: string) => {
-        return `${key}: ${global?.$devDependencies[key]}`;
-      })
-      .join('<br />');
-  });
+  // External Modules
+  import { ref, onMounted, computed, getCurrentInstance } from 'vue';
+
+  const global = getCurrentInstance()?.appContext.config.globalProperties,
+    backendVersion = ref('Loading...'),
+    user = userStore(),
+    thumbnailVersion = ref('Loading...'),
+    asOf = ref<Date | null | undefined>(),
+    asOfTime = useFuzzyTimeString(asOf, 30e3),
+    dependencies = computed(() => {
+      return Object.keys(global!.$dependencies)
+        .map((key: string) => {
+          return `${key}: ${global?.$dependencies[key]}`;
+        })
+        .join('<br />');
+    }),
+    devDependencies = computed(() => {
+      return Object.keys(global!.$devDependencies)
+        .map((key: string) => {
+          return `${key}: ${global?.$devDependencies[key]}`;
+        })
+        .join('<br />');
+    });
 
   async function update() {
     asOf.value = null;
@@ -184,7 +192,5 @@
     asOf.value = new Date();
   }
 
-  onMounted(async () => {
-    await update();
-  });
+  onMounted(() => loadWhenOnline(update));
 </script>

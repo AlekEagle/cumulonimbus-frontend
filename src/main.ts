@@ -14,4 +14,4 @@ app.config.globalProperties.$devDependencies = packageJson.devDependencies;
 
 app.use(router);
 app.use(createPinia());
-app.mount('html body main');
+app.mount('html body');

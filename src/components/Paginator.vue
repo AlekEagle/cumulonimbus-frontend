@@ -76,9 +76,18 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
+  // No Vue Components to import here.
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
+  import { displayPrefStore } from '@/stores/displayPref';
+
+  // External Modules
   import { onMounted, watch, computed } from 'vue';
   import { useRouter } from 'vue-router';
-  import { displayPrefStore } from '@/stores/displayPref';
 
   const emit = defineEmits(['update:modelValue', 'pageChange']);
   const props = defineProps({

@@ -1,8 +1,14 @@
-import { defineStore } from 'pinia';
-import { computed, Ref, ref, unref, watch, WatchStopHandle } from 'vue';
-import { wait, waitFor } from '@/utils/wait';
+// In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
 import { addSeconds, useTimeString } from '@/utils/time';
+import { wait, waitFor } from '@/utils/wait';
+
+// Other Store Modules
+// No Other Store Modules to import here.
+
+// External Modules
+import { computed, Ref, ref, unref, watch, WatchStopHandle } from 'vue';
+import { defineStore } from 'pinia';
 
 const toastTransitionDuration = 500;
 
@@ -10,7 +16,7 @@ function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toLocaleUpperCase() + string.slice(1);
 }
 
-// A store for managing toast messages
+// Store Definition
 export const toastStore = defineStore('toast', () => {
   // The current text of the toast
   const text = ref('');

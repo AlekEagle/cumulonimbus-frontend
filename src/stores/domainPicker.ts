@@ -1,11 +1,16 @@
-import { userStore } from './user';
+// In-House Modules
+import Cumulonimbus from 'cumulonimbus-wrapper';
 import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
+// Other Store Modules
+import { userStore } from './user';
+
+// External Modules
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import Cumulonimbus from 'cumulonimbus-wrapper';
 
+// Store Definition
 export const domainPickerStore = defineStore('domainPicker', () => {
   const user = userStore();
   const router = useRouter();

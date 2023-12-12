@@ -351,42 +351,49 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import Modal from '@/components/Modal.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import DomainModal from '@/components/DomainModal.vue';
-  import Switch from '@/components/Switch.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import profileIcon from '@/assets/images/profile.svg';
+  import ContentBox from '@/components/ContentBox.vue';
+  import DomainModal from '@/components/DomainModal.vue';
+  import FormModal from '@/components/FormModal.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import Modal from '@/components/Modal.vue';
+  import Separator from '@/components/Separator.vue';
+  import Switch from '@/components/Switch.vue';
+
+  // In-House Modules
   import gearIcon from '@/assets/images/gear.svg';
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import { displayPrefStore } from '@/stores/displayPref';
+  import profileIcon from '@/assets/images/profile.svg';
   import toDateString from '@/utils/toDateString';
   import toLogin from '@/utils/toLogin';
+
+  // Store Modules
+  import { displayPrefStore } from '@/stores/displayPref';
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
-  import { ref } from 'vue';
-  import Separator from '@/components/Separator.vue';
 
-  const user = userStore(),
-    toast = toastStore(),
-    router = useRouter(),
+  const deleteAccountModal = ref<typeof FormModal>(),
+    deleteFilesModal = ref<typeof ConfirmModal>(),
+    deleteSessionsModal = ref<typeof FormModal>(),
     displayPref = displayPrefStore(),
     displayPrefsModal = ref<typeof Modal>(),
-    usernameFormModal = ref<typeof FormModal>(),
-    emailFormModal = ref<typeof FormModal>(),
-    resendVerificationEmailModal = ref<typeof ConfirmModal>(),
-    passwordFormModal = ref<typeof FormModal>(),
     domainModal = ref<typeof DomainModal>(),
-    deleteSessionsModal = ref<typeof FormModal>(),
-    deleteFilesModal = ref<typeof ConfirmModal>(),
-    deleteAccountModal = ref<typeof FormModal>(),
+    emailFormModal = ref<typeof FormModal>(),
     fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
-    online = useOnline();
+    online = useOnline(),
+    passwordFormModal = ref<typeof FormModal>(),
+    resendVerificationEmailModal = ref<typeof ConfirmModal>(),
+    router = useRouter(),
+    toast = toastStore(),
+    user = userStore(),
+    usernameFormModal = ref<typeof FormModal>();
 
   async function updateUsername(data: { username: string; password: string }) {
     if (!online.value) return toast.connectivityOffline();

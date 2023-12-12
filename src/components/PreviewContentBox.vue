@@ -64,15 +64,22 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
+  import './ContentBox.vue'; // Importing this to get the CSS
+  import Loading from './Loading.vue';
+
+  // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper'; // We're considering this in-house because I also wrote it.
+  import exclamationMarkIcon from '@/assets/images/exclamation-mark.svg';
+  import noPreviewIcon from '@/assets/images/no-preview.svg';
+  import { wait } from '@/utils/wait';
+
+  // Store Modules
+  import { userStore } from '@/stores/user';
+
+  // External Modules
   import { computed, ref, onUnmounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import Loading from './Loading.vue';
-  import { wait } from '@/utils/wait';
-  import './ContentBox.vue';
-  import { userStore } from '@/stores/user';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import noPreviewIcon from '@/assets/images/no-preview.svg';
-  import exclamationMarkIcon from '@/assets/images/exclamation-mark.svg';
   import { vIntersectionObserver } from '@vueuse/components';
 
   const emit = defineEmits<{

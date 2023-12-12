@@ -104,10 +104,6 @@ self.addEventListener('install', async (event) => {
     await messageClients({ type: 'update-complete' });
   } catch (err) {
     errorLog('ServiceWorkerInstall', err);
-    await claimClients(true);
-    await messageClients({ type: 'update-failed' });
-    // Unregister the service worker if precaching fails so that the user can still use the site.
-    self.registration.unregister();
   }
 });
 
@@ -121,7 +117,8 @@ router.addRoute(
       options.request.method !== 'GET' || // Only cache GET requests
       options.url.pathname.match(/^\/api\/?/) || // Don't cache API requests
       options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE]) || // Don't cache thumbnails, they have their own cache.
-      options.url.protocol === 'chrome-extension:' // Don't cache chrome extensions
+      options.url.protocol === 'chrome-extension:' || // Don't cache chrome extensions
+      self.serviceWorker.scriptURL.includes('dev-sw') // Don't cache anything! (This is a development service worker.)
     ) {
       debugLog(
         'ServiceWorkerOfflineCacheManager',

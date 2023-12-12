@@ -14,16 +14,7 @@
         @click="fileDialog!.click()"
         tabindex="0"
       >
-        <template v-if="!isOverDropZone">
-          <template v-if="!file">
-            <h1 v-if="!tooManyFiles">Drop your file here.</h1>
-            <h1 v-else>That's too many files for me!</h1>
-          </template>
-          <template v-else>
-            <h1 v-text="file.name" />
-          </template>
-        </template>
-        <h1 v-else>Drop it here!</h1>
+        <h1 v-text="dropZoneText" />
         <h2>Or click to select a file.</h2>
       </div>
     </Online>
@@ -56,18 +47,26 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
   import Online from '@/components/Online.vue';
+
+  // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+
+  // Store Modules
+  import { filesStore } from '@/stores/user-space/files';
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { computed, ref, onMounted } from 'vue';
   import { useOnline, useClipboard, useDropZone } from '@vueuse/core';
   import { useRouter } from 'vue-router';
-  import { ref, onMounted } from 'vue';
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import { filesStore } from '@/stores/user-space/files';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
 
   const fileDropZone = ref<HTMLElement | null>(null),
     fileDialog = ref<HTMLInputElement>(),
@@ -76,25 +75,24 @@
     user = userStore(),
     files = filesStore(),
     online = useOnline(),
-    { copied, copy, isSupported: clipboardIsSupported, text } = useClipboard(),
+    { copied, copy, isSupported: clipboardIsSupported } = useClipboard(),
     { isOverDropZone } = useDropZone(fileDropZone, onDrop),
     file = ref<File>(),
-    tooManyFiles = ref(false),
     uploadData = ref<Cumulonimbus.Data.SuccessfulUpload>(),
     fsb = ref<typeof FullscreenLoadingBlurb>();
 
+  const dropZoneText = computed(() => {
+    if (isOverDropZone.value) return 'Drop it here!';
+    if (!file.value) return 'Drop your file here.';
+    return file.value.name;
+  });
+
   function onDrop(files: File[] | null) {
     if (!files || files.length < 1) return;
-    if (files.length > 1) return showTooManyFiles();
+    if (files.length > 1)
+      return toast.show('You can only upload one file at a time.', 5e3);
+    console.log(files[0]);
     file.value = files[0];
-  }
-
-  function showTooManyFiles() {
-    if (tooManyFiles.value) return;
-    tooManyFiles.value = true;
-    setTimeout(() => {
-      tooManyFiles.value = false;
-    }, 5000);
   }
 
   async function uploadFile() {
@@ -103,7 +101,10 @@
       return;
     }
     if (!file.value) {
-      toast.show('In order to upload a file, you need a file to upload.', 7500);
+      toast.show(
+        'In order to upload a file, you need a file to upload.',
+        7.5e3,
+      );
       return;
     }
     try {
@@ -120,7 +121,7 @@
         if (!handled) {
           switch (error.code) {
             case 'BODY_TOO_LARGE_ERROR':
-              toast.show('Unfortunately, the max file size is 100MB.');
+              toast.show('Unfortunately, the max file size is 100MB.', 5e3);
               break;
           }
         }
@@ -137,7 +138,7 @@
     if (!clipboardIsSupported) {
       toast.show(
         "Your browser doesn't support putting the URL on your clipboard, but you can open it in a new tab!",
-        7500,
+        7.5e3,
       );
       return;
     }
@@ -147,6 +148,7 @@
     } catch (error) {
       toast.show(
         "I wasn't able to put the URL on your clipboard, but you can try again!",
+        7.5e3,
       );
     }
   }
@@ -155,7 +157,7 @@
     window.open(uploadData.value!.url, '_blank');
   }
 
-  onMounted(async () => {
+  async function uploadFromShareTarget() {
     if (router.currentRoute.value.query['shared-file'] === null) {
       const shareTargetCache = await caches.open('share-target-cache');
       const fileRes = await shareTargetCache.match('/shared-file');
@@ -167,7 +169,9 @@
       await uploadFile();
       shareTargetCache.delete('/shared-file');
     }
-  });
+  }
+
+  onMounted(() => loadWhenOnline(uploadFromShareTarget));
 </script>
 
 <style>

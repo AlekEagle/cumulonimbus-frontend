@@ -6,7 +6,16 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
   import Loading from './Loading.vue';
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
   import { ref, onMounted } from 'vue';
 
   const messages = [

@@ -34,7 +34,7 @@
     @submit="verifyIdentity"
     :disabled="processing"
   >
-    <template v-if="online">
+    <Online>
       <p>Please login again to verify your identity.</p>
       <p>
         Name what your new
@@ -60,34 +60,36 @@
         required
         :disabled="processing"
       />
-    </template>
-    <template v-else>
-      <h1>Offline</h1>
-      <h2>
-        You are currently offline. Please connect to the internet to continue.
-      </h2>
-    </template>
+    </Online>
   </FormModal>
   <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
 </template>
 
 <script lang="ts" setup>
-  import ContentBox from '@/components/ContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
+  import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
-  import { instructionStore } from '@/stores/user-space/instruction';
-  import { instructionsStore } from '@/stores/user-space/instructions';
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import { useRouter } from 'vue-router';
-  import { useOnline, useClipboard } from '@vueuse/core';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+
+  // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import backWithFallback from '@/utils/routerBackWithFallback';
-  import { ref, watch, onMounted } from 'vue';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+
+  // Store Modules
+  import { instructionStore } from '@/stores/user-space/instruction';
+  import { instructionsStore } from '@/stores/user-space/instructions';
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref, onMounted } from 'vue';
+  import { useOnline, useClipboard } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
 
   const BaseAPIURLs: { [key: string]: string } = {
     production: `${window.location.protocol}//${window.location.host}/api`,
@@ -121,19 +123,8 @@
       const status = await instruction.getInstruction(
         router.currentRoute.value.query.id as string,
       );
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show('This setup guide does not exist.');
-              await instructions.getInstructions(instructions.page);
-              await backWithFallback(router, '/dashboard/setup-guides', true);
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.clientError();
+      if (!status) {
+        await backWithFallback(router, '/dashboard/setup-guides', true);
       }
     } catch (e) {
       console.error(e);
@@ -143,24 +134,12 @@
 
   onMounted(() => {
     verifyIdentityModal.value!.show();
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (
-            !instruction.data ||
-            instruction.data.name !== router.currentRoute.value.query.id
-          ) {
-            fetchInstruction();
-          }
-          unwatchOnline();
-        }
-      });
-    } else if (
-      !instruction.data ||
-      instruction.data.name !== router.currentRoute.value.query.id
-    ) {
-      fetchInstruction();
-    }
+
+    loadWhenOnline(
+      fetchInstruction,
+      !instruction.data,
+      instruction.data?.name !== router.currentRoute.value.query.id,
+    );
   });
 
   async function cancelVerify() {

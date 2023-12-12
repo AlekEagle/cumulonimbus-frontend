@@ -20,7 +20,16 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
   import Modal from '@/components/Modal.vue';
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
   import { ref } from 'vue';
 
   const emit = defineEmits<{

@@ -49,6 +49,16 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
+  // No Vue Components to import here.
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
   import { computed, getCurrentInstance } from 'vue';
   import { useRouter } from 'vue-router';
 

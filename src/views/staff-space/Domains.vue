@@ -88,27 +88,24 @@
     confirm-button="Delete"
     @submit="showDeleteModal"
   >
-    <template v-if="selectedDomain">
-      <code v-text="selectedDomain.id" />
-      <p>
-        Created at:
-        <code v-text="toDateString(new Date(selectedDomain.createdAt))" />
-      </p>
-      <p>
-        Last updated at:
-        <code v-text="toDateString(new Date(selectedDomain.updatedAt))" />
-      </p>
-      <p>
-        This domain currently does{{
-          selectedDomain.subdomains ? ' ' : ' not '
-        }}allow subdomains to be used.
-      </p>
-      <button v-if="selectedDomain.subdomains" @click="disableSubdomains">
-        Disable Subdomains
-      </button>
-      <button v-else @click="enableSubdomains">Enable Subdomains</button>
-    </template>
-    <LoadingBlurb v-else />
+    <code v-text="selectedDomain!.id" />
+    <p>
+      Created at:
+      <code v-text="toDateString(new Date(selectedDomain!.createdAt))" />
+    </p>
+    <p>
+      Last updated at:
+      <code v-text="toDateString(new Date(selectedDomain!.updatedAt))" />
+    </p>
+    <p>
+      This domain currently does{{
+        selectedDomain!.subdomains ? ' ' : ' not '
+      }}allow subdomains to be used.
+    </p>
+    <button v-if="selectedDomain!.subdomains" @click="disableSubdomains">
+      Disable Subdomains
+    </button>
+    <button v-else @click="enableSubdomains">Enable Subdomains</button>
   </ConfirmModal>
   <ConfirmModal
     ref="deleteDomainModal"
@@ -140,24 +137,32 @@
 </template>
 
 <script lang="ts" setup>
-  import SelectableContentBox from '@/components/SelectableContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import Paginator from '@/components/Paginator.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
-  import Switch from '@/components/Switch.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
-  import { domainsStore } from '@/stores/staff-space/domains';
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import { useOnline } from '@vueuse/core';
-  import { ref, watch, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
+  import Paginator from '@/components/Paginator.vue';
+  import SelectableContentBox from '@/components/SelectableContentBox.vue';
+  import Switch from '@/components/Switch.vue';
+
+  // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import gearIcon from '@/assets/images/gear.svg';
   import toDateString from '@/utils/toDateString';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+
+  // Store Modules
+  import { domainsStore } from '@/stores/staff-space/domains';
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref, onMounted } from 'vue';
+  import { useOnline } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
 
   const online = useOnline(),
     router = useRouter(),
@@ -173,53 +178,57 @@
     createDomainModal = ref<typeof FormModal>(),
     selectedDomain = ref<Cumulonimbus.Data.Domain | null>(null);
 
-  async function fetchDomains() {
+  async function fetchDomains(): Promise<void> {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     window.scrollTo(0, 0);
     try {
-      const status = await domains.getDomains(page.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) toast.genericError();
-      } else toast.genericError();
+      await domains.getDomains(page.value);
     } catch (e) {
       console.error(e);
       toast.clientError();
     }
   }
 
-  async function fetchDomain(id: string) {
+  async function fetchDomain(id: string): Promise<boolean> {
     if (!online.value) {
       toast.connectivityOffline();
-      return;
+      return false;
     }
     try {
       const status = await user.client!.getDomain(id);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
+      selectedDomain.value = status.result;
+      return true;
+    } catch (error) {
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_DOMAIN_ERROR':
-              toast.show('That domain does not exist.');
+              toast.show("Whoops! That domain doesn't exist.");
               await fetchDomains();
-              break;
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
           }
-        }
-      } else if (!status) toast.genericError();
-      else
-        selectedDomain.value = (
-          await user.client!.getDomain(selectedDomain.value!.id)
-        ).result;
-    } catch (e) {
-      console.error(e);
-      toast.clientError();
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
     }
   }
 
-  async function onDomainClick(domain: Cumulonimbus.Data.Domain) {
+  async function onDomainClick(
+    domain: Cumulonimbus.Data.Domain,
+  ): Promise<void> {
     if (selecting.value) {
       if (selected.value.includes(domain.id)) {
         selected.value = selected.value.filter((d) => d !== domain.id);
@@ -227,8 +236,12 @@
         selected.value.push(domain.id);
       }
     } else {
-      await fetchDomain(domain.id);
-      manageDomainModal.value!.show();
+      try {
+        if (await fetchDomain(domain.id)) manageDomainModal.value!.show();
+      } catch (error) {
+        console.error(error);
+        toast.clientError();
+      }
     }
   }
 
@@ -243,7 +256,7 @@
     selectedDomain.value = null;
   }
 
-  async function deleteDomain(choice: boolean) {
+  async function deleteDomain(choice: boolean): Promise<void> {
     if (!online.value) {
       toast.connectivityOffline();
       return;
@@ -254,24 +267,11 @@
     }
     try {
       const status = await domains.deleteDomain(selectedDomain.value!.id);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_DOMAIN_ERROR':
-              toast.show('That domain does not exist.');
-              deselect();
-              await fetchDomains();
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status) {
         toast.show('Domain deleted.');
-        deselect();
         await fetchDomains();
       }
+      deselect();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -289,12 +289,7 @@
     }
     try {
       const status = await domains.deleteDomains(selected.value);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else {
+      if (status >= 0) {
         toast.show(`Deleted ${status} domains.`);
         deselectBulk();
         await fetchDomains();
@@ -305,27 +300,14 @@
     }
   }
 
-  async function enableSubdomains() {
+  async function enableSubdomains(): Promise<void> {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
       const status = await domains.enableSubdomains(selectedDomain.value!.id);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_DOMAIN_ERROR':
-              toast.show('That domain does not exist.');
-              deselect();
-              await fetchDomains();
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status) {
         toast.show('Domain updated.');
         selectedDomain.value = (
           await user.client!.getDomain(selectedDomain.value!.id)
@@ -338,27 +320,14 @@
     }
   }
 
-  async function disableSubdomains() {
+  async function disableSubdomains(): Promise<void> {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
       const status = await domains.disableSubdomains(selectedDomain.value!.id);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'INVALID_DOMAIN_ERROR':
-              toast.show('That domain does not exist.');
-              deselect();
-              await fetchDomains();
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status) {
         toast.show('Domain updated.');
         selectedDomain.value = (
           await user.client!.getDomain(selectedDomain.value!.id)
@@ -371,22 +340,9 @@
     }
   }
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (!domains.data || domains.page !== page.value) {
-            fetchDomains();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (!domains.data || domains.page !== page.value) {
-      fetchDomains();
-    }
-  });
+  onMounted(async () =>
+    loadWhenOnline(fetchDomains, !domains.data || domains.page !== page.value),
+  );
 
   async function showDeleteModal(choice: boolean) {
     await manageDomainModal.value!.hide();
@@ -401,18 +357,7 @@
     }
     try {
       const status = await domains.createDomain(data.id, data.subdomains);
-      if (status instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(status, router);
-        if (!handled) {
-          switch (status.code) {
-            case 'DOMAIN_EXISTS_ERROR':
-              toast.show('That domain already exists.');
-              break;
-          }
-        }
-      } else if (!status) {
-        toast.genericError();
-      } else {
+      if (status) {
         toast.show('Domain created.');
         createDomainModal.value!.hide();
         await fetchDomains();

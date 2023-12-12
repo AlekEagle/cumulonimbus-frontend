@@ -74,5 +74,109 @@
   {
     "file": "src/views/user-space/AccountSessions.vue",
     "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/File.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/user-space/file.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/user-space/files.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/Files.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/Verify.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/Upload.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/user-space/instruction.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/SetupGuide.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/user-space/instructions.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/user-space/SetupGuides.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/staff-space/domains.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/Domains.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/File.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/staff-space/file.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/staff-space/files.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/Files.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/staff-space/instruction.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/SetupGuide.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/staff-space/instructions.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/SetupGuides.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/staff-space/sessions.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/UserSessions.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/Users.vue",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/staff-space/users.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/stores/staff-space/user.ts",
+    "decorator": "✓"
+  },
+  {
+    "file": "src/views/staff-space/User.vue",
+    "decorator": "✓"
   }
 ]

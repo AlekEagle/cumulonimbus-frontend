@@ -89,8 +89,17 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, onMounted, onBeforeUnmount } from 'vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
+  import { ref, onMounted, onBeforeUnmount } from 'vue';
 
   const line = ref<number>(-1),
     maxLine = 14,

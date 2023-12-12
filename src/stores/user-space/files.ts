@@ -1,20 +1,27 @@
-import { defineStore } from 'pinia';
-import { userStore } from '../user';
-import { displayPrefStore } from '../displayPref';
-import { ref } from 'vue';
+// In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
+import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
+// Other Store Modules
+import { displayPrefStore } from '../displayPref';
+import { userStore } from '../user';
+
+// External Modules
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+// Store Definition
 export const filesStore = defineStore('user-space-files', () => {
   const user = userStore();
   const displayPref = displayPrefStore();
+  const router = useRouter();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.File> | null>(null);
   const errored = ref(false);
   const page = ref(0);
 
-  async function getFiles(
-    p: number,
-  ): Promise<boolean | Cumulonimbus.ResponseError> {
+  async function getFiles(p: number): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
@@ -28,10 +35,17 @@ export const filesStore = defineStore('user-space-files', () => {
       data.value = result.result;
     } catch (error) {
       errored.value = true;
-      if (error instanceof Cumulonimbus.ResponseError) {
-        return error;
-      } else {
-        throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return false;
+        case 'NOT_HANDLED':
+        // No special cases to handle here.
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       loading.value = false;
@@ -39,9 +53,7 @@ export const filesStore = defineStore('user-space-files', () => {
     return true;
   }
 
-  async function deleteFiles(
-    files: string[],
-  ): Promise<number | Cumulonimbus.ResponseError> {
+  async function deleteFiles(files: string[]): Promise<number> {
     if (user.client === null) return -1;
     errored.value = false;
     loading.value = true;
@@ -49,11 +61,17 @@ export const filesStore = defineStore('user-space-files', () => {
       const result = await (user.client as Cumulonimbus).deleteFiles(files);
       return result.result.count!;
     } catch (error) {
-      if (error instanceof Cumulonimbus.ResponseError) {
-        return error;
-      } else {
-        errored.value = true;
-        throw error;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return -1;
+        case 'NOT_HANDLED':
+        // No special cases to handle here.
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
       }
     } finally {
       loading.value = false;

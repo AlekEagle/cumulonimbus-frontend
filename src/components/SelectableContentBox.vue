@@ -65,9 +65,18 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
+  import './ContentBox.vue'; // Importing this to get the CSS
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
-  import './ContentBox.vue';
 
   const emit = defineEmits<{
     (event: 'click'): void;

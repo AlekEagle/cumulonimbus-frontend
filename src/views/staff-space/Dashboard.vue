@@ -28,13 +28,21 @@
 </template>
 
 <script lang="ts" setup>
-  import RouterButton from '@/components/RouterButton.vue';
+  // Vue Components
   import ContentBox from '@/components/ContentBox.vue';
-  import profileIcon from '@/assets/images/profile.svg';
+  import RouterButton from '@/components/RouterButton.vue';
+
+  // In-House Modules
   import fileIcon from '@/assets/images/file.svg';
-  import infoIcon from '@/assets/images/info.svg';
   import gearIcon from '@/assets/images/gear.svg';
+  import infoIcon from '@/assets/images/info.svg';
+  import profileIcon from '@/assets/images/profile.svg';
+
+  // Store Modules
   import { userStore } from '@/stores/user';
+
+  // External Modules
+  // No External Modules to import here.
 
   const user = userStore();
 </script>

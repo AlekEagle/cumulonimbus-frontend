@@ -69,24 +69,30 @@
 </template>
 
 <script lang="ts" setup>
-  import SelectableContentBox from '@/components/SelectableContentBox.vue';
-  import Paginator from '@/components/Paginator.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
-  import Online from '@/components/Online.vue';
-  import { userStore } from '@/stores/user';
-  import { usersStore } from '@/stores/staff-space/users';
-  import { toastStore } from '@/stores/toast';
-  import { ref, onMounted, watch } from 'vue';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { useRouter } from 'vue-router';
-  import { useOnline } from '@vueuse/core';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import Online from '@/components/Online.vue';
+  import Paginator from '@/components/Paginator.vue';
+  import SelectableContentBox from '@/components/SelectableContentBox.vue';
+
+  // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import profileIcon from '@/assets/images/profile.svg';
 
+  // Store Modules
+  import { toastStore } from '@/stores/toast';
+  import { usersStore } from '@/stores/staff-space/users';
+
+  // External Modules
+  import { ref, onMounted } from 'vue';
+  import { useOnline } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+
   const users = usersStore(),
-    user = userStore(),
     page = ref(0),
     toast = toastStore(),
     router = useRouter(),
@@ -95,22 +101,9 @@
     online = useOnline(),
     confirmModal = ref<typeof ConfirmModal>();
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          if (!users.data || users.page !== page.value) {
-            fetchUsers();
-          }
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    if (!users.data || users.page !== page.value) {
-      fetchUsers();
-    }
-  });
+  onMounted(async () =>
+    loadWhenOnline(fetchUsers, !users.data || users.page !== page.value),
+  );
 
   async function onUserClick(user: Cumulonimbus.Data.User) {
     if (selected.value.includes(user.id)) {
@@ -127,11 +120,7 @@
     }
     window.scrollTo(0, 0);
     try {
-      const res = users.getUsers(page.value);
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
-        if (!handled) toast.clientError();
-      } else toast.genericError();
+      await users.getUsers(page.value);
     } catch (error) {
       console.error(error);
       toast.clientError();
@@ -145,12 +134,7 @@
     }
     try {
       const res = await users.deleteUsers(selected.value);
-      if (res instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(res, router);
-        if (!handled) {
-          toast.clientError();
-        }
-      } else {
+      if (res) {
         toast.show(`Deleted ${res} users.`);
         selected.value = [];
         selecting.value = false;

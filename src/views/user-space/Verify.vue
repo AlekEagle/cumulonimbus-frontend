@@ -17,16 +17,22 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, watch, ref } from 'vue';
+  // Vue Components
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import { wait } from '@/utils/wait';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
-  import { userStore } from '@/stores/user';
+
+  // In-House Modules
+  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import { wait } from '@/utils/wait';
+
+  // Store Modules
   import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { onMounted, ref } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
 
   const user = userStore(),
     router = useRouter(),
@@ -34,18 +40,7 @@
     toast = toastStore(),
     statusText = ref('');
 
-  onMounted(async () => {
-    if (!online.value) {
-      const unwatchOnline = watch(online, () => {
-        if (online.value) {
-          verifyEmail();
-          unwatchOnline();
-        }
-      });
-      return;
-    }
-    verifyEmail();
-  });
+  onMounted(() => loadWhenOnline(verifyEmail));
 
   async function verifyEmail() {
     if (!online.value) {

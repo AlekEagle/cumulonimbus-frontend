@@ -28,9 +28,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { wait } from '@/utils/wait';
-  import { ref, onBeforeUnmount } from 'vue';
+  // Vue Components
+  // No Vue Components to import here.
+
+  // In-House Modules
   import { enableScrolling, disableScrolling } from '@/utils/scrollHandler';
+  import { wait } from '@/utils/wait';
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
+  import { ref, onBeforeUnmount } from 'vue';
 
   const emit = defineEmits(['close']);
 

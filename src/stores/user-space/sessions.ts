@@ -1,13 +1,18 @@
+// In-House Modules
+import Cumulonimbus from 'cumulonimbus-wrapper';
+import defaultErrorHandler from '@/utils/defaultErrorHandler';
+
+// Other Store Modules
 import { userStore } from '../user';
 import { toastStore } from '../toast';
 import { displayPrefStore } from '../displayPref';
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
+// External Modules
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import Cumulonimbus from 'cumulonimbus-wrapper';
 import { useRouter } from 'vue-router';
 
+// Store Definition
 export const sessionsStore = defineStore('user-space-sessions', () => {
   const user = userStore();
   const toast = toastStore();

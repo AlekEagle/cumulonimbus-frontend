@@ -59,15 +59,21 @@
 </template>
 
 <script lang="ts" setup>
-  import Loading from '@/components/Loading.vue';
+  // Vue Components
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import { ref, onMounted, watch } from 'vue';
+  import Loading from '@/components/Loading.vue';
+
+  // In-House Modules
+  import { wait } from '@/utils/wait';
+
+  // Store Modules
   import { domainPickerStore } from '@/stores/domainPicker';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref, onMounted, watch } from 'vue';
   import { useNetwork } from '@vueuse/core';
-  import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { wait } from '@/utils/wait';
 
   const emit = defineEmits<{
     (event: 'submit', data: { domain: string; subdomain?: string }): void;

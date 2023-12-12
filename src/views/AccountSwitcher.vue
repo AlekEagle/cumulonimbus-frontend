@@ -89,26 +89,32 @@
 </template>
 
 <script lang="ts" setup>
+  // Vue Components
   import BackButton from '@/components/BackButton.vue';
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
-  import { ref, onBeforeMount, computed } from 'vue';
-  import { userStore } from '@/stores/user';
-  import { useRouter, useRoute } from 'vue-router';
-  import { toastStore } from '@/stores/toast';
+
+  // In-House Modules
+  import closeIcon from '@/assets/images/close.svg';
+  import plusIcon from '@/assets/images/plus.svg';
+  import profileIcon from '@/assets/images/profile.svg';
+
+  // Store Modules
   import { fileStore } from '@/stores/user-space/file';
   import { filesStore } from '@/stores/user-space/files';
   import { sessionsStore } from '@/stores/user-space/sessions';
-  import profileIcon from '@/assets/images/profile.svg';
-  import plusIcon from '@/assets/images/plus.svg';
-  import closeIcon from '@/assets/images/close.svg';
+  import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref, onBeforeMount, computed } from 'vue';
   import { useOnline } from '@vueuse/core';
+  import { useRouter } from 'vue-router';
 
   const user = userStore(),
     router = useRouter(),
-    route = useRoute(),
     toast = toastStore(),
     online = useOnline(),
     file = fileStore(),
@@ -119,7 +125,9 @@
     removeAllAccountsModal = ref<typeof ConfirmModal>(),
     removeAccountModal = ref<typeof ConfirmModal>(),
     redirectLoc = computed(() =>
-      route.query.redirect ? (route.query.redirect as string) : '/dashboard',
+      router.currentRoute.value.query.redirect
+        ? (router.currentRoute.value.query.redirect as string)
+        : '/dashboard',
     );
 
   async function redirect() {

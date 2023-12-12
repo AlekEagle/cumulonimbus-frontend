@@ -1,9 +1,15 @@
+// In-House Modules
+import persistPiniaRef from '@/utils/persistPiniaRef';
+
+// Other Store Modules
+// No Other Store Modules to import here.
+
+// External Modules
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { usePreferredDark } from '@vueuse/core';
-import persistPiniaRef from '@/utils/persistPiniaRef';
 
-// A store for display related preferences
+// Store Definition
 export const displayPrefStore = defineStore('displayPref', () => {
   // --- Persistent Refs ---
   // -- Dark Theme --

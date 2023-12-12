@@ -102,15 +102,23 @@
 </template>
 
 <script lang="ts" setup>
-  import { userStore } from '@/stores/user';
-  import { ref, onMounted } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
+  // Vue Components
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import Switch from '@/components/Switch.vue';
   import Form from '@/components/Form.vue';
   import Online from '@/components/Online.vue';
+  import Switch from '@/components/Switch.vue';
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
   import { toastStore } from '@/stores/toast';
+  import { userStore } from '@/stores/user';
+
+  // External Modules
+  import { ref, onMounted } from 'vue';
   import { useNetwork } from '@vueuse/core';
+  import { useRouter, useRoute } from 'vue-router';
 
   const user = userStore(),
     router = useRouter(),
@@ -210,9 +218,7 @@
     processing.value = true;
     try {
       const res = await user.login(data.username, data.password, data.remember);
-      if (res) {
-        await redirect();
-      } else toast.genericError();
+      if (res) await redirect();
     } catch (e) {
       toast.show((e as Error).message);
     } finally {
@@ -240,9 +246,7 @@
         data.confirmPassword,
         data.remember,
       );
-      if (res) {
-        await redirect();
-      } else toast.genericError();
+      if (res) await redirect();
     } catch (e) {
       toast.show((e as Error).message);
     } finally {
