@@ -61,6 +61,16 @@
         >.
       </p>
     </div>
+    <div>
+      <h2>Want to know more about me?</h2>
+      <p
+        >Visit
+        <a href="https://alekeagle.com/" rel="noopener" target="_blank"
+          >my portfolio</a
+        >
+        where you can learn more about me and what I've made!</p
+      >
+    </div>
   </div>
   <Separator />
   <div class="content-box-container">

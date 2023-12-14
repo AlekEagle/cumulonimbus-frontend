@@ -122,24 +122,12 @@
     menuItems = computed(() => {
       const currentLoc = route.fullPath;
       return [
-        {
-          name: 'Home',
-          path: '/',
-          external: false,
-        },
         ...(user.account
           ? [
               {
                 name: 'Dashboard',
                 path: {
                   name: 'user-space-dashboard',
-                },
-                external: false,
-              },
-              {
-                name: 'Upload',
-                path: {
-                  name: 'user-space-upload',
                 },
                 external: false,
               },
@@ -156,7 +144,7 @@
             ]
           : [
               {
-                name: 'Login to Dashboard',
+                name: 'Login',
                 path: {
                   name: 'account-switcher',
                   query: {
@@ -166,15 +154,6 @@
                 external: false,
               },
             ]),
-        user.account && user.account.user.staff
-          ? {
-              name: 'Staff Dashboard',
-              path: {
-                name: 'staff-space-dashboard',
-              },
-              external: false,
-            }
-          : undefined,
         {
           name: 'About',
           path: '/about',
@@ -198,16 +177,6 @@
         {
           name: 'GitHub',
           path: 'https://github.com/AlekEagle/cumulonimbus-frontend',
-          external: true,
-        },
-        {
-          name: 'Discord',
-          path: 'https://alekeagle.com/d',
-          external: true,
-        },
-        {
-          name: 'About the Dev',
-          path: 'https://alekeagle.com/',
           external: true,
         },
       ].filter((a) => typeof a !== 'undefined') as Array<{

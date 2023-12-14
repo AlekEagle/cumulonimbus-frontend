@@ -32,13 +32,13 @@ export default defineConfig({
           {
             src: 'https://alekeagle.me/DVAQGiggrG.png',
             form_factor: 'wide',
-            sizes: '1920x1080'
+            sizes: '1920x1080',
           },
           {
             src: 'https://alekeagle.me/jUf_rGepqK.png',
             form_factor: 'narrow',
-            sizes: '1080x2260'
-          }
+            sizes: '1080x2260',
+          },
         ],
         icons: [
           {
