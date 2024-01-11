@@ -21,7 +21,7 @@
                 Verified:
                 <code>{{
                   otherUser.data!.verifiedAt
-                    ? toDateString(new Date(otherUser.data!.updatedAt))
+                    ? toDateString(new Date(otherUser.data!.verifiedAt))
                     : 'Not yet...'
                 }}</code>
               </p>
