@@ -28,7 +28,7 @@
           Verified:
           <code>{{
             user.account!.user.verifiedAt
-              ? toDateString(new Date(user.account.user!.updatedAt))
+              ? toDateString(new Date(user.account.user!.verifiedAt))
               : 'Not yet...'
           }}</code>
         </p>
