@@ -154,9 +154,7 @@
   import Separator from '@/components/Separator.vue';
 
   // In-House Modules
-  import Cumulonimbus from 'cumulonimbus-wrapper';
   import backWithFallback from '@/utils/routerBackWithFallback';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import fileIcon from '@/assets/images/file.svg';
   import profileIcon from '@/assets/images/profile.svg';
   import size from '@/utils/size';
@@ -184,8 +182,7 @@
       if (file.data) {
         if (import.meta.env.MODE === 'ptb')
           return `https://alekeagle.me/${file.data.id}`;
-        else
-          return `${window.location.protocol}//${window.location.host}/${file.data.id}`;
+        else return `/${file.data.id}`;
       }
       return '';
     }),

@@ -36,6 +36,7 @@
     :href="location.href"
     @click.prevent="linkClicked"
     v-else
+    title="Pro tip: Hold Ctrl and click to directly open this file in a new tab!"
   >
     <div class="content-box-inner">
       <h3 class="title" v-text="props.file.name ?? props.file.id" />
@@ -115,8 +116,15 @@
   const imgBlobSrc = ref<string>(),
     isObjectURL = ref(false);
 
-  async function linkClicked() {
+  async function linkClicked(e: MouseEvent) {
     if (props.selecting) return;
+    if (e.ctrlKey)
+      return window.open(
+        `${import.meta.env.MODE === 'ptb' ? '//alekeagle.me' : ''}/${
+          props.file.id
+        }`,
+        '_blank',
+      );
     await router.push(location.value);
   }
 

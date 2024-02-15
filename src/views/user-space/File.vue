@@ -174,8 +174,7 @@
       if (file.data) {
         if (import.meta.env.MODE === 'ptb')
           return `https://alekeagle.me/${file.data.id}`;
-        else
-          return `${window.location.protocol}//${window.location.host}/${file.data.id}`;
+        else return `/${file.data.id}`;
       }
       return '';
     }),
