@@ -64,9 +64,7 @@
           <button @click="fetchDomains">Retry</button>
         </div>
       </template>
-      <div v-else class="no-content-container">
-        <LoadingBlurb />
-      </div>
+      <SkeletonContentBoxes v-else />
     </Online>
   </Paginator>
   <ConfirmModal
@@ -141,10 +139,10 @@
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
+  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
   import Switch from '@/components/Switch.vue';
 
   // In-House Modules

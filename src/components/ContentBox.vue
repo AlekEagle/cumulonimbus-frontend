@@ -107,7 +107,7 @@
   });
 
   function isExternal(url: string) {
-    return ( ( url.indexOf(':') > -1 || url.indexOf('//') > -1 ) );
+    return url.indexOf(':') > -1 || url.indexOf('//') > -1;
   }
 
   async function linkClicked() {
@@ -115,13 +115,11 @@
     // if the link is a string
     if (typeof props.to === 'string') {
       // if it is, check if its relative or absolute
-      if (!isExternal(props.to)) 
+      if (!isExternal(props.to))
         // if it is, use the router to navigate to it
         await router.push(props.to);
-       else 
-        // if it is not, use window.open to open it in a new tab
-        window.open(props.to, '_blank');
-      
+      // if it is not, use window.open to open it in a new tab
+      else window.open(props.to, '_blank');
     } else {
       await router.push(props.to);
     }
@@ -255,5 +253,9 @@
   .content-box > .content-box-inner > div.lds-default + .content-box-content {
     grid-column: 2 / span 3;
     margin-left: 5px;
+  }
+
+  .content-box.skeleton code:not(.title) {
+    margin: 2px 0;
   }
 </style>

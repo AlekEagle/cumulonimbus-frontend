@@ -40,7 +40,7 @@
           <button @click="fetchInstructions">Try again</button>
         </template>
       </template>
-      <LoadingBlurb v-else />
+      <SkeletonContentBoxes v-else />
     </Online>
   </Paginator>
 </template>
@@ -49,9 +49,9 @@
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ContentBox from '@/components/ContentBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
+  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import infoIcon from '@/assets/images/info.svg';

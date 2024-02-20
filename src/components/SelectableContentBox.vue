@@ -1,6 +1,6 @@
 <template>
   <div
-    class="content-box no-select click-target"
+    class="content-box click-target"
     @click="spanClicked"
     v-if="selecting || !location"
   >
@@ -32,7 +32,7 @@
   </div>
   <a
     v-else
-    class="content-box no-select click-target"
+    class="content-box click-target"
     @click.prevent="linkClicked"
     :href="location.href"
   >

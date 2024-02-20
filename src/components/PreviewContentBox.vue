@@ -1,6 +1,6 @@
 <template>
   <div
-    class="content-box no-select click-target"
+    class="content-box click-target"
     v-intersection-observer="onInView as any"
     :href="location.href"
     v-if="selecting"
@@ -31,7 +31,7 @@
     </div>
   </div>
   <a
-    class="content-box no-select"
+    class="content-box click-target"
     v-intersection-observer="onInView as any"
     :href="location.href"
     @click.prevent="linkClicked"

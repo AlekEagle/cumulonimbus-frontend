@@ -59,9 +59,7 @@
           <button @click="fetchSessions">Retry</button>
         </div>
       </template>
-      <div v-else class="no-content-container">
-        <LoadingBlurb />
-      </div>
+      <SkeletonContentBoxes v-else />
     </Online>
   </Paginator>
   <ConfirmModal
@@ -109,6 +107,7 @@
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
+  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';

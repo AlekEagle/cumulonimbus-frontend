@@ -61,9 +61,8 @@
         <button @click="fetchInstructions">Retry</button>
       </div>
     </template>
-    <div v-else class="no-content-container">
-      <LoadingBlurb />
-    </div>
+
+    <SkeletonContentBoxes v-else />
   </Paginator>
   <ConfirmModal
     ref="bulkDeleteInstructionModal"
@@ -120,6 +119,7 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
+  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
@@ -134,7 +134,7 @@
   import { ref, watch, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
-import loadWhenOnline from '@/utils/loadWhenOnline';
+  import loadWhenOnline from '@/utils/loadWhenOnline';
 
   const online = useOnline(),
     router = useRouter(),
@@ -162,9 +162,12 @@ import loadWhenOnline from '@/utils/loadWhenOnline';
     }
   }
 
-  onMounted(async () => 
-    loadWhenOnline(fetchInstructions, !instructions.data || instructions.page !== page.value)
-   );
+  onMounted(async () =>
+    loadWhenOnline(
+      fetchInstructions,
+      !instructions.data || instructions.page !== page.value,
+    ),
+  );
 
   function onInstructionClick(instruction: Cumulonimbus.Data.Instruction) {
     if (selecting.value) {

@@ -48,7 +48,7 @@
               Add a new step
             </ContentBox>
           </template>
-          <LoadingBlurb v-else />
+          <SkeletonContentBoxes v-else />
         </template>
         <div v-else>
           <h1>Something went wrong.</h1>
@@ -210,6 +210,7 @@
   import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Modal from '@/components/Modal.vue';
   import Online from '@/components/Online.vue';
+  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import backWithFallback from '@/utils/routerBackWithFallback';

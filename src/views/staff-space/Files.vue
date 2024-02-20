@@ -60,9 +60,7 @@
           <button @click="fetchFiles">Retry</button>
         </div>
       </template>
-      <div class="no-content-container" v-else>
-        <LoadingBlurb />
-      </div>
+      <SkeletonContentBoxes v-else />
     </Online>
   </Paginator>
   <ConfirmModal
@@ -79,10 +77,10 @@
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import PreviewContentBox from '@/components/PreviewContentBox.vue';
+  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
@@ -90,17 +88,19 @@
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
   // Store Modules
+  import { displayPrefStore } from '@/stores/displayPref';
   import { filesStore } from '@/stores/staff-space/files';
   import { toastStore } from '@/stores/toast';
   import { userStore } from '@/stores/user';
 
   // External Modules
-  import { ref, watch, onMounted } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   const online = useOnline(),
+    displayPref = displayPrefStore(),
     router = useRouter(),
     files = filesStore(),
     user = userStore(),

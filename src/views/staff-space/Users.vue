@@ -53,7 +53,7 @@
           <button @click="fetchUsers">Retry</button>
         </template>
       </template>
-      <LoadingBlurb v-else />
+      <SkeletonContentBoxes v-else />
     </Online>
   </Paginator>
   <ConfirmModal
@@ -72,16 +72,17 @@
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
+  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import profileIcon from '@/assets/images/profile.svg';
 
   // Store Modules
+  import { displayPrefStore } from '@/stores/displayPref';
   import { toastStore } from '@/stores/toast';
   import { usersStore } from '@/stores/staff-space/users';
 
@@ -92,9 +93,9 @@
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   const users = usersStore(),
+    displayPref = displayPrefStore(),
     page = ref(0),
     toast = toastStore(),
-    router = useRouter(),
     selecting = ref(false),
     selected = ref<string[]>([]),
     online = useOnline(),
