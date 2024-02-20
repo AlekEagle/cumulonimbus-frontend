@@ -258,4 +258,8 @@
   .content-box.skeleton code:not(.title) {
     margin: 2px 0;
   }
+
+  .content-box.skeleton code.title {
+    font-size: 1.35em;
+  }
 </style>

@@ -1,0 +1,214 @@
+<template>
+  <div class="content-box-container">
+    <ContentBox title="Display basic modal" @click="basicModal!.show()">
+      Display basic modal
+    </ContentBox>
+    <Modal ref="basicModal" title="I am a basic modal">
+      I do basic things.
+      <template #footer>
+        <button @click="basicModal!.hide()">Close</button>
+      </template>
+    </Modal>
+    <ContentBox
+      title="Display basic dismissible modal"
+      @click="basicDismissibleModal!.show()"
+    >
+      Display basic dismissible modal
+    </ContentBox>
+    <Modal
+      ref="basicDismissibleModal"
+      title="I am a basic dismissible modal"
+      dismissible
+      @close="toast.show('basic dismissible modal closed non-programmatically')"
+    >
+      I do basic things.
+      <template #footer>
+        <button @click="basicDismissibleModal!.hide()">
+          Close without event
+        </button>
+      </template>
+    </Modal>
+    <ContentBox title="Display confirm modal" @click="confirmModal!.show()">
+      Display confirm modal
+    </ContentBox>
+    <ConfirmModal
+      ref="confirmModal"
+      title="I am a confirm modal"
+      @submit="
+  (choice: boolean) => { toast.show(`you do${choice ? '' : 'n\'t'} like men`) }
+      "
+      close-on-submit
+      deny-button="No"
+      confirm-button="Yes"
+    >
+      do you like men?
+    </ConfirmModal>
+    <ContentBox title="Display danii's dumb modal" @click="meow!.show()">
+      Display danii's dumb modal
+    </ContentBox>
+    <ConfirmModal
+      ref="meow"
+      title="Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap."
+      @submit="meowMeow"
+      close-on-submit
+    >
+      Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw
+      mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow
+      nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow
+      meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww
+      mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr
+      mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow
+      mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow
+      meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah
+      meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow
+      mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww
+      mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr
+      mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow
+      mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow
+      meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah
+      meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow
+      mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww
+      mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr
+      mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow
+      mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow
+      meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah
+      meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow
+      mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww
+      mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr
+      mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow
+      mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow
+      meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah
+      meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow
+      mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww
+      mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr
+      mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow
+      mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow
+      meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah
+      meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow
+      mrowwww mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww
+      mmrrppurrr mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr
+      mrap Meow mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow
+      mroaw mrow meow nyah meow meoow mrowwww mmrrppurrr mrap Meow mroaw mrow
+      meow nyah meow meoow mrowwww mmrrppurrr mrap
+    </ConfirmModal>
+    <ContentBox title="Display form modal" @click="formModal!.show()">
+      Display form modal
+    </ContentBox>
+    <FormModal
+      ref="formModal"
+      title="I am a form modal"
+      @submit="(data) => toast.show(JSON.stringify(data))"
+      @cancel="toast.show('cancelled form modal')"
+      close-on-submit
+    >
+      <input type="text" placeholder="A text box" name="text" />
+      <br />
+      <input type="password" placeholder="A password box" name="password" />
+      <br />
+      <input type="number" placeholder="A number box" name="number" />
+      <br />
+      <input type="email" placeholder="An email box" name="email" />
+      <br />
+      <Switch name="switch">A switch</Switch>
+    </FormModal>
+    <ContentBox title="Display domain modal" @click="domainModal!.show()">
+      Display domain modal
+    </ContentBox>
+    <DomainModal
+      ref="domainModal"
+      @submit="(data:any) => toast.show(JSON.stringify(data))"
+      @cancel="toast.show('cancelled domain modal')"
+      domain="alekeagle.me"
+    />
+    <ContentBox
+      title="Display Fullscreen Loading Blurb Modal"
+      @click="fullscreenLoadingBlurbModal!.show()"
+    >
+      Display Fullscreen Loading Blurb Modal
+    </ContentBox>
+    <ConfirmModal
+      ref="fullscreenLoadingBlurbModal"
+      title="Fullscreen Loading Blurb Modal"
+      @submit="fullscreenLoadingBlurbModalHandler"
+    >
+      I am a modal that will display a fullscreen loading blurb when confirmed.
+    </ConfirmModal>
+  </div>
+  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
+</template>
+
+<script lang="ts" setup>
+  // Vue Components
+  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import ContentBox from '@/components/ContentBox.vue';
+  import DomainModal from '@/components/DomainModal.vue';
+  import FormModal from '@/components/FormModal.vue';
+  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import Modal from '@/components/Modal.vue';
+  import Switch from '@/components/Switch.vue';
+
+  // In-House Modules
+  import { wait } from '@/utils/wait';
+
+  // Store Modules
+  import { toastStore } from '@/stores/toast';
+
+  // External Modules
+  import { ref } from 'vue';
+
+  const toast = toastStore(),
+    basicModal = ref<typeof Modal>(),
+    basicDismissibleModal = ref<typeof Modal>(),
+    confirmModal = ref<typeof ConfirmModal>(),
+    meow = ref<typeof ConfirmModal>(),
+    formModal = ref<typeof FormModal>(),
+    domainModal = ref<typeof DomainModal>(),
+    fullscreenLoadingBlurbModal = ref<typeof ConfirmModal>(),
+    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
+
+  function meowMeow(choice: boolean) {
+    function* allNodes(node: Node): Generator<Node> {
+      for (const child of Array.from(node.childNodes)) {
+        yield child;
+        yield* allNodes(child);
+      }
+    }
+
+    function hehe() {
+      let count = 0;
+      for (const node of allNodes(document)) {
+        if (node instanceof Text) {
+          let text = node.textContent ?? '';
+          let match;
+          while ((match = text.match(/  /))) {
+            // this needs to be put in a museum for copilot
+            //console.log(`Replaced ${match[0]} with ${choice ? "meow" : "nyah"}`);
+            count++;
+
+            node.textContent = text = `${text.substring(
+              0,
+              match.index,
+            )}\t${text.substring(match.index! + match[0].length)}`;
+          }
+        }
+      }
+      toast.show(
+        `Replaced ${count} space-tabs with real tabs.\nTabs are superior, don't @ me. - danii\nSilence - alek`,
+      );
+    }
+
+    if (choice) hehe();
+    else toast.show('Good job! you avoided hell!');
+  }
+
+  async function fullscreenLoadingBlurbModalHandler(choice: boolean) {
+    if (!choice) {
+      await fullscreenLoadingBlurbModal.value!.hide();
+    } else {
+      await fullscreenLoadingBlurb.value!.show();
+      await wait(5000);
+      fullscreenLoadingBlurbModal.value!.hide();
+      await fullscreenLoadingBlurb.value!.hide();
+    }
+  }
+</script>
