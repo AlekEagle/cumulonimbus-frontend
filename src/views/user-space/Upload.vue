@@ -43,7 +43,9 @@
       )
     "
   />
-  <FullscreenLoadingMessage ref="fsb" />
+  <FullscreenLoadingMessage ref="fsm">
+    <ProgressBar :progress="progress" v-if="isChromium" />
+  </FullscreenLoadingMessage>
 </template>
 
 <script lang="ts" setup>
@@ -52,16 +54,16 @@
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import Online from '@/components/Online.vue';
+  import ProgressBar from '@/components/ProgressBar.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   // Store Modules
   import { filesStore } from '@/stores/user-space/files';
   import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { cumulonimbusOptions, userStore } from '@/stores/user';
 
   // External Modules
   import { computed, ref, onMounted } from 'vue';
@@ -79,13 +81,17 @@
     { isOverDropZone } = useDropZone(fileDropZone, onDrop),
     file = ref<File>(),
     uploadData = ref<Cumulonimbus.Data.SuccessfulUpload>(),
-    fsb = ref<InstanceType<typeof FullscreenLoadingMessage>>();
+    fsm = ref<InstanceType<typeof FullscreenLoadingMessage>>(),
+    progressBytes = ref(0),
+    progress = ref(0);
 
   const dropZoneText = computed(() => {
-    if (isOverDropZone.value) return 'Drop it here!';
-    if (!file.value) return 'Drop your file here.';
-    return file.value.name;
-  });
+      if (isOverDropZone.value) return 'Drop it here!';
+      if (!file.value) return 'Drop your file here.';
+      return file.value.name;
+    }),
+    // @ts-ignore
+    isChromium = computed(() => !!window.chrome);
 
   function onDrop(files: File[] | null) {
     if (!files || files.length < 1) return;
@@ -108,29 +114,65 @@
       return;
     }
     try {
-      uploadData.value = undefined;
-      await fsb.value!.show();
-      const data = await user.client!.upload(file.value);
-      await files.getFiles(files.page);
-      uploadData.value = data.result;
-      file.value = undefined;
+      if (isChromium.value) {
+        // Create our own damn form data stream because FormData doesn't support being read as a stream.
+        const boundary = `${'-'.repeat(27)}${Math.pow(2, 20)}`;
+        const contentTypeHeader = `multipart/form-data; boundary=${boundary}`;
+        const readableStream = new ReadableStream({
+          async start(controller) {
+            controller.enqueue(
+              new TextEncoder().encode(
+                `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${
+                  file.value!.name
+                }"\r\nContent-Type: ${file.value!.type}\r\n\r\n`,
+              ),
+            );
+            const reader = file.value!.stream().getReader();
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              controller.enqueue(value);
+            }
+            controller.enqueue(new TextEncoder().encode(`\r\n--${boundary}--`));
+            controller.close();
+          },
+        });
+        const transformStream = new TransformStream({
+          async transform(chunk, controller) {
+            progressBytes.value += chunk.byteLength;
+            progress.value = (progressBytes.value / file.value!.size) * 100;
+            controller.enqueue(chunk);
+          },
+        });
+        uploadData.value = undefined;
+        await fsm.value!.show();
+        const data = await fetch(`${cumulonimbusOptions.baseURL}/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': user.account!.session.token,
+            'Content-Type': contentTypeHeader,
+          },
+          body: readableStream.pipeThrough(transformStream),
+          // @ts-ignore - This is a valid option, but TypeScript doesn't know about it.
+          duplex: 'half',
+        });
+        await files.getFiles(files.page);
+        uploadData.value = await data.json();
+        file.value = undefined;
+      } else {
+        uploadData.value = undefined;
+        await fsm.value!.show();
+        const data = await user.client!.upload(file.value!);
+        await files.getFiles(files.page);
+        uploadData.value = data.result;
+        file.value = undefined;
+      }
       await copyToClipboard();
     } catch (error) {
-      if (error instanceof Cumulonimbus.ResponseError) {
-        const handled = await defaultErrorHandler(error, router);
-        if (!handled) {
-          switch (error.code) {
-            case 'BODY_TOO_LARGE_ERROR':
-              toast.show('Unfortunately, the max file size is 100MB.', 5e3);
-              break;
-          }
-        }
-      } else {
-        console.error(error);
-        toast.clientError();
-      }
+      console.error(error);
+      toast.clientError();
     } finally {
-      fsb.value!.hide();
+      fsm.value!.hide();
     }
   }
 
