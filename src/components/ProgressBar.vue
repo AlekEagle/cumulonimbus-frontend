@@ -1,7 +1,10 @@
 <template>
-  <span class="progress-indicator">{{ progress.toFixed(0) }}%</span>
+  <span class="progress-indicator">{{ props.progress.toFixed(0) }}%</span>
   <div class="progress-bar-container">
-    <div class="progress-bar" :style="{ width: `calc(${progress}% - 4px)` }" />
+    <div
+      class="progress-bar"
+      :style="{ width: `calc(${props.progress}% - 4px)` }"
+    />
   </div>
 </template>
 
@@ -29,6 +32,7 @@
     margin: 0 0 0.5rem;
     font-size: 1.5rem;
     text-align: center;
+    font-weight: bold;
   }
 
   .progress-bar-container {
