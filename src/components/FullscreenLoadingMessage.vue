@@ -1,7 +1,9 @@
 <template>
   <Transition name="fullscreen-loading-message">
     <div v-if="isVisible" class="fullscreen-loading-message">
-      <LoadingMessage spinner />
+      <slot>
+        <LoadingMessage spinner />
+      </slot>
     </div>
   </Transition>
 </template>
