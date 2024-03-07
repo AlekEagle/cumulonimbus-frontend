@@ -61,14 +61,14 @@
               <p>Click me to open the file in a new tab.</p>
             </ContentBox>
           </template>
-          <LoadingBlurb v-else />
+          <LoadingMessage v-else />
         </template>
         <div v-else>
           <h1>Something went wrong.</h1>
           <button @click="fetchFile">Retry</button>
         </div>
       </template>
-      <LoadingBlurb v-else />
+      <LoadingMessage v-else />
     </div>
   </Online>
   <ConfirmModal
@@ -133,7 +133,7 @@
       />
     </div>
   </FormModal>
-  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
+  <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>
 
 <script lang="ts" setup>
@@ -142,8 +142,8 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
 
   // In-House Modules
@@ -194,7 +194,7 @@
     deleteFileModal = ref<typeof ConfirmModal>(),
     renameFileModal = ref<typeof FormModal>(),
     editFileExtensionModal = ref<typeof FormModal>(),
-    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>(),
     { isSupported: clipboardIsSupported, copy, copied } = useClipboard(),
     { share, isSupported: shareIsSupported } = useShare();
 
@@ -230,15 +230,15 @@
       return;
     }
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const status = await file.editFilename(data.filename);
       if (status) {
         toast.show('File renamed.');
         await files.getFiles(files.page);
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         await renameFileModal.value!.hide();
       }
-      fullscreenLoadingBlurb.value!.hide();
+      fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -257,7 +257,7 @@
         await files.getFiles(files.page);
         await renameFileModal.value!.hide();
       }
-      fullscreenLoadingBlurb.value!.hide();
+      fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -270,7 +270,7 @@
       return;
     }
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const status = await file.editFileExtension(data.extension);
       if (status) {
         toast.show('File extension edited.');
@@ -282,7 +282,7 @@
           },
         });
       }
-      fullscreenLoadingBlurb.value!.hide();
+      fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -299,16 +299,16 @@
       return;
     }
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const status = await file.deleteFile();
       if (status) {
         toast.show('File deleted.');
         await files.getFiles(files.page);
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         await deleteFileModal.value!.hide();
         await backWithFallback(router, '/dashboard/files', true);
       }
-      fullscreenLoadingBlurb.value!.hide();
+      fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();

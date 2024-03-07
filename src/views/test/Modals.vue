@@ -121,7 +121,7 @@
       domain="alekeagle.me"
     />
     <ContentBox
-      title="Display Fullscreen Loading Blurb Modal"
+      title="Display Fullscreen Loading Message Modal"
       @click="fullscreenLoadingMessageModal!.show()"
     >
       Display Fullscreen Loading Message Modal

@@ -140,7 +140,7 @@
       <h1>You're offline, to manage your account please go back online.</h1>
     </div>
   </template>
-  <LoadingBlurb v-else />
+  <LoadingMessage v-else />
   <Modal dismissible title="Display Preferences" ref="displayPrefsModal">
     <p>Change the look and feel of Cumulonimbus to your liking.</p>
     <br />
@@ -347,7 +347,7 @@
       :disabled="user.loading"
     />
   </FormModal>
-  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
+  <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>
 
 <script lang="ts" setup>
@@ -357,8 +357,8 @@
   import ContentBox from '@/components/ContentBox.vue';
   import DomainModal from '@/components/DomainModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Modal from '@/components/Modal.vue';
   import Separator from '@/components/Separator.vue';
   import Switch from '@/components/Switch.vue';
@@ -386,7 +386,7 @@
     displayPrefsModal = ref<typeof Modal>(),
     domainModal = ref<typeof DomainModal>(),
     emailFormModal = ref<typeof FormModal>(),
-    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>(),
     online = useOnline(),
     passwordFormModal = ref<typeof FormModal>(),
     resendVerificationEmailModal = ref<typeof ConfirmModal>(),
@@ -400,13 +400,13 @@
 
     const oldUsername = user.account!.user.username;
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const res = await user.changeUsername(data.username, data.password);
       if (res) {
         const token = user.accounts[oldUsername]!;
         delete user.accounts[oldUsername];
         user.accounts[data.username] = token;
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         usernameFormModal.value!.hide();
       } else toast.genericError();
     } catch (error) {
@@ -419,10 +419,10 @@
     if (!online.value) return toast.connectivityOffline();
 
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const res = await user.changeEmail(data.email, data.password);
       if (res) {
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         emailFormModal.value!.hide();
       } else toast.genericError();
     } catch (error) {
@@ -436,15 +436,15 @@
     if (!online.value) return toast.connectivityOffline();
 
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const res = await user.resendVerificationEmail();
       if (res) {
         toast.show('Sent! Check your email.');
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         resendVerificationEmailModal.value!.hide();
       }
     } catch (error) {
-      fullscreenLoadingBlurb.value!.hide();
+      fullscreenLoadingMessage.value!.hide();
       console.error(error);
       toast.clientError();
     }
@@ -458,14 +458,14 @@
     if (!online.value) return toast.connectivityOffline();
 
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const res = await user.changePassword(
         data.newPassword,
         data.confirmNewPassword,
         data.password,
       );
       if (res) {
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         passwordFormModal.value!.hide();
       } else toast.genericError();
     } catch (error) {
@@ -478,10 +478,10 @@
     if (!online.value) return toast.connectivityOffline();
 
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const res = await user.changeDomain(data.domain, data.subdomain);
       if (res) {
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         domainModal.value!.hide();
       } else toast.genericError();
     } catch (error) {
@@ -494,10 +494,10 @@
     if (!online.value) return toast.connectivityOffline();
 
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const res = await user.revokeSessions(data.includeSelf);
       if (res >= 0) {
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         deleteSessionsModal.value!.hide();
         toast.show(`Deleted ${res} sessions.`);
         if (data.includeSelf) {
@@ -514,11 +514,11 @@
     if (!online.value) return toast.connectivityOffline();
 
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const res = await user.deleteFiles(data.password);
       if (res >= 0) {
         toast.show(`Deleted ${res} files.`);
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         deleteFilesModal.value!.hide();
       } else toast.genericError();
     } catch (error) {
@@ -531,10 +531,10 @@
     if (!online.value) return toast.connectivityOffline();
 
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const res = await user.deleteAccount(data.username, data.password);
       if (res) {
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         await deleteAccountModal.value!.hide();
         router.replace('/');
         toast.show("We're sad to see you go, but we understand.");

@@ -63,14 +63,14 @@
     <p>Are you sure you want to delete these {{ selected.length }} files?</p>
     <p>They will be lost forever! (A long time!)</p>
   </ConfirmModal>
-  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
+  <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>
 
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import PreviewContentBox from '@/components/PreviewContentBox.vue';
@@ -97,7 +97,7 @@
     selected = ref<string[]>([]),
     online = useOnline(),
     confirmModal = ref<typeof ConfirmModal>(),
-    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
+    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>();
 
   async function fetchFiles() {
     if (!online.value) {
@@ -137,14 +137,14 @@
       return;
     }
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const status = await files.deleteFiles(selected.value);
       if (status >= 0) {
         toast.show(`Deleted ${status} file${status === 1 ? '' : 's'}.`);
         selected.value = [];
         selecting.value = false;
         await fetchFiles();
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         await confirmModal.value!.hide();
       }
     } catch (e) {

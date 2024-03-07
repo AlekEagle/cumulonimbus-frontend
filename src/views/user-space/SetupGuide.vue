@@ -17,14 +17,14 @@
               {{ step }}
             </ContentBox>
           </template>
-          <LoadingBlurb v-else />
+          <LoadingMessage v-else />
         </template>
         <div v-else>
           <h1>Something went wrong.</h1>
           <button @click="fetchInstruction">Retry</button>
         </div>
       </template>
-      <LoadingBlurb v-else />
+      <LoadingMessage v-else />
     </div>
   </Online>
   <FormModal
@@ -62,7 +62,7 @@
       />
     </Online>
   </FormModal>
-  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
+  <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>
 
 <script lang="ts" setup>
@@ -70,8 +70,8 @@
   import BackButton from '@/components/BackButton.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
 
   // In-House Modules
@@ -105,7 +105,7 @@
     session = ref<Cumulonimbus.Data.SuccessfulAuth>(),
     processing = ref(false),
     verifyIdentityModal = ref<typeof FormModal>(),
-    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>(),
     OS = ref<string>(
       (navigator as any).userAgentData
         ? (navigator as any).userAgentData.platform
@@ -135,7 +135,8 @@
 
     loadWhenOnline(
       fetchInstruction,
-      !instruction.data || instruction.data?.name !== router.currentRoute.value.query.id,
+      !instruction.data ||
+        instruction.data?.name !== router.currentRoute.value.query.id,
     );
   });
 
@@ -173,7 +174,7 @@
     }
     processing.value = true;
     try {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const newSession = await fetch(
           `${BaseAPIURLs[import.meta.env.MODE]}/login`,
           {
@@ -197,7 +198,7 @@
 
       if (newSession.status === 201) {
         session.value = json;
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
         await verifyIdentityModal.value!.hide();
       } else {
         const handled = await defaultErrorHandler(
@@ -217,7 +218,7 @@
               break;
           }
         }
-        fullscreenLoadingBlurb.value!.hide();
+        fullscreenLoadingMessage.value!.hide();
       }
     } catch (error) {
       console.error(error);

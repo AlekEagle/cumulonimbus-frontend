@@ -1,7 +1,7 @@
 <template>
   <div class="content-box-container">
     <ContentBox title="Show fullscreen loading message for 5s" @click="fsm">
-      Show fullscreen loading blurb for 5s
+      Show fullscreen loading message for 5s
     </ContentBox>
     <ContentBox
       title="Show fullscreen loading message forever"

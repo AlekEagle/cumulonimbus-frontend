@@ -43,14 +43,14 @@
       )
     "
   />
-  <FullscreenLoadingBlurb ref="fsb" />
+  <FullscreenLoadingMessage ref="fsb" />
 </template>
 
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import Online from '@/components/Online.vue';
 
   // In-House Modules
@@ -79,7 +79,7 @@
     { isOverDropZone } = useDropZone(fileDropZone, onDrop),
     file = ref<File>(),
     uploadData = ref<Cumulonimbus.Data.SuccessfulUpload>(),
-    fsb = ref<typeof FullscreenLoadingBlurb>();
+    fsb = ref<typeof FullscreenLoadingMessage>();
 
   const dropZoneText = computed(() => {
     if (isOverDropZone.value) return 'Drop it here!';

@@ -11,7 +11,7 @@
       <h1>{{ statusText }}</h1>
     </template>
     <template v-else>
-      <LoadingBlurb />
+      <LoadingMessage />
     </template>
   </EmphasizedBox>
 </template>
@@ -19,7 +19,7 @@
 <script lang="ts" setup>
   // Vue Components
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
 
   // In-House Modules
   import loadWhenOnline from '@/utils/loadWhenOnline';

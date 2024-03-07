@@ -62,7 +62,7 @@
           <p>Add another account.</p>
         </div>
       </div>
-      <LoadingBlurb v-else />
+      <LoadingMessage v-else />
     </EmphasizedBox>
   </Online>
   <ConfirmModal
@@ -93,7 +93,7 @@
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
 
   // In-House Modules

@@ -93,17 +93,17 @@
       </p>
       <p>If you delete this session, you will have to log back in.</p>
     </template>
-    <LoadingBlurb v-else />
+    <LoadingMessage v-else />
   </ConfirmModal>
-  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
+  <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>
 
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
@@ -125,7 +125,7 @@
   import { useOnline } from '@vueuse/core';
 
   const confirmDeleteModal = ref<typeof ConfirmModal>(),
-    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>(),
+    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>(),
     manageSessionModal = ref<typeof ConfirmModal>(),
     online = useOnline(),
     page = ref(0),
@@ -181,23 +181,23 @@
 
   async function onManageSessionChoice(choice: boolean) {
     if (choice) {
-      fullscreenLoadingBlurb.value!.show();
+      fullscreenLoadingMessage.value!.show();
       const status = await sessions.deleteSession(
         selectedSession.value!.id + '',
       );
       if (status) {
         if (selectedSession.value?.id === user.account?.session.id) {
-          fullscreenLoadingBlurb.value!.hide();
+          fullscreenLoadingMessage.value!.hide();
           await manageSessionModal.value!.hide();
           await user.logout();
         } else {
           selectedSession.value = null;
           toast.show('Session deleted.');
           await fetchSessions();
-          fullscreenLoadingBlurb.value!.hide();
+          fullscreenLoadingMessage.value!.hide();
           await manageSessionModal.value!.hide();
         }
-      } else fullscreenLoadingBlurb.value!.hide();
+      } else fullscreenLoadingMessage.value!.hide();
     } else {
       await manageSessionModal.value!.hide();
     }
@@ -218,17 +218,17 @@
       const status = await sessions.deleteSessions(selected.value);
       if (status) {
         if (selected.value.includes(user.account?.session.id + '')) {
-          fullscreenLoadingBlurb.value!.hide();
+          fullscreenLoadingMessage.value!.hide();
           await manageSessionModal.value!.hide();
           await user.logout();
         } else {
           cancelSelection();
           toast.show(`Deleted ${status} sessions.`);
           await fetchSessions();
-          fullscreenLoadingBlurb.value!.hide();
+          fullscreenLoadingMessage.value!.hide();
           await manageSessionModal.value!.hide();
         }
-      } else fullscreenLoadingBlurb.value!.hide();
+      } else fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();
