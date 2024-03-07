@@ -181,8 +181,12 @@
       toast.connectivityOffline();
       return;
     }
-    const res = await domainPicker.sync();
-    if (!res) toast.genericError();
+
+    try {
+      await domainPicker.sync();
+    } catch (error) {
+      toast.genericError();
+    }
     return;
   }
 
