@@ -6,7 +6,7 @@
     >
       <div class="content-box-inner">
         <code class="title" v-text="generateSpaces()" />
-        <Loading />
+        <LoadingSpinner />
         <div class="content-box-content">
           <code v-text="generateSpaces()" />
           <br />
@@ -24,7 +24,7 @@
   >
     <div class="content-box-inner">
       <code class="title" v-text="generateSpaces()" />
-      <Loading />
+      <LoadingSpinner />
       <div class="content-box-content">
         <code v-text="generateSpaces()" />
         <br />
@@ -39,7 +39,7 @@
 <script lang="ts" setup>
   // Vue Components
   import '@/components/ContentBox.vue'; // Importing this to get the CSS
-  import Loading from './Loading.vue';
+  import LoadingSpinner from './LoadingSpinner.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

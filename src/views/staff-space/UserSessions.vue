@@ -84,7 +84,7 @@
       </p>
       <p>If you delete this session, they will have to sign back in.</p>
     </template>
-    <LoadingBlurb v-else />
+    <LoadingMessage spinner v-else />
   </ConfirmModal>
 </template>
 
@@ -92,7 +92,7 @@
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';

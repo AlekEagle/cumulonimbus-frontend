@@ -61,7 +61,7 @@
               <p>Click me to open the file in a new tab.</p>
             </ContentBox>
           </template>
-          <LoadingBlurb v-else />
+          <LoadingMessage spinner v-else />
         </div>
         <Separator v-if="file.data && !file.errored" />
         <div class="content-box-container" v-if="file.uploader">
@@ -83,7 +83,7 @@
         <button @click="fetchFile">Retry</button>
       </div>
     </template>
-    <LoadingBlurb v-else />
+    <LoadingMessage spinner v-else />
   </Online>
   <ConfirmModal
     ref="deleteFileModal"
@@ -149,7 +149,7 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Separator from '@/components/Separator.vue';
 

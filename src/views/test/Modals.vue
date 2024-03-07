@@ -122,19 +122,20 @@
     />
     <ContentBox
       title="Display Fullscreen Loading Blurb Modal"
-      @click="fullscreenLoadingBlurbModal!.show()"
+      @click="fullscreenLoadingMessageModal!.show()"
     >
-      Display Fullscreen Loading Blurb Modal
+      Display Fullscreen Loading Message Modal
     </ContentBox>
     <ConfirmModal
-      ref="fullscreenLoadingBlurbModal"
-      title="Fullscreen Loading Blurb Modal"
-      @submit="fullscreenLoadingBlurbModalHandler"
+      ref="fullscreenLoadingMessageModal"
+      title="Fullscreen Loading Message Modal"
+      @submit="fullscreenLoadingMessageModalHandler"
     >
-      I am a modal that will display a fullscreen loading blurb when confirmed.
+      I am a modal that will display a fullscreen loading message when
+      confirmed.
     </ConfirmModal>
   </div>
-  <FullscreenLoadingBlurb ref="fullscreenLoadingBlurb" />
+  <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>
 
 <script lang="ts" setup>
@@ -143,7 +144,7 @@
   import ContentBox from '@/components/ContentBox.vue';
   import DomainModal from '@/components/DomainModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import FullscreenLoadingBlurb from '@/components/FullscreenLoadingBlurb.vue';
+  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import Modal from '@/components/Modal.vue';
   import Switch from '@/components/Switch.vue';
 
@@ -163,8 +164,8 @@
     meow = ref<typeof ConfirmModal>(),
     formModal = ref<typeof FormModal>(),
     domainModal = ref<typeof DomainModal>(),
-    fullscreenLoadingBlurbModal = ref<typeof ConfirmModal>(),
-    fullscreenLoadingBlurb = ref<typeof FullscreenLoadingBlurb>();
+    fullscreenLoadingMessageModal = ref<typeof ConfirmModal>(),
+    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>();
 
   function meowMeow(choice: boolean) {
     function* allNodes(node: Node): Generator<Node> {
@@ -201,14 +202,14 @@
     else toast.show('Good job! you avoided hell!');
   }
 
-  async function fullscreenLoadingBlurbModalHandler(choice: boolean) {
+  async function fullscreenLoadingMessageModalHandler(choice: boolean) {
     if (!choice) {
-      await fullscreenLoadingBlurbModal.value!.hide();
+      await fullscreenLoadingMessageModal.value!.hide();
     } else {
-      await fullscreenLoadingBlurb.value!.show();
+      await fullscreenLoadingMessage.value!.show();
       await wait(5000);
-      fullscreenLoadingBlurbModal.value!.hide();
-      await fullscreenLoadingBlurb.value!.hide();
+      fullscreenLoadingMessageModal.value!.hide();
+      await fullscreenLoadingMessage.value!.hide();
     }
   }
 </script>

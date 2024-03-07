@@ -129,6 +129,7 @@
         Updated: <code v-text="asOfTime" />
         <br />
         Frontend Version:
+        <!-- @vue-ignore Not sure why it doesn't think $version exists, but trust me, it does. -->
         <code v-text="`v${$version}`" />
         <br />
         Wrapper Version: <code v-text="`v${Cumulonimbus.VERSION}`" />
@@ -137,7 +138,7 @@
         <br />
         Thumbnailer Version: <code v-text="`v${thumbnailVersion}`" />
       </template>
-      <p class="animated-ellipsis" v-else>Loading</p>
+      <p v-else>Loading<AnimatedEllipsis /></p>
     </ContentBox>
     <ContentBox title="Dependencies" grow>
       <code v-html="dependencies" />
@@ -150,6 +151,7 @@
 
 <script setup lang="ts">
   // Vue Components
+  import AnimatedEllipsis from '@/components/AnimatedEllipsis.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import Separator from '@/components/Separator.vue';
 

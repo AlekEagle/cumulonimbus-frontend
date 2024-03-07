@@ -4,7 +4,7 @@
     <h2 v-if="instruction.data">
       Editing setup guide {{ instruction.data.name }}.
     </h2>
-    <h2 class="animated-ellipsis" v-else>Fetching setup guide</h2>
+    <h2 v-else>Fetching setup guide<AnimatedEllipsis /></h2>
   </Online>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff/setup-guides" />
@@ -55,7 +55,7 @@
           <button @click="fetchInstruction">Retry</button>
         </div>
       </template>
-      <LoadingBlurb v-else />
+      <LoadingMessage spinner v-else />
     </div>
   </Online>
   <Modal dismissible title="Info" ref="setupGuideInfoModal">
@@ -77,7 +77,7 @@
         <code v-text="toDateString(new Date(instruction.data.updatedAt))" />
       </p>
     </template>
-    <LoadingBlurb v-else />
+    <LoadingMessage spinner v-else />
   </Modal>
   <Modal
     dismissible
@@ -114,7 +114,7 @@
         required
       />
     </template>
-    <LoadingBlurb v-else />
+    <LoadingMessage spinner v-else />
     <template #additional-buttons>
       <button
         @click="deleteStep"
@@ -203,11 +203,12 @@
 
 <script lang="ts" setup>
   // Vue Components
+  import AnimatedEllipsis from '@/components/AnimatedEllipsis.vue';
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Modal from '@/components/Modal.vue';
   import Online from '@/components/Online.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';

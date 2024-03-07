@@ -61,14 +61,14 @@
               </p>
             </ContentBox>
           </template>
-          <LoadingBlurb v-else />
+          <LoadingMessage spinner v-else />
         </template>
         <div v-else>
           <h1>Something went wrong.</h1>
           <button @click="fetchUser">Retry</button>
         </div>
       </template>
-      <LoadingBlurb v-else />
+      <LoadingMessage spinner v-else />
     </div>
     <Separator
       v-if="otherUser.data && !otherUser.errored && !otherUser.loading"
@@ -387,7 +387,7 @@
   import ContentBox from '@/components/ContentBox.vue';
   import DomainModal from '@/components/DomainModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Separator from '@/components/Separator.vue';
 
@@ -425,9 +425,13 @@
     deleteUserFilesModal = ref<typeof ConfirmModal>(),
     deleteUserModal = ref<typeof ConfirmModal>();
 
-  onMounted(async () => 
-    loadWhenOnline(fetchUser, !otherUser.data ||
-            otherUser.data.id !== router.currentRoute.value.query.id));
+  onMounted(async () =>
+    loadWhenOnline(
+      fetchUser,
+      !otherUser.data ||
+        otherUser.data.id !== router.currentRoute.value.query.id,
+    ),
+  );
 
   async function fetchUser() {
     if (!online.value) {

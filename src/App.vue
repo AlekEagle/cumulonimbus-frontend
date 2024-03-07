@@ -821,23 +821,6 @@
     margin-top: 15px;
   }
 
-  .animated-ellipsis:after {
-    overflow: hidden;
-    display: inline-block;
-    vertical-align: bottom;
-    content: '\2026';
-    animation: ellipsis steps(4, end) 2s infinite;
-    width: 0px;
-    margin-right: 1.55ch;
-  }
-
-  @keyframes ellipsis {
-    to {
-      width: 1.55ch;
-      margin-right: 0;
-    }
-  }
-
   .no-content-container {
     padding: 30px 0;
   }

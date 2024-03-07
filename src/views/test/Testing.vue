@@ -14,8 +14,11 @@
       <option :value="FormEmphasizedBox">Form Emphasized Box</option>
       <option :value="Modals">Modals</option>
       <option :value="Paginator">Paginator</option>
-      <option :value="LoadingBlurb">Loading Blurb</option>
-      <option :value="FullscreenLoadingBlurb">Fullscreen Loading Blurb</option>
+      <option :value="LoadingMessage">Loading Message</option>
+      <option :value="LoadingSpinner">Loading Spinner</option>
+      <option :value="FullscreenLoadingMessage"
+        >Fullscreen Loading Message</option
+      >
       <option :value="SkeletonContentBoxes">Skeleton Content Boxes</option>
     </select>
   </div>
@@ -32,8 +35,9 @@
   import FormEmphasizedBox from '@/views/test/FormEmphasizedBox.vue';
   import Modals from '@/views/test/Modals.vue';
   import Paginator from '@/views/test/Paginator.vue';
-  import LoadingBlurb from '@/views/test/LoadingBlurb.vue';
-  import FullscreenLoadingBlurb from '@/views/test/FullscreenLoadingBlurb.vue';
+  import LoadingMessage from '@/views/test/LoadingMessage.vue';
+  import LoadingSpinner from '@/views/test/LoadingSpinner.vue';
+  import FullscreenLoadingMessage from '@/views/test/FullscreenLoadingMessage.vue';
   import SkeletonContentBoxes from '@/views/test/SkeletonContentBoxes.vue';
 
   // In-House Modules

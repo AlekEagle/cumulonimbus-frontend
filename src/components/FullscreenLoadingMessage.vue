@@ -1,14 +1,14 @@
 <template>
-  <Transition name="fullscreen-loading-blurb">
-    <div v-if="isVisible" class="fullscreen-loading-blurb">
-      <LoadingBlurb />
+  <Transition name="fullscreen-loading-message">
+    <div v-if="isVisible" class="fullscreen-loading-message">
+      <LoadingMessage spinner />
     </div>
   </Transition>
 </template>
 
 <script lang="ts" setup>
   // Vue Components
-  import LoadingBlurb from './LoadingBlurb.vue';
+  import LoadingMessage from './LoadingMessage.vue';
 
   // In-House Modules
   import { wait } from '@/utils/wait';
@@ -38,7 +38,7 @@
 </script>
 
 <style>
-  .fullscreen-loading-blurb {
+  .fullscreen-loading-message {
     width: 100%;
     height: 100%;
     position: fixed;
@@ -56,20 +56,20 @@
     cursor: progress;
   }
 
-  .fullscreen-loading-blurb-enter-active,
-  .fullscreen-loading-blurb-leave-active {
+  .fullscreen-loading-message-enter-active,
+  .fullscreen-loading-message-leave-active {
     transition: opacity 0.4s, backdrop-filter 0.4s, -webkit-backdrop-filter 0.4s;
   }
 
-  .fullscreen-loading-blurb-enter-from,
-  .fullscreen-loading-blurb-leave-to {
+  .fullscreen-loading-message-enter-from,
+  .fullscreen-loading-message-leave-to {
     opacity: 0;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
 
-  .fullscreen-loading-blurb-enter-to,
-  .fullscreen-loading-blurb-leave-from {
+  .fullscreen-loading-message-enter-to,
+  .fullscreen-loading-message-leave-from {
     opacity: 1;
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);

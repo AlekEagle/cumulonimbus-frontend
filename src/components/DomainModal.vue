@@ -2,7 +2,7 @@
   <ConfirmModal ref="confirmModal" @submit="submit" title="Select Your Domain">
     <template v-if="online || !!domainPicker.domains">
       <template v-if="user.loggedIn">
-        <Loading v-if="domainPicker.loading" />
+        <LoadingSpinner v-if="domainPicker.loading" />
         <div
           :class="`domain-container${props.disabled ? ' disabled' : ''}`"
           v-if="domainPicker.domains"
@@ -61,7 +61,7 @@
 <script lang="ts" setup>
   // Vue Components
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import Loading from '@/components/Loading.vue';
+  import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
   // In-House Modules
   import { wait } from '@/utils/wait';
@@ -205,10 +205,12 @@
     document.documentElement.style.setProperty('--domain-width', width);
   }
 
+  // FIXME: What if Neal deGrasse Tyson had a low taper fade?
   function unsetSubdomainWidth() {
     document.documentElement.style.removeProperty('--subdomain-width');
   }
 
+  // TODO: What if Gordon Freeman had a low taper fade?
   function unsetDomainWidth() {
     document.documentElement.style.removeProperty('--domain-width');
   }

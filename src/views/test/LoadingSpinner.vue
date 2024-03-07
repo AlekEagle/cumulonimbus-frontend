@@ -1,11 +1,11 @@
 <template>
   <EmphasizedBox>
-    <Loading />
+    <LoadingSpinner />
   </EmphasizedBox>
 </template>
 
 <script lang="ts" setup>
   // Vue Components
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import Loading from '@/components/Loading.vue';
+  import LoadingSpinner from '@/components/LoadingSpinner.vue';
 </script>

@@ -1,13 +1,17 @@
 <template>
-  <div class="loading-blurb-container">
-    <h1 class="animated-ellipsis" v-text="message" />
-    <Loading />
+  <span v-if="!spinner" class="loading-message"
+    >{{ message }}<AnimatedEllipsis
+  /></span>
+  <div class="loading-message-container" v-else>
+    <h1>{{ message }}<AnimatedEllipsis /></h1>
+    <LoadingSpinner />
   </div>
 </template>
 
 <script lang="ts" setup>
   // Vue Components
-  import Loading from './Loading.vue';
+  import AnimatedEllipsis from './AnimatedEllipsis.vue';
+  import LoadingSpinner from './LoadingSpinner.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
@@ -17,6 +21,10 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
+
+  const props = defineProps<{
+    spinner?: boolean;
+  }>();
 
   const messages = [
     'Loading',
@@ -84,12 +92,16 @@
 </script>
 
 <style>
-  .loading-blurb-container {
+  .loading-message-container {
     display: grid;
     grid: auto auto / auto;
     justify-content: center;
     align-content: center;
     justify-items: center;
+    cursor: progress;
+  }
+
+  .loading-message {
     cursor: progress;
   }
 </style>

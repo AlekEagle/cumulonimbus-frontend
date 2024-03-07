@@ -16,7 +16,7 @@
           width="80"
           height="80"
         />
-        <Loading v-else />
+        <LoadingSpinner v-else />
       </template>
       <img
         v-else
@@ -40,23 +40,14 @@
   >
     <div class="content-box-inner">
       <h3 class="title" v-text="props.file.name ?? props.file.id" />
-      <template v-if="!props.selected">
-        <img
-          :class="`${noPreview ? 'theme-safe' : ''}`"
-          v-if="imgBlobSrc"
-          :src="imgBlobSrc"
-          width="80"
-          height="80"
-        />
-        <Loading v-else />
-      </template>
       <img
-        v-else
-        class="theme-safe"
-        src="@/assets/images/checkmark.svg"
+        :class="`${noPreview ? 'theme-safe' : ''}`"
+        v-if="imgBlobSrc"
+        :src="imgBlobSrc"
         width="80"
         height="80"
       />
+      <LoadingSpinner v-else />
       <div class="content-box-content">
         <p>Saved on Cumulonimbus as <code v-text="props.file.id" /></p>
       </div>
@@ -67,7 +58,7 @@
 <script lang="ts" setup>
   // Vue Components
   import './ContentBox.vue'; // Importing this to get the CSS
-  import Loading from './Loading.vue';
+  import LoadingSpinner from './LoadingSpinner.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper'; // We're considering this in-house because I also wrote it.

@@ -85,7 +85,7 @@
       <code v-text="selectedInstruction.name" />
       <p>{{ selectedInstruction.description }}</p>
     </template>
-    <LoadingBlurb v-else />
+    <LoadingMessage spinner v-else />
   </ConfirmModal>
   <FormModal
     ref="createInstructionModal"
@@ -116,7 +116,7 @@
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import LoadingBlurb from '@/components/LoadingBlurb.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
