@@ -96,8 +96,9 @@
     selecting = ref(false),
     selected = ref<string[]>([]),
     online = useOnline(),
-    confirmModal = ref<typeof ConfirmModal>(),
-    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>();
+    confirmModal = ref<InstanceType<typeof ConfirmModal>>(),
+    fullscreenLoadingMessage =
+      ref<InstanceType<typeof FullscreenLoadingMessage>>();
 
   async function fetchFiles() {
     if (!online.value) {

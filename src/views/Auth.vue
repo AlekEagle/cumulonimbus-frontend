@@ -126,8 +126,8 @@
     action = ref<'login' | 'register'>('login'),
     processing = ref(false),
     toast = toastStore(),
-    loginForm = ref<typeof Form>(),
-    registerForm = ref<typeof Form>(),
+    loginForm = ref<InstanceType<typeof Form>>(),
+    registerForm = ref<InstanceType<typeof Form>>(),
     { isOnline: online } = useNetwork();
 
   async function toggleState() {

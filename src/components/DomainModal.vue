@@ -91,7 +91,7 @@
     },
     disabled: Boolean,
   });
-  const confirmModal = ref<typeof ConfirmModal>(),
+  const confirmModal = ref<InstanceType<typeof ConfirmModal>>(),
     domainPicker = domainPickerStore(),
     toast = toastStore(),
     user = userStore(),

@@ -121,14 +121,13 @@
     </strong>
     <br />
     <div class="file-extension-container">
-      <p @click="editFileExtensionModal!.form.form.elements.extension.focus()">
-        {{ idNoExtension }}.
-      </p>
+      <p @click="extensionInput!.focus()">{{ idNoExtension }}.</p>
       <input
         type="text"
         placeholder="extension"
         :value="idExtension"
         name="extension"
+        ref="extensionInput"
         required
       />
     </div>
@@ -191,10 +190,12 @@
       if (file.data) return file.data.id.split('.').slice(1).join('.');
       return '';
     }),
-    deleteFileModal = ref<typeof ConfirmModal>(),
-    renameFileModal = ref<typeof FormModal>(),
-    editFileExtensionModal = ref<typeof FormModal>(),
-    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>(),
+    deleteFileModal = ref<InstanceType<typeof ConfirmModal>>(),
+    renameFileModal = ref<InstanceType<typeof FormModal>>(),
+    editFileExtensionModal = ref<InstanceType<typeof FormModal>>(),
+    fullscreenLoadingMessage =
+      ref<InstanceType<typeof FullscreenLoadingMessage>>(),
+    extensionInput = ref<HTMLInputElement>(),
     { isSupported: clipboardIsSupported, copy, copied } = useClipboard(),
     { share, isSupported: shareIsSupported } = useShare();
 

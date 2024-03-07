@@ -104,8 +104,9 @@
     { copy } = useClipboard(),
     session = ref<Cumulonimbus.Data.SuccessfulAuth>(),
     processing = ref(false),
-    verifyIdentityModal = ref<typeof FormModal>(),
-    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>(),
+    verifyIdentityModal = ref<InstanceType<typeof FormModal>>(),
+    fullscreenLoadingMessage =
+      ref<InstanceType<typeof FullscreenLoadingMessage>>(),
     OS = ref<string>(
       (navigator as any).userAgentData
         ? (navigator as any).userAgentData.platform

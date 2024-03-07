@@ -99,7 +99,7 @@
     selecting = ref(false),
     selected = ref<string[]>([]),
     online = useOnline(),
-    confirmModal = ref<typeof ConfirmModal>();
+    confirmModal = ref<InstanceType<typeof ConfirmModal>>();
 
   onMounted(async () =>
     loadWhenOnline(fetchUsers, !users.data || users.page !== page.value),

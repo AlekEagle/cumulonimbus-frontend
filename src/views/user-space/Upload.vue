@@ -79,7 +79,7 @@
     { isOverDropZone } = useDropZone(fileDropZone, onDrop),
     file = ref<File>(),
     uploadData = ref<Cumulonimbus.Data.SuccessfulUpload>(),
-    fsb = ref<typeof FullscreenLoadingMessage>();
+    fsb = ref<InstanceType<typeof FullscreenLoadingMessage>>();
 
   const dropZoneText = computed(() => {
     if (isOverDropZone.value) return 'Drop it here!';

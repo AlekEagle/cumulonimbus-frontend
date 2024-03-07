@@ -108,7 +108,7 @@
     selected = ref<string[]>([]),
     selecting = ref(false),
     page = ref(0),
-    confirmModal = ref<typeof ConfirmModal>();
+    confirmModal = ref<InstanceType<typeof ConfirmModal>>();
 
   onMounted(async () => {
     loadWhenOnline(

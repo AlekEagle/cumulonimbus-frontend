@@ -413,17 +413,17 @@
     router = useRouter(),
     toast = toastStore(),
     online = useOnline(),
-    changeUsernameModal = ref<typeof FormModal>(),
-    changeEmailModal = ref<typeof FormModal>(),
-    changeVerifiedModal = ref<typeof ConfirmModal>(),
-    resendVerificationEmailModal = ref<typeof ConfirmModal>(),
-    changePasswordModal = ref<typeof FormModal>(),
-    changeDomainModal = ref<typeof DomainModal>(),
-    changeStaffModal = ref<typeof ConfirmModal>(),
-    changeBanModal = ref<typeof FormModal>(),
-    signOutModal = ref<typeof ConfirmModal>(),
-    deleteUserFilesModal = ref<typeof ConfirmModal>(),
-    deleteUserModal = ref<typeof ConfirmModal>();
+    changeUsernameModal = ref<InstanceType<typeof FormModal>>(),
+    changeEmailModal = ref<InstanceType<typeof FormModal>>(),
+    changeVerifiedModal = ref<InstanceType<typeof ConfirmModal>>(),
+    resendVerificationEmailModal = ref<InstanceType<typeof ConfirmModal>>(),
+    changePasswordModal = ref<InstanceType<typeof FormModal>>(),
+    changeDomainModal = ref<InstanceType<typeof DomainModal>>(),
+    changeStaffModal = ref<InstanceType<typeof ConfirmModal>>(),
+    changeBanModal = ref<InstanceType<typeof FormModal>>(),
+    signOutModal = ref<InstanceType<typeof ConfirmModal>>(),
+    deleteUserFilesModal = ref<InstanceType<typeof ConfirmModal>>(),
+    deleteUserModal = ref<InstanceType<typeof ConfirmModal>>();
 
   onMounted(async () =>
     loadWhenOnline(

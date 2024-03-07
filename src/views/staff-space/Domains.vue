@@ -170,10 +170,10 @@
     selecting = ref(false),
     selected = ref<string[]>([]),
     page = ref(0),
-    manageDomainModal = ref<typeof ConfirmModal>(),
-    bulkDeleteDomainModal = ref<typeof ConfirmModal>(),
-    deleteDomainModal = ref<typeof ConfirmModal>(),
-    createDomainModal = ref<typeof FormModal>(),
+    manageDomainModal = ref<InstanceType<typeof ConfirmModal>>(),
+    bulkDeleteDomainModal = ref<InstanceType<typeof ConfirmModal>>(),
+    deleteDomainModal = ref<InstanceType<typeof ConfirmModal>>(),
+    createDomainModal = ref<InstanceType<typeof FormModal>>(),
     selectedDomain = ref<Cumulonimbus.Data.Domain | null>(null);
 
   async function fetchDomains(): Promise<void> {

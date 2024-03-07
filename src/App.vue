@@ -186,7 +186,7 @@
       }>;
     }),
     hamburgerMenu = ref(false),
-    ptbWarningModal = ref<typeof Modal>();
+    ptbWarningModal = ref<InstanceType<typeof Modal>>();
 
   watch(hamburgerMenu, (val) => {
     if (val) {

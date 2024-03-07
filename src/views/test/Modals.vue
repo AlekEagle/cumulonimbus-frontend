@@ -158,14 +158,15 @@
   import { ref } from 'vue';
 
   const toast = toastStore(),
-    basicModal = ref<typeof Modal>(),
-    basicDismissibleModal = ref<typeof Modal>(),
-    confirmModal = ref<typeof ConfirmModal>(),
-    meow = ref<typeof ConfirmModal>(),
-    formModal = ref<typeof FormModal>(),
-    domainModal = ref<typeof DomainModal>(),
-    fullscreenLoadingMessageModal = ref<typeof ConfirmModal>(),
-    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>();
+    basicModal = ref<InstanceType<typeof Modal>>(),
+    basicDismissibleModal = ref<InstanceType<typeof Modal>>(),
+    confirmModal = ref<InstanceType<typeof ConfirmModal>>(),
+    meow = ref<InstanceType<typeof ConfirmModal>>(),
+    formModal = ref<InstanceType<typeof FormModal>>(),
+    domainModal = ref<InstanceType<typeof DomainModal>>(),
+    fullscreenLoadingMessageModal = ref<InstanceType<typeof ConfirmModal>>(),
+    fullscreenLoadingMessage =
+      ref<InstanceType<typeof FullscreenLoadingMessage>>();
 
   function meowMeow(choice: boolean) {
     function* allNodes(node: Node): Generator<Node> {

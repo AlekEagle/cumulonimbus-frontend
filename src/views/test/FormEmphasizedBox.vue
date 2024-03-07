@@ -37,5 +37,5 @@
   import { ref } from 'vue';
 
   const toast = toastStore(),
-    emphasizedForm = ref<typeof Form>();
+    emphasizedForm = ref<InstanceType<typeof Form>>();
 </script>

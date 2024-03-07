@@ -235,13 +235,13 @@
     toast = toastStore(),
     instruction = instructionStore(),
     instructions = instructionsStore(),
-    manageSetupGuideModal = ref<typeof Modal>(),
-    setupGuideInfoModal = ref<typeof Modal>(),
-    editStepModal = ref<typeof FormModal>(),
-    deleteSetupGuideModal = ref<typeof ConfirmModal>(),
-    editDisplayNameModal = ref<typeof FormModal>(),
-    editDescriptionModal = ref<typeof FormModal>(),
-    editFileModal = ref<typeof FormModal>(),
+    manageSetupGuideModal = ref<InstanceType<typeof Modal>>(),
+    setupGuideInfoModal = ref<InstanceType<typeof Modal>>(),
+    editStepModal = ref<InstanceType<typeof FormModal>>(),
+    deleteSetupGuideModal = ref<InstanceType<typeof ConfirmModal>>(),
+    editDisplayNameModal = ref<InstanceType<typeof FormModal>>(),
+    editDescriptionModal = ref<InstanceType<typeof FormModal>>(),
+    editFileModal = ref<InstanceType<typeof FormModal>>(),
     selectedStep = ref<number>(-1);
 
   async function fetchInstruction() {

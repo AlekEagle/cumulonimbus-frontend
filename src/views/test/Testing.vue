@@ -15,6 +15,7 @@
       <option :value="FullscreenLoadingMessage"
         >Fullscreen Loading Message</option
       >
+      <option :value="FullscreenProgressBar">Fullscreen Progress Bar</option>
       <option :value="LoadingMessage">Loading Message</option>
       <option :value="LoadingSpinner">Loading Spinner</option>
       <option :value="Modals">Modals</option>
@@ -35,6 +36,7 @@
   import ContentBoxes from '@/views/test/ContentBoxes.vue';
   import FormEmphasizedBox from '@/views/test/FormEmphasizedBox.vue';
   import FullscreenLoadingMessage from '@/views/test/FullscreenLoadingMessage.vue';
+  import FullscreenProgressBar from '@/views/test/FullscreenProgressBar.vue';
   import LoadingMessage from '@/views/test/LoadingMessage.vue';
   import LoadingSpinner from '@/views/test/LoadingSpinner.vue';
   import Modals from '@/views/test/Modals.vue';
@@ -69,6 +71,9 @@
           break;
         case '#fullscreen-loading-message':
           currentItem.value = FullscreenLoadingMessage;
+          break;
+        case '#fullscreen-progress-bar':
+          currentItem.value = FullscreenProgressBar;
           break;
         case '#loading-message':
           currentItem.value = LoadingMessage;

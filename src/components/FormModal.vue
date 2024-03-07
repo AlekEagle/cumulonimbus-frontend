@@ -63,8 +63,8 @@
       default: 'Nevermind',
     },
   });
-  const confirmModal = ref<typeof ConfirmModal>(),
-    form = ref<typeof Form>();
+  const confirmModal = ref<InstanceType<typeof ConfirmModal>>(),
+    form = ref<InstanceType<typeof Form>>();
 
   function modalSubmit(choice: boolean) {
     if (!choice) {

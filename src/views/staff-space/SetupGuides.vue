@@ -143,9 +143,9 @@
     selecting = ref(false),
     selected = ref<string[]>([]),
     page = ref(0),
-    manageInstructionModal = ref<typeof ConfirmModal>(),
-    bulkDeleteInstructionModal = ref<typeof ConfirmModal>(),
-    createInstructionModal = ref<typeof FormModal>(),
+    manageInstructionModal = ref<InstanceType<typeof ConfirmModal>>(),
+    bulkDeleteInstructionModal = ref<InstanceType<typeof ConfirmModal>>(),
+    createInstructionModal = ref<InstanceType<typeof FormModal>>(),
     selectedInstruction = ref<Cumulonimbus.Data.Instruction | null>(null);
 
   async function fetchInstructions() {

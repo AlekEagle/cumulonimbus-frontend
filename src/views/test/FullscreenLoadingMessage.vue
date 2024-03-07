@@ -27,7 +27,8 @@
   // External Modules
   import { ref } from 'vue';
 
-  const fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>();
+  const fullscreenLoadingMessage =
+    ref<InstanceType<typeof FullscreenLoadingMessage>>();
 
   async function fsm() {
     await fullscreenLoadingMessage.value!.show();

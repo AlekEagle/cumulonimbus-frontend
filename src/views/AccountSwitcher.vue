@@ -122,8 +122,8 @@
     sessions = sessionsStore(),
     managingAccounts = ref(false),
     selectedAccount = ref<string | null>(null),
-    removeAllAccountsModal = ref<typeof ConfirmModal>(),
-    removeAccountModal = ref<typeof ConfirmModal>(),
+    removeAllAccountsModal = ref<InstanceType<typeof ConfirmModal>>(),
+    removeAccountModal = ref<InstanceType<typeof ConfirmModal>>(),
     redirectLoc = computed(() =>
       router.currentRoute.value.query.redirect
         ? (router.currentRoute.value.query.redirect as string)

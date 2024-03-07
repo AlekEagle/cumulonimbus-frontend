@@ -51,7 +51,7 @@
     closeOnSubmit: Boolean,
     disabled: Boolean,
   });
-  const modal = ref<typeof Modal>();
+  const modal = ref<InstanceType<typeof Modal>>();
 
   function submit(choice: boolean) {
     emit('submit', choice);

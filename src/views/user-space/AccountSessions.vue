@@ -124,9 +124,10 @@
   import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
 
-  const confirmDeleteModal = ref<typeof ConfirmModal>(),
-    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>(),
-    manageSessionModal = ref<typeof ConfirmModal>(),
+  const confirmDeleteModal = ref<InstanceType<typeof ConfirmModal>>(),
+    fullscreenLoadingMessage =
+      ref<InstanceType<typeof FullscreenLoadingMessage>>(),
+    manageSessionModal = ref<InstanceType<typeof ConfirmModal>>(),
     online = useOnline(),
     page = ref(0),
     selected = ref<string[]>([]),

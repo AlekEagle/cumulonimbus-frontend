@@ -123,8 +123,8 @@
     toast = toastStore(),
     selecting = ref(false),
     selected = ref<string[]>([]),
-    confirmDeleteModal = ref<typeof ConfirmModal>(),
-    manageSessionModal = ref<typeof ConfirmModal>(),
+    confirmDeleteModal = ref<InstanceType<typeof ConfirmModal>>(),
+    manageSessionModal = ref<InstanceType<typeof ConfirmModal>>(),
     page = ref(0),
     selectedSession = ref<Cumulonimbus.Data.Session | null>(null);
 

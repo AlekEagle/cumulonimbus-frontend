@@ -379,21 +379,22 @@
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
-  const deleteAccountModal = ref<typeof FormModal>(),
-    deleteFilesModal = ref<typeof ConfirmModal>(),
-    deleteSessionsModal = ref<typeof FormModal>(),
+  const deleteAccountModal = ref<InstanceType<typeof FormModal>>(),
+    deleteFilesModal = ref<InstanceType<typeof ConfirmModal>>(),
+    deleteSessionsModal = ref<InstanceType<typeof FormModal>>(),
     displayPref = displayPrefStore(),
-    displayPrefsModal = ref<typeof Modal>(),
-    domainModal = ref<typeof DomainModal>(),
-    emailFormModal = ref<typeof FormModal>(),
-    fullscreenLoadingMessage = ref<typeof FullscreenLoadingMessage>(),
+    displayPrefsModal = ref<InstanceType<typeof Modal>>(),
+    domainModal = ref<InstanceType<typeof DomainModal>>(),
+    emailFormModal = ref<InstanceType<typeof FormModal>>(),
+    fullscreenLoadingMessage =
+      ref<InstanceType<typeof FullscreenLoadingMessage>>(),
     online = useOnline(),
-    passwordFormModal = ref<typeof FormModal>(),
-    resendVerificationEmailModal = ref<typeof ConfirmModal>(),
+    passwordFormModal = ref<InstanceType<typeof FormModal>>(),
+    resendVerificationEmailModal = ref<InstanceType<typeof ConfirmModal>>(),
     router = useRouter(),
     toast = toastStore(),
     user = userStore(),
-    usernameFormModal = ref<typeof FormModal>();
+    usernameFormModal = ref<InstanceType<typeof FormModal>>();
 
   async function updateUsername(data: { username: string; password: string }) {
     if (!online.value) return toast.connectivityOffline();
