@@ -54,4 +54,10 @@
     border-radius: 0.5rem;
     transition: width 0.1s ease-in-out;
   }
+
+  @media only screen and (max-width: 768px) {
+    .progress-bar-container {
+      width: 50vw;
+    }
+  }
 </style>
