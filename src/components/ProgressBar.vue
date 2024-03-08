@@ -33,6 +33,7 @@
     font-size: 1.5rem;
     text-align: center;
     font-weight: bold;
+    font-family: var(--font-heading);
   }
 
   .progress-bar-container {
