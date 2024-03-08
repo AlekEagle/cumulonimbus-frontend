@@ -111,31 +111,34 @@
     try {
       if (isChromium.value) {
         // Create our own damn form data stream because FormData doesn't support being read as a stream.
-        const boundary = `${'-'.repeat(27)}${Math.pow(2, 20)}`;
-        const contentTypeHeader = `multipart/form-data; boundary=${boundary}`;
-        const readableStream = new ReadableStream({
+        const boundary = `${'-'.repeat(27)}${Math.pow(2, 20)}`,
+          contentTypeHeader = `multipart/form-data; boundary=${boundary}`,
+          boundaryBegin = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${
+            file.value!.name
+          }"\r\nContent-Type: ${file.value!.type}\r\n\r\n`,
+          boundaryEnd = `\r\n--${boundary}--`;
+        const multipartFormDataStream = new ReadableStream({
           async start(controller) {
-            controller.enqueue(
-              new TextEncoder().encode(
-                `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${
-                  file.value!.name
-                }"\r\nContent-Type: ${file.value!.type}\r\n\r\n`,
-              ),
-            );
+            controller.enqueue(new TextEncoder().encode(boundaryBegin));
             const reader = file.value!.stream().getReader();
             while (true) {
               const { done, value } = await reader.read();
               if (done) break;
               controller.enqueue(value);
             }
-            controller.enqueue(new TextEncoder().encode(`\r\n--${boundary}--`));
+            controller.enqueue(new TextEncoder().encode(boundaryEnd));
             controller.close();
           },
         });
         const transformStream = new TransformStream({
           async transform(chunk, controller) {
             progressBytes.value += chunk.byteLength;
-            progress.value = (progressBytes.value / file.value!.size) * 100;
+            progress.value =
+              (progressBytes.value /
+                (file.value!.size +
+                  boundaryBegin.length +
+                  boundaryEnd.length)) *
+              100;
             controller.enqueue(chunk);
           },
         });
@@ -147,7 +150,7 @@
             'Authorization': user.account!.session.token,
             'Content-Type': contentTypeHeader,
           },
-          body: readableStream.pipeThrough(transformStream),
+          body: multipartFormDataStream.pipeThrough(transformStream),
           // @ts-ignore - This is a valid option, but TypeScript doesn't know about it.
           duplex: 'half',
         });
