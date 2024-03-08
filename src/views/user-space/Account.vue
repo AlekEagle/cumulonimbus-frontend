@@ -18,37 +18,27 @@
         :src="profileIcon"
         nowrap
       >
-        <p>
-          User ID: <code>{{ user.account!.user.id }}</code>
-        </p>
-        <p>
-          Email: <code>{{ user.account!.user.email }}</code>
-        </p>
+        <p>User ID: <code v-text="user.account!.user.id" /></p>
+        <p>Email: <code v-text="user.account!.user.email" /></p>
         <p>
           Verified:
-          <code>{{
-            user.account!.user.verifiedAt
+          <code
+            v-text="user.account!.user.verifiedAt
               ? toDateString(new Date(user.account.user!.verifiedAt))
-              : 'Not yet...'
-          }}</code>
+              : 'Not yet...'"
+          />
         </p>
-        <p>
-          Domain: <code>{{ user.domain }}</code>
-        </p>
+        <p>Domain: <code v-text="user.domain" /></p>
         <p>
           Last updated at:
-          <code>{{
-            toDateString(new Date(user.account.user!.updatedAt))
-          }}</code>
+          <code v-text="toDateString(new Date(user.account.user!.updatedAt))" />
         </p>
         <p>
           Created at:
-          <code>{{
-            toDateString(new Date(user.account.user!.createdAt))
-          }}</code>
+          <code v-text="toDateString(new Date(user.account.user!.updatedAt))" />
         </p>
         <p>
-          Staff: <code>{{ user.account.user!.staff ? 'Yes' : 'No' }}</code>
+          Staff: <code v-text="user.account.user!.staff ? 'Yes' : 'No'" />
         </p>
       </ContentBox>
     </div>

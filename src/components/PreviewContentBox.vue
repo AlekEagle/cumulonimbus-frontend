@@ -10,7 +10,7 @@
       <h3 class="title" v-text="props.file.name ?? props.file.id" />
       <template v-if="!props.selected">
         <img
-          :class="`${noPreview ? 'theme-safe' : ''}`"
+          :class="{ 'theme-safe': noPreview }"
           v-if="imgBlobSrc"
           :src="imgBlobSrc"
           width="80"
@@ -41,7 +41,7 @@
     <div class="content-box-inner">
       <h3 class="title" v-text="props.file.name ?? props.file.id" />
       <img
-        :class="`${noPreview ? 'theme-safe' : ''}`"
+        :class="{ 'theme-safe': noPreview }"
         v-if="imgBlobSrc"
         :src="imgBlobSrc"
         width="80"

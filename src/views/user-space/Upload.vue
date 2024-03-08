@@ -11,7 +11,7 @@
       <div
         class="file-drop-zone"
         ref="fileDropZone"
-        @click="fileDialog!.click()"
+        @click="openFileDialog()"
         tabindex="0"
       >
         <h1 v-text="dropZoneText" />
@@ -31,18 +31,6 @@
       </template>
     </div>
   </EmphasizedBox>
-  <input
-    type="file"
-    class="file-dialog"
-    ref="fileDialog"
-    @change="
-      onDrop(
-        ($event.target as HTMLInputElement).files !== null
-          ? Array.from(($event.target as HTMLInputElement).files as FileList)
-          : null,
-      )
-    "
-  />
   <FullscreenLoadingMessage ref="fsm">
     <ProgressBar :progress="progress" v-if="isChromium" />
   </FullscreenLoadingMessage>
@@ -67,11 +55,15 @@
 
   // External Modules
   import { computed, ref, onMounted } from 'vue';
-  import { useOnline, useClipboard, useDropZone } from '@vueuse/core';
+  import {
+    useOnline,
+    useClipboard,
+    useDropZone,
+    useFileDialog,
+  } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
   const fileDropZone = ref<HTMLElement | null>(null),
-    fileDialog = ref<HTMLInputElement>(),
     router = useRouter(),
     toast = toastStore(),
     user = userStore(),
@@ -79,6 +71,7 @@
     online = useOnline(),
     { copied, copy, isSupported: clipboardIsSupported } = useClipboard(),
     { isOverDropZone } = useDropZone(fileDropZone, onDrop),
+    { open: openFileDialog, onChange } = useFileDialog(),
     file = ref<File>(),
     uploadData = ref<Cumulonimbus.Data.SuccessfulUpload>(),
     fsm = ref<InstanceType<typeof FullscreenLoadingMessage>>(),
@@ -92,6 +85,8 @@
     }),
     // @ts-ignore
     isChromium = computed(() => !!window.chrome);
+
+  onChange((files) => (files ? onDrop(Array.from(files)) : void 0));
 
   function onDrop(files: File[] | null) {
     if (!files || files.length < 1) return;

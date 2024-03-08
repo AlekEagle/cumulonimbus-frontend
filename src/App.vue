@@ -11,7 +11,7 @@
         <p>Cumulonimbus</p>
       </div>
     </RouterLink>
-    <nav :class="hamburgerMenu ? 'active' : ''">
+    <nav :class="{ active: hamburgerMenu }">
       <div
         @click="hamburgerMenu = !hamburgerMenu"
         @keydown="navMenuKeydown"
@@ -341,6 +341,8 @@
     --background: #fff;
     --foreground: #000;
     --link-color: #0059ff;
+    --logo-color-top: #7084e6;
+    --logo-color-bottom: #00faff;
     --logo-shadow: #818181;
     --ui-code-background: #ddd;
     --ui-background: #f3f3f3;

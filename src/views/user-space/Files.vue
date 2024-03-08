@@ -81,7 +81,6 @@
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   // Store Modules
-  import { displayPrefStore } from '@/stores/displayPref';
   import { filesStore } from '@/stores/user-space/files';
   import { toastStore } from '@/stores/toast';
 
@@ -91,7 +90,6 @@
 
   const files = filesStore(),
     page = ref(0),
-    displayPref = displayPrefStore(),
     toast = toastStore(),
     selecting = ref(false),
     selected = ref<string[]>([]),
