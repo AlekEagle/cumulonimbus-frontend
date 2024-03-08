@@ -108,8 +108,15 @@
       );
       return;
     }
+    if (file.value.size > 100000000)
+      return toast.show(
+        'The file you are trying to upload is too large. The maximum file size is 100MB.',
+        7.5e3,
+      );
     try {
       if (isChromium.value) {
+        progress.value = 0;
+        progressBytes.value = 0;
         // Create our own damn form data stream because FormData doesn't support being read as a stream.
         const boundary = `${'-'.repeat(27)}${Math.pow(2, 20)}`,
           contentTypeHeader = `multipart/form-data; boundary=${boundary}`,
@@ -144,6 +151,7 @@
         });
         uploadData.value = undefined;
         await fsm.value!.show();
+        // TODO: handle errors from the upload endpoint
         const data = await fetch(`${cumulonimbusOptions.baseURL}/upload`, {
           method: 'POST',
           headers: {
