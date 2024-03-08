@@ -62,7 +62,7 @@
           <p>Add another account.</p>
         </div>
       </div>
-      <LoadingMessage v-else />
+      <LoadingMessage spinner v-else />
     </EmphasizedBox>
   </Online>
   <ConfirmModal

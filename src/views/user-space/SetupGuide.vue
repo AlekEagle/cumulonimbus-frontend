@@ -17,14 +17,14 @@
               {{ step }}
             </ContentBox>
           </template>
-          <LoadingMessage v-else />
+          <LoadingMessage spinner v-else />
         </template>
         <div v-else>
           <h1>Something went wrong.</h1>
           <button @click="fetchInstruction">Retry</button>
         </div>
       </template>
-      <LoadingMessage v-else />
+      <LoadingMessage spinner v-else />
     </div>
   </Online>
   <FormModal

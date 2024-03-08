@@ -93,7 +93,7 @@
       </p>
       <p>If you delete this session, you will have to log back in.</p>
     </template>
-    <LoadingMessage v-else />
+    <LoadingMessage spinner v-else />
   </ConfirmModal>
   <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>

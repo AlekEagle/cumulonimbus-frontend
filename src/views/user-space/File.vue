@@ -61,14 +61,14 @@
               <p>Click me to open the file in a new tab.</p>
             </ContentBox>
           </template>
-          <LoadingMessage v-else />
+          <LoadingMessage spinner v-else />
         </template>
         <div v-else>
           <h1>Something went wrong.</h1>
           <button @click="fetchFile">Retry</button>
         </div>
       </template>
-      <LoadingMessage v-else />
+      <LoadingMessage spinner v-else />
     </div>
   </Online>
   <ConfirmModal

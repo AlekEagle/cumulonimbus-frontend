@@ -11,7 +11,7 @@
       <h1>{{ statusText }}</h1>
     </template>
     <template v-else>
-      <LoadingMessage />
+      <LoadingMessage spinner />
     </template>
   </EmphasizedBox>
 </template>

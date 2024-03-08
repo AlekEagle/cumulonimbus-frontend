@@ -140,7 +140,7 @@
       <h1>You're offline, to manage your account please go back online.</h1>
     </div>
   </template>
-  <LoadingMessage v-else />
+  <LoadingMessage spinner v-else />
   <Modal dismissible title="Display Preferences" ref="displayPrefsModal">
     <p>Change the look and feel of Cumulonimbus to your liking.</p>
     <br />
