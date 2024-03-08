@@ -248,10 +248,4 @@
   .upload-buttons-container button {
     margin: 5px;
   }
-
-  .file-dialog {
-    visibility: hidden;
-    width: 0;
-    height: 0;
-  }
 </style>
