@@ -12,7 +12,7 @@
         <Switch
           v-for="sw in killSwitches.data.items"
           @change="handleKillSwitchToggle(sw.id)"
-          :checked="sw.state"
+          :checked="!sw.state"
         >
           {{ sw.name }}
         </Switch>
@@ -70,7 +70,7 @@
     try {
       let killSwitch = killSwitches.data?.items.find((sw) => sw.id === id);
       if (killSwitch)
-        if (killSwitch?.state) {
+        if (!killSwitch?.state) {
           await killSwitches.disableKillSwitch(id);
           toast.show(`Disabled ${killSwitch.name}.`);
         } else {
