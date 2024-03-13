@@ -43,7 +43,10 @@
   });
 
   // Emit
-  const emit = defineEmits(['update:checked', 'defer']);
+  const emit = defineEmits<{
+    (e: 'update:checked', value: boolean): void;
+    (e: 'defer', event: Event, cancelDefer: () => void): void;
+  }>();
 
   // Data
   const currentInstance = getCurrentInstance(),
@@ -73,22 +76,20 @@
     },
   );
 
+  // In case the parent component wants to cancel the defer.
+  function cancelDefer() {
+    duringDefer.value = false;
+  }
+
   function handleClick(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.disabled) return;
     if (defer.value) {
       duringDefer.value = true;
       event.preventDefault();
-      emit('defer', event);
+      emit('defer', event, cancelDefer);
     } else input.blur();
   }
-
-  // In case the parent component wants to cancel the defer.
-  function cancelDefer() {
-    duringDefer.value = false;
-  }
-
-  defineExpose({ cancelDefer });
 </script>
 
 <style>
