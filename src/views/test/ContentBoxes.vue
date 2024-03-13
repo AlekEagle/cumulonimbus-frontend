@@ -79,6 +79,10 @@
     >
       Content Box w/ title, content & click handler
     </ContentBox>
+    <ContentBox title="Content Box w/ Switch">
+      <Switch> The Switch in question </Switch>
+      <Switch>Another Impostor Switch!</Switch>
+    </ContentBox>
     <ContentBox
       title="Disabled Content Box w/ link"
       to="/testing/hush/dont/touch/sink"
@@ -102,8 +106,9 @@
     >
       Lonely Content Box
     </ContentBox>
-    <SkeletonContentBoxes :count="1" no-container />
   </div>
+  <Separator />
+  <SkeletonContentBoxes :count="5" />
 </template>
 
 <script lang="ts" setup>
@@ -111,6 +116,7 @@
   import ContentBox from '@/components/ContentBox.vue';
   import Separator from '@/components/Separator.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import Switch from '@/components/Switch.vue';
 
   // In-House Modules
   import cumulonimbusIcon from '@/assets/images/Cumulonimbus.svg';
