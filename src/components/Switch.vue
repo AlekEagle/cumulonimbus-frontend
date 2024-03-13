@@ -2,12 +2,15 @@
   <div class="switch-container">
     <label>
       <input
-        class="toggle-state"
+        :class="{
+          'toggle-state': true,
+          'during-defer': duringDefer,
+        }"
         type="checkbox"
         v-model="checked"
-        :disabled="props.disabled"
+        :disabled="props.disabled || duringDefer"
         :name="props.name"
-        @click="($event.target as HTMLInputElement).blur()"
+        @click="handleClick"
       />
       <div class="toggle">
         <div class="indicator" />
@@ -30,7 +33,7 @@
   // No Store Modules to import here.
 
   // External Modules
-  import { ref, watch } from 'vue';
+  import { ref, watch, computed, getCurrentInstance } from 'vue';
 
   // Props
   const props = defineProps({
@@ -40,16 +43,26 @@
   });
 
   // Emit
-  const emit = defineEmits(['update:checked']);
+  const emit = defineEmits(['update:checked', 'defer']);
 
   // Data
-  const checked = ref(props.checked);
+  const currentInstance = getCurrentInstance(),
+    checked = ref(props.checked),
+    duringDefer = ref(false),
+    defer = computed(() => {
+      if (!currentInstance) return false;
+      return !!currentInstance.vnode.props?.onDefer;
+    });
 
   // Watchers
   watch(
     () => props.checked,
     (value) => {
       checked.value = value;
+      // If the switch is in a deferred state, we need to reset it.
+      if (duringDefer.value) {
+        duringDefer.value = false;
+      }
     },
   );
 
@@ -59,6 +72,23 @@
       emit('update:checked', value);
     },
   );
+
+  function handleClick(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.disabled) return;
+    if (defer.value) {
+      duringDefer.value = true;
+      event.preventDefault();
+      emit('defer', event);
+    } else input.blur();
+  }
+
+  // In case the parent component wants to cancel the defer.
+  function cancelDefer() {
+    duringDefer.value = false;
+  }
+
+  defineExpose({ cancelDefer });
 </script>
 
 <style>
@@ -136,7 +166,8 @@
   }
 
   .switch-container label:active:hover .toggle-state + .toggle .indicator,
-  .switch-container label:focus-within .toggle-state + .toggle .indicator {
+  .switch-container label:focus-within .toggle-state + .toggle .indicator,
+  .switch-container label .toggle-state.during-defer + .toggle .indicator {
     transform: translate3d(-65%, 0, 0);
   }
 
@@ -148,6 +179,11 @@
   .switch-container
     label:focus-within
     .toggle-state:checked
+    + .toggle
+    .indicator,
+  .switch-container
+    label
+    .toggle-state.during-defer:checked
     + .toggle
     .indicator {
     transform: translate3d(15%, 0, 0);

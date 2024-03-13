@@ -3,7 +3,7 @@
   <h2>Global feature kill switches and their current status.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff" />
-    <button @click="disableAllKillSwitches">Disable All</button>
+    <button @click="disableAllKillSwitches">Enable All</button>
   </div>
 
   <EmphasizedBox>
@@ -70,7 +70,7 @@
     try {
       let killSwitch = killSwitches.data?.items.find((sw) => sw.id === id);
       if (killSwitch)
-        if (!killSwitch?.state) {
+        if (killSwitch?.state) {
           await killSwitches.disableKillSwitch(id);
           toast.show(`Disabled ${killSwitch.name}.`);
         } else {
