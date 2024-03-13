@@ -1,9 +1,13 @@
 <template>
   <h1>Kill Switches</h1>
-  <h2>Global feature kill switches and their current status.</h2>
+  <h2>
+    Global feature kill switches and their current status.
+    <br />
+    (Ctrl+click to toggle without confirmation.)
+  </h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff" />
-    <button @click="disableAllKillSwitches">Enable All</button>
+    <button @click="disableAllKillSwitches">Restore Endpoints</button>
   </div>
 
   <EmphasizedBox>
@@ -11,7 +15,13 @@
       <template v-if="killSwitches.data">
         <Switch
           v-for="sw in killSwitches.data.items"
-          @change="handleKillSwitchToggle(sw.id)"
+          :title="`Endpoints guarded by ${sw.name} are ${
+            sw.state ? 'not' : 'currently'
+          } available.`"
+          @defer="
+            (event, cancelDefer) =>
+              handleKillSwitchToggle(sw, event, cancelDefer)
+          "
           :checked="!sw.state"
         >
           {{ sw.name }}
@@ -20,16 +30,37 @@
       <LoadingMessage spinner v-else />
     </Online>
   </EmphasizedBox>
+
+  <ConfirmModal
+    ref="confirmModal"
+    :title="`${selectedKillSwitch?.state ? 'Enable' : 'Disable'} ${
+      selectedKillSwitch?.name
+    }?`"
+  >
+    <template #default>
+      <h4>
+        {{ selectedKillSwitch?.state ? 'Enabling' : 'Disabling' }}
+        <code v-text="selectedKillSwitch?.name" /> will
+        {{ selectedKillSwitch?.state ? 'ENABLE' : 'DISABLE' }} all endpoints
+        guarded by it for standard users.
+        <br />
+        <br />
+        Are you sure you want to proceed?
+      </h4>
+    </template>
+  </ConfirmModal>
 </template>
 
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
+  import ConfirmModal from '@/components/ConfirmModal.vue';
   import Online from '@/components/Online.vue';
   import Switch from '@/components/Switch.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
 
   // In-House Modules
+  import Cumulonimbus from 'cumulonimbus-wrapper';
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   // Store Modules
@@ -43,7 +74,9 @@
 
   const killSwitches = killSwitchesStore(),
     online = useOnline(),
-    toast = toastStore();
+    toast = toastStore(),
+    selectedKillSwitch = ref<Cumulonimbus.Data.KillSwitch | null>(null),
+    confirmModal = ref<InstanceType<typeof ConfirmModal>>();
 
   async function fetchKillSwitchesState() {
     if (!online.value) {
@@ -62,27 +95,33 @@
     loadWhenOnline(fetchKillSwitchesState, !killSwitches.data);
   });
 
-  async function handleKillSwitchToggle(id: number) {
+  async function handleKillSwitchToggle(
+    killSwitch: Cumulonimbus.Data.KillSwitch,
+    event: MouseEvent,
+    cancelDefer: () => void,
+  ) {
     if (!online.value) {
       toast.connectivityOffline();
+      cancelDefer();
+      return;
+    }
+    selectedKillSwitch.value = killSwitch;
+    if (!event.ctrlKey && !(await confirmModal.value?.confirm())) {
+      cancelDefer();
       return;
     }
     try {
-      let killSwitch = killSwitches.data?.items.find((sw) => sw.id === id);
-      if (killSwitch)
-        if (killSwitch?.state) {
-          await killSwitches.disableKillSwitch(id);
-          toast.show(`Disabled ${killSwitch.name}.`);
-        } else {
-          await killSwitches.enableKillSwitch(id);
-          toast.show(`Enabled ${killSwitch.name}.`);
-        }
-      else {
-        toast.clientError();
+      if (killSwitch.state) {
+        await killSwitches.disableKillSwitch(killSwitch.id);
+        toast.show(`Enabled ${killSwitch.name} endpoints.`);
+      } else {
+        await killSwitches.enableKillSwitch(killSwitch.id);
+        toast.show(`Disabled ${killSwitch.name} endpoints.`);
       }
     } catch (e) {
       console.error(e);
       toast.clientError();
+      cancelDefer();
     }
   }
 
@@ -93,10 +132,18 @@
     }
     try {
       await killSwitches.disableAllKillSwitches();
-      toast.show('Disabled all kill switches.');
+      toast.show(
+        'Disabled all kill switches. All endpoints are now accessible.',
+      );
     } catch (e) {
       console.error(e);
       toast.clientError();
     }
   }
 </script>
+
+<style scoped>
+  .switch-container {
+    text-align: left;
+  }
+</style>

@@ -45,7 +45,7 @@
   // Emit
   const emit = defineEmits<{
     (e: 'update:checked', value: boolean): void;
-    (e: 'defer', event: Event, cancelDefer: () => void): void;
+    (e: 'defer', event: MouseEvent, cancelDefer: () => void): void;
   }>();
 
   // Data
@@ -81,7 +81,7 @@
     duringDefer.value = false;
   }
 
-  function handleClick(event: Event) {
+  function handleClick(event: MouseEvent) {
     const input = event.target as HTMLInputElement;
     if (input.disabled) return;
     if (defer.value) {
@@ -105,6 +105,8 @@
     --switch-knob: #343434;
     --switch-track: #545454;
     --switch-shadow: #000000;
+    --switch-knob-disabled: #141414;
+    --switch-track-disabled: #343434;
   }
 
   .switch-container {
@@ -136,8 +138,17 @@
     border-radius: 15px;
     overflow: hidden;
     cursor: pointer;
-    background-color: var(--switch-track);
-    transition: background-color 0.25s;
+    background: linear-gradient(
+      to right,
+      var(--logo-color-top) 0%,
+      var(--logo-color-bottom) 50%,
+      var(--switch-track) 50%,
+      var(--switch-track) 100%
+    );
+    background-size: 150% 100%;
+    background-repeat: no-repeat;
+    background-position: 100%;
+    transition: background-position 0.25s;
   }
 
   .switch-container label .toggle-state {
@@ -145,52 +156,73 @@
     position: absolute;
   }
 
-  .switch-container label .toggle-state + .toggle .indicator {
+  .switch-container label .toggle-state ~ .toggle .indicator {
     height: 100%;
-    width: 200%;
+    width: 50%;
     background-color: var(--switch-knob);
     border-radius: 15px;
-    transform: translate3d(-75%, 0, 0);
+    transform: translate(0, 0);
     box-shadow: 0px 0px 10px 0px var(--switch-shadow);
-    transition: transform 0.4s cubic-bezier(0.85, 0.05, 0.18, 1.35),
-      background-color 0.25s, box-shadow 0.25s;
+    transition: transform 0.25s, background-color 0.25s;
   }
 
-  .switch-container label .toggle-state:disabled + .toggle {
-    background-color: var(--switch-track-disabled);
+  .switch-container label .toggle-state:checked ~ .toggle {
+    background-position: 0%;
+  }
+
+  .switch-container label .toggle-state:disabled ~ .toggle {
+    background-image: linear-gradient(
+      to right,
+      var(--logo-color-top) 0%,
+      var(--logo-color-bottom) 50%,
+      var(--switch-track-disabled) 50%,
+      var(--switch-track-disabled) 100%
+    );
     cursor: not-allowed;
   }
 
-  .switch-container label .toggle-state:disabled + .toggle .indicator {
+  .switch-container label .toggle-state:disabled ~ .toggle .indicator {
     background-color: var(--switch-knob-disabled);
     box-shadow: none;
   }
 
-  .switch-container label:active:hover .toggle-state + .toggle .indicator,
-  .switch-container label:focus-within .toggle-state + .toggle .indicator,
-  .switch-container label .toggle-state.during-defer + .toggle .indicator {
-    transform: translate3d(-65%, 0, 0);
+  .switch-container label:active:hover .toggle-state ~ .toggle,
+  .switch-container label:focus-within .toggle-state ~ .toggle,
+  .switch-container label .toggle-state.during-defer ~ .toggle {
+    background-position: 87%;
+  }
+
+  .switch-container label:active:hover .toggle-state ~ .toggle .indicator,
+  .switch-container label:focus-within .toggle-state ~ .toggle .indicator,
+  .switch-container label .toggle-state.during-defer ~ .toggle .indicator {
+    transform: translate(12%, 0);
+  }
+
+  .switch-container label:active:hover .toggle-state:checked ~ .toggle,
+  .switch-container label:focus-within .toggle-state:checked ~ .toggle,
+  .switch-container label .toggle-state.during-defer:checked ~ .toggle {
+    background-position: 12%;
   }
 
   .switch-container
     label:active:hover
     .toggle-state:checked
-    + .toggle
+    ~ .toggle
     .indicator,
   .switch-container
     label:focus-within
     .toggle-state:checked
-    + .toggle
+    ~ .toggle
     .indicator,
   .switch-container
     label
     .toggle-state.during-defer:checked
-    + .toggle
+    ~ .toggle
     .indicator {
-    transform: translate3d(15%, 0, 0);
+    transform: translate(87%, 0);
   }
 
-  .switch-container label .toggle-state:checked + .toggle .indicator {
-    transform: translate3d(25%, 0, 0);
+  .switch-container label .toggle-state:checked ~ .toggle .indicator {
+    transform: translate(100%, 0);
   }
 </style>
