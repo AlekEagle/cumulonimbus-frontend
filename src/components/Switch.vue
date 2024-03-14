@@ -140,7 +140,7 @@
     cursor: pointer;
     background: linear-gradient(
       to right,
-      var(--logo-color-top) 0%,
+      var(--logo-color-top) 7%,
       var(--logo-color-bottom) 50%,
       var(--switch-track) 50%,
       var(--switch-track) 100%
@@ -173,7 +173,7 @@
   .switch-container label .toggle-state:disabled ~ .toggle {
     background-image: linear-gradient(
       to right,
-      var(--logo-color-top) 0%,
+      var(--logo-color-top) 7%,
       var(--logo-color-bottom) 50%,
       var(--switch-track-disabled) 50%,
       var(--switch-track-disabled) 100%
