@@ -145,5 +145,15 @@
 <style scoped>
   .switch-container {
     text-align: left;
+    border: 1px solid var(--ui-border);
+    border-width: 1px 0;
+  }
+
+  .switch-container:first-child {
+    border-top-width: 0;
+  }
+
+  .switch-container:last-child {
+    border-bottom-width: 0;
   }
 </style>
