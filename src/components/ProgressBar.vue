@@ -2,8 +2,8 @@
   <span class="progress-indicator">{{ props.progress.toFixed(0) }}%</span>
   <div class="progress-bar-container">
     <div
-      class="progress-bar"
-      :style="{ width: `calc(${props.progress}% - 4px)` }"
+      :class="{ 'progress-bar': true, 'empty': props.progress === 0 }"
+      :style="{ width: `calc(${props.progress}% - 6px)` }"
     />
   </div>
 </template>
@@ -37,7 +37,7 @@
   }
 
   .progress-bar-container {
-    width: 25vw;
+    width: 50vw;
     height: 1rem;
     min-width: 100px;
     background-color: var(--ui-background);
@@ -47,11 +47,38 @@
   }
 
   .progress-bar {
-    margin: 2px 0 0 2px;
-    height: calc(100% - 4px);
-    background-color: var(--link-color);
-    box-shadow: 0 0 1rem var(--link-color);
+    margin: 3px 0 0 3px;
+    height: calc(100% - 6px);
+    background: linear-gradient(
+      to right,
+      var(--logo-color-top),
+      var(--logo-color-bottom)
+    );
+    transform-style: preserve-3d;
     border-radius: 0.5rem;
     transition: width 0.1s ease-in-out;
+    background-size: 50vw;
+  }
+
+  .progress-bar::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(
+      to right,
+      var(--logo-color-top),
+      var(--logo-color-bottom)
+    );
+    filter: blur(3px);
+    border-radius: inherit;
+    background-size: inherit;
+  }
+
+  .progress-bar.empty {
+    background: none;
+  }
+
+  .progress-bar.empty::before {
+    background: none;
   }
 </style>

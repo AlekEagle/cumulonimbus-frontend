@@ -197,6 +197,15 @@ export const router = createRouter({
         requiresStaff: true,
       },
     },
+    {
+      path: '/staff/kill-switches',
+      name: 'staff-space-kill-switches',
+      component: () => import('@/views/staff-space/KillSwitches.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true,
+      },
+    },
     // Testing routes
     {
       path: '/testing/hush/dont/touch',

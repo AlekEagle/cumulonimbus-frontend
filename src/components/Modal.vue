@@ -1,7 +1,7 @@
 <template>
   <transition name="modal">
     <div
-      :class="`modal-container${props.dismissible ? ' dismissible' : ''}`"
+      :class="{ 'modal-container': true, 'dismissible': props.dismissible }"
       v-if="visible"
       @click.self="__hide"
     >

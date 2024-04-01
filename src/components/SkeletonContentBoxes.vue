@@ -1,7 +1,7 @@
 <template>
   <div class="content-box-container" v-if="!props.noContainer">
     <div
-      class="content-box skeleton click-target"
+      class="content-box skeleton"
       v-for="() in new Array(props.count || displayPref.itemsPerPage).fill(0)"
     >
       <div class="content-box-inner">
@@ -18,7 +18,7 @@
     </div>
   </div>
   <div
-    class="content-box skeleton click-target"
+    class="content-box skeleton"
     v-for="() in new Array(props.count || displayPref.itemsPerPage).fill(0)"
     v-else
   >
