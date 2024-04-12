@@ -134,6 +134,13 @@
       I am a modal that will display a fullscreen loading message when
       confirmed.
     </ConfirmModal>
+    <ContentBox
+      title="Display Second Factor Modal"
+      @click="secondFactorModal!.show()"
+    >
+      Display Second Factor Modal
+    </ContentBox>
+    <SecondFactorModal ref="secondFactorModal" />
   </div>
   <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>
@@ -146,6 +153,7 @@
   import FormModal from '@/components/FormModal.vue';
   import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import Modal from '@/components/Modal.vue';
+  import SecondFactorModal from '@/components/SecondFactorModal.vue';
   import Switch from '@/components/Switch.vue';
 
   // In-House Modules
@@ -164,6 +172,7 @@
     meow = ref<InstanceType<typeof ConfirmModal>>(),
     formModal = ref<InstanceType<typeof FormModal>>(),
     domainModal = ref<InstanceType<typeof DomainModal>>(),
+    secondFactorModal = ref<InstanceType<typeof SecondFactorModal>>(),
     fullscreenLoadingMessageModal = ref<InstanceType<typeof ConfirmModal>>(),
     fullscreenLoadingMessage =
       ref<InstanceType<typeof FullscreenLoadingMessage>>();

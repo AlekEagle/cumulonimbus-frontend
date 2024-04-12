@@ -190,6 +190,18 @@ export const toastStore = defineStore('toast', () => {
     await show('No, that is not the password.');
   };
 
+  const serviceUnavailable = async () => {
+    await show(
+      'It looks like Cumulonimbus is currently unavailable. Please try again later.',
+    );
+  };
+
+  const secondFactorRequired = async () => {
+    await show(
+      'You must have a second factor enabled to access this resource.',
+    );
+  };
+
   // The function to display a toast regarding client internet connectivity
   const connectivityOffline = async () => {
     await show('It seems like you are offline. Please try again later.');
@@ -225,6 +237,8 @@ export const toastStore = defineStore('toast', () => {
     userNotFound,
     emailNotVerified,
     invalidPassword,
+    serviceUnavailable,
+    secondFactorRequired,
     connectivityOffline,
     connectivityChangeOnline,
     connectivityChangeOffline,
