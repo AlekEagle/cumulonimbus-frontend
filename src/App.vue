@@ -88,6 +88,8 @@
     </template>
   </Modal>
 
+  <SecondFactorModal />
+
   <Transition name="toast">
     <div class="toast-box" v-text="toast.text" v-if="toast.visible" />
   </Transition>
@@ -97,6 +99,7 @@
   // Vue Components
   import ThemeManager from '@/components/ThemeManager.vue';
   import Modal from '@/components/Modal.vue';
+  import SecondFactorModal from '@/components/SecondFactorModal.vue';
 
   // In-House Modules
   import newTabIcon from '@/assets/images/newtab.svg';

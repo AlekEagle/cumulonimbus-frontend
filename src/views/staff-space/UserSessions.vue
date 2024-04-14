@@ -1,18 +1,23 @@
 <template>
   <h1>Active Sessions</h1>
-  <h2>Active user sessions.</h2>
+  <h2>
+    {{ sessions.owner ? sessions.owner.username : 'A user' }}'s active sessions.
+  </h2>
   <div class="quick-action-buttons-container">
-    <BackButton fallback="/staff/users" />
+    <BackButton :fallback="`/staff/user?id=${sessions.owner?.id}`" />
     <button
       v-if="!selecting"
       @click="selecting = true"
       :disabled="sessions.loading"
     >
-      Bulk Delete
+      Select...
+    </button>
+    <button v-if="!selecting" @click="deleteAllSessionsModal!.show()">
+      Delete All
     </button>
     <template v-else>
       <button @click="cancelSelection" :disabled="sessions.loading">
-        Cancel
+        Cancel Selection
       </button>
       <button @click="confirmDeleteModal!.show()" :disabled="sessions.loading">
         Delete Selected
@@ -70,10 +75,10 @@
     ref="manageSessionModal"
     title="Manage Session"
     @submit="onManageSessionChoice"
+    :confirm-button="'Delete'"
   >
     <template v-if="!!selectedSession">
-      <code v-text="selectedSession!.name" />
-      <br />
+      <h2 v-text="selectedSession.name" />
       <p>
         Created At:
         <code>{{ toDateString(new Date(selectedSession.id * 1000)) }}</code>
@@ -126,7 +131,8 @@
     confirmDeleteModal = ref<InstanceType<typeof ConfirmModal>>(),
     manageSessionModal = ref<InstanceType<typeof ConfirmModal>>(),
     page = ref(0),
-    selectedSession = ref<Cumulonimbus.Data.Session | null>(null);
+    selectedSession = ref<Cumulonimbus.Data.Session | null>(null),
+    deleteAllSessionsModal = ref<InstanceType<typeof ConfirmModal>>();
 
   async function fetchSessions() {
     if (!online.value) {
@@ -160,13 +166,13 @@
       initPage,
       !sessions.data ||
         sessions.page !== page.value ||
-        sessions.sessionOwner?.id !== router.currentRoute.value.query.id,
+        sessions.owner?.id !== router.currentRoute.value.query.id,
     ),
   );
 
   async function initPage() {
     try {
-      sessions.sessionOwner = (
+      sessions.owner = (
         await user.client!.getUser(router.currentRoute.value.query.id as string)
       ).result;
     } catch (e) {
@@ -235,3 +241,10 @@
     selected.value = [];
   }
 </script>
+
+<style scoped>
+  .modal-content h2 {
+    margin: 0 0 0.5rem 0;
+    font-weight: bolder;
+  }
+</style>

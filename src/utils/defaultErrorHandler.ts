@@ -4,7 +4,11 @@ import { toastStore } from '@/stores/toast';
 import { userStore } from '@/stores/user';
 import { Router } from 'vue-router';
 
-export type ErrorHandledReason = 'NOT_RESPONSE_ERROR' | 'NOT_HANDLED' | 'OK';
+export type ErrorHandledReason =
+  | 'NOT_RESPONSE_ERROR'
+  | 'NOT_HANDLED'
+  | 'SECOND_FACTOR_CHALLENGE_REQUIRED'
+  | 'OK';
 export type HandledErrors =
   | 'BANNED_ERROR'
   | 'RATELIMITED_ERROR'
@@ -51,8 +55,7 @@ export default async function defaultErrorHandler(
     // If the error is being overridden, return NOT_HANDLED.
     if (override.includes('SECOND_FACTOR_CHALLENGE_REQUIRED_ERROR'))
       return 'NOT_HANDLED';
-    // TODO: Handle second factor challenge.
-    throw new Error('Second factor challenge not implemented.');
+    return 'SECOND_FACTOR_CHALLENGE_REQUIRED';
   }
 
   switch (error.code) {

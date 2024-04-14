@@ -153,6 +153,15 @@ export const router = createRouter({
       },
     },
     {
+      path: '/staff/user/second-factors',
+      name: 'staff-space-user-second-factors',
+      component: () => import('@/views/staff-space/UserSecondFactors.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true,
+      },
+    },
+    {
       path: '/staff/files',
       name: 'staff-space-files',
       component: () => import('@/views/staff-space/Files.vue'),

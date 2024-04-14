@@ -20,17 +20,16 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(null),
     loading = ref(false),
     errored = ref(false),
-    sessionOwner = ref<Cumulonimbus.Data.User | null>(null),
+    owner = ref<Cumulonimbus.Data.User | null>(null),
     page = ref(0);
 
   async function getSessions(p: number): Promise<boolean> {
     if (user.client === null) return false;
-    if (sessionOwner.value === null) return false;
+    if (owner.value === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.getSessions({
-        user: sessionOwner.value.id,
+      const result = await user.client!.getUserSessions(owner.value.id, {
         limit: displayPref.itemsPerPage,
         offset: p * displayPref.itemsPerPage,
       });
@@ -43,7 +42,7 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
         await defaultErrorHandler(error, router, ['INVALID_SESSION_ERROR'])
       ) {
         case 'OK':
-          // If the error was handled, return true to signify success.
+          // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
           return false;
         case 'NOT_HANDLED':
           // Handle special cases.
@@ -67,14 +66,11 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
 
   async function deleteSession(id: string): Promise<boolean> {
     if (user.client === null) return false;
-    if (sessionOwner.value === null) return false;
+    if (owner.value === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      await user.client!.deleteSession({
-        session: id,
-        user: sessionOwner.value.id,
-      });
+      await user.client!.deleteUserSession(owner.value.id, id);
       return true;
     } catch (error) {
       errored.value = true;
@@ -104,14 +100,11 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
 
   async function deleteSessions(ids: string[]): Promise<number> {
     if (user.client === null) return -1;
-    if (sessionOwner.value === null) return -1;
+    if (owner.value === null) return -1;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteSessions(
-        ids,
-        sessionOwner.value.id,
-      );
+      const result = await user.client!.deleteUserSessions(owner.value.id, ids);
       return result.result.count!;
     } catch (error) {
       errored.value = true;
@@ -136,7 +129,7 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     data,
     loading,
     errored,
-    sessionOwner,
+    owner,
     page,
     getSessions,
     deleteSession,
