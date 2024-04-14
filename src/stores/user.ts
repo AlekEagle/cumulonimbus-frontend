@@ -6,6 +6,7 @@ import persistPiniaRef from '@/utils/persistPiniaRef';
 // Other Store Modules
 import { domainPickerStore } from './domainPicker';
 import { toastStore } from './toast';
+import { secondFactorChallengerStore } from './secondFactorChallenger';
 
 // External Modules
 import { defineStore } from 'pinia';
@@ -90,7 +91,9 @@ export const userStore = defineStore('user', () => {
     // The toast store.
     toast = toastStore(),
     // Domain picker store.
-    domainPicker = domainPickerStore();
+    domainPicker = domainPickerStore(),
+    // Second factor challenger store.
+    secondFactorChallenger = secondFactorChallengerStore();
 
   // -- Functions --
 
@@ -219,6 +222,48 @@ export const userStore = defineStore('user', () => {
         case 'OK':
           // If the error was handled, return false.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+          try {
+            // Use the static login function to create a new client with the provided credentials.
+            client.value = await Cumulonimbus.login(
+              username,
+              SFR,
+              remember,
+              cumulonimbusOptions,
+            );
+            // Get the session and user information.
+            account.value = {
+              session: {
+                ...(await client.value.getSelfSession()).result,
+                token: (client.value as any).token,
+              },
+              user: (await client.value.getSelf()).result,
+            };
+            // Add the account to the account switcher.
+            // Use the username value from the account information, as the provided username may be different (an email, incorrect capitalization, etc).
+            addAccount(
+              account.value.user.username,
+              account.value.session.token,
+            );
+            // If nothing went wrong:
+            // Return true to signify success.
+            return true;
+          } catch (error) {
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false.
+                return false;
+              case 'NOT_HANDLED':
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
         case 'NOT_RESPONSE_ERROR':
         default:
