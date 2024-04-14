@@ -41,6 +41,7 @@ export const secondFactorsStore = defineStore(
         });
         page.value = p;
         data.value = result.result;
+        return true;
       } catch (error) {
         errored.value = true;
         // Pass our error to the default error handler and check if it was handled.
@@ -57,7 +58,6 @@ export const secondFactorsStore = defineStore(
       } finally {
         loading.value = false;
       }
-      return true;
     }
 
     async function deleteSecondFactor(
@@ -72,12 +72,12 @@ export const secondFactorsStore = defineStore(
         await user.client!.deleteUserSecondFactor(owner.value.id, id, password);
         // Technically, we will never reach this point, but it's here just in case the API doesn't require a challenge.
         await getSecondFactors(page.value);
-        toast.show('Second factor deleted.');
         return true;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
+            errored.value = true;
             // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
             return false;
           case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
@@ -95,7 +95,6 @@ export const secondFactorsStore = defineStore(
                 SFR,
               );
               await getSecondFactors(page.value);
-              toast.show('Second factor deleted.');
               return true;
             } catch (error) {
               errored.value = true;
@@ -114,6 +113,7 @@ export const secondFactorsStore = defineStore(
           case 'NOT_HANDLED':
           case 'NOT_RESPONSE_ERROR':
           default:
+            errored.value = true;
             // If the error wasn't handled, throw it.
             throw error;
         }
@@ -138,7 +138,6 @@ export const secondFactorsStore = defineStore(
         );
         // Technically, we will never reach this point, but it's here just in case the API doesn't require a challenge.
         await getSecondFactors(page.value);
-        toast.show(`${result.result.count} second factors deleted.`);
         return result.result.count;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
@@ -161,7 +160,6 @@ export const secondFactorsStore = defineStore(
                 SFR,
               );
               await getSecondFactors(page.value);
-              toast.show(`${result.result.count} second factors deleted.`);
               return result.result.count;
             } catch (error) {
               errored.value = true;
@@ -200,7 +198,6 @@ export const secondFactorsStore = defineStore(
         );
         // Technically, we will never reach this point, but it's here just in case the API doesn't require a challenge.
         await getSecondFactors(page.value);
-        toast.show(`${result.result.count} second factors deleted.`);
         return result.result.count;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
@@ -222,7 +219,6 @@ export const secondFactorsStore = defineStore(
                 SFR,
               );
               await getSecondFactors(page.value);
-              toast.show(`${result.result.count} second factors deleted.`);
               return result.result.count;
             } catch (error) {
               errored.value = true;

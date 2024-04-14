@@ -40,7 +40,7 @@ export const secondFactorChallengerStore = defineStore(
       if (isChallenging.value) {
         throw new Error("We're already challenging a second factor!");
       }
-      return new Promise((res, rej) => {
+      return new Promise((res) => {
         // Setup the challenge
         challenge.value = challengeError;
         selectedMethod.value = availableMethods.value[0];
@@ -50,14 +50,10 @@ export const secondFactorChallengerStore = defineStore(
         // Wait for the user to respond
         waitUntil(challengeResponse, (response) => response !== undefined).then(
           () => {
-            if (challengeResponse.value === null) {
-              rej(new Error('No response was provided.'));
-            } else {
-              res(challengeResponse.value as Cumulonimbus.SecondFactorResponse);
-              isChallenging.value = false;
-              selectedMethod.value = null;
-              challenge.value = null;
-            }
+            res(challengeResponse.value as Cumulonimbus.SecondFactorResponse);
+            isChallenging.value = false;
+            selectedMethod.value = null;
+            challenge.value = null;
           },
         );
       });

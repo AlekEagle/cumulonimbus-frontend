@@ -75,7 +75,7 @@
   <!-- TODO: Add a rename option and endpoint -->
   <ConfirmModal
     ref="manageSecondFactorModal"
-    title="Manage Second Factor"
+    :title="selectedFactor?.name || 'Loading...'"
     @submit="manageSecondFactor"
     deny-button="Close"
     confirm-button="Remove"
@@ -300,10 +300,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .modal-content h2 {
-    margin: 0 0 0.5rem 0;
-    font-weight: bolder;
-  }
-</style>

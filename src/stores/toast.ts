@@ -202,6 +202,10 @@ export const toastStore = defineStore('toast', () => {
     );
   };
 
+  const invalidSecondFactorResponse = async () => {
+    await show('Your second factor response was incorrect or has expired.');
+  };
+
   // The function to display a toast regarding client internet connectivity
   const connectivityOffline = async () => {
     await show('It seems like you are offline. Please try again later.');
@@ -239,6 +243,7 @@ export const toastStore = defineStore('toast', () => {
     invalidPassword,
     serviceUnavailable,
     secondFactorRequired,
+    invalidSecondFactorResponse,
     connectivityOffline,
     connectivityChangeOnline,
     connectivityChangeOffline,

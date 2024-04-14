@@ -19,45 +19,39 @@
               </p>
               <p>
                 Verified:
-                <code>{{
-                  otherUser.data!.verifiedAt
+                <code
+                  v-text="otherUser.data!.verifiedAt
                     ? toDateString(new Date(otherUser.data!.verifiedAt))
-                    : 'Not yet...'
-                }}</code>
+                    : 'Not yet...'"
+                />
               </p>
               <p>
                 Domain:
-                <code
-                  >{{
-                    otherUser.data.subdomain
-                      ? `${otherUser.data.subdomain}.`
-                      : ''
-                  }}{{ otherUser.data.domain }}</code
-                >
+                <code v-text="domain" />
               </p>
               <p>
                 Created at:
-                <code>{{
-                  toDateString(new Date(otherUser.data.createdAt))
-                }}</code>
+                <code
+                  v-text="toDateString(new Date(otherUser.data.createdAt))"
+                />
               </p>
               <p>
                 Last Updated:
-                <code>{{
-                  toDateString(new Date(otherUser.data.updatedAt))
-                }}</code>
+                <code
+                  v-text="toDateString(new Date(otherUser.data.updatedAt))"
+                />
               </p>
               <p>
                 Banned at:
-                <code>{{
-                  otherUser.data.bannedAt
-                    ? toDateString(new Date(otherUser.data.bannedAt))
-                    : 'Not yet...'
-                }}</code>
+                <code
+                  v-text="otherUser.data!.bannedAt
+                    ? toDateString(new Date(otherUser.data!.bannedAt))
+                    : 'Not yet...'"
+                />
               </p>
               <p>
                 Staff:
-                <code>{{ otherUser.data.staff ? 'Yes' : 'No' }}</code>
+                <code v-text="otherUser.data.staff ? 'Yes' : 'No'" />
               </p>
             </ContentBox>
           </template>
@@ -180,6 +174,17 @@
         </p>
       </ContentBox>
       <ContentBox
+        title="Manage User Second Factors"
+        :src="gearIcon"
+        theme-safe
+        :to="`/staff/user/second-factors?id=${otherUser.data.id}`"
+      >
+        <p>
+          Manage <code>{{ otherUser.data.username }}</code
+          >'s second factors.
+        </p>
+      </ContentBox>
+      <ContentBox
         title="Sign User Out Everywhere"
         :src="gearIcon"
         theme-safe
@@ -238,6 +243,22 @@
       autocomplete="off"
       :disabled="otherUser.loading"
     />
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
   </FormModal>
   <FormModal
     ref="changeEmailModal"
@@ -253,8 +274,24 @@
       autocomplete="off"
       :disabled="otherUser.loading"
     />
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
   </FormModal>
-  <ConfirmModal
+  <FormModal
     ref="changeVerifiedModal"
     title="Change Verified Status"
     @submit="updateVerified"
@@ -263,10 +300,25 @@
     <p>
       Are you sure you want to
       {{ otherUser.data?.verifiedAt ? 'unverify' : 'verify' }}
-      <code>{{ otherUser.data?.username }}</code
-      >?
+      <code v-text="otherUser.data?.username" />'s email?
     </p>
-  </ConfirmModal>
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
+  </FormModal>
   <ConfirmModal
     ref="resendVerificationEmailModal"
     title="Resend Verification Email"
@@ -275,8 +327,7 @@
   >
     <p>
       Are you sure you want to send a verification email to
-      <code>{{ otherUser.data?.username }}</code
-      >?
+      <code v-text="otherUser.data?.username" />?
     </p>
     <p>If they have already requested one, it will be invalidated.</p>
   </ConfirmModal>
@@ -289,7 +340,7 @@
     <input
       type="password"
       placeholder="New Password"
-      name="password"
+      name="newPassword"
       required
       autocomplete="off"
       :disabled="otherUser.loading"
@@ -298,7 +349,23 @@
     <input
       type="password"
       placeholder="Confirm Password"
-      name="confirm"
+      name="confirmNewPassword"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
       required
       autocomplete="off"
       :disabled="otherUser.loading"
@@ -311,7 +378,7 @@
     :domain="otherUser.data?.domain || ''"
     :subdomain="otherUser.data?.subdomain"
   />
-  <ConfirmModal
+  <FormModal
     ref="changeStaffModal"
     title="Change Staff Status"
     @submit="updateStaff"
@@ -319,9 +386,25 @@
   >
     <p>
       Are you sure you want to {{ otherUser.data?.staff ? 'revoke' : 'grant' }}
-      <code>{{ otherUser.data?.username }}</code> staff status?
+      <code v-text="otherUser.data?.username" /> staff status?
     </p>
-  </ConfirmModal>
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
+  </FormModal>
   <FormModal
     ref="changeBanModal"
     title="Change Ban Status"
@@ -340,6 +423,22 @@
       placeholder="Provide your reasoning..."
       required
     />
+    <br v-if="!otherUser.data?.bannedAt" />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
   </FormModal>
   <ConfirmModal
     ref="signOutModal"
@@ -349,35 +448,67 @@
   >
     <p>
       Are you sure you want to sign
-      <code>{{ otherUser.data?.username }}</code> out everywhere?
+      <code v-text="otherUser.data?.username" /> out everywhere?
     </p>
   </ConfirmModal>
-  <ConfirmModal
+  <FormModal
     ref="deleteUserFilesModal"
     title="Delete User Files"
     @submit="deleteUserFiles"
     :disabled="otherUser.loading"
   >
     <p>
-      Are you sure you want to delete <code>{{ otherUser.data?.username }}</code
-      >'s files?
+      Are you sure you want to delete
+      <code v-text="otherUser.data?.username" />'s files?
     </p>
-  </ConfirmModal>
-  <ConfirmModal
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
+  </FormModal>
+  <FormModal
     ref="deleteUserModal"
     title="Delete User"
     @submit="deleteUser"
     :disabled="otherUser.loading"
   >
     <p>
-      Are you sure you want to delete <code>{{ otherUser.data?.username }}</code
-      >'s account?
+      Are you sure you want to delete
+      <code v-text="otherUser.data?.username" />'s account?
     </p>
     <p>
-      This will delete all of <code>{{ otherUser.data?.username }}</code
-      >'s files and account.
+      This will delete all of <code v-text="otherUser.data?.username" />'s files
+      and account.
     </p>
-  </ConfirmModal>
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
+  </FormModal>
 </template>
 
 <script lang="ts" setup>
@@ -399,31 +530,41 @@
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   // Store Modules
+  import { userStore } from '@/stores/user';
   import { otherUserStore } from '@/stores/staff-space/user';
   import { toastStore } from '@/stores/toast';
   import { usersStore } from '@/stores/staff-space/users';
 
   // External Modules
-  import { ref, onMounted } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
-  const users = usersStore(),
+  const user = userStore(),
+    users = usersStore(),
     otherUser = otherUserStore(),
     router = useRouter(),
     toast = toastStore(),
     online = useOnline(),
     changeUsernameModal = ref<InstanceType<typeof FormModal>>(),
     changeEmailModal = ref<InstanceType<typeof FormModal>>(),
-    changeVerifiedModal = ref<InstanceType<typeof ConfirmModal>>(),
+    changeVerifiedModal = ref<InstanceType<typeof FormModal>>(),
     resendVerificationEmailModal = ref<InstanceType<typeof ConfirmModal>>(),
     changePasswordModal = ref<InstanceType<typeof FormModal>>(),
     changeDomainModal = ref<InstanceType<typeof DomainModal>>(),
-    changeStaffModal = ref<InstanceType<typeof ConfirmModal>>(),
+    changeStaffModal = ref<InstanceType<typeof FormModal>>(),
     changeBanModal = ref<InstanceType<typeof FormModal>>(),
     signOutModal = ref<InstanceType<typeof ConfirmModal>>(),
-    deleteUserFilesModal = ref<InstanceType<typeof ConfirmModal>>(),
-    deleteUserModal = ref<InstanceType<typeof ConfirmModal>>();
+    deleteUserFilesModal = ref<InstanceType<typeof FormModal>>(),
+    deleteUserModal = ref<InstanceType<typeof FormModal>>();
+
+  const domain = computed(() =>
+    otherUser.data
+      ? otherUser.data.subdomain
+        ? `${otherUser.data.subdomain}.${otherUser.data.domain}`
+        : otherUser.data.domain
+      : '',
+  );
 
   onMounted(async () =>
     loadWhenOnline(
@@ -446,13 +587,19 @@
     }
   }
 
-  async function updateUsername(data: { username: string }) {
+  async function updateUsername({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
-      const status = await otherUser.updateUsername(data.username);
+      const status = await otherUser.updateUsername(username, password);
       if (status) {
         toast.show('Username updated.');
         changeUsernameModal.value!.hide();
@@ -463,13 +610,19 @@
     }
   }
 
-  async function updateEmail(data: { email: string }) {
+  async function updateEmail({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
-      const status = await otherUser.updateEmail(data.email);
+      const status = await otherUser.updateEmail(email, password);
       if (status) {
         toast.show('Email updated.');
         changeEmailModal.value!.hide();
@@ -480,19 +633,15 @@
     }
   }
 
-  async function updateVerified(choice: boolean) {
+  async function updateVerified({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
-    if (!choice) {
-      changeVerifiedModal.value!.hide();
-      return;
-    }
     try {
       const status = otherUser.data?.verifiedAt
-        ? await otherUser.unverifyEmail()
-        : await otherUser.verifyEmail();
+        ? await otherUser.unverifyEmail(password)
+        : await otherUser.verifyEmail(password);
       if (status) {
         toast.show('Verified status updated.');
         changeVerifiedModal.value!.hide();
@@ -524,15 +673,24 @@
     }
   }
 
-  async function updatePassword(data: { password: string; confirm: string }) {
+  async function updatePassword({
+    password,
+    newPassword,
+    confirmNewPassword,
+  }: {
+    password: string;
+    newPassword: string;
+    confirmNewPassword: string;
+  }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
       const status = await otherUser.updatePassword(
-        data.password,
-        data.confirm,
+        newPassword,
+        confirmNewPassword,
+        password,
       );
       if (status) {
         toast.show('Password updated.');
@@ -561,21 +719,19 @@
     }
   }
 
-  async function updateStaff(choice: boolean) {
+  async function updateStaff({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
-    if (!choice) {
-      changeStaffModal.value!.hide();
-      return;
-    }
     try {
       const status = otherUser.data?.staff
-        ? await otherUser.revokeStaff()
-        : await otherUser.grantStaff();
+        ? await otherUser.revokeStaff(password)
+        : await otherUser.grantStaff(password);
       if (status) {
-        toast.show('Staff updated.');
+        toast.show(
+          `Staff status ${otherUser.data?.staff ? 'revoked' : 'granted'}.`,
+        );
         changeStaffModal.value!.hide();
       }
     } catch (error) {
@@ -584,17 +740,23 @@
     }
   }
 
-  async function updateBan(data: { reason: string }) {
+  async function updateBan({
+    reason,
+    password,
+  }: {
+    reason: string;
+    password: string;
+  }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
       const status = otherUser.data?.bannedAt
-        ? await otherUser.unbanUser()
-        : await otherUser.banUser(data.reason);
+        ? await otherUser.unbanUser(password)
+        : await otherUser.banUser(reason, password);
       if (status) {
-        toast.show('Ban updated.');
+        toast.show(`${otherUser.data?.bannedAt ? 'Unbanned' : 'Banned'} user.`);
         changeBanModal.value!.hide();
       }
     } catch (error) {
@@ -614,8 +776,8 @@
     }
     try {
       const status = await otherUser.deleteAllSessions();
-      if (status) {
-        toast.show('Signed out.');
+      if (status > -1) {
+        toast.show(`Signed out ${status} session${status === 1 ? '' : 's'}.`);
         signOutModal.value!.hide();
       }
     } catch (error) {
@@ -624,19 +786,15 @@
     }
   }
 
-  async function deleteUserFiles(choice: boolean) {
+  async function deleteUserFiles({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
-    if (!choice) {
-      deleteUserFilesModal.value!.hide();
-      return;
-    }
     try {
-      const status = await otherUser.deleteAllFiles();
-      if (status) {
-        toast.show('Files deleted.');
+      const status = await otherUser.deleteAllFiles(password);
+      if (status > -1) {
+        toast.show(`Deleted ${status} file${status === 1 ? '' : 's'}.`);
         deleteUserFilesModal.value!.hide();
       }
     } catch (error) {
@@ -645,17 +803,13 @@
     }
   }
 
-  async function deleteUser(choice: boolean) {
+  async function deleteUser({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
-    if (!choice) {
-      deleteUserModal.value!.hide();
-      return;
-    }
     try {
-      const status = await otherUser.deleteUser();
+      const status = await otherUser.deleteUser(password);
       if (status) {
         toast.show('User deleted.');
         otherUser.data = null;

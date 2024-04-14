@@ -226,6 +226,11 @@ export const userStore = defineStore('user', () => {
           const SFR = await secondFactorChallenger.startChallenge(
             error as Cumulonimbus.SecondFactorChallengeRequiredError,
           );
+
+          if (SFR === null) {
+            return false;
+          }
+
           try {
             // Use the static login function to create a new client with the provided credentials.
             client.value = await Cumulonimbus.login(
@@ -499,7 +504,6 @@ export const userStore = defineStore('user', () => {
     // Try to change the username.
     try {
       // Change the username. Use the password to reauthenticate.
-      // Only provide the username, that way we aren't changing data that we don't need to.
       account.value!.user = (
         await client.value!.editSelfUsername(username, password)
       ).result;
@@ -512,6 +516,48 @@ export const userStore = defineStore('user', () => {
         case 'OK':
           // If the error was handled, return false.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            // Change the username. Use the second factor response we received to reauthenticate.
+            account.value!.user = (
+              await client.value!.editSelfUsername(username, SFR)
+            ).result;
+            // If nothing went wrong:
+            // Return true to signify success.
+            return true;
+          } catch (error) {
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false.
+                return false;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'USER_EXISTS_ERROR':
+                    toast.show('Someone already has that username!');
+                    return false;
+                  case 'INVALID_USERNAME_ERROR':
+                    toast.show('Invalid username!');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
@@ -546,7 +592,6 @@ export const userStore = defineStore('user', () => {
     // Try to change the email.
     try {
       // Change the email. Use the password to reauthenticate.
-      // Only provide the email, that way we aren't changing data that we don't need to.
       account.value!.user = (
         await client.value!.editSelfEmail(email, password)
       ).result;
@@ -559,6 +604,48 @@ export const userStore = defineStore('user', () => {
         case 'OK':
           // If the error was handled, return false.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            // Change the email. Use the second factor response we received to reauthenticate.
+            account.value!.user = (
+              await client.value!.editSelfEmail(email, SFR)
+            ).result;
+            // If nothing went wrong:
+            // Return true to signify success.
+            return true;
+          } catch (error) {
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false.
+                return false;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'USER_EXISTS_ERROR':
+                    toast.show('Someone already has that email!');
+                    return false;
+                  case `INVALID_EMAIL_ERROR`:
+                    toast.show('Invalid email!');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
@@ -693,6 +780,41 @@ export const userStore = defineStore('user', () => {
         case 'OK':
           // If the error was handled, return false.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            // Change the password. Use the second factor response we received to reauthenticate.
+            account.value!.user = (
+              await client.value!.editSelfPassword(
+                newPassword,
+                confirmNewPassword,
+                SFR,
+              )
+            ).result;
+            // If nothing went wrong:
+            // Return true to signify success.
+            return true;
+          } catch (error) {
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false.
+                return false;
+              case 'NOT_HANDLED':
+              // No special cases to handle here.
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
@@ -809,6 +931,32 @@ export const userStore = defineStore('user', () => {
         case 'OK':
           // If the error was handled, return -1 to represent us handling the error.
           return -1;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return -1;
+          }
+
+          try {
+            // Delete all files and return the number of deleted files.
+            return (await client.value!.deleteAllSelfFiles(SFR)).result.count!;
+          } catch (error) {
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return -1 to represent us handling the error.
+                return -1;
+              case 'NOT_HANDLED':
+              // No special cases to handle here.
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
@@ -861,6 +1009,41 @@ export const userStore = defineStore('user', () => {
         case 'OK':
           // If the error was handled, return false.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            // Delete the account. Use the second factor response we received to reauthenticate.
+            await client.value!.deleteSelf(SFR);
+            // If nothing went wrong:
+            // Reset the account value.
+            account.value = null;
+            // Reset the client value.
+            client.value = null;
+            // Remove the username from the account switcher.
+            removeAccount(username);
+            // Return true to signify success.
+            return true;
+          } catch (error) {
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false.
+                return false;
+              case 'NOT_HANDLED':
+              // No special cases to handle here.
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {

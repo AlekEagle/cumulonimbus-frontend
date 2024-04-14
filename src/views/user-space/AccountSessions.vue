@@ -73,25 +73,26 @@
   </ConfirmModal>
   <ConfirmModal
     ref="manageSessionModal"
-    title="Manage Session"
+    :title="selectedSession ? selectedSession.name : 'Loading Session...'"
     @submit="onManageSessionChoice"
     :disabled="sessions.loading"
   >
     <template v-if="!!selectedSession">
-      <code v-text="selectedSession!.name" />
-      <br />
-      <strong v-if="selectedSession!.id === user.account?.session.id">
-        This is your current session.
-      </strong>
+      <p v-if="selectedSession!.id === user.account?.session.id">
+        <strong> This is your current session. </strong>
+      </p>
       <p>
         Created At:
-        <code>{{ toDateString(new Date(selectedSession.id * 1000)) }}</code>
+        <code v-text="toDateString(new Date(selectedSession.createdAt))" />
       </p>
       <p>
         Expires At:
-        <code>{{ toDateString(new Date(selectedSession.exp * 1000)) }}</code>
+        <code v-text="toDateString(new Date(selectedSession.exp * 1000))" />
       </p>
-      <p>If you delete this session, you will have to log back in.</p>
+      <p>
+        Last Used:
+        <code v-text="toDateString(new Date(selectedSession.usedAt))" />
+      </p>
     </template>
     <LoadingMessage spinner v-else />
   </ConfirmModal>
@@ -114,6 +115,7 @@
   import infoIcon from '@/assets/images/info.svg';
   import loadWhenOnline from '@/utils/loadWhenOnline';
   import toDateString from '@/utils/toDateString';
+  import toLogin from '@/utils/toLogin';
 
   // Store Modules
   import { sessionsStore } from '@/stores/user-space/sessions';
@@ -122,6 +124,7 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   import { useOnline } from '@vueuse/core';
 
   const confirmDeleteModal = ref<InstanceType<typeof ConfirmModal>>(),
@@ -133,6 +136,7 @@
     selected = ref<string[]>([]),
     selectedSession = ref<Cumulonimbus.Data.Session | null>(null),
     selecting = ref(false),
+    router = useRouter(),
     sessions = sessionsStore(),
     toast = toastStore(),
     user = userStore();
@@ -162,7 +166,7 @@
       manageSessionModal.value!.show();
       try {
         selectedSession.value = (
-          await user.client!.getSession(session.id + '')
+          await user.client!.getSelfSession(session.id + '')
         ).result;
       } catch (e) {
         console.error(e);
@@ -190,7 +194,7 @@
         if (selectedSession.value?.id === user.account?.session.id) {
           fullscreenLoadingMessage.value!.hide();
           await manageSessionModal.value!.hide();
-          await user.logout();
+          toLogin(router);
         } else {
           selectedSession.value = null;
           toast.show('Session deleted.');

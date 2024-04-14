@@ -20,12 +20,14 @@
     "cumulonimbus-wrapper": "github:AlekEagle/cumulonimbus-wrapper#feat-security-overhaul",
     "ms": "^2.1.3",
     "pinia": "^2.1.7",
+    "qrcode": "^1.5.3",
     "vue": "^3.3.11",
     "vue-router": "4.2.5"
   },
   "devDependencies": {
     "@types/ms": "^0.7.31",
     "@types/node": "^20.10.4",
+    "@types/qrcode": "^1.5.5",
     "@vitejs/plugin-vue": "^4.5.2",
     "terser": "^5.26.0",
     "typescript": "^5.3.3",

@@ -4,6 +4,7 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
 // Other Store Modules
 import { userStore } from '../user';
+import { secondFactorChallengerStore } from '../secondFactorChallenger';
 
 // External Modules
 import { ref } from 'vue';
@@ -16,6 +17,7 @@ export const killSwitchesStore = defineStore(
   () => {
     const user = userStore(),
       router = useRouter(),
+      secondFactorChallenger = secondFactorChallengerStore(),
       data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.KillSwitch> | null>(
         null,
       ),
@@ -48,22 +50,54 @@ export const killSwitchesStore = defineStore(
       }
     }
 
-    async function enableKillSwitch(id: number): Promise<boolean> {
+    async function enableKillSwitch(
+      id: number,
+      password: string,
+    ): Promise<boolean> {
       if (user.client === null) return false;
       loading.value = true;
       try {
-        data.value = (await user.client.enableKillSwitch(id)).result;
+        data.value = (await user.client.enableKillSwitch(id, password)).result;
         return true;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
+            errored.value = true;
             // If the error was handled, return true to signify success.
             return false;
+          case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+            const SFR = await secondFactorChallenger.startChallenge(
+              error as Cumulonimbus.SecondFactorChallengeRequiredError,
+            );
+
+            if (SFR === null) {
+              return false;
+            }
+
+            try {
+              data.value = (await user.client.enableKillSwitch(id, SFR)).result;
+              return true;
+            } catch (error) {
+              errored.value = true;
+              // Pass our error to the default error handler and check if it was handled.
+              switch (await defaultErrorHandler(error, router)) {
+                case 'OK':
+                  // If the error was handled, return true to signify success.
+                  return false;
+                case 'NOT_HANDLED':
+                // No special cases to handle here.
+                case 'NOT_RESPONSE_ERROR':
+                default:
+                  // If the error wasn't handled, throw it.
+                  throw error;
+              }
+            }
           case 'NOT_HANDLED':
           // No special cases to handle here.
           case 'NOT_RESPONSE_ERROR':
           default:
+            errored.value = true;
             // If the error wasn't handled, throw it.
             throw error;
         }
@@ -72,22 +106,56 @@ export const killSwitchesStore = defineStore(
       }
     }
 
-    async function disableKillSwitch(id: number): Promise<boolean> {
+    async function disableKillSwitch(
+      id: number,
+      password: string,
+    ): Promise<boolean> {
       if (user.client === null) return false;
       loading.value = true;
       try {
-        data.value = (await user.client.disableKillSwitch(id)).result;
+        data.value = (await user.client.disableKillSwitch(id, password)).result;
         return true;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
+            errored.value = true;
             // If the error was handled, return true to signify success.
             return false;
+          case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+            const SFR = await secondFactorChallenger.startChallenge(
+              error as Cumulonimbus.SecondFactorChallengeRequiredError,
+            );
+
+            if (SFR === null) {
+              return false;
+            }
+
+            try {
+              data.value = (
+                await user.client.disableKillSwitch(id, SFR)
+              ).result;
+              return true;
+            } catch (error) {
+              errored.value = true;
+              // Pass our error to the default error handler and check if it was handled.
+              switch (await defaultErrorHandler(error, router)) {
+                case 'OK':
+                  // If the error was handled, return true to signify success.
+                  return false;
+                case 'NOT_HANDLED':
+                // No special cases to handle here.
+                case 'NOT_RESPONSE_ERROR':
+                default:
+                  // If the error wasn't handled, throw it.
+                  throw error;
+              }
+            }
           case 'NOT_HANDLED':
           // No special cases to handle here.
           case 'NOT_RESPONSE_ERROR':
           default:
+            errored.value = true;
             // If the error wasn't handled, throw it.
             throw error;
         }
@@ -96,22 +164,55 @@ export const killSwitchesStore = defineStore(
       }
     }
 
-    async function disableAllKillSwitches(): Promise<boolean> {
+    async function disableAllKillSwitches(password: string): Promise<boolean> {
       if (user.client === null) return false;
       loading.value = true;
       try {
-        data.value = (await user.client.disableAllKillSwitches()).result;
+        data.value = (
+          await user.client.disableAllKillSwitches(password)
+        ).result;
         return true;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
+            errored.value = true;
             // If the error was handled, return true to signify success.
             return false;
+          case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+            const SFR = await secondFactorChallenger.startChallenge(
+              error as Cumulonimbus.SecondFactorChallengeRequiredError,
+            );
+
+            if (SFR === null) {
+              return false;
+            }
+
+            try {
+              data.value = (
+                await user.client.disableAllKillSwitches(SFR)
+              ).result;
+              return true;
+            } catch (error) {
+              errored.value = true;
+              // Pass our error to the default error handler and check if it was handled.
+              switch (await defaultErrorHandler(error, router)) {
+                case 'OK':
+                  // If the error was handled, return true to signify success.
+                  return false;
+                case 'NOT_HANDLED':
+                // No special cases to handle here.
+                case 'NOT_RESPONSE_ERROR':
+                default:
+                  // If the error wasn't handled, throw it.
+                  throw error;
+              }
+            }
           case 'NOT_HANDLED':
           // No special cases to handle here.
           case 'NOT_RESPONSE_ERROR':
           default:
+            errored.value = true;
             // If the error wasn't handled, throw it.
             throw error;
         }

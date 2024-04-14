@@ -5,6 +5,7 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler';
 // Other Store Modules
 import { userStore } from '../user';
 import { toastStore } from '../toast';
+import { secondFactorChallengerStore } from '../secondFactorChallenger';
 
 // External Modules
 import { defineStore } from 'pinia';
@@ -15,6 +16,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
   const user = userStore();
   const router = useRouter();
   const toast = toastStore();
+  const secondFactorChallenger = secondFactorChallengerStore();
   const data = ref<Cumulonimbus.Data.User | null>(null);
   const loading = ref(false);
   const errored = ref(false);
@@ -26,6 +28,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     try {
       const result = await user.client!.getUser(id);
       data.value = result.result;
+      return true;
     } catch (error) {
       errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
@@ -51,27 +54,32 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     } finally {
       loading.value = false;
     }
-    return true;
   }
 
-  async function updateUsername(username: string): Promise<boolean> {
+  async function updateUsername(
+    username: string,
+    password: string,
+  ): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editUsername({
+      const result = await user.client!.editUserUsername(
+        data.value!.id,
         username,
-        user: data.value!.id,
-      });
+        password,
+      );
       data.value = result.result;
+      return true;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
-          // If the error was handled, return true to signify success.
+          errored.value = true;
+          // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
           return false;
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -84,35 +92,72 @@ export const otherUserStore = defineStore('staff-space-user', () => {
               // If it still wasn't handled, throw the error.
               throw error;
           }
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.editUserUsername(
+              data.value!.id,
+              username,
+              SFR,
+            );
+            data.value = result.result;
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
     } finally {
       loading.value = false;
     }
-    return true;
   }
 
-  async function updateEmail(email: string): Promise<boolean> {
+  async function updateEmail(
+    email: string,
+    password: string,
+  ): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editEmail({
+      const result = await user.client!.editUserEmail(
+        data.value!.id,
         email,
-        user: data.value!.id,
-      });
+        password,
+      );
       data.value = result.result;
+      return true;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -125,33 +170,68 @@ export const otherUserStore = defineStore('staff-space-user', () => {
               // If it still wasn't handled, throw the error.
               throw error;
           }
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.editUserEmail(
+              data.value!.id,
+              email,
+              SFR,
+            );
+            data.value = result.result;
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
     } finally {
       loading.value = false;
     }
-    return true;
   }
 
-  async function verifyEmail(): Promise<boolean> {
+  async function verifyEmail(password: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.verifyEmail({ user: data.value!.id });
+      const result = await user.client!.verifyUserEmail(
+        data.value!.id,
+        password,
+      );
       data.value = result.result;
       return true;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -164,8 +244,52 @@ export const otherUserStore = defineStore('staff-space-user', () => {
               // If it still wasn't handled, throw the error.
               throw error;
           }
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.verifyUserEmail(
+              data.value!.id,
+              SFR,
+            );
+            data.value = result.result;
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+                errored.value = true;
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return false;
+                  case 'EMAIL_ALREADY_VERIFIED_ERROR':
+                    toast.show('Their email is already verified.');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
@@ -174,22 +298,69 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     }
   }
 
-  async function unverifyEmail(): Promise<boolean> {
+  async function unverifyEmail(password: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.unverifyEmail(data.value!.id);
+      const result = await user.client!.unverifyUserEmail(
+        data.value!.id,
+        password,
+      );
       data.value = result.result;
       return true;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.unverifyUserEmail(
+              data.value!.id,
+              SFR,
+            );
+            data.value = result.result;
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+                errored.value = true;
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return false;
+                  case 'EMAIL_NOT_VERIFIED_ERROR':
+                    toast.show('Their email is already unverified.');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -204,6 +375,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
@@ -217,7 +389,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      await user.client!.resendVerificationEmail(data.value!.id);
+      await user.client!.resendUserVerificationEmail(data.value!.id);
       return true;
     } catch (error) {
       errored.value = true;
@@ -251,26 +423,72 @@ export const otherUserStore = defineStore('staff-space-user', () => {
 
   async function updatePassword(
     password: string,
-    confirmPassword: string,
+    newPassword: string,
+    confirmNewPassword: string,
   ): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editPassword({
-        newPassword: password,
-        confirmNewPassword: confirmPassword,
-        user: data.value!.id,
-      });
+      const result = await user.client!.editUserPassword(
+        data.value!.id,
+        newPassword,
+        confirmNewPassword,
+        password,
+      );
       data.value = result.result;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.editUserPassword(
+              data.value!.id,
+              newPassword,
+              confirmNewPassword,
+              SFR,
+            );
+            data.value = result.result;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return false;
+                  case 'PASSWORDS_DO_NOT_MATCH_ERROR':
+                    toast.show('These passwords do not match.');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -285,6 +503,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
@@ -302,9 +521,12 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.editDomainSelection(
-        { domain, subdomain },
+      const result = await user.client!.editUserDomainSelection(
         data.value!.id,
+        {
+          domain,
+          subdomain,
+        },
       );
       data.value = result.result;
     } catch (error) {
@@ -344,21 +566,58 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     return true;
   }
 
-  async function grantStaff(): Promise<boolean> {
+  async function grantStaff(password: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.grantStaff(data.value!.id);
+      const result = await user.client!.grantStaff(data.value!.id, password);
       data.value = result.result;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.grantStaff(data.value!.id, SFR);
+            data.value = result.result;
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -370,6 +629,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
@@ -379,21 +639,59 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     return true;
   }
 
-  async function revokeStaff(): Promise<boolean> {
+  async function revokeStaff(password: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.revokeStaff(data.value!.id);
+      const result = await user.client!.revokeStaff(data.value!.id, password);
       data.value = result.result;
+      return true;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.revokeStaff(data.value!.id, SFR);
+            data.value = result.result;
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -405,30 +703,76 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
     } finally {
       loading.value = false;
     }
-    return true;
   }
 
-  async function banUser(reason: string): Promise<boolean> {
+  async function banUser(reason: string, password: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.banUser(data.value!.id, reason);
+      const result = await user.client!.banUser(
+        data.value!.id,
+        reason,
+        password,
+      );
       data.value = result.result;
+      return true;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.banUser(
+              data.value!.id,
+              reason,
+              SFR,
+            );
+            data.value = result.result;
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -440,30 +784,67 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
     } finally {
       loading.value = false;
     }
-    return true;
   }
 
-  async function unbanUser(): Promise<boolean> {
+  async function unbanUser(password: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.unbanUser(data.value!.id);
+      const result = await user.client!.unbanUser(data.value!.id, password);
       data.value = result.result;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            const result = await user.client!.unbanUser(data.value!.id, SFR);
+            data.value = result.result;
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                return false;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -475,6 +856,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
@@ -489,7 +871,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteAllSessions(data.value!.id);
+      const result = await user.client!.deleteAllUserSessions(data.value!.id);
       return result.result.count!;
     } catch (error) {
       errored.value = true;
@@ -518,23 +900,66 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     }
   }
 
-  async function deleteAllFiles(): Promise<number> {
+  async function deleteAllFiles(password: string): Promise<number> {
     if (user.client === null) return -1;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteAllFiles({
-        user: data.value!.id,
-      });
+      const result = await user.client!.deleteAllUserFiles(
+        data.value!.id,
+        password,
+      );
       return result.result.count!;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return -1;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return -1;
+          }
+
+          try {
+            const result = await user.client!.deleteAllUserFiles(
+              data.value!.id,
+              SFR,
+            );
+            return result.result.count!;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return true to signify success.
+                return -1;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return -1;
+                  case 'INVALID_FILE_ERROR':
+                    toast.show('This user has no uploaded files.');
+                    return -1;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -549,6 +974,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
@@ -557,21 +983,57 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     }
   }
 
-  async function deleteUser(): Promise<boolean> {
+  async function deleteUser(password: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      await user.client!.deleteUser({ user: data.value!.id });
+      await user.client!.deleteUser(data.value!.id, password);
       return true;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return false;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return false;
+          }
+
+          try {
+            await user.client!.deleteUser(data.value!.id, SFR);
+            return true;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return true to signify success.
+                return false;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
+          errored.value = true;
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
@@ -583,6 +1045,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           }
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }

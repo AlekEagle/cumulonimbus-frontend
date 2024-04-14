@@ -30,7 +30,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getSessions({
+      const result = await (user.client as Cumulonimbus).getSelfSessions({
         limit: displayPref.itemsPerPage,
         offset: displayPref.itemsPerPage * p,
       });
@@ -61,7 +61,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      await (user.client as Cumulonimbus).deleteSession(session);
+      await (user.client as Cumulonimbus).deleteSelfSession(session);
       return true;
     } catch (error) {
       errored.value = true;
@@ -96,7 +96,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteSessions(
+      const result = await (user.client as Cumulonimbus).deleteSelfSessions(
         sessions,
       );
       return result.result.count!;

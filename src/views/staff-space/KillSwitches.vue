@@ -1,13 +1,9 @@
 <template>
   <h1>Kill Switches</h1>
-  <h2>
-    Global feature kill switches and their current status.
-    <br />
-    (Ctrl+click to toggle without confirmation.)
-  </h2>
+  <h2>Global feature kill switches and their current status.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/staff" />
-    <button @click="disableAllKillSwitches">Restore Endpoints</button>
+    <button @click="restoreModal?.show()">Restore Endpoints</button>
   </div>
 
   <EmphasizedBox>
@@ -31,30 +27,58 @@
     </Online>
   </EmphasizedBox>
 
-  <ConfirmModal
-    ref="confirmModal"
+  <FormModal
+    ref="formModal"
     :title="`${selectedKillSwitch?.state ? 'Enable' : 'Disable'} ${
       selectedKillSwitch?.name
     }?`"
+    :disabled="killSwitches.loading"
+    @submit="commitKillSwitchToggle"
+    @cancel="cancelKillSwitchToggle"
   >
-    <template #default>
-      <h4>
-        {{ selectedKillSwitch?.state ? 'Enabling' : 'Disabling' }}
-        <code v-text="selectedKillSwitch?.name" /> will
-        {{ selectedKillSwitch?.state ? 'ENABLE' : 'DISABLE' }} all endpoints
-        guarded by it for standard users.
-        <br />
-        <br />
-        Are you sure you want to proceed?
-      </h4>
-    </template>
-  </ConfirmModal>
+    {{ selectedKillSwitch?.state ? 'Enabling' : 'Disabling' }}
+    <code v-text="selectedKillSwitch?.name" /> will
+    {{ selectedKillSwitch?.state ? 'ENABLE' : 'DISABLE' }} all endpoints guarded
+    by it for standard users.
+    <br />
+    <br />
+    Please enter your password to confirm this action.
+    <br />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="killSwitches.loading"
+    />
+  </FormModal>
+  <FormModal
+    ref="restoreModal"
+    title="Restore All Endpoints"
+    :disabled="killSwitches.loading"
+    @submit="disableAllKillSwitches"
+  >
+    Are you sure you want to restore all endpoints?
+    <br />
+    <br />
+    Please enter your password to confirm this action.
+    <br />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="killSwitches.loading"
+    />
+  </FormModal>
 </template>
 
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import FormModal from '@/components/FormModal.vue';
   import Online from '@/components/Online.vue';
   import Switch from '@/components/Switch.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
@@ -76,7 +100,9 @@
     online = useOnline(),
     toast = toastStore(),
     selectedKillSwitch = ref<Cumulonimbus.Data.KillSwitch | null>(null),
-    confirmModal = ref<InstanceType<typeof ConfirmModal>>();
+    cancelDeferFunc = ref<() => void>(),
+    formModal = ref<InstanceType<typeof FormModal>>(),
+    restoreModal = ref<InstanceType<typeof FormModal>>();
 
   async function fetchKillSwitchesState() {
     if (!online.value) {
@@ -97,47 +123,76 @@
 
   async function handleKillSwitchToggle(
     killSwitch: Cumulonimbus.Data.KillSwitch,
-    event: MouseEvent,
+    _: MouseEvent,
     cancelDefer: () => void,
   ) {
+    selectedKillSwitch.value = killSwitch;
+    cancelDeferFunc.value = cancelDefer;
+    formModal.value?.show();
+  }
+
+  async function commitKillSwitchToggle({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
-      cancelDefer();
+      cancelKillSwitchToggle();
       return;
     }
-    selectedKillSwitch.value = killSwitch;
-    if (!event.ctrlKey && !(await confirmModal.value?.confirm())) {
-      cancelDefer();
+    if (!selectedKillSwitch.value) {
+      toast.clientError();
+      cancelKillSwitchToggle();
       return;
     }
     try {
-      if (killSwitch.state) {
-        await killSwitches.disableKillSwitch(killSwitch.id);
-        toast.show(`Enabled ${killSwitch.name} endpoints.`);
+      if (selectedKillSwitch.value.state) {
+        if (
+          await killSwitches.disableKillSwitch(
+            selectedKillSwitch.value.id,
+            password,
+          )
+        ) {
+          toast.show(`Enabled ${selectedKillSwitch.value.name} endpoints.`);
+          formModal.value?.hide();
+        }
       } else {
-        await killSwitches.enableKillSwitch(killSwitch.id);
-        toast.show(`Disabled ${killSwitch.name} endpoints.`);
+        if (
+          await killSwitches.enableKillSwitch(
+            selectedKillSwitch.value.id,
+            password,
+          )
+        ) {
+          toast.show(`Disabled ${selectedKillSwitch.value.name} endpoints.`);
+          formModal.value?.hide();
+        }
       }
     } catch (e) {
       console.error(e);
       toast.clientError();
-      cancelDefer();
+      cancelKillSwitchToggle();
     }
   }
 
-  async function disableAllKillSwitches() {
+  async function disableAllKillSwitches({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
-      await killSwitches.disableAllKillSwitches();
-      toast.show(
-        'Disabled all kill switches. All endpoints are now accessible.',
-      );
+      if (await killSwitches.disableAllKillSwitches(password)) {
+        toast.show(
+          'Disabled all kill switches. All endpoints are now accessible.',
+        );
+        restoreModal.value?.hide();
+      }
     } catch (e) {
       console.error(e);
       toast.clientError();
+    }
+  }
+
+  async function cancelKillSwitchToggle() {
+    if (cancelDeferFunc.value) {
+      cancelDeferFunc.value();
+      cancelDeferFunc.value = undefined;
     }
   }
 </script>

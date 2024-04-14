@@ -1,5 +1,10 @@
 <template>
-  <Modal :title="props.title" dismissible @close="submit(false)" ref="modal">
+  <Modal
+    :title="props.title"
+    :dismissible="!props.disabled"
+    @close="submit(false)"
+    ref="modal"
+  >
     <template #default>
       <slot name="default" />
     </template>

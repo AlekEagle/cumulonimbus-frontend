@@ -18,6 +18,7 @@ export type HandledErrors =
   | 'MISSING_FIELDS_ERROR'
   | 'INVALID_PASSWORD_ERROR'
   | 'EMAIL_NOT_VERIFIED_ERROR'
+  | 'INVALID_SECOND_FACTOR_RESPONSE_ERROR'
   | 'ENDPOINT_REQUIRES_SECOND_FACTOR_ERROR'
   | 'SECOND_FACTOR_CHALLENGE_REQUIRED_ERROR'
   | 'SERVICE_UNAVAILABLE_ERROR';
@@ -134,6 +135,13 @@ export default async function defaultErrorHandler(
       if (override.includes('SERVICE_UNAVAILABLE_ERROR')) return 'NOT_HANDLED';
       // Display the service unavailable message.
       toast.serviceUnavailable();
+      return 'OK';
+    case 'INVALID_SECOND_FACTOR_RESPONSE_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('INVALID_SECOND_FACTOR_RESPONSE_ERROR'))
+        return 'NOT_HANDLED';
+      // Display the invalid second factor response message.
+      toast.invalidSecondFactorResponse();
       return 'OK';
     default:
       // Log the error to the console.

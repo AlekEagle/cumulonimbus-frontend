@@ -37,35 +37,37 @@
     <template v-else>
       <p>I am broken.</p>
     </template>
-    <div class="factor-switcher">
-      <button
-        v-if="
-          secondFactorChallenger.selectedMethod !== 'totp' &&
-          secondFactorChallenger.availableMethods.includes('totp')
-        "
-        @click="secondFactorChallenger.selectedMethod = 'totp'"
-      >
-        Use Authenticator App
-      </button>
-      <button
-        v-if="
-          secondFactorChallenger.selectedMethod !== 'webauthn' &&
-          secondFactorChallenger.availableMethods.includes('webauthn')
-        "
-        @click="secondFactorChallenger.selectedMethod = 'webauthn'"
-      >
-        Use Security Key
-      </button>
-      <button
-        v-if="
-          secondFactorChallenger.selectedMethod !== 'backup' &&
-          secondFactorChallenger.availableMethods.includes('backup')
-        "
-        @click="secondFactorChallenger.selectedMethod = 'backup'"
-      >
-        Use Backup Code
-      </button>
-    </div>
+    <template #after-form>
+      <div class="factor-switcher">
+        <button
+          v-if="
+            secondFactorChallenger.selectedMethod !== 'totp' &&
+            secondFactorChallenger.availableMethods.includes('totp')
+          "
+          @click="secondFactorChallenger.selectedMethod = 'totp'"
+        >
+          Use Authenticator App
+        </button>
+        <button
+          v-if="
+            secondFactorChallenger.selectedMethod !== 'webauthn' &&
+            secondFactorChallenger.availableMethods.includes('webauthn')
+          "
+          @click="secondFactorChallenger.selectedMethod = 'webauthn'"
+        >
+          Use Security Key
+        </button>
+        <button
+          v-if="
+            secondFactorChallenger.selectedMethod !== 'backup' &&
+            secondFactorChallenger.availableMethods.includes('backup')
+          "
+          @click="secondFactorChallenger.selectedMethod = 'backup'"
+        >
+          Use Backup Code
+        </button>
+      </div>
+    </template>
   </FormModal>
 </template>
 
@@ -77,6 +79,7 @@
   // No In-House Modules to import here.
 
   // Store Modules
+  import { toastStore } from '@/stores/toast';
   import { secondFactorChallengerStore } from '@/stores/secondFactorChallenger';
 
   // External Modules
@@ -84,6 +87,7 @@
   import { ref, watch } from 'vue';
 
   const confirmModal = ref<InstanceType<typeof FormModal>>(),
+    toast = toastStore(),
     secondFactorChallenger = secondFactorChallengerStore();
 
   watch(secondFactorChallenger, (value) => {
@@ -98,10 +102,17 @@
     if (!secondFactorChallenger.webauthnChallenge) {
       throw new Error('No webauthn challenge available.');
     }
-    const credential = await startAuthentication(
-      secondFactorChallenger.webauthnChallenge,
-    );
-    secondFactorChallenger.completeChallenge(credential);
+    try {
+      const credential = await startAuthentication(
+        secondFactorChallenger.webauthnChallenge,
+      );
+      secondFactorChallenger.completeChallenge(credential);
+    } catch (error) {
+      console.error(error);
+      toast.show(
+        'Whoops! Something went wrong while trying to authenticate with your security key.',
+      );
+    }
   }
 </script>
 
