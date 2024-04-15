@@ -100,6 +100,14 @@ export const router = createRouter({
       },
     },
     {
+      path: '/dashboard/account/second-factors',
+      name: 'user-space-account-second-factors',
+      component: () => import('@/views/user-space/AccountSecondFactors.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/dashboard/setup-guides',
       name: 'user-space-setup-guides',
       component: () => import('@/views/user-space/SetupGuides.vue'),

@@ -75,7 +75,7 @@
   <!-- TODO: Add a rename option and endpoint -->
   <ConfirmModal
     ref="manageSecondFactorModal"
-    :title="selectedFactor?.name || 'Loading...'"
+    :title="selectedFactor!.name"
     @submit="manageSecondFactor"
     deny-button="Close"
     confirm-button="Remove"

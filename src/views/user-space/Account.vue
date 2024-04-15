@@ -102,6 +102,14 @@
         Manage your signed in devices.
       </ContentBox>
       <ContentBox
+        title="Manage Second Factors"
+        :src="gearIcon"
+        theme-safe
+        to="/dashboard/account/second-factors"
+      >
+        Manage your second factors.
+      </ContentBox>
+      <ContentBox
         title="Sign Out Everywhere"
         :src="gearIcon"
         theme-safe

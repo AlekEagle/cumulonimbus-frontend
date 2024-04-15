@@ -57,6 +57,7 @@ export const toastStore = defineStore('toast', () => {
     await wait(toastTransitionDuration);
     animating.value = false;
     // Set the timeout to hide the toast
+    // @ts-expect-error Blame @types/qrcode for this error
     timeout.value = setTimeout(hide, duration);
   };
 

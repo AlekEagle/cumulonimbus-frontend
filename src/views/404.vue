@@ -112,6 +112,7 @@
       return;
     } else {
       setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 1);
+      // @ts-expect-error Blame @types/qrcode for this error
       nextLineTimeout.value = setTimeout(displayNextLine, 5000);
     }
     if (line.value === 10) {
@@ -121,6 +122,7 @@
     }
   }
 
+  // @ts-expect-error Blame @types/qrcode for this error
   onMounted(() => (nextLineTimeout.value = setTimeout(displayNextLine, 1000)));
   onBeforeUnmount(() => clearTimeout(nextLineTimeout.value));
 </script>

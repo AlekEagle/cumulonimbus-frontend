@@ -111,6 +111,7 @@ export function useTimeString(
   update();
 
   // Start the interval
+  // @ts-expect-error Blame @types/qrcode for this error
   interval = setInterval(update, updateInterval);
 
   // Stop the interval when the component unmounts
@@ -132,6 +133,7 @@ export function useTimeString(
         interval = null;
       }
       update();
+      // @ts-expect-error Blame @types/qrcode for this error
       interval = setInterval(update, updateInterval);
     },
     { immediate: true },
@@ -167,6 +169,7 @@ export function useFuzzyTimeString(
   update();
 
   // Start the interval
+  // @ts-expect-error Blame @types/qrcode for this error
   interval = setInterval(update, updateInterval);
 
   // Stop the interval when the component unmounts
@@ -188,6 +191,7 @@ export function useFuzzyTimeString(
         interval = null;
       }
       update();
+      // @ts-expect-error Blame @types/qrcode for this error
       interval = setInterval(update, updateInterval);
     },
     { immediate: true },

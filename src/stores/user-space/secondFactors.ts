@@ -215,6 +215,7 @@ export const secondFactorsStore = defineStore(
     async function beginTOTPRegistration(
       password: string,
     ): Promise<Cumulonimbus.Data.SecondFactorTOTPRegistration | null> {
+      loading.value = true;
       if (user.client === null) return null;
       try {
         return (await user.client!.beginTOTPRegistration(password)).result;
@@ -249,6 +250,8 @@ export const secondFactorsStore = defineStore(
           default:
             throw error;
         }
+      } finally {
+        loading.value = false;
       }
     }
 
@@ -257,6 +260,7 @@ export const secondFactorsStore = defineStore(
       name: string,
       code: string,
     ): Promise<Cumulonimbus.Data.SecondFactorRegisterSuccess | null> {
+      loading.value = true;
       if (user.client === null) return null;
       try {
         return (await user.client!.confirmTOTPRegistration(token, name, code))
@@ -271,12 +275,15 @@ export const secondFactorsStore = defineStore(
           default:
             throw error;
         }
+      } finally {
+        loading.value = false;
       }
     }
 
     async function beginWebAuthnRegistration(
       password: string,
     ): Promise<Cumulonimbus.Data.SecondFactorWebAuthnRegistration | null> {
+      loading.value = true;
       if (user.client === null) return null;
       try {
         return (await user.client!.beginWebAuthnRegistration(password)).result;
@@ -311,6 +318,8 @@ export const secondFactorsStore = defineStore(
           default:
             throw error;
         }
+      } finally {
+        loading.value = false;
       }
     }
 
@@ -319,6 +328,7 @@ export const secondFactorsStore = defineStore(
       name: string,
       response: RegistrationResponseJSON,
     ): Promise<Cumulonimbus.Data.SecondFactorRegisterSuccess | null> {
+      loading.value = true;
       if (user.client === null) return null;
       try {
         return (
@@ -334,12 +344,15 @@ export const secondFactorsStore = defineStore(
           default:
             throw error;
         }
+      } finally {
+        loading.value = false;
       }
     }
 
     async function regenerateBackupCodes(
       password: string,
     ): Promise<Cumulonimbus.Data.SecondFactorBackupRegisterSuccess | null> {
+      loading.value = true;
       if (user.client === null) return null;
       try {
         return (await user.client!.regenerateBackupCodes(password)).result;
@@ -374,6 +387,8 @@ export const secondFactorsStore = defineStore(
           default:
             throw error;
         }
+      } finally {
+        loading.value = false;
       }
     }
 
