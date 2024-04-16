@@ -440,7 +440,7 @@
       :disabled="otherUser.loading"
     />
   </FormModal>
-  <ConfirmModal
+  <FormModal
     ref="signOutModal"
     title="Sign User Out Everywhere"
     @submit="signOut"
@@ -450,7 +450,23 @@
       Are you sure you want to sign
       <code v-text="otherUser.data?.username" /> out everywhere?
     </p>
-  </ConfirmModal>
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
+  </FormModal>
   <FormModal
     ref="deleteUserFilesModal"
     title="Delete User Files"
@@ -765,17 +781,13 @@
     }
   }
 
-  async function signOut(choice: boolean) {
+  async function signOut({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
-    if (!choice) {
-      signOutModal.value!.hide();
-      return;
-    }
     try {
-      const status = await otherUser.deleteAllSessions();
+      const status = await otherUser.deleteAllSessions(password);
       if (status > -1) {
         toast.show(`Signed out ${status} session${status === 1 ? '' : 's'}.`);
         signOutModal.value!.hide();

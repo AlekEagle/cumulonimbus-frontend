@@ -866,12 +866,15 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     return true;
   }
 
-  async function deleteAllSessions(): Promise<number> {
+  async function deleteAllSessions(password: string): Promise<number> {
     if (user.client === null) return -1;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteAllUserSessions(data.value!.id);
+      const result = await user.client!.deleteAllUserSessions(
+        data.value!.id,
+        password,
+      );
       return result.result.count!;
     } catch (error) {
       errored.value = true;
@@ -880,6 +883,44 @@ export const otherUserStore = defineStore('staff-space-user', () => {
         case 'OK':
           // If the error was handled, return true to signify success.
           return -1;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return -1;
+          }
+
+          try {
+            const result = await user.client!.deleteAllUserSessions(
+              data.value!.id,
+              SFR,
+            );
+            return result.result.count!;
+          } catch (error) {
+            errored.value = true;
+            // Pass our error to the default error handler and check if it was handled.
+            switch (await defaultErrorHandler(error, router)) {
+              case 'OK':
+                // If the error was handled, return true to signify success.
+                return -1;
+              case 'NOT_HANDLED':
+                // Handle special cases.
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show('User not found.');
+                    return -1;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {

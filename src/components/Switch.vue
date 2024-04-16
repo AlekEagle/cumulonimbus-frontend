@@ -90,6 +90,10 @@
       emit('defer', event, cancelDefer);
     } else input.blur();
   }
+
+  defineExpose({
+    checked,
+  });
 </script>
 
 <style>
@@ -127,7 +131,7 @@
     color: var(--foreground);
     margin-left: 0.5rem;
     font-size: 20px;
-    transition: color 0.25s;
+    cursor: pointer;
   }
 
   .switch-container label .toggle {
@@ -163,7 +167,7 @@
     border-radius: 15px;
     transform: translate(0, 0);
     box-shadow: 0px 0px 10px 0px var(--switch-shadow);
-    transition: transform 0.25s, background-color 0.25s;
+    transition: transform 0.25s;
   }
 
   .switch-container label .toggle-state:checked ~ .toggle {

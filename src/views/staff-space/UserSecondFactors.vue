@@ -75,7 +75,7 @@
   <!-- TODO: Add a rename option and endpoint -->
   <ConfirmModal
     ref="manageSecondFactorModal"
-    :title="selectedFactor!.name"
+    :title="selectedFactor?.name"
     @submit="manageSecondFactor"
     deny-button="Close"
     confirm-button="Remove"
@@ -111,6 +111,12 @@
       <code v-text="selectedFactor?.name" />? This action cannot be undone.
     </p>
     <input
+      hidden
+      type="text"
+      autocomplete="username"
+      :value="user.account?.user.username"
+    />
+    <input
       type="password"
       autocomplete="current-password"
       placeholder="Password"
@@ -130,6 +136,12 @@
       Are you sure you want to delete the {{ selected.length }} selected second
       factors? This action cannot be undone.
     </p>
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      :value="user.account?.user.username"
+    />
     <input
       type="password"
       autocomplete="current-password"

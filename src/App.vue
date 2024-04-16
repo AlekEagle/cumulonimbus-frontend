@@ -390,6 +390,11 @@
     color: var(--foreground);
   }
 
+  body.no-scroll {
+    overflow-y: hidden;
+    position: static;
+  }
+
   main.content {
     padding-bottom: 15px;
   }
@@ -480,6 +485,7 @@
     background-color: var(--ui-code-background);
     border-radius: 4px;
     transition: background-color 0.25s;
+    white-space: pre-wrap;
   }
 
   h5,
