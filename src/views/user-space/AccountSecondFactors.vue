@@ -208,8 +208,11 @@
     :disabled="secondFactors.loading"
   >
     <p>
-      Awesome, let's get you set up with a new second factor. Please enter your
-      password to confirm.
+      {{
+        factorTypeToRegister !== 'backup'
+          ? "Awesome, let's get you set up with a new second factor"
+          : "Alright, let's get you some new backup codes"
+      }}. Please enter your password to confirm.
     </p>
     <input
       type="password"
@@ -347,7 +350,7 @@
     selectedFactor = ref<Cumulonimbus.Data.SecondFactor | null>(null),
     selectedFactorFuzzyLastUsedAt = computed(() =>
       selectedFactor.value?.usedAt
-        ? useFuzzyTimeString(ref(new Date(selectedFactor.value.usedAt)))
+        ? useFuzzyTimeString(ref(new Date(selectedFactor.value.usedAt))).value
         : 'Not yet...',
     ),
     factorTypeToRegister = ref<'totp' | 'webauthn' | 'backup' | null>(null),

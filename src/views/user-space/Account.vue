@@ -39,12 +39,18 @@
           <code v-text="user.domain" />
         </span>
         <span class="sb-code-label">
-          <p>Last updated:</p>
+          <p>Updated:</p>
           <code v-text="toDateString(new Date(user.account.user!.updatedAt))" />
         </span>
         <span class="sb-code-label">
           <p>Created:</p>
           <code v-text="toDateString(new Date(user.account.user!.createdAt))" />
+        </span>
+        <span class="sb-code-label">
+          <p>Last used backup code:</p>
+          <code
+            v-text="user.account.user!.twoFactorBackupCodeUsedAt ? toDateString(new Date(user.account.user!.twoFactorBackupCodeUsedAt)) : 'Not yet...'"
+          />
         </span>
         <span class="sb-code-label">
           <p>Staff:</p>
