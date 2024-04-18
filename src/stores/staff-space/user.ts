@@ -623,6 +623,11 @@ export const otherUserStore = defineStore('staff-space-user', () => {
             case 'INVALID_USER_ERROR':
               toast.show('User not found.');
               return false;
+            case 'USER_REQUIRES_SECOND_FACTOR_ERROR':
+              toast.show(
+                'This user requires a second factor to be granted staff.',
+              );
+              return false;
             default:
               // If it still wasn't handled, throw the error.
               throw error;
