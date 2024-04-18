@@ -3,43 +3,53 @@ import Cumulonimbus from 'cumulonimbus-wrapper';
 import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
 // Other Store Modules
+import { displayPrefStore } from '../displayPref';
 import { userStore } from '../user';
+import { toastStore } from '../toast';
 import { secondFactorChallengerStore } from '../secondFactorChallenger';
 
 // External Modules
-import { ref } from 'vue';
 import { defineStore } from 'pinia';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-// Store Definition
-export const killSwitchesStore = defineStore(
-  'staff-space-kill-switches',
+export const secondFactorsStore = defineStore(
+  'staff-space-second-factors',
   () => {
     const user = userStore(),
+      displayPref = displayPrefStore(),
       router = useRouter(),
+      toast = toastStore(),
       secondFactorChallenger = secondFactorChallengerStore(),
-      data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.KillSwitch> | null>(
+      data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.SecondFactor> | null>(
         null,
       ),
       loading = ref(false),
-      errored = ref(false);
+      errored = ref(false),
+      owner = ref<Cumulonimbus.Data.User | null>(null),
+      page = ref(0);
 
-    async function getKillSwitches(): Promise<boolean> {
+    async function getSecondFactors(p: number): Promise<boolean> {
       if (user.client === null) return false;
-      loading.value = true;
+      if (owner.value === null) return false;
       errored.value = false;
+      loading.value = true;
       try {
-        data.value = (await user.client.getKillSwitches()).result;
+        const result = await user.client!.getUserSecondFactors(owner.value.id, {
+          limit: displayPref.itemsPerPage,
+          offset: p * displayPref.itemsPerPage,
+        });
+        page.value = p;
+        data.value = result.result;
         return true;
       } catch (error) {
         errored.value = true;
         // Pass our error to the default error handler and check if it was handled.
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
-            // If the error was handled, return true to signify success.
+            // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
             return false;
           case 'NOT_HANDLED':
-          // No special cases to handle here.
           case 'NOT_RESPONSE_ERROR':
           default:
             // If the error wasn't handled, throw it.
@@ -50,21 +60,25 @@ export const killSwitchesStore = defineStore(
       }
     }
 
-    async function enableKillSwitch(
-      id: number,
+    async function deleteSecondFactor(
+      id: string,
       password: string,
     ): Promise<boolean> {
       if (user.client === null) return false;
+      if (owner.value === null) return false;
+      errored.value = false;
       loading.value = true;
       try {
-        data.value = (await user.client.enableKillSwitch(id, password)).result;
+        await user.client!.deleteUserSecondFactor(owner.value.id, id, password);
+        // Technically, we will never reach this point, but it's here just in case the API doesn't require a challenge.
+        await getSecondFactors(page.value);
         return true;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
             errored.value = true;
-            // If the error was handled, return true to signify success.
+            // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
             return false;
           case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
             const SFR = await secondFactorChallenger.startChallenge(
@@ -74,19 +88,22 @@ export const killSwitchesStore = defineStore(
             if (SFR === null) {
               return false;
             }
-
             try {
-              data.value = (await user.client.enableKillSwitch(id, SFR)).result;
+              await user.client!.deleteUserSecondFactor(
+                owner.value.id,
+                id,
+                SFR,
+              );
+              await getSecondFactors(page.value);
               return true;
             } catch (error) {
               errored.value = true;
               // Pass our error to the default error handler and check if it was handled.
               switch (await defaultErrorHandler(error, router)) {
                 case 'OK':
-                  // If the error was handled, return true to signify success.
+                  // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
                   return false;
                 case 'NOT_HANDLED':
-                // No special cases to handle here.
                 case 'NOT_RESPONSE_ERROR':
                 default:
                   // If the error wasn't handled, throw it.
@@ -94,7 +111,6 @@ export const killSwitchesStore = defineStore(
               }
             }
           case 'NOT_HANDLED':
-          // No special cases to handle here.
           case 'NOT_RESPONSE_ERROR':
           default:
             errored.value = true;
@@ -106,45 +122,53 @@ export const killSwitchesStore = defineStore(
       }
     }
 
-    async function disableKillSwitch(
-      id: number,
+    async function deleteSecondFactors(
+      ids: string[],
       password: string,
-    ): Promise<boolean> {
-      if (user.client === null) return false;
+    ): Promise<number> {
+      if (user.client === null) return 0;
+      if (owner.value === null) return 0;
+      errored.value = false;
       loading.value = true;
       try {
-        data.value = (await user.client.disableKillSwitch(id, password)).result;
-        return true;
+        const result = await user.client!.deleteUserSecondFactors(
+          owner.value.id,
+          ids,
+          password,
+        );
+        // Technically, we will never reach this point, but it's here just in case the API doesn't require a challenge.
+        await getSecondFactors(page.value);
+        return result.result.count;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
-            errored.value = true;
-            // If the error was handled, return true to signify success.
-            return false;
+            // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+            return -1;
           case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
             const SFR = await secondFactorChallenger.startChallenge(
               error as Cumulonimbus.SecondFactorChallengeRequiredError,
             );
 
             if (SFR === null) {
-              return false;
+              return -1;
             }
-
             try {
-              data.value = (
-                await user.client.disableKillSwitch(id, SFR)
-              ).result;
-              return true;
+              const result = await user.client!.deleteUserSecondFactors(
+                owner.value.id,
+                ids,
+                SFR,
+              );
+              await getSecondFactors(page.value);
+              return result.result.count;
             } catch (error) {
               errored.value = true;
               // Pass our error to the default error handler and check if it was handled.
               switch (await defaultErrorHandler(error, router)) {
                 case 'OK':
-                  // If the error was handled, return true to signify success.
-                  return false;
+                  // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                  return -1;
                 case 'NOT_HANDLED':
-                // No special cases to handle here.
                 case 'NOT_RESPONSE_ERROR':
                 default:
                   // If the error wasn't handled, throw it.
@@ -152,10 +176,8 @@ export const killSwitchesStore = defineStore(
               }
             }
           case 'NOT_HANDLED':
-          // No special cases to handle here.
           case 'NOT_RESPONSE_ERROR':
           default:
-            errored.value = true;
             // If the error wasn't handled, throw it.
             throw error;
         }
@@ -164,44 +186,48 @@ export const killSwitchesStore = defineStore(
       }
     }
 
-    async function disableAllKillSwitches(password: string): Promise<boolean> {
-      if (user.client === null) return false;
+    async function deleteAllSecondFactors(password: string): Promise<number> {
+      if (user.client === null) return 0;
+      if (owner.value === null) return 0;
+      errored.value = false;
       loading.value = true;
       try {
-        data.value = (
-          await user.client.disableAllKillSwitches(password)
-        ).result;
-        return true;
+        const result = await user.client!.deleteAllUserSecondFactors(
+          owner.value.id,
+          password,
+        );
+        // Technically, we will never reach this point, but it's here just in case the API doesn't require a challenge.
+        await getSecondFactors(page.value);
+        return result.result.count;
       } catch (error) {
         // Pass our error to the default error handler and check if it was handled.
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
-            errored.value = true;
-            // If the error was handled, return true to signify success.
-            return false;
+            // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+            return -1;
           case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
             const SFR = await secondFactorChallenger.startChallenge(
               error as Cumulonimbus.SecondFactorChallengeRequiredError,
             );
 
             if (SFR === null) {
-              return false;
+              return -1;
             }
-
             try {
-              data.value = (
-                await user.client.disableAllKillSwitches(SFR)
-              ).result;
-              return true;
+              const result = await user.client!.deleteAllUserSecondFactors(
+                owner.value.id,
+                SFR,
+              );
+              await getSecondFactors(page.value);
+              return result.result.count;
             } catch (error) {
               errored.value = true;
               // Pass our error to the default error handler and check if it was handled.
               switch (await defaultErrorHandler(error, router)) {
                 case 'OK':
-                  // If the error was handled, return true to signify success.
-                  return false;
+                  // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+                  return -1;
                 case 'NOT_HANDLED':
-                // No special cases to handle here.
                 case 'NOT_RESPONSE_ERROR':
                 default:
                   // If the error wasn't handled, throw it.
@@ -209,10 +235,8 @@ export const killSwitchesStore = defineStore(
               }
             }
           case 'NOT_HANDLED':
-          // No special cases to handle here.
           case 'NOT_RESPONSE_ERROR':
           default:
-            errored.value = true;
             // If the error wasn't handled, throw it.
             throw error;
         }
@@ -225,10 +249,12 @@ export const killSwitchesStore = defineStore(
       data,
       loading,
       errored,
-      getKillSwitches,
-      enableKillSwitch,
-      disableKillSwitch,
-      disableAllKillSwitches,
+      owner,
+      page,
+      getSecondFactors,
+      deleteSecondFactor,
+      deleteSecondFactors,
+      deleteAllSecondFactors,
     };
   },
 );

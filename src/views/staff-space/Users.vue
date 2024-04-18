@@ -8,7 +8,7 @@
       @click="selecting = true"
       :disabled="users.loading"
     >
-      Bulk Delete
+      Select...
     </button>
     <template v-else>
       <button @click="cancelSelection" :disabled="users.loading">Cancel</button>
@@ -56,22 +56,32 @@
       <SkeletonContentBoxes v-else />
     </Online>
   </Paginator>
-  <ConfirmModal
+  <FormModal
     ref="confirmModal"
     title="Are you sure?"
     @submit="deleteSelected"
+    :disabled="users.loading"
   >
     <p>
       Are you sure you want to delete the selected users? This action cannot be
-      undone.
+      undone. Enter your password to confirm.
     </p>
-  </ConfirmModal>
+    <br />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="users.loading"
+    />
+  </FormModal>
 </template>
 
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
+  import FormModal from '@/components/FormModal.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
@@ -82,24 +92,21 @@
   import profileIcon from '@/assets/images/profile.svg';
 
   // Store Modules
-  import { displayPrefStore } from '@/stores/displayPref';
   import { toastStore } from '@/stores/toast';
   import { usersStore } from '@/stores/staff-space/users';
 
   // External Modules
   import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
-  import { useRouter } from 'vue-router';
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   const users = usersStore(),
-    displayPref = displayPrefStore(),
     page = ref(0),
     toast = toastStore(),
     selecting = ref(false),
     selected = ref<string[]>([]),
     online = useOnline(),
-    confirmModal = ref<InstanceType<typeof ConfirmModal>>();
+    confirmModal = ref<InstanceType<typeof FormModal>>();
 
   onMounted(async () =>
     loadWhenOnline(fetchUsers, !users.data || users.page !== page.value),
@@ -127,14 +134,14 @@
     }
   }
 
-  async function deleteSelected() {
+  async function deleteSelected({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
-      const res = await users.deleteUsers(selected.value);
-      if (res) {
+      const res = await users.deleteUsers(selected.value, password);
+      if (res > -1) {
         toast.show(`Deleted ${res} users.`);
         selected.value = [];
         selecting.value = false;

@@ -13,7 +13,7 @@
       @click="selecting = true"
       :disabled="files.loading"
     >
-      Bulk Delete
+      Select...
     </button>
     <template v-else>
       <button @click="cancelSelection" :disabled="files.loading">Cancel</button>

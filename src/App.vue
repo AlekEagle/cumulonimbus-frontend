@@ -88,6 +88,8 @@
     </template>
   </Modal>
 
+  <SecondFactorModal />
+
   <Transition name="toast">
     <div class="toast-box" v-text="toast.text" v-if="toast.visible" />
   </Transition>
@@ -97,6 +99,7 @@
   // Vue Components
   import ThemeManager from '@/components/ThemeManager.vue';
   import Modal from '@/components/Modal.vue';
+  import SecondFactorModal from '@/components/SecondFactorModal.vue';
 
   // In-House Modules
   import newTabIcon from '@/assets/images/newtab.svg';
@@ -387,6 +390,11 @@
     color: var(--foreground);
   }
 
+  body.no-scroll {
+    overflow-y: hidden;
+    position: static;
+  }
+
   main.content {
     padding-bottom: 15px;
   }
@@ -477,6 +485,7 @@
     background-color: var(--ui-code-background);
     border-radius: 4px;
     transition: background-color 0.25s;
+    white-space: pre-wrap;
   }
 
   h5,
@@ -817,6 +826,16 @@
     grid-gap: 10px;
     width: calc(100% - 20px);
     margin: 0 auto;
+  }
+
+  .sb-code-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sb-code-label p {
+    display: inline-block;
   }
 
   .content-box-container + .content-box-container {

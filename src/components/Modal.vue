@@ -19,7 +19,11 @@
         </div>
         <div class="modal-footer">
           <slot name="footer">
-            <button v-if="props.dismissible" @click="__hide" v-text="'Close'" />
+            <button
+              v-if="props.dismissible"
+              @click="__hide"
+              v-text="props.closeButton"
+            />
           </slot>
         </div>
       </div>
@@ -49,6 +53,10 @@
       default: 'Modal Title',
     },
     dismissible: Boolean,
+    closeButton: {
+      type: String,
+      default: 'Close',
+    },
   });
 
   const visible = ref(false);
@@ -56,16 +64,16 @@
   // Internal hide function, not to be used externally, use hide() instead
   function __hide() {
     if (!props.dismissible || !visible.value) return;
-    enableScrolling();
     visible.value = false;
     emit('close');
+    wait(400).then(enableScrolling);
   }
 
   // A hide function exposed that doesn't emit the closed event.
   async function hide() {
     visible.value = false;
-    enableScrolling();
     await wait(400);
+    enableScrolling();
     return;
   }
 
@@ -89,7 +97,7 @@
     background-color: var(--ui-fs-overlay-background);
     transition: background-color 0.25s;
     width: 100%;
-    height: calc(100% + 15px);
+    height: 100%;
     position: fixed;
     top: 0;
     left: 0;
@@ -100,8 +108,7 @@
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
     cursor: not-allowed;
-    overflow-x: scroll;
-    overflow-y: overlay;
+    overflow: auto;
   }
 
   .modal-container.dismissible {

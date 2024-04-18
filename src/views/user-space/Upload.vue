@@ -92,7 +92,6 @@
     if (!files || files.length < 1) return;
     if (files.length > 1)
       return toast.show('You can only upload one file at a time.', 5e3);
-    console.log(files[0]);
     file.value = files[0];
   }
 

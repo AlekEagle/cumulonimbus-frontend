@@ -37,6 +37,7 @@ export const displayPrefStore = defineStore('displayPref', () => {
     } else {
       html.classList.add('dark-theme-transition');
     }
+    // @ts-expect-error Blame @types/qrcode for this error
     themeTransitionTimeout.value = setTimeout(() => {
       html.classList.remove('dark-theme-transition');
       themeTransitionTimeout.value = -1;

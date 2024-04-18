@@ -100,6 +100,14 @@ export const router = createRouter({
       },
     },
     {
+      path: '/dashboard/account/second-factors',
+      name: 'user-space-account-second-factors',
+      component: () => import('@/views/user-space/AccountSecondFactors.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/dashboard/setup-guides',
       name: 'user-space-setup-guides',
       component: () => import('@/views/user-space/SetupGuides.vue'),
@@ -147,6 +155,15 @@ export const router = createRouter({
       path: '/staff/user/sessions',
       name: 'staff-space-user-sessions',
       component: () => import('@/views/staff-space/UserSessions.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true,
+      },
+    },
+    {
+      path: '/staff/user/second-factors',
+      name: 'staff-space-user-second-factors',
+      component: () => import('@/views/staff-space/UserSecondFactors.vue'),
       meta: {
         requiresAuth: true,
         requiresStaff: true,

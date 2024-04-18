@@ -4,7 +4,11 @@ import { toastStore } from '@/stores/toast';
 import { userStore } from '@/stores/user';
 import { Router } from 'vue-router';
 
-export type ErrorHandledReason = 'NOT_RESPONSE_ERROR' | 'NOT_HANDLED' | 'OK';
+export type ErrorHandledReason =
+  | 'NOT_RESPONSE_ERROR'
+  | 'NOT_HANDLED'
+  | 'SECOND_FACTOR_CHALLENGE_REQUIRED'
+  | 'OK';
 export type HandledErrors =
   | 'BANNED_ERROR'
   | 'RATELIMITED_ERROR'
@@ -13,7 +17,11 @@ export type HandledErrors =
   | 'INTERNAL_ERROR'
   | 'MISSING_FIELDS_ERROR'
   | 'INVALID_PASSWORD_ERROR'
-  | 'EMAIL_NOT_VERIFIED_ERROR';
+  | 'EMAIL_NOT_VERIFIED_ERROR'
+  | 'INVALID_SECOND_FACTOR_RESPONSE_ERROR'
+  | 'ENDPOINT_REQUIRES_SECOND_FACTOR_ERROR'
+  | 'SECOND_FACTOR_CHALLENGE_REQUIRED_ERROR'
+  | 'SERVICE_UNAVAILABLE_ERROR';
 
 // Handle common errors from the API
 export default async function defaultErrorHandler(
@@ -34,6 +42,21 @@ export default async function defaultErrorHandler(
     // Display generic error message.
     toast.genericError();
     return 'NOT_RESPONSE_ERROR';
+  }
+
+  if (error instanceof Cumulonimbus.MissingFieldsError) {
+    // If the error is being overridden, return NOT_HANDLED.
+    if (override.includes('MISSING_FIELDS_ERROR')) return 'NOT_HANDLED';
+    // Display the missing fields message.
+    toast.missingFields(error.fields!);
+    return 'OK';
+  }
+
+  if (error instanceof Cumulonimbus.SecondFactorChallengeRequiredError) {
+    // If the error is being overridden, return NOT_HANDLED.
+    if (override.includes('SECOND_FACTOR_CHALLENGE_REQUIRED_ERROR'))
+      return 'NOT_HANDLED';
+    return 'SECOND_FACTOR_CHALLENGE_REQUIRED';
   }
 
   switch (error.code) {
@@ -75,10 +98,10 @@ export default async function defaultErrorHandler(
         return 'NOT_HANDLED';
       // Display the insufficient permissions message.
       toast.insufficientPermissions();
-      // Refresh stale user data.
-      await user.refetch();
       // Send the user to the home page.
       await router.push('/');
+      // Refresh stale user data.
+      await user.refetch();
       return 'OK';
     // If the user encounters an internal server error.
     case 'INTERNAL_ERROR':
@@ -87,12 +110,6 @@ export default async function defaultErrorHandler(
       // Display the internal server error message.
       toast.serverError();
       return 'OK';
-    case 'MISSING_FIELDS_ERROR':
-      // If the error is being overridden, return NOT_HANDLED.
-      if (override.includes('MISSING_FIELDS_ERROR')) return 'NOT_HANDLED';
-      // Display the missing fields message.
-      toast.missingFields(error.fields!);
-      return 'OK';
     // If the user encounters an invalid password error.
     case 'INVALID_PASSWORD_ERROR':
       // If the error is being overridden, return NOT_HANDLED.
@@ -100,12 +117,31 @@ export default async function defaultErrorHandler(
       // Display the invalid password message.
       toast.invalidPassword();
       return 'OK';
+    case 'ENDPOINT_REQUIRES_SECOND_FACTOR_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('ENDPOINT_REQUIRES_SECOND_FACTOR_ERROR'))
+        return 'NOT_HANDLED';
+      toast.secondFactorRequired();
+      return 'OK';
     // If the user encounters an email not verified error.
     case 'EMAIL_NOT_VERIFIED_ERROR':
       // If the error is being overridden, return NOT_HANDLED.
       if (override.includes('EMAIL_NOT_VERIFIED_ERROR')) return 'NOT_HANDLED';
       // Display the email not verified message.
       toast.emailNotVerified();
+      return 'OK';
+    case 'SERVICE_UNAVAILABLE_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('SERVICE_UNAVAILABLE_ERROR')) return 'NOT_HANDLED';
+      // Display the service unavailable message.
+      toast.serviceUnavailable();
+      return 'OK';
+    case 'INVALID_SECOND_FACTOR_RESPONSE_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('INVALID_SECOND_FACTOR_RESPONSE_ERROR'))
+        return 'NOT_HANDLED';
+      // Display the invalid second factor response message.
+      toast.invalidSecondFactorResponse();
       return 'OK';
     default:
       // Log the error to the console.
