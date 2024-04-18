@@ -73,20 +73,23 @@
   </ConfirmModal>
   <ConfirmModal
     ref="manageSessionModal"
-    title="Manage Session"
+    :title="selectedSession ? selectedSession.name : 'Loading...'"
     @submit="onManageSessionChoice"
     :confirm-button="'Delete'"
   >
     <template v-if="!!selectedSession">
-      <h2 v-text="selectedSession.name" />
-      <p>
-        Created At:
-        <code>{{ toDateString(new Date(selectedSession.id * 1000)) }}</code>
-      </p>
-      <p>
-        Expires At:
-        <code>{{ toDateString(new Date(selectedSession.exp * 1000)) }}</code>
-      </p>
+      <span class="sb-code-label">
+        <p>Created:</p>
+        <code v-text="toDateString(new Date(selectedSession.createdAt))" />
+      </span>
+      <span class="sb-code-label">
+        <p>Expires:</p>
+        <code v-text="toDateString(new Date(selectedSession.exp * 1000))" />
+      </span>
+      <span class="sb-code-label">
+        <p>Used:</p>
+        <code v-text="selectedSessionFuzzyUsedAt" />
+      </span>
       <p>If you delete this session, they will have to sign back in.</p>
     </template>
     <LoadingMessage spinner v-else />
@@ -110,6 +113,7 @@
   import infoIcon from '@/assets/images/info.svg';
   import toDateString from '@/utils/toDateString';
   import loadWhenOnline from '@/utils/loadWhenOnline';
+  import { useFuzzyTimeString } from '@/utils/time';
 
   // Store Modules
   import { sessionsStore } from '@/stores/staff-space/sessions';
@@ -117,7 +121,7 @@
   import { userStore } from '@/stores/user';
 
   // External Modules
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, computed } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
@@ -132,6 +136,11 @@
     manageSessionModal = ref<InstanceType<typeof ConfirmModal>>(),
     page = ref(0),
     selectedSession = ref<Cumulonimbus.Data.Session | null>(null),
+    selectedSessionFuzzyUsedAt = computed(() =>
+      selectedSession.value?.usedAt
+        ? useFuzzyTimeString(ref(new Date(selectedSession.value.usedAt))).value
+        : 'Not yet...',
+    ),
     deleteAllSessionsModal = ref<InstanceType<typeof ConfirmModal>>();
 
   async function fetchSessions() {

@@ -77,7 +77,7 @@
   </ConfirmModal>
   <ConfirmModal
     ref="manageSessionModal"
-    :title="selectedSession ? selectedSession.name : 'Loading Session...'"
+    :title="selectedSession ? selectedSession.name : 'Loading...'"
     @submit="onManageSessionChoice"
     :disabled="sessions.loading"
     deny-button="Close"
@@ -87,18 +87,18 @@
       <p v-if="selectedSession!.id === user.account?.session.id">
         <strong> This is your current session. </strong>
       </p>
-      <p>
-        Created At:
+      <span class="sb-code-label">
+        <p>Created:</p>
         <code v-text="toDateString(new Date(selectedSession.createdAt))" />
-      </p>
-      <p>
-        Expires At:
+      </span>
+      <span class="sb-code-label">
+        <p>Expires:</p>
         <code v-text="toDateString(new Date(selectedSession.exp * 1000))" />
-      </p>
-      <p>
-        Last Used:
+      </span>
+      <span class="sb-code-label">
+        <p>Used:</p>
         <code v-text="selectedSessionFuzzyUsedAt" />
-      </p>
+      </span>
       <p v-if="!selectedSessionPermissions">
         <strong>This session is a standard browser session.</strong>
       </p>
