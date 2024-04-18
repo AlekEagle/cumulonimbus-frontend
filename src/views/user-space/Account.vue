@@ -18,28 +18,38 @@
         :src="profileIcon"
         nowrap
       >
-        <p>User ID: <code v-text="user.account!.user.id" /></p>
-        <p>Email: <code v-text="user.account!.user.email" /></p>
-        <p>
-          Verified:
+        <span class="sb-code-label">
+          <p>ID:</p>
+          <code v-text="user.account!.user.id" />
+        </span>
+        <span class="sb-code-label">
+          <p>Email:</p>
+          <code v-text="user.account!.user.email" />
+        </span>
+        <span class="sb-code-label">
+          <p>Verified:</p>
           <code
             v-text="user.account!.user.verifiedAt
               ? toDateString(new Date(user.account.user!.verifiedAt))
               : 'Not yet...'"
           />
-        </p>
-        <p>Domain: <code v-text="user.domain" /></p>
-        <p>
-          Last updated at:
+        </span>
+        <span class="sb-code-label">
+          <p>Domain:</p>
+          <code v-text="user.domain" />
+        </span>
+        <span class="sb-code-label">
+          <p>Last updated:</p>
           <code v-text="toDateString(new Date(user.account.user!.updatedAt))" />
-        </p>
-        <p>
-          Created at:
-          <code v-text="toDateString(new Date(user.account.user!.updatedAt))" />
-        </p>
-        <p>
-          Staff: <code v-text="user.account.user!.staff ? 'Yes' : 'No'" />
-        </p>
+        </span>
+        <span class="sb-code-label">
+          <p>Created:</p>
+          <code v-text="toDateString(new Date(user.account.user!.createdAt))" />
+        </span>
+        <span class="sb-code-label">
+          <p>Staff:</p>
+          <code v-text="user.account.user!.staff ? 'Yes' : 'No'" />
+        </span>
       </ContentBox>
     </div>
     <Separator />

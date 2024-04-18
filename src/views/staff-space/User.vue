@@ -6,228 +6,236 @@
   </div>
 
   <Online>
-    <div class="content-box-container">
-      <template v-if="!otherUser.loading">
-        <template v-if="!otherUser.errored">
-          <template v-if="otherUser.data">
-            <ContentBox :title="otherUser.data.username" nowrap>
-              <p>
-                ID: <code>{{ otherUser.data.id }}</code>
-              </p>
-              <p>
-                Email: <code>{{ otherUser.data.email }}</code>
-              </p>
-              <p>
-                Verified:
-                <code
-                  v-text="otherUser.data!.verifiedAt
+    <template v-if="!!otherUser && !otherUser.loading && !!otherUser.data">
+      <template v-if="!otherUser.errored">
+        <div class="content-box-container">
+          <ContentBox
+            :title="otherUser.data.username"
+            nowrap
+            theme-safe
+            :src="profileIcon"
+          >
+            <span class="sb-code-label">
+              <p>ID:</p>
+              <code v-text="otherUser.data.id" />
+            </span>
+            <span class="sb-code-label">
+              <p>Email:</p>
+              <code v-text="otherUser.data.email" />
+            </span>
+            <span class="sb-code-label">
+              <p>Verified:</p>
+              <code
+                v-text="otherUser.data!.verifiedAt
                     ? toDateString(new Date(otherUser.data!.verifiedAt))
                     : 'Not yet...'"
-                />
-              </p>
-              <p>
-                Domain:
-                <code v-text="domain" />
-              </p>
-              <p>
-                Created at:
-                <code
-                  v-text="toDateString(new Date(otherUser.data.createdAt))"
-                />
-              </p>
-              <p>
-                Last Updated:
-                <code
-                  v-text="toDateString(new Date(otherUser.data.updatedAt))"
-                />
-              </p>
-              <p>
-                Banned at:
-                <code
-                  v-text="otherUser.data!.bannedAt
+              />
+            </span>
+            <span class="sb-code-label">
+              <p>Domain:</p>
+              <code v-text="domain" />
+            </span>
+            <span class="sb-code-label">
+              <p>Created:</p>
+              <code v-text="toDateString(new Date(otherUser.data.createdAt))" />
+            </span>
+            <span class="sb-code-label">
+              <p>Updated:</p>
+              <code v-text="toDateString(new Date(otherUser.data.updatedAt))" />
+            </span>
+            <span class="sb-code-label">
+              <p>Banned:</p>
+              <code
+                v-text="otherUser.data!.bannedAt
                     ? toDateString(new Date(otherUser.data!.bannedAt))
                     : 'Not yet...'"
-                />
-              </p>
-              <p>
-                Staff:
-                <code v-text="otherUser.data.staff ? 'Yes' : 'No'" />
-              </p>
-            </ContentBox>
-          </template>
-          <LoadingMessage spinner v-else />
-        </template>
-        <div v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchUser">Retry</button>
+              />
+            </span>
+            <span class="sb-code-label">
+              <p>Staff:</p>
+              <code v-text="otherUser.data.staff ? 'Yes' : 'No'" />
+            </span>
+          </ContentBox>
+        </div>
+        <Separator />
+        <h1 title="These actions require no additional verification from you.">
+          Quick Settings
+        </h1>
+        <div class="content-box-container">
+          <ContentBox
+            title="View User's Files"
+            :src="fileIcon"
+            theme-safe
+            :to="`/staff/files?user=${otherUser.data.id}`"
+          >
+            <p>
+              View <code>{{ otherUser.data.username }}</code
+              >'s files.
+            </p>
+          </ContentBox>
+          <ContentBox
+            v-if="!otherUser.data!.verifiedAt"
+            title="Resend Verification Email"
+            :src="gearIcon"
+            theme-safe
+            @click="resendVerificationEmailModal!.show()"
+          >
+            <p>
+              Resend <code>{{ otherUser.data.username }}</code> a verification
+              email.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Change Domain"
+            :src="gearIcon"
+            theme-safe
+            @click="changeDomainModal!.show()"
+          >
+            <p>
+              Change <code>{{ otherUser.data.username }}</code
+              >'s domain.
+            </p>
+          </ContentBox>
+        </div>
+        <Separator />
+        <h1 title="These actions require your password for verification.">
+          Account Management
+        </h1>
+        <div class="content-box-container">
+          <ContentBox
+            title="Change Username"
+            :src="gearIcon"
+            theme-safe
+            @click="changeUsernameModal!.show()"
+          >
+            <p>
+              Change <code>{{ otherUser.data.username }}</code
+              >'s username.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Change Email"
+            :src="gearIcon"
+            theme-safe
+            @click="changeEmailModal!.show()"
+          >
+            <p>
+              Change <code>{{ otherUser.data.username }}</code
+              >'s email.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Toggle Verified Status"
+            :src="gearIcon"
+            theme-safe
+            @click="changeVerifiedModal!.show()"
+          >
+            <p>
+              Toggle <code>{{ otherUser.data.username }}</code
+              >'s verified status.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Change Password"
+            :src="gearIcon"
+            theme-safe
+            @click="changePasswordModal!.show()"
+          >
+            <p>
+              Change <code>{{ otherUser.data.username }}</code
+              >'s password.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Change Staff Status"
+            :src="gearIcon"
+            theme-safe
+            @click="changeStaffModal!.show()"
+          >
+            <p>
+              Change <code>{{ otherUser.data.username }}</code
+              >'s staff status.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Change Ban Status"
+            :src="gearIcon"
+            theme-safe
+            @click="changeBanModal!.show()"
+          >
+            <p>
+              Change <code>{{ otherUser.data.username }}</code
+              >'s ban status.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Manage User Sessions"
+            :src="gearIcon"
+            theme-safe
+            :to="`/staff/user/sessions?id=${otherUser.data.id}`"
+          >
+            <p>
+              Manage <code>{{ otherUser.data.username }}</code
+              >'s sessions.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Manage User Second Factors"
+            :src="gearIcon"
+            theme-safe
+            :to="`/staff/user/second-factors?id=${otherUser.data.id}`"
+          >
+            <p>
+              Manage <code>{{ otherUser.data.username }}</code
+              >'s second factors.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Sign User Out Everywhere"
+            :src="gearIcon"
+            theme-safe
+            @click="signOutModal!.show()"
+          >
+            <p>
+              Sign <code>{{ otherUser.data.username }}</code> out everywhere.
+            </p>
+          </ContentBox>
+        </div>
+        <Separator />
+        <h1 title="These actions can permanently delete user data, be careful!">
+          Danger Zone
+        </h1>
+        <div class="content-box-container">
+          <ContentBox
+            title="Delete User Files"
+            :src="gearIcon"
+            theme-safe
+            @click="deleteUserFilesModal!.show()"
+          >
+            <p>
+              Delete <code>{{ otherUser.data.username }}</code
+              >'s files.
+            </p>
+          </ContentBox>
+          <ContentBox
+            title="Delete User"
+            :src="gearIcon"
+            theme-safe
+            @click="deleteUserModal!.show()"
+          >
+            <p>
+              Delete <code>{{ otherUser.data.username }}</code
+              >'s account.
+            </p>
+          </ContentBox>
         </div>
       </template>
-      <LoadingMessage spinner v-else />
-    </div>
-    <Separator
-      v-if="otherUser.data && !otherUser.errored && !otherUser.loading"
-    />
-    <div
-      class="content-box-container"
-      v-if="
-        online && otherUser.data && !otherUser.loading && !otherUser.errored
-      "
-    >
-      <ContentBox
-        title="Change Username"
-        :src="gearIcon"
-        theme-safe
-        @click="changeUsernameModal!.show()"
-      >
-        <p>
-          Change <code>{{ otherUser.data.username }}</code
-          >'s username.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Change Email"
-        :src="gearIcon"
-        theme-safe
-        @click="changeEmailModal!.show()"
-      >
-        <p>
-          Change <code>{{ otherUser.data.username }}</code
-          >'s email.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Toggle Verified Status"
-        :src="gearIcon"
-        theme-safe
-        @click="changeVerifiedModal!.show()"
-      >
-        <p>
-          Toggle <code>{{ otherUser.data.username }}</code
-          >'s verified status.
-        </p>
-      </ContentBox>
-      <ContentBox
-        v-if="!otherUser.data!.verifiedAt"
-        title="Resend Verification Email"
-        :src="gearIcon"
-        theme-safe
-        @click="resendVerificationEmailModal!.show()"
-      >
-        <p>
-          Resend <code>{{ otherUser.data.username }}</code> a verification
-          email.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Change Password"
-        :src="gearIcon"
-        theme-safe
-        @click="changePasswordModal!.show()"
-      >
-        <p>
-          Change <code>{{ otherUser.data.username }}</code
-          >'s password.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Change Domain"
-        :src="gearIcon"
-        theme-safe
-        @click="changeDomainModal!.show()"
-      >
-        <p>
-          Change <code>{{ otherUser.data.username }}</code
-          >'s domain.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Change Staff Status"
-        :src="gearIcon"
-        theme-safe
-        @click="changeStaffModal!.show()"
-      >
-        <p>
-          Change <code>{{ otherUser.data.username }}</code
-          >'s staff status.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Change Ban Status"
-        :src="gearIcon"
-        theme-safe
-        @click="changeBanModal!.show()"
-      >
-        <p>
-          Change <code>{{ otherUser.data.username }}</code
-          >'s ban status.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Manage User Sessions"
-        :src="gearIcon"
-        theme-safe
-        :to="`/staff/user/sessions?id=${otherUser.data.id}`"
-      >
-        <p>
-          Manage <code>{{ otherUser.data.username }}</code
-          >'s sessions.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Manage User Second Factors"
-        :src="gearIcon"
-        theme-safe
-        :to="`/staff/user/second-factors?id=${otherUser.data.id}`"
-      >
-        <p>
-          Manage <code>{{ otherUser.data.username }}</code
-          >'s second factors.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Sign User Out Everywhere"
-        :src="gearIcon"
-        theme-safe
-        @click="signOutModal!.show()"
-      >
-        <p>
-          Sign <code>{{ otherUser.data.username }}</code> out everywhere.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Delete User Files"
-        :src="gearIcon"
-        theme-safe
-        @click="deleteUserFilesModal!.show()"
-      >
-        <p>
-          Delete <code>{{ otherUser.data.username }}</code
-          >'s files.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="Delete User"
-        :src="gearIcon"
-        theme-safe
-        @click="deleteUserModal!.show()"
-      >
-        <p>
-          Delete <code>{{ otherUser.data.username }}</code
-          >'s account.
-        </p>
-      </ContentBox>
-      <ContentBox
-        title="View User's Files"
-        :src="fileIcon"
-        theme-safe
-        :to="`/staff/files?user=${otherUser.data.id}`"
-      >
-        <p>
-          View <code>{{ otherUser.data.username }}</code
-          >'s files.
-        </p>
-      </ContentBox>
-    </div>
+      <div v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchUser">Retry</button>
+      </div>
+    </template>
+    <LoadingMessage spinner v-else />
   </Online>
   <FormModal
     ref="changeUsernameModal"
@@ -540,6 +548,7 @@
 
   // In-House Modules
   import backWithFallback from '@/utils/routerBackWithFallback';
+  import profileIcon from '@/assets/images/profile.svg';
   import fileIcon from '@/assets/images/file.svg';
   import gearIcon from '@/assets/images/gear.svg';
   import toDateString from '@/utils/toDateString';

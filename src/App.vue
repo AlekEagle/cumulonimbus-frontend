@@ -828,6 +828,16 @@
     margin: 0 auto;
   }
 
+  .sb-code-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sb-code-label p {
+    display: inline-block;
+  }
+
   .content-box-container + .content-box-container {
     margin-top: 15px;
   }

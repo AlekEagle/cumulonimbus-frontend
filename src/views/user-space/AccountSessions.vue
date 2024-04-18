@@ -97,13 +97,7 @@
       </p>
       <p>
         Last Used:
-        <code
-          v-text="
-            selectedSession.usedAt
-              ? useFuzzyTimeString(ref(new Date(selectedSession.usedAt))).value
-              : 'Not yet...'
-          "
-        />
+        <code v-text="selectedSessionFuzzyUsedAt" />
       </p>
       <p v-if="!selectedSessionPermissions">
         <strong>This session is a standard browser session.</strong>
@@ -498,6 +492,11 @@
     page = ref(0),
     selected = ref<string[]>([]),
     selectedSession = ref<Cumulonimbus.Data.Session | null>(null),
+    selectedSessionFuzzyUsedAt = computed(() =>
+      selectedSession.value?.usedAt
+        ? useFuzzyTimeString(ref(new Date(selectedSession.value.usedAt))).value
+        : 'Not yet...',
+    ),
     selectedSessionPermissions = computed(() => {
       if (
         !selectedSession.value ||

@@ -156,7 +156,9 @@ export const userStore = defineStore('user', () => {
           return true;
         } catch (error) {
           // Pass our error to the default error handler and check if it was handled.
-          const reason = await defaultErrorHandler(error, router);
+          const reason = await defaultErrorHandler(error, router, [
+            'INVALID_SESSION_ERROR',
+          ]);
           switch (reason) {
             case 'OK':
               // If the error was handled, return false.

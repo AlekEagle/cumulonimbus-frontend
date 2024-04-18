@@ -8,8 +8,11 @@
         Select...
       </button>
       <button @click="deleteAllSecondFactorsModal?.show()">Delete All</button>
-      <button @click="registerNewSecondFactorModal?.show()">
-        Register...
+      <button
+        @click="beginRegenerateBackupCodes"
+        :disabled="secondFactors.data ? secondFactors.data.count < 1 : true"
+      >
+        Regenerate Backup Codes
       </button>
     </template>
     <template v-else>
@@ -50,10 +53,27 @@
             >
               Click me to manage this second factor.
             </SelectableContentBox>
+            <ContentBox
+              v-if="!selecting"
+              theme-safe
+              :src="plusIcon"
+              @click="registerNewSecondFactorModal?.show()"
+              title="Register New Second Factor"
+            >
+              Help increase your account security by registering a new second
+              factor.
+            </ContentBox>
           </div>
-          <div v-else class="no-content-container">
-            <h1>No Second Factors</h1>
-            <h2>You have not registered any second factors.</h2>
+          <div v-else class="content-box-container">
+            <ContentBox
+              theme-safe
+              :src="plusIcon"
+              @click="registerNewSecondFactorModal?.show()"
+              title="Register New Second Factor"
+            >
+              Help increase your account security by registering a new second
+              factor.
+            </ContentBox>
           </div>
         </template>
         <div class="no-content-container" v-else>
@@ -73,18 +93,22 @@
     confirm-button="Remove"
   >
     <template v-if="!!selectedFactor">
-      <p>
-        Type:
+      <span class="sb-code-label">
+        <p>Type:</p>
         <code v-text="selectedFactor.type" />
-      </p>
-      <p>
-        Registered:
+      </span>
+      <span class="sb-code-label">
+        <p>Registered:</p>
         <code v-text="toDateString(new Date(selectedFactor.createdAt))" />
-      </p>
-      <p>
-        Last updated at:
+      </span>
+      <span class="sb-code-label">
+        <p>Last Updated:</p>
         <code v-text="toDateString(new Date(selectedFactor.updatedAt))" />
-      </p>
+      </span>
+      <span class="sb-code-label">
+        <p>Last Used:</p>
+        <code v-text="selectedFactorFuzzyLastUsedAt" />
+      </span>
     </template>
     <LoadingMessage spinner v-else />
   </ConfirmModal>
@@ -153,19 +177,27 @@
 
   <Modal
     ref="registerNewSecondFactorModal"
-    title="Register New Second Factor"
+    title="New Second Factor"
+    close-button="Nevermind"
     dismissible
   >
+    <p>What type of second factor would you like to add to your account?</p>
+    <br />
     <p>
-      Register a new second factor by selecting the type of second factor you'd
-      like to register below.
+      <strong>Authenticator App:</strong> An authenticator app is an app that
+      will generate a 6 digit code every 30 seconds, all you have to do is enter
+      one of those codes when we ask for one.
     </p>
+    <br />
+    <p>
+      <strong>Security Key:</strong> A security key is a physical device that
+      you can plug into your computer or tap on your phone to verify your
+      identity.
+    </p>
+    <br />
     <div class="modal-footer">
       <button @click="beginTOTPRegistration">Authenticator App</button>
       <button @click="beginWebAuthnRegistration">Security Key</button>
-      <button @click="beginRegenerateBackupCodes">
-        Regenerate Backup Codes
-      </button>
     </div>
   </Modal>
 
@@ -190,11 +222,12 @@
   </FormModal>
   <FormModal
     ref="secondFactorRegistrationModal"
-    title="Register New Second Factor"
+    title="New Second Factor"
     @submit="completeSecondFactorRegistration"
     :disabled="secondFactors.loading"
     confirm-button="Register"
   >
+    <p>Time Remaining: <code v-text="registrationTimeout" /></p>
     <template v-if="registrationData!.type === 'totp'">
       <p>
         Please click or scan the QR code below to register your new
@@ -276,6 +309,7 @@
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
+  import ContentBox from '@/components/ContentBox.vue';
   import Paginator from '@/components/Paginator.vue';
   import Online from '@/components/Online.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
@@ -288,8 +322,10 @@
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
+  import plusIcon from '@/assets/images/plus.svg';
   import loadWhenOnline from '@/utils/loadWhenOnline';
   import toDateString from '@/utils/toDateString';
+  import { useFuzzyTimeString } from '@/utils/time';
 
   // Store Modules
   import { secondFactorsStore } from '@/stores/user-space/secondFactors';
@@ -297,7 +333,7 @@
   import { userStore } from '@/stores/user';
 
   // External Modules
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, computed } from 'vue';
   import { useOnline } from '@vueuse/core';
   import QRCode from 'qrcode';
   import { startRegistration } from '@simplewebauthn/browser';
@@ -309,12 +345,21 @@
     selecting = ref(false),
     selected = ref<string[]>([]),
     selectedFactor = ref<Cumulonimbus.Data.SecondFactor | null>(null),
+    selectedFactorFuzzyLastUsedAt = computed(() =>
+      selectedFactor.value?.usedAt
+        ? useFuzzyTimeString(ref(new Date(selectedFactor.value.usedAt)))
+        : 'Not yet...',
+    ),
     factorTypeToRegister = ref<'totp' | 'webauthn' | 'backup' | null>(null),
     registrationData = ref<
       | Cumulonimbus.Data.SecondFactorTOTPRegistration
       | Cumulonimbus.Data.SecondFactorWebAuthnRegistration
       | null
     >(null),
+    registrationTimeoutDate = computed(
+      () => new Date((registrationData.value?.exp ?? 0) * 1000),
+    ),
+    registrationTimeout = useFuzzyTimeString(registrationTimeoutDate),
     registrationCompleteData = ref<
       | Cumulonimbus.Data.SecondFactorRegisterSuccess
       | Cumulonimbus.Data.SecondFactorBackupRegisterSuccess
@@ -379,12 +424,17 @@
       return;
     }
     try {
-      await secondFactors.deleteSecondFactor(
+      const result = await secondFactors.deleteSecondFactor(
         selectedFactor.value!.id,
         password,
       );
-      manageSecondFactorModal.value?.hide();
-      await fetchSecondFactors();
+      if (result) {
+        toast.show('Second factor deleted.');
+        confirmDeleteModal.value?.hide();
+        await fetchSecondFactors();
+      } else {
+        toast.clientError();
+      }
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -397,9 +447,18 @@
       return;
     }
     try {
-      await secondFactors.deleteSecondFactors(selected.value, password);
-      cancelSelection();
-      await fetchSecondFactors();
+      const count = await secondFactors.deleteSecondFactors(
+        selected.value,
+        password,
+      );
+      if (count < 0) {
+        toast.clientError();
+      } else {
+        toast.show(`${count} second factor(s) deleted.`);
+        confirmDeleteMultipleModal.value?.hide();
+        cancelSelection();
+        await fetchSecondFactors();
+      }
     } catch (e) {
       console.error(e);
       toast.clientError();

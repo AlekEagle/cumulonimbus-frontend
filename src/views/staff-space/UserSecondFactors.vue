@@ -6,16 +6,12 @@
   </h2>
   <div class="quick-action-buttons-container">
     <BackButton :fallback="`/staff/user?id=${secondFactors.owner?.id}`" />
-    <button
-      v-if="!selecting"
-      @click="selecting = true"
-      :disabled="secondFactors.loading"
-    >
-      Select...
-    </button>
-    <button v-if="!selecting" @click="deleteAllSecondFactorsModal!.show()">
-      Delete All
-    </button>
+    <template v-if="!selecting">
+      <button @click="selecting = true" :disabled="secondFactors.loading">
+        Select...
+      </button>
+      <button @click="deleteAllSecondFactorsModal!.show()">Delete All</button>
+    </template>
     <template v-else>
       <button @click="cancelSelection" :disabled="secondFactors.loading">
         Cancel Selection
@@ -72,7 +68,6 @@
     </Online>
   </Paginator>
 
-  <!-- TODO: Add a rename option and endpoint -->
   <ConfirmModal
     ref="manageSecondFactorModal"
     :title="selectedFactor?.name"
@@ -81,20 +76,22 @@
     confirm-button="Remove"
   >
     <template v-if="!!selectedFactor">
-      <h2 v-text="selectedFactor.name" />
-      <p>
-        Type:
+      <span class="sb-code-label">
+        <p>Type:</p>
         <code v-text="selectedFactor.type" />
-      </p>
-      <p>
-        Registered:
+      </span>
+      <span class="sb-code-label">
+        <p>Registered:</p>
         <code v-text="toDateString(new Date(selectedFactor.createdAt))" />
-      </p>
-      <p>
-        Last updated at:
+      </span>
+      <span class="sb-code-label">
+        <p>Updated:</p>
         <code v-text="toDateString(new Date(selectedFactor.updatedAt))" />
-      </p>
-      <!-- TODO: Add a last used at field -->
+      </span>
+      <span class="sb-code-label">
+        <p>Last Used:</p>
+        <code v-text="selectedFactorFuzzyLastUsedAt" />
+      </span>
     </template>
     <LoadingMessage spinner v-else />
   </ConfirmModal>
@@ -170,6 +167,7 @@
   import loadWhenOnline from '@/utils/loadWhenOnline';
   import backWithFallback from '@/utils/routerBackWithFallback';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import { useFuzzyTimeString } from '@/utils/time';
 
   // Store Modules
   import { secondFactorsStore } from '@/stores/staff-space/secondFactors';
@@ -177,7 +175,7 @@
   import { userStore } from '@/stores/user';
 
   // External Modules
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, computed } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
@@ -189,6 +187,11 @@
     selecting = ref(false),
     selected = ref<string[]>([]),
     selectedFactor = ref<Cumulonimbus.Data.SecondFactor | null>(null),
+    selectedFactorFuzzyLastUsedAt = computed(() =>
+      selectedFactor.value?.usedAt
+        ? useFuzzyTimeString(ref(new Date(selectedFactor.value.usedAt)))
+        : 'Not yet...',
+    ),
     page = ref(0),
     confirmDeleteModal = ref<InstanceType<typeof FormModal>>(),
     confirmDeleteMultipleModal = ref<InstanceType<typeof FormModal>>(),

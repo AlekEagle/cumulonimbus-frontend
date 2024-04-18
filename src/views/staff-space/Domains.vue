@@ -5,7 +5,7 @@
     <BackButton fallback="/staff" />
     <template v-if="!selecting">
       <button @click="selecting = true" :disabled="domains.loading">
-        Bulk Delete
+        Select...
       </button>
       <button @click="createDomainModal!.show()" :disabled="domains.loading">
         Create Domain

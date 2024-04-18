@@ -19,7 +19,11 @@
         </div>
         <div class="modal-footer">
           <slot name="footer">
-            <button v-if="props.dismissible" @click="__hide" v-text="'Close'" />
+            <button
+              v-if="props.dismissible"
+              @click="__hide"
+              v-text="props.closeButton"
+            />
           </slot>
         </div>
       </div>
@@ -49,6 +53,10 @@
       default: 'Modal Title',
     },
     dismissible: Boolean,
+    closeButton: {
+      type: String,
+      default: 'Close',
+    },
   });
 
   const visible = ref(false);
