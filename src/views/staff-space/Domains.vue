@@ -86,21 +86,28 @@
     confirm-button="Delete"
     @submit="showDeleteModal"
   >
-    <code v-text="selectedDomain!.id" />
+    <code v-text="domains.selectedDomain!.id" />
     <p>
       Created at:
-      <code v-text="toDateString(new Date(selectedDomain!.createdAt))" />
+      <code
+        v-text="toDateString(new Date(domains.selectedDomain!.createdAt))"
+      />
     </p>
     <p>
       Last updated at:
-      <code v-text="toDateString(new Date(selectedDomain!.updatedAt))" />
+      <code
+        v-text="toDateString(new Date(domains.selectedDomain!.updatedAt))"
+      />
     </p>
     <p>
       This domain currently does{{
-        selectedDomain!.subdomains ? ' ' : ' not '
+        domains.selectedDomain!.subdomains ? ' ' : ' not '
       }}allow subdomains to be used.
     </p>
-    <button v-if="selectedDomain!.subdomains" @click="disableSubdomains">
+    <button
+      v-if="domains.selectedDomain!.subdomains"
+      @click="disableSubdomains"
+    >
       Disable Subdomains
     </button>
     <button v-else @click="enableSubdomains">Enable Subdomains</button>
@@ -111,7 +118,10 @@
     :disabled="domains.loading"
     @submit="deleteDomain"
   >
-    <p>Are you sure you want to delete <code v-text="selectedDomain!.id" />?</p>
+    <p
+      >Are you sure you want to delete
+      <code v-text="domains.selectedDomain!.id" />?</p
+    >
     <p>All users using it will have their domain selection reset to default.</p>
   </ConfirmModal>
   <FormModal
@@ -147,7 +157,6 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import gearIcon from '@/assets/images/gear.svg';
   import toDateString from '@/utils/toDateString';
   import loadWhenOnline from '@/utils/loadWhenOnline';
@@ -163,7 +172,6 @@
   import { useRouter } from 'vue-router';
 
   const online = useOnline(),
-    router = useRouter(),
     user = userStore(),
     toast = toastStore(),
     domains = domainsStore(),
@@ -173,8 +181,7 @@
     manageDomainModal = ref<InstanceType<typeof ConfirmModal>>(),
     bulkDeleteDomainModal = ref<InstanceType<typeof ConfirmModal>>(),
     deleteDomainModal = ref<InstanceType<typeof ConfirmModal>>(),
-    createDomainModal = ref<InstanceType<typeof FormModal>>(),
-    selectedDomain = ref<Cumulonimbus.Data.Domain | null>(null);
+    createDomainModal = ref<InstanceType<typeof FormModal>>();
 
   async function fetchDomains(): Promise<void> {
     if (!online.value) {
@@ -190,40 +197,6 @@
     }
   }
 
-  async function fetchDomain(id: string): Promise<boolean> {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return false;
-    }
-    try {
-      const status = await user.client!.getDomain(id);
-      selectedDomain.value = status.result;
-      return true;
-    } catch (error) {
-      // Pass our error to the default error handler and check if it was handled.
-      switch (await defaultErrorHandler(error, router)) {
-        case 'OK':
-          // If the error was handled, return true to signify success.
-          return false;
-        case 'NOT_HANDLED':
-          // Handle special cases.
-          switch ((error as Cumulonimbus.ResponseError).code) {
-            case 'INVALID_DOMAIN_ERROR':
-              toast.show("Whoops! That domain doesn't exist.");
-              await fetchDomains();
-              return false;
-            default:
-              // If it still wasn't handled, throw the error.
-              throw error;
-          }
-        case 'NOT_RESPONSE_ERROR':
-        default:
-          // If the error wasn't handled, throw it.
-          throw error;
-      }
-    }
-  }
-
   async function onDomainClick(
     domain: Cumulonimbus.Data.Domain,
   ): Promise<void> {
@@ -235,7 +208,7 @@
       }
     } else {
       try {
-        if (await fetchDomain(domain.id)) manageDomainModal.value!.show();
+        if (await domains.getDomain(domain.id)) manageDomainModal.value!.show();
       } catch (error) {
         console.error(error);
         toast.clientError();
@@ -251,7 +224,7 @@
 
   async function deselect() {
     await deleteDomainModal.value!.hide();
-    selectedDomain.value = null;
+    domains.selectedDomain = null;
   }
 
   async function deleteDomain(choice: boolean): Promise<void> {
@@ -264,7 +237,7 @@
       return;
     }
     try {
-      const status = await domains.deleteDomain(selectedDomain.value!.id);
+      const status = await domains.deleteDomain(domains.selectedDomain!.id);
       if (status) {
         toast.show('Domain deleted.');
         await fetchDomains();
@@ -304,12 +277,9 @@
       return;
     }
     try {
-      const status = await domains.enableSubdomains(selectedDomain.value!.id);
+      const status = await domains.enableSubdomains(domains.selectedDomain!.id);
       if (status) {
         toast.show('Domain updated.');
-        selectedDomain.value = (
-          await user.client!.getDomain(selectedDomain.value!.id)
-        ).result;
         await fetchDomains();
       }
     } catch (e) {
@@ -324,12 +294,11 @@
       return;
     }
     try {
-      const status = await domains.disableSubdomains(selectedDomain.value!.id);
+      const status = await domains.disableSubdomains(
+        domains.selectedDomain!.id,
+      );
       if (status) {
         toast.show('Domain updated.');
-        selectedDomain.value = (
-          await user.client!.getDomain(selectedDomain.value!.id)
-        ).result;
         await fetchDomains();
       }
     } catch (e) {

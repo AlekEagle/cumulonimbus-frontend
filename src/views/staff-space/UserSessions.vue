@@ -73,22 +73,28 @@
   </ConfirmModal>
   <ConfirmModal
     ref="manageSessionModal"
-    :title="selectedSession ? selectedSession.name : 'Loading...'"
+    :title="
+      sessions.selectedSession ? sessions.selectedSession.name : 'Loading...'
+    "
     @submit="onManageSessionChoice"
     :confirm-button="'Delete'"
   >
-    <template v-if="!!selectedSession">
+    <template v-if="!!sessions.selectedSession">
       <span class="sb-code-label">
         <p>Created:</p>
-        <code v-text="toDateString(new Date(selectedSession.createdAt))" />
+        <code
+          v-text="toDateString(new Date(sessions.selectedSession.createdAt))"
+        />
       </span>
       <span class="sb-code-label">
         <p>Expires:</p>
-        <code v-text="toDateString(new Date(selectedSession.exp * 1000))" />
+        <code
+          v-text="toDateString(new Date(sessions.selectedSession.exp * 1000))"
+        />
       </span>
       <span class="sb-code-label">
         <p>Used:</p>
-        <code v-text="selectedSessionFuzzyUsedAt" />
+        <code v-text="sessions.selectedSessionFuzzyUsedAt" />
       </span>
       <p>If you delete this session, they will have to sign back in.</p>
     </template>
@@ -135,12 +141,6 @@
     confirmDeleteModal = ref<InstanceType<typeof ConfirmModal>>(),
     manageSessionModal = ref<InstanceType<typeof ConfirmModal>>(),
     page = ref(0),
-    selectedSession = ref<Cumulonimbus.Data.Session | null>(null),
-    selectedSessionFuzzyUsedAt = computed(() =>
-      selectedSession.value?.usedAt
-        ? useFuzzyTimeString(ref(new Date(selectedSession.value.usedAt))).value
-        : 'Not yet...',
-    ),
     deleteAllSessionsModal = ref<InstanceType<typeof ConfirmModal>>();
 
   async function fetchSessions() {
@@ -165,7 +165,6 @@
         selected.value.push(session.id + '');
       }
     } else {
-      selectedSession.value = session;
       manageSessionModal.value!.show();
     }
   }
@@ -205,10 +204,10 @@
   async function onManageSessionChoice(choice: boolean) {
     if (choice) {
       const status = await sessions.deleteSession(
-        selectedSession.value!.id + '',
+        sessions.selectedSession!.id + '',
       );
       if (status) {
-        selectedSession.value = null;
+        sessions.selectedSession = null;
         toast.show('Session deleted.');
         await fetchSessions();
       }

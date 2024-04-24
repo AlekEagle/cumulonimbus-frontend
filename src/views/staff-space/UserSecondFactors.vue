@@ -70,27 +70,35 @@
 
   <ConfirmModal
     ref="manageSecondFactorModal"
-    :title="selectedFactor?.name"
+    :title="secondFactors.selectedSecondFactor?.name"
     @submit="manageSecondFactor"
     deny-button="Close"
     confirm-button="Remove"
   >
-    <template v-if="!!selectedFactor">
+    <template v-if="!!secondFactors.selectedSecondFactor">
       <span class="sb-code-label">
         <p>Type:</p>
-        <code v-text="selectedFactor.type" />
+        <code v-text="secondFactors.selectedSecondFactor.type" />
       </span>
       <span class="sb-code-label">
         <p>Registered:</p>
-        <code v-text="toDateString(new Date(selectedFactor.createdAt))" />
+        <code
+          v-text="
+            toDateString(new Date(secondFactors.selectedSecondFactor.createdAt))
+          "
+        />
       </span>
       <span class="sb-code-label">
         <p>Updated:</p>
-        <code v-text="toDateString(new Date(selectedFactor.updatedAt))" />
+        <code
+          v-text="
+            toDateString(new Date(secondFactors.selectedSecondFactor.updatedAt))
+          "
+        />
       </span>
       <span class="sb-code-label">
         <p>Last Used:</p>
-        <code v-text="selectedFactorFuzzyLastUsedAt" />
+        <code v-text="secondFactors.selectedFactorFuzzyLastUsedAt" />
       </span>
     </template>
     <LoadingMessage spinner v-else />
@@ -105,7 +113,8 @@
   >
     <p>
       Are you sure you want to delete the second factor
-      <code v-text="selectedFactor?.name" />? This action cannot be undone.
+      <code v-text="secondFactors.selectedSecondFactor?.name" />? This action
+      cannot be undone.
     </p>
     <input
       hidden
@@ -167,7 +176,6 @@
   import loadWhenOnline from '@/utils/loadWhenOnline';
   import backWithFallback from '@/utils/routerBackWithFallback';
   import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import { useFuzzyTimeString } from '@/utils/time';
 
   // Store Modules
   import { secondFactorsStore } from '@/stores/staff-space/secondFactors';
@@ -175,7 +183,7 @@
   import { userStore } from '@/stores/user';
 
   // External Modules
-  import { ref, onMounted, computed } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { useOnline } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
@@ -186,12 +194,6 @@
     online = useOnline(),
     selecting = ref(false),
     selected = ref<string[]>([]),
-    selectedFactor = ref<Cumulonimbus.Data.SecondFactor | null>(null),
-    selectedFactorFuzzyLastUsedAt = computed(() =>
-      selectedFactor.value?.usedAt
-        ? useFuzzyTimeString(ref(new Date(selectedFactor.value.usedAt)))
-        : 'Not yet...',
-    ),
     page = ref(0),
     confirmDeleteModal = ref<InstanceType<typeof FormModal>>(),
     confirmDeleteMultipleModal = ref<InstanceType<typeof FormModal>>(),
@@ -225,12 +227,7 @@
       }
     } else {
       manageSecondFactorModal.value!.show();
-      selectedFactor.value = (
-        await user.client!.getUserSecondFactor(
-          secondFactors.owner!.id,
-          secondFactor.id + '',
-        )
-      ).result;
+      await secondFactors.getSecondFactor(secondFactor.id + '');
     }
   }
 
@@ -283,7 +280,7 @@
   }
 
   function cancelSelection() {
-    selectedFactor.value = null;
+    secondFactors.selectedSecondFactor = null;
     selecting.value = false;
     selected.value = [];
   }
@@ -291,7 +288,7 @@
   async function manageSecondFactor(choice: boolean) {
     await manageSecondFactorModal.value!.hide();
     if (!choice) {
-      selectedFactor.value = null;
+      cancelSelection();
       return;
     } else await confirmDeleteModal.value!.show();
   }
@@ -303,11 +300,11 @@
     }
     try {
       await secondFactors.deleteSecondFactor(
-        selectedFactor.value!.id + '',
+        secondFactors.selectedSecondFactor!.id + '',
         password,
       );
       await confirmDeleteModal.value!.hide();
-      selectedFactor.value = null;
+      secondFactors.selectedSecondFactor = null;
       await fetchSecondFactors();
     } catch (e) {
       console.error(e);

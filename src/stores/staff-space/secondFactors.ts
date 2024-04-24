@@ -1,4 +1,5 @@
 // In-House Modules
+import { useFuzzyTimeString } from '@/utils/time';
 import Cumulonimbus from 'cumulonimbus-wrapper';
 import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
@@ -10,7 +11,7 @@ import { secondFactorChallengerStore } from '../secondFactorChallenger';
 
 // External Modules
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 export const secondFactorsStore = defineStore(
@@ -23,6 +24,12 @@ export const secondFactorsStore = defineStore(
       secondFactorChallenger = secondFactorChallengerStore(),
       data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.SecondFactor> | null>(
         null,
+      ),
+      selectedSecondFactor = ref<Cumulonimbus.Data.SecondFactor | null>(null),
+      selectedFactorFuzzyLastUsedAt = computed(() =>
+        selectedSecondFactor.value?.usedAt
+          ? useFuzzyTimeString(ref(new Date(selectedSecondFactor.value.usedAt)))
+          : 'Not yet...',
       ),
       loading = ref(false),
       errored = ref(false),
@@ -41,6 +48,36 @@ export const secondFactorsStore = defineStore(
         });
         page.value = p;
         data.value = result.result;
+        return true;
+      } catch (error) {
+        errored.value = true;
+        // Pass our error to the default error handler and check if it was handled.
+        switch (await defaultErrorHandler(error, router)) {
+          case 'OK':
+            // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+            return false;
+          case 'NOT_HANDLED':
+          case 'NOT_RESPONSE_ERROR':
+          default:
+            // If the error wasn't handled, throw it.
+            throw error;
+        }
+      } finally {
+        loading.value = false;
+      }
+    }
+
+    async function getSecondFactor(id: string): Promise<boolean> {
+      if (user.client === null) return false;
+      if (owner.value === null) return false;
+      errored.value = false;
+      loading.value = true;
+      try {
+        const result = await user.client!.getUserSecondFactor(
+          owner.value.id,
+          id,
+        );
+        selectedSecondFactor.value = result.result;
         return true;
       } catch (error) {
         errored.value = true;
@@ -247,11 +284,14 @@ export const secondFactorsStore = defineStore(
 
     return {
       data,
+      selectedSecondFactor,
+      selectedFactorFuzzyLastUsedAt,
       loading,
       errored,
       owner,
       page,
       getSecondFactors,
+      getSecondFactor,
       deleteSecondFactor,
       deleteSecondFactors,
       deleteAllSecondFactors,
