@@ -25,16 +25,66 @@ export default defineConfig({
         short_name: 'Cumulonimbus Prod Preview',
         start_url: '/dashboard',
         display: 'standalone',
+        display_override: ['standalone'],
+        // @ts-expect-error
+        tab_strip: {
+          home_tab: {
+            url: '/dashboard',
+            icons: [
+              {
+                src: 'icons/72x72.png',
+                sizes: '72x72',
+                type: 'image/png',
+              },
+              {
+                src: 'icons/96x96.png',
+                sizes: '96x96',
+                type: 'image/png',
+              },
+              {
+                src: 'icons/128x128.png',
+                sizes: '128x128',
+                type: 'image/png',
+              },
+              {
+                src: 'icons/144x144.png',
+                sizes: '144x144',
+                type: 'image/png',
+              },
+              {
+                src: 'icons/152x152.png',
+                sizes: '152x152',
+                type: 'image/png',
+              },
+              {
+                src: 'icons/192x192.png',
+                sizes: '192x192',
+                type: 'image/png',
+              },
+              {
+                src: 'icons/384x384.png',
+                sizes: '384x384',
+                type: 'image/png',
+              },
+              {
+                src: 'icons/512x512.png',
+                sizes: '512x512',
+                type: 'image/png',
+              },
+            ],
+            new_tab_button: 'absent',
+          },
+        },
         scope: '/',
         background_color: '#000000',
         screenshots: [
           {
-            src: 'https://alekeagle.me/DVAQGiggrG.png',
+            src: 'https://cdn.alekeagle.me/DVAQGiggrG.png',
             form_factor: 'wide',
             sizes: '1920x1080',
           },
           {
-            src: 'https://alekeagle.me/jUf_rGepqK.png',
+            src: 'https://cdn.alekeagle.me/jUf_rGepqK.png',
             form_factor: 'narrow',
             sizes: '1080x2260',
           },
