@@ -25,8 +25,8 @@ export default defineConfig({
         short_name: 'Cumulonimbus Prod Preview',
         start_url: '/dashboard',
         display: 'standalone',
-        display_override: ['standalone'],
         // @ts-expect-error
+        display_override: ['tabbed'],
         tab_strip: {
           home_tab: {
             url: '/dashboard',
