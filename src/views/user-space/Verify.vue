@@ -8,7 +8,7 @@
       <h2>Check your internet connection and try again.</h2>
     </template>
     <template v-else-if="statusText">
-      <h1>{{ statusText }}</h1>
+      <h1 v-text="statusText" />
     </template>
     <template v-else>
       <LoadingMessage spinner />

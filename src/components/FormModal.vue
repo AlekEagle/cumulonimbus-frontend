@@ -8,9 +8,11 @@
     :deny-button="props.denyButton"
   >
     <template #default>
+      <slot name="before-form" />
       <Form ref="form" @submit="formSubmit" :reset="props.reset">
         <slot name="default" />
       </Form>
+      <slot name="after-form" />
     </template>
     <template #additional-buttons>
       <slot name="additional-buttons" />

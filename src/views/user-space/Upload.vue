@@ -11,7 +11,7 @@
       <div
         class="file-drop-zone"
         ref="fileDropZone"
-        @click="fileDialog!.click()"
+        @click="openFileDialog()"
         tabindex="0"
       >
         <h1 v-text="dropZoneText" />
@@ -31,18 +31,6 @@
       </template>
     </div>
   </EmphasizedBox>
-  <input
-    type="file"
-    class="file-dialog"
-    ref="fileDialog"
-    @change="
-      onDrop(
-        ($event.target as HTMLInputElement).files !== null
-          ? Array.from(($event.target as HTMLInputElement).files as FileList)
-          : null,
-      )
-    "
-  />
   <FullscreenLoadingMessage ref="fsm">
     <ProgressBar :progress="progress" v-if="isChromium" />
   </FullscreenLoadingMessage>
@@ -67,11 +55,15 @@
 
   // External Modules
   import { computed, ref, onMounted } from 'vue';
-  import { useOnline, useClipboard, useDropZone } from '@vueuse/core';
+  import {
+    useOnline,
+    useClipboard,
+    useDropZone,
+    useFileDialog,
+  } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
   const fileDropZone = ref<HTMLElement | null>(null),
-    fileDialog = ref<HTMLInputElement>(),
     router = useRouter(),
     toast = toastStore(),
     user = userStore(),
@@ -79,6 +71,7 @@
     online = useOnline(),
     { copied, copy, isSupported: clipboardIsSupported } = useClipboard(),
     { isOverDropZone } = useDropZone(fileDropZone, onDrop),
+    { open: openFileDialog, onChange } = useFileDialog(),
     file = ref<File>(),
     uploadData = ref<Cumulonimbus.Data.SuccessfulUpload>(),
     fsm = ref<InstanceType<typeof FullscreenLoadingMessage>>(),
@@ -93,11 +86,12 @@
     // @ts-ignore
     isChromium = computed(() => !!window.chrome);
 
+  onChange((files) => (files ? onDrop(Array.from(files)) : void 0));
+
   function onDrop(files: File[] | null) {
     if (!files || files.length < 1) return;
     if (files.length > 1)
       return toast.show('You can only upload one file at a time.', 5e3);
-    console.log(files[0]);
     file.value = files[0];
   }
 
@@ -113,46 +107,57 @@
       );
       return;
     }
+    if (file.value.size > 100000000)
+      return toast.show(
+        'The file you are trying to upload is too large. The maximum file size is 100MB.',
+        7.5e3,
+      );
     try {
       if (isChromium.value) {
+        progress.value = 0;
+        progressBytes.value = 0;
         // Create our own damn form data stream because FormData doesn't support being read as a stream.
-        const boundary = `${'-'.repeat(27)}${Math.pow(2, 20)}`;
-        const contentTypeHeader = `multipart/form-data; boundary=${boundary}`;
-        const readableStream = new ReadableStream({
+        const boundary = `${'-'.repeat(27)}${Math.pow(2, 20)}`,
+          contentTypeHeader = `multipart/form-data; boundary=${boundary}`,
+          boundaryBegin = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${
+            file.value!.name
+          }"\r\nContent-Type: ${file.value!.type}\r\n\r\n`,
+          boundaryEnd = `\r\n--${boundary}--`;
+        const multipartFormDataStream = new ReadableStream({
           async start(controller) {
-            controller.enqueue(
-              new TextEncoder().encode(
-                `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${
-                  file.value!.name
-                }"\r\nContent-Type: ${file.value!.type}\r\n\r\n`,
-              ),
-            );
+            controller.enqueue(new TextEncoder().encode(boundaryBegin));
             const reader = file.value!.stream().getReader();
             while (true) {
               const { done, value } = await reader.read();
               if (done) break;
               controller.enqueue(value);
             }
-            controller.enqueue(new TextEncoder().encode(`\r\n--${boundary}--`));
+            controller.enqueue(new TextEncoder().encode(boundaryEnd));
             controller.close();
           },
         });
         const transformStream = new TransformStream({
           async transform(chunk, controller) {
             progressBytes.value += chunk.byteLength;
-            progress.value = (progressBytes.value / file.value!.size) * 100;
+            progress.value =
+              (progressBytes.value /
+                (file.value!.size +
+                  boundaryBegin.length +
+                  boundaryEnd.length)) *
+              100;
             controller.enqueue(chunk);
           },
         });
         uploadData.value = undefined;
         await fsm.value!.show();
+        // TODO: handle errors from the upload endpoint
         const data = await fetch(`${cumulonimbusOptions.baseURL}/upload`, {
           method: 'POST',
           headers: {
             'Authorization': user.account!.session.token,
             'Content-Type': contentTypeHeader,
           },
-          body: readableStream.pipeThrough(transformStream),
+          body: multipartFormDataStream.pipeThrough(transformStream),
           // @ts-ignore - This is a valid option, but TypeScript doesn't know about it.
           duplex: 'half',
         });
@@ -241,11 +246,5 @@
 
   .upload-buttons-container button {
     margin: 5px;
-  }
-
-  .file-dialog {
-    visibility: hidden;
-    width: 0;
-    height: 0;
   }
 </style>

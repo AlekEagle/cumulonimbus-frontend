@@ -6,6 +6,7 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler';
 import { userStore } from '../user';
 import { toastStore } from '../toast';
 import { displayPrefStore } from '../displayPref';
+import { secondFactorChallengerStore } from '../secondFactorChallenger';
 
 // External Modules
 import { defineStore } from 'pinia';
@@ -17,6 +18,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
   const user = userStore();
   const toast = toastStore();
   const displayPref = displayPrefStore();
+  const secondFactorChallenger = secondFactorChallengerStore();
   const router = useRouter();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(
@@ -30,7 +32,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getSessions({
+      const result = await (user.client as Cumulonimbus).getSelfSessions({
         limit: displayPref.itemsPerPage,
         offset: displayPref.itemsPerPage * p,
       });
@@ -61,7 +63,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      await (user.client as Cumulonimbus).deleteSession(session);
+      await user.client.deleteSelfSession(session);
       return true;
     } catch (error) {
       errored.value = true;
@@ -96,9 +98,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteSessions(
-        sessions,
-      );
+      const result = await user.client.deleteSelfSessions(sessions);
       return result.result.count!;
     } catch (error) {
       errored.value = true;
@@ -107,6 +107,58 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
         case 'OK':
           // If the error was handled, return true to signify success.
           return -1;
+        case 'NOT_HANDLED':
+        // No special cases to handle here.
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function createScopedSession(
+    name: string,
+    permissionFlags: Cumulonimbus.PermissionFlags,
+    password: string,
+    longLived: boolean = false,
+  ): Promise<string | null> {
+    if (user.client === null) return null;
+    errored.value = false;
+    loading.value = true;
+    try {
+      const result = await user.client.createScopedSession(
+        name,
+        permissionFlags,
+        password,
+        longLived,
+      );
+      return result.result.token;
+    } catch (error) {
+      errored.value = true;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return null.
+          return null;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return null;
+          }
+
+          const result = await user.client.createScopedSession(
+            name,
+            permissionFlags,
+            SFR,
+            longLived,
+          );
+          return result.result.token;
         case 'NOT_HANDLED':
         // No special cases to handle here.
         case 'NOT_RESPONSE_ERROR':
@@ -134,6 +186,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     getSessions,
     deleteSession,
     deleteSessions,
+    createScopedSession,
     clear,
   };
 });
