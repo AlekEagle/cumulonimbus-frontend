@@ -1,5 +1,10 @@
 <template>
-  <Modal :title="props.title" dismissible @close="submit(false)" ref="modal">
+  <Modal
+    :title="props.title"
+    :dismissible="!props.disabled"
+    @close="submit(false)"
+    ref="modal"
+  >
     <template #default>
       <slot name="default" />
     </template>
@@ -51,9 +56,14 @@
     closeOnSubmit: Boolean,
     disabled: Boolean,
   });
-  const modal = ref<InstanceType<typeof Modal>>();
+  const modal = ref<InstanceType<typeof Modal>>(),
+    confirmCallback = ref<(choice: boolean) => void>();
 
   function submit(choice: boolean) {
+    if (confirmCallback.value) {
+      confirmCallback.value(choice);
+      return;
+    }
     emit('submit', choice);
     if (props.closeOnSubmit) {
       modal.value!.hide();
@@ -68,8 +78,21 @@
     await modal.value!.hide();
   }
 
+  async function confirm() {
+    await modal.value!.show();
+    return new Promise<boolean>((resolve) => {
+      function hideAndResolve(choice: boolean) {
+        hide();
+        resolve(choice);
+        confirmCallback.value = undefined;
+      }
+      confirmCallback.value = hideAndResolve;
+    });
+  }
+
   defineExpose({
     show,
     hide,
+    confirm,
   });
 </script>

@@ -53,6 +53,13 @@
       />
       <br />
       <input
+        hidden
+        type="text"
+        autocomplete="username"
+        name="username"
+        :value="user.account?.user.username"
+      />
+      <input
         type="password"
         placeholder="Password"
         autocomplete="current-password"
@@ -62,7 +69,6 @@
       />
     </Online>
   </FormModal>
-  <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 </template>
 
 <script lang="ts" setup>
@@ -70,19 +76,18 @@
   import BackButton from '@/components/BackButton.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
-  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import backWithFallback from '@/utils/routerBackWithFallback';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   // Store Modules
   import { instructionStore } from '@/stores/user-space/instruction';
   import { toastStore } from '@/stores/toast';
+  import { sessionsStore } from '@/stores/user-space/sessions';
   import { userStore } from '@/stores/user';
 
   // External Modules
@@ -90,23 +95,16 @@
   import { useOnline, useClipboard } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
-  const BaseAPIURLs: { [key: string]: string } = {
-    production: `${window.location.protocol}//${window.location.host}/api`,
-    ptb: 'https://alekeagle.me/api',
-    development: 'http://localhost:8000/api',
-  };
-
   const instruction = instructionStore(),
     user = userStore(),
     toast = toastStore(),
     router = useRouter(),
     online = useOnline(),
+    sessions = sessionsStore(),
     { copy } = useClipboard(),
-    session = ref<Cumulonimbus.Data.SuccessfulAuth>(),
+    session = ref<string>(),
     processing = ref(false),
     verifyIdentityModal = ref<InstanceType<typeof FormModal>>(),
-    fullscreenLoadingMessage =
-      ref<InstanceType<typeof FullscreenLoadingMessage>>(),
     OS = ref<string>(
       (navigator as any).userAgentData
         ? (navigator as any).userAgentData.platform
@@ -150,7 +148,7 @@
     if (!instruction.data) return;
     const setupFileData = instruction.data.content.replace(
       '{{token}}',
-      session.value!.token,
+      session.value!,
     );
     if (instruction.data.filename) {
       // generate a new setup file and download it
@@ -175,51 +173,17 @@
     }
     processing.value = true;
     try {
-      fullscreenLoadingMessage.value!.show();
-      const newSession = await fetch(
-          `${BaseAPIURLs[import.meta.env.MODE]}/login`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Session-Name':
-                data.name ||
-                `${
-                  instruction.data ? instruction.data.name : 'thing'
-                } on ${OS}`,
-            },
-            body: JSON.stringify({
-              username: user.account!.user.username,
-              password: data.password,
-              rememberMe: true,
-            }),
-          },
-        ),
-        json = await newSession.json();
-
-      if (newSession.status === 201) {
-        session.value = json;
-        fullscreenLoadingMessage.value!.hide();
+      const status = await sessions.createScopedSession(
+        data.name,
+        Cumulonimbus.PermissionFlags.UPLOAD_FILE,
+        data.password,
+        true,
+      );
+      if (status !== null) {
+        session.value = status;
         await verifyIdentityModal.value!.hide();
       } else {
-        const handled = await defaultErrorHandler(
-          new Cumulonimbus.ResponseError(json, {
-            limit: Number(newSession.headers.get('Ratelimit-Limit') || '0'),
-            remaining: Number(
-              newSession.headers.get('Ratelimit-Remaining') || '0',
-            ),
-            reset: Number(newSession.headers.get('Ratelimit-Reset') || '0'),
-          }),
-          router,
-        );
-        if (!handled) {
-          switch (json.code) {
-            case 'INVALID_PASSWORD_ERROR':
-              toast.invalidPassword();
-              break;
-          }
-        }
-        fullscreenLoadingMessage.value!.hide();
+        toast.clientError();
       }
     } catch (error) {
       console.error(error);

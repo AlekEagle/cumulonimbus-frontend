@@ -46,18 +46,22 @@
               theme-safe
               nowrap
             >
-              <p>
-                Saved on Cumulonimbus as:
+              <span class="sb-code-label">
+                <p>Saved on Cumulonimbus as:</p>
                 <code v-text="file.data.id" />
-              </p>
-              <p>
-                Uploaded at:
+              </span>
+              <span class="sb-code-label">
+                <p>Uploaded:</p>
                 <code v-text="toDateString(new Date(file.data.createdAt))" />
-              </p>
-              <p>
-                Size:
+              </span>
+              <span class="sb-code-label">
+                <p>Last modified:</p>
+                <code v-text="toDateString(new Date(file.data.updatedAt))" />
+              </span>
+              <span class="sb-code-label">
+                <p>Size:</p>
                 <code v-text="size(file.data.size)" />
-              </p>
+              </span>
               <p>Click me to open the file in a new tab.</p>
             </ContentBox>
           </template>
@@ -102,8 +106,12 @@
       required
       name="filename"
     />
-    <template v-slot:additional-buttons>
-      <button @click="deleteFilename"> Clear Name </button>
+    <template #after-form>
+      <div class="modal-footer">
+        <button @click="deleteFilename" v-if="file.data?.name">
+          Clear Name
+        </button>
+      </div>
     </template>
   </FormModal>
   <FormModal
@@ -170,13 +178,7 @@
     router = useRouter(),
     online = useOnline(),
     fileUrl = computed(() => {
-      if (file.data) {
-        if (import.meta.env.MODE === 'ptb')
-          return `https://alekeagle.me/${file.data.id}`;
-        else
-          return `${window.location.protocol}//${window.location.host}/${file.data.id}`;
-      }
-      return '';
+      if (file.data) return `https://cdn.alekeagle.me/${file.data.id}`;
     }),
     filename = computed(() => {
       if (file.data) return file.data.name ?? file.data.id;
@@ -333,14 +335,17 @@
     }
   }
 
-  function download() {
+  async function download() {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     if (file.data) {
+      // Download the file as a blob
+      const blob = await (await fetch(fileUrl.value!)).blob();
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = fileUrl.value;
+      a.href = url;
       a.download = file.data.name ?? file.data.id;
       a.click();
     }

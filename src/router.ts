@@ -100,6 +100,14 @@ export const router = createRouter({
       },
     },
     {
+      path: '/dashboard/account/second-factors',
+      name: 'user-space-account-second-factors',
+      component: () => import('@/views/user-space/AccountSecondFactors.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/dashboard/setup-guides',
       name: 'user-space-setup-guides',
       component: () => import('@/views/user-space/SetupGuides.vue'),
@@ -153,6 +161,15 @@ export const router = createRouter({
       },
     },
     {
+      path: '/staff/user/second-factors',
+      name: 'staff-space-user-second-factors',
+      component: () => import('@/views/staff-space/UserSecondFactors.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true,
+      },
+    },
+    {
       path: '/staff/files',
       name: 'staff-space-files',
       component: () => import('@/views/staff-space/Files.vue'),
@@ -192,6 +209,15 @@ export const router = createRouter({
       path: '/staff/setup-guide',
       name: 'staff-space-setup-guide',
       component: () => import('@/views/staff-space/SetupGuide.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true,
+      },
+    },
+    {
+      path: '/staff/kill-switches',
+      name: 'staff-space-kill-switches',
+      component: () => import('@/views/staff-space/KillSwitches.vue'),
       meta: {
         requiresAuth: true,
         requiresStaff: true,

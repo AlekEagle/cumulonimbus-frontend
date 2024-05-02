@@ -57,6 +57,7 @@ export const toastStore = defineStore('toast', () => {
     await wait(toastTransitionDuration);
     animating.value = false;
     // Set the timeout to hide the toast
+    // @ts-expect-error Blame @types/qrcode for this error
     timeout.value = setTimeout(hide, duration);
   };
 
@@ -190,6 +191,22 @@ export const toastStore = defineStore('toast', () => {
     await show('No, that is not the password.');
   };
 
+  const serviceUnavailable = async () => {
+    await show(
+      'It looks like Cumulonimbus is currently unavailable. Please try again later.',
+    );
+  };
+
+  const secondFactorRequired = async () => {
+    await show(
+      'You must have a second factor enabled to access this resource.',
+    );
+  };
+
+  const invalidSecondFactorResponse = async () => {
+    await show('Your second factor response was incorrect or has expired.');
+  };
+
   // The function to display a toast regarding client internet connectivity
   const connectivityOffline = async () => {
     await show('It seems like you are offline. Please try again later.');
@@ -225,6 +242,9 @@ export const toastStore = defineStore('toast', () => {
     userNotFound,
     emailNotVerified,
     invalidPassword,
+    serviceUnavailable,
+    secondFactorRequired,
+    invalidSecondFactorResponse,
     connectivityOffline,
     connectivityChangeOnline,
     connectivityChangeOffline,

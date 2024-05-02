@@ -180,12 +180,10 @@
       for (const account in user.accounts) {
         try {
           const res = await user.removeAccount(account);
-          if (res) {
-            if (res !== true) {
-              console.error(res);
-              toast.clientError();
-              break;
-            }
+          if (res !== true) {
+            console.error(res);
+            toast.clientError();
+            break;
           }
         } catch (error) {
           console.error(error);
@@ -195,6 +193,7 @@
       }
       toast.show('All accounts removed.');
       managingAccounts.value = false;
+      removeAllAccountsModal.value?.hide();
     }
   }
 

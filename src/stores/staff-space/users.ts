@@ -5,6 +5,7 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler';
 // Other Store Modules
 import { userStore } from '../user';
 import { displayPrefStore } from '../displayPref';
+import { secondFactorChallengerStore } from '../secondFactorChallenger';
 
 // External Modules
 import { defineStore } from 'pinia';
@@ -14,6 +15,7 @@ import { useRouter } from 'vue-router';
 export const usersStore = defineStore('staff-space-users', () => {
   const user = userStore();
   const displayPref = displayPrefStore();
+  const secondFactorChallenger = secondFactorChallengerStore();
   const router = useRouter();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.User> | null>(null);
@@ -51,24 +53,57 @@ export const usersStore = defineStore('staff-space-users', () => {
     return true;
   }
 
-  async function deleteUsers(users: string[]): Promise<number> {
+  async function deleteUsers(
+    users: string[],
+    password: string,
+  ): Promise<number> {
     if (user.client === null) return -1;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteUsers(users);
-      return result.result.count!;
+      const result = await user.client!.deleteUsers(users, password);
+      return result.result.count;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
       const reason = await defaultErrorHandler(error, router);
       switch (reason) {
         case 'OK':
+          errored.value = true;
           // If the error was handled, return true to signify success.
           return -1;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          const SFR = await secondFactorChallenger.startChallenge(
+            error as Cumulonimbus.SecondFactorChallengeRequiredError,
+          );
+
+          if (SFR === null) {
+            return -1;
+          }
+
+          try {
+            const result = await user.client!.deleteUsers(users, SFR);
+            return result.result.count;
+          } catch (error) {
+            // Pass our error to the default error handler and check if it was handled.
+            const reason = await defaultErrorHandler(error, router);
+            switch (reason) {
+              case 'OK':
+                errored.value = true;
+                // If the error was handled, return true to signify success.
+                return -1;
+              case 'NOT_HANDLED':
+              // No special cases to handle here.
+              case 'NOT_RESPONSE_ERROR':
+              default:
+                // If the error wasn't handled, throw it.
+                throw error;
+            }
+          }
         case 'NOT_HANDLED':
         // No special cases to handle here.
         case 'NOT_RESPONSE_ERROR':
         default:
+          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }

@@ -4,7 +4,7 @@
       <template v-if="user.loggedIn">
         <LoadingSpinner v-if="domainPicker.loading" />
         <div
-          :class="`domain-container${props.disabled ? ' disabled' : ''}`"
+          :class="{ 'domain-container': true, 'disabled': props.disabled }"
           v-if="domainPicker.domains"
         >
           <div class="subdomain-container" v-if="allowsSubdomains">

@@ -50,6 +50,8 @@ export function toFuzzyTimeString(ms: number): string {
   const inPast = ms < 0;
   // Now that we know the sign, we just need the magnitude
   ms = Math.abs(ms);
+  // The number of days
+  const days = Math.floor(ms / 86400000);
   // The number of hours
   const hours = Math.floor(ms / 3600000);
   // The number of minutes
@@ -57,29 +59,37 @@ export function toFuzzyTimeString(ms: number): string {
   // The number of seconds
   const seconds = Math.floor(((ms % 360000) % 60000) / 1000);
 
-  // Check if there are hours
-  if (hours) {
-    // If there are, return "about x hours ago" for negative numbers and "about x hours from now" for positive numbers
-    return `about ${hours} hour${hours === 1 ? '' : 's'} ${
+  // Check if there are days
+  if (days) {
+    // If there are, return "about x days ago" for negative numbers and "about x days from now" for positive numbers
+    return `about ${days} day${days === 1 ? '' : 's'} ${
       inPast ? 'ago' : 'from now'
     }`;
   } else {
-    // If there are not, check if there are minutes
-    if (minutes) {
-      // If there are, return "about x minutes ago" for negative numbers and "about x minutes from now" for positive numbers
-      return `about ${minutes} minute${minutes === 1 ? '' : 's'} ${
+    // Check if there are hours
+    if (hours) {
+      // If there are, return "about x hours ago" for negative numbers and "about x hours from now" for positive numbers
+      return `about ${hours} hour${hours === 1 ? '' : 's'} ${
         inPast ? 'ago' : 'from now'
       }`;
     } else {
-      // If there are not, check if there are seconds
-      if (seconds) {
-        // If there are, return "about x seconds ago" for negative numbers and "about x seconds from now" for positive numbers
-        return `about ${seconds} second${seconds === 1 ? '' : 's'} ${
+      // If there are not, check if there are minutes
+      if (minutes) {
+        // If there are, return "about x minutes ago" for negative numbers and "about x minutes from now" for positive numbers
+        return `about ${minutes} minute${minutes === 1 ? '' : 's'} ${
           inPast ? 'ago' : 'from now'
         }`;
       } else {
-        // If there are not, return "Now"
-        return 'Now';
+        // If there are not, check if there are seconds
+        if (seconds) {
+          // If there are, return "about x seconds ago" for negative numbers and "about x seconds from now" for positive numbers
+          return `about ${seconds} second${seconds === 1 ? '' : 's'} ${
+            inPast ? 'ago' : 'from now'
+          }`;
+        } else {
+          // If there are not, return "Now"
+          return 'Now';
+        }
       }
     }
   }
@@ -111,6 +121,7 @@ export function useTimeString(
   update();
 
   // Start the interval
+  // @ts-expect-error Blame @types/qrcode for this error
   interval = setInterval(update, updateInterval);
 
   // Stop the interval when the component unmounts
@@ -132,6 +143,7 @@ export function useTimeString(
         interval = null;
       }
       update();
+      // @ts-expect-error Blame @types/qrcode for this error
       interval = setInterval(update, updateInterval);
     },
     { immediate: true },
@@ -167,6 +179,7 @@ export function useFuzzyTimeString(
   update();
 
   // Start the interval
+  // @ts-expect-error Blame @types/qrcode for this error
   interval = setInterval(update, updateInterval);
 
   // Stop the interval when the component unmounts
@@ -188,6 +201,7 @@ export function useFuzzyTimeString(
         interval = null;
       }
       update();
+      // @ts-expect-error Blame @types/qrcode for this error
       interval = setInterval(update, updateInterval);
     },
     { immediate: true },

@@ -22,6 +22,7 @@
       <option :value="Paginator">Paginator</option>
       <option :value="ProgressBar">Progress Bar</option>
       <option :value="SkeletonContentBoxes">Skeleton Content Boxes</option>
+      <option :value="Switches">Switches</option>
     </select>
   </div>
 
@@ -43,6 +44,7 @@
   import Paginator from '@/views/test/Paginator.vue';
   import ProgressBar from '@/views/test/ProgressBar.vue';
   import SkeletonContentBoxes from '@/views/test/SkeletonContentBoxes.vue';
+  import Switches from '@/views/test/Switches.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
@@ -92,6 +94,9 @@
           break;
         case '#skeleton-content-boxes':
           currentItem.value = SkeletonContentBoxes;
+          break;
+        case '#switches':
+          currentItem.value = Switches;
           break;
         default:
           currentItem.value = ContentBoxes;

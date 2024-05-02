@@ -5,7 +5,7 @@
     <BackButton fallback="/staff" />
     <template v-if="!selecting">
       <button @click="selecting = true" :disabled="instructions.loading">
-        Bulk Delete
+        Select...
       </button>
       <button
         @click="createInstructionModal!.show()"

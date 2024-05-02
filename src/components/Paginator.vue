@@ -1,11 +1,5 @@
 <template>
-  <p
-    v-text="
-      `Page ${pageCount.toLocaleString()} of ${displayMax.toLocaleString()} (${itemCount.toLocaleString()} item${
-        itemCount === 1 ? '' : 's'
-      })`
-    "
-  />
+  <p v-text="pageIndicatorText" />
   <div class="paginator-controls paginator-controls-top">
     <button
       @click="prevPage"
@@ -66,13 +60,7 @@
       Next
     </button>
   </div>
-  <p
-    v-text="
-      `Page ${pageCount.toLocaleString()} of ${displayMax.toLocaleString()} (${itemCount.toLocaleString()} item${
-        itemCount === 1 ? '' : 's'
-      })`
-    "
-  />
+  <p v-text="pageIndicatorText" />
 </template>
 
 <script lang="ts" setup>
@@ -110,7 +98,13 @@
       if (isNaN(a)) return 0;
       else return a;
     }),
-    displayMax = computed(() => (maxPage.value < 0 ? 1 : maxPage.value + 1));
+    displayMax = computed(() => (maxPage.value < 0 ? 1 : maxPage.value + 1)),
+    pageIndicatorText = computed(
+      () =>
+        `Page ${pageCount.value.toLocaleString()} of ${displayMax.value.toLocaleString()} (${props.itemCount.toLocaleString()} item${
+          props.itemCount === 1 ? '' : 's'
+        })`,
+    );
 
   function prevPage() {
     emit('update:modelValue', props.modelValue - 1);

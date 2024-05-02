@@ -4,6 +4,7 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler';
 
 // Other Store Modules
 import { userStore } from '../user';
+import { toastStore } from '../toast';
 import { displayPrefStore } from '../displayPref';
 
 // External Modules
@@ -14,9 +15,11 @@ import { useRouter } from 'vue-router';
 // Store Definition
 export const domainsStore = defineStore('staff-space-domains', () => {
   const user = userStore(),
-    router = useRouter(),
+    toast = toastStore(),
     displayPref = displayPrefStore(),
+    router = useRouter(),
     data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Domain> | null>(null),
+    selectedDomain = ref<Cumulonimbus.Data.Domain | null>(null),
     loading = ref(false),
     errored = ref(false),
     page = ref(0);
@@ -52,6 +55,37 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     }
   }
 
+  async function getDomain(id: string): Promise<boolean> {
+    if (user.client === null) return false;
+    // Don't set loading to true here, because this doesn't affect the data property.
+    errored.value = false;
+    try {
+      const result = await user.client.getDomain(id);
+      selectedDomain.value = result.result;
+      return true;
+    } catch (error) {
+      errored.value = true;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return true to signify success.
+          return false;
+        case 'NOT_HANDLED':
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_DOMAIN_ERROR':
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
+    }
+  }
+
   async function createDomain(
     id: string,
     subdomains: boolean,
@@ -72,6 +106,8 @@ export const domainsStore = defineStore('staff-space-domains', () => {
         case 'NOT_HANDLED':
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'DOMAIN_EXISTS_ERROR':
+              toast.show("Whoops! That domain doesn't exist.");
+              getDomains(page.value);
               return false;
             default:
               // If it still wasn't handled, throw the error.
@@ -124,7 +160,7 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     loading.value = true;
     errored.value = false;
     try {
-      await user.client.allowSubdomains(domain);
+      selectedDomain.value = (await user.client.allowSubdomains(domain)).result;
       return true;
     } catch (error) {
       errored.value = true;
@@ -156,7 +192,9 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     loading.value = true;
     errored.value = false;
     try {
-      await user.client.disallowSubdomains(domain);
+      selectedDomain.value = (
+        await user.client.disallowSubdomains(domain)
+      ).result;
       return true;
     } catch (error) {
       errored.value = true;
@@ -214,7 +252,9 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     loading,
     errored,
     page,
+    selectedDomain,
     getDomains,
+    getDomain,
     createDomain,
     enableSubdomains,
     disableSubdomains,

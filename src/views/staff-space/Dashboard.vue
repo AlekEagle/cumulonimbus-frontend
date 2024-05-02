@@ -24,6 +24,14 @@
     >
       See and manage all of the setup guides.
     </ContentBox>
+    <ContentBox
+      title="Kill Switches"
+      :src="gearIcon"
+      theme-safe
+      to="/staff/kill-switches"
+    >
+      Global feature kill switches and their current status.
+    </ContentBox>
   </div>
 </template>
 

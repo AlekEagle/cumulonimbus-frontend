@@ -1,15 +1,19 @@
 <template>
   <div
-    :class="`content-box${props.disabled ? ' disabled' : ''}${
-      isClickTarget ? ' click-target' : ''
-    }${props.nowrap ? ' nowrap' : ''}${props.grow ? ' grow-content' : ''}`"
+    :class="{
+      'content-box': true,
+      'disabled': props.disabled,
+      'click-target': isClickTarget,
+      'nowrap': props.nowrap,
+      'grow-content': props.grow,
+    }"
     v-if="!displayLink"
     @click="contentBoxClicked"
   >
     <div class="content-box-inner">
       <h3 class="title" v-text="props.title" />
       <img
-        :class="`${props.themeSafe ? 'theme-safe' : ''}`"
+        :class="{ 'theme-safe': props.themeSafe }"
         v-if="props.src"
         :src="props.src"
         width="80"
@@ -24,16 +28,20 @@
   </div>
   <a
     v-else
-    :class="`content-box${props.disabled ? ' disabled' : ''}${
-      isClickTarget ? ' click-target' : ''
-    }${props.nowrap ? ' nowrap' : ''}${props.grow ? ' grow-content' : ''}`"
+    :class="{
+      'content-box': true,
+      'disabled': props.disabled,
+      'click-target': isClickTarget,
+      'nowrap': props.nowrap,
+      'grow-content': props.grow,
+    }"
     :href="linkToDisplay"
     @click.prevent="linkClicked"
   >
     <div class="content-box-inner">
       <h3 class="title" v-text="props.title" />
       <img
-        :class="`${props.themeSafe ? 'theme-safe' : ''}`"
+        :class="{ 'theme-safe': props.themeSafe }"
         v-if="props.src"
         :src="props.src"
         width="80"
@@ -253,6 +261,13 @@
   .content-box > .content-box-inner > div.lds-default + .content-box-content {
     grid-column: 2 / span 3;
     margin-left: 5px;
+  }
+
+  .content-box.skeleton {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    cursor: progress;
   }
 
   .content-box.skeleton code:not(.title) {

@@ -82,6 +82,15 @@
     'Manually breathing',
     'Manually blinking',
     "I'm running out of ideas",
+    'Rearranging your furniture',
+    'Watching Apple reinvent the wheel (again)',
+    'Watching paint dry',
+    'Watching grass grow',
+    'Suing open source emulators for existing',
+    'Drinking water',
+    'Eating a sandwich',
+    'Reinventing the wheel',
+    'Watching Google sunset a product just to bring it back (again)',
   ];
 
   const message = ref<string>();

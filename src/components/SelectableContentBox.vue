@@ -8,7 +8,7 @@
       <h2 class="title" v-text="props.title" />
       <template v-if="!props.selected">
         <img
-          :class="`${props.themeSafe ? 'theme-safe' : ''}`"
+          :class="{ 'theme-safe': props.themeSafe }"
           v-if="props.src"
           :src="props.src"
           width="80"
@@ -40,7 +40,7 @@
       <h2 class="title" v-text="props.title" />
       <template v-if="!props.selected">
         <img
-          :class="`${props.themeSafe ? 'theme-safe' : ''}`"
+          :class="{ 'theme-safe': props.themeSafe }"
           v-if="props.src"
           :src="props.src"
           width="80"

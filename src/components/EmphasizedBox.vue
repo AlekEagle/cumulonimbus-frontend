@@ -1,5 +1,5 @@
 <template>
-  <div :class="`box${props.noPadding ? ' no-padding' : ''}`">
+  <div :class="{ 'box': true, 'no-padding': props.noPadding }">
     <slot></slot>
   </div>
 </template>
