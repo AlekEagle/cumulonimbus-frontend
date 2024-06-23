@@ -19,7 +19,7 @@ jobs:
           rm -rf /www-data/dist
           rm -rf /www-data/domain-specific-pages
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Copy Static Build Artifacts
         run: |
           cp -R nginx/ /var/www-data
