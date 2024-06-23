@@ -118,7 +118,7 @@ router.addRoute(
       options.url.pathname.match(/^\/api\/?/) || // Don't cache API requests
       options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE]) || // Don't cache thumbnails, they have their own cache.
       options.url.protocol === 'chrome-extension:' || // Don't cache chrome extensions
-      self.serviceWorker.scriptURL.includes('dev-sw') // Don't cache anything! (This is a development service worker.)
+      import.meta.env.MODE === 'development' // Don't cache anything! (This is a development service worker.)
     ) {
       debugLog(
         'ServiceWorkerOfflineCacheManager',
