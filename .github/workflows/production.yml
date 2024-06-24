@@ -16,8 +16,8 @@ jobs:
     steps:
       - name: Remove Stale Build Artifacts
         run: |
-          rm -rf /www-data/dist
-          rm -rf /www-data/domain-specific-pages
+          rm -rf /var/www-data/dist
+          rm -rf /var/www-data/domain-specific-pages
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Copy Static Build Artifacts
