@@ -46,6 +46,7 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   // Store Modules
@@ -56,19 +57,19 @@
   // External Modules
   import { computed, ref, onMounted } from 'vue';
   import {
-    useOnline,
     useClipboard,
     useDropZone,
     useFileDialog,
+    useOnline,
   } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
   const fileDropZone = ref<HTMLElement | null>(null),
+    files = filesStore(),
+    online = useOnline(),
     router = useRouter(),
     toast = toastStore(),
     user = userStore(),
-    files = filesStore(),
-    online = useOnline(),
     { copied, copy, isSupported: clipboardIsSupported } = useClipboard(),
     { isOverDropZone } = useDropZone(fileDropZone, onDrop),
     { open: openFileDialog, onChange } = useFileDialog(),
@@ -83,8 +84,10 @@
       if (!file.value) return 'Drop your file here.';
       return file.value.name;
     }),
-    // @ts-ignore
-    isChromium = computed(() => !!window.chrome);
+    isChromium = computed(
+      // @ts-ignore
+      () => !!window.chrome && import.meta.env.MODE === 'production',
+    );
 
   onChange((files) => (files ? onDrop(Array.from(files)) : void 0));
 
@@ -107,50 +110,68 @@
       );
       return;
     }
-    if (file.value.size > 100000000)
+    if (file.value.size > 100e6)
+      // 100MB
       return toast.show(
         'The file you are trying to upload is too large. The maximum file size is 100MB.',
         7.5e3,
       );
     try {
+      // If the user is using Chromium, we can use its experimental readable stream as fetch body feature.
       if (isChromium.value) {
+        // Reset the progress.
         progress.value = 0;
         progressBytes.value = 0;
         // Create our own damn form data stream because FormData doesn't support being read as a stream.
+        // The boundary.
         const boundary = `${'-'.repeat(27)}${Math.pow(2, 20)}`,
+          // The content type header.
           contentTypeHeader = `multipart/form-data; boundary=${boundary}`,
+          // The beginning boundary.
           boundaryBegin = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${
             file.value!.name
           }"\r\nContent-Type: ${file.value!.type}\r\n\r\n`,
+          // The ending boundary.
           boundaryEnd = `\r\n--${boundary}--`;
+        // Construct the data stream for the file.
         const multipartFormDataStream = new ReadableStream({
           async start(controller) {
+            // Write the boundary to the beginning of the stream.
             controller.enqueue(new TextEncoder().encode(boundaryBegin));
             const reader = file.value!.stream().getReader();
+            // Loop through the file and write it to the stream.
             while (true) {
               const { done, value } = await reader.read();
+              // If we're done, break out of the loop.
               if (done) break;
               controller.enqueue(value);
             }
+            // After the file is written, write the ending boundary.
             controller.enqueue(new TextEncoder().encode(boundaryEnd));
+            // Finally, close the stream.
             controller.close();
           },
         });
+        // Create a transform stream to track the progress of the upload.
         const transformStream = new TransformStream({
+          // Our transform function. (It doesn't actually transform anything, just tracks progress.)
           async transform(chunk, controller) {
+            // Add the length of the chunk to the progress bytes.
             progressBytes.value += chunk.byteLength;
+            // Set the progress to the percentage of the file uploaded.
             progress.value =
               (progressBytes.value /
                 (file.value!.size +
                   boundaryBegin.length +
                   boundaryEnd.length)) *
               100;
+            // Enqueue the chunk to the controller.
             controller.enqueue(chunk);
           },
         });
+        // Reset the upload data and show the loading message.
         uploadData.value = undefined;
         await fsm.value!.show();
-        // TODO: handle errors from the upload endpoint
         const data = await fetch(`${cumulonimbusOptions.baseURL}/upload`, {
           method: 'POST',
           headers: {
@@ -161,10 +182,27 @@
           // @ts-ignore - This is a valid option, but TypeScript doesn't know about it.
           duplex: 'half',
         });
-        await files.getFiles(files.page);
-        uploadData.value = await data.json();
-        file.value = undefined;
+
+        if (data.status !== 201) {
+          // Collect ratelimit headers.
+          const ratelimitHeaders = {
+            limit: Number(data.headers.get('X-Ratelimit-Limit')),
+            remaining: Number(data.headers.get('X-Ratelimit-Remaining')),
+            reset: Number(data.headers.get('X-Ratelimit-Reset')),
+          };
+          throw new Cumulonimbus.ResponseError(
+            await data.json(),
+            ratelimitHeaders,
+          );
+        } else {
+          // Everything went well, so we can get the data.
+          await files.getFiles(files.page);
+          uploadData.value = await data.json();
+          // Clear the file from the input.
+          file.value = undefined;
+        }
       } else {
+        // If the user isn't using Chromium, we can't use the experimental readable stream as fetch body feature, so we upload the file the old-fashioned way.
         uploadData.value = undefined;
         await fsm.value!.show();
         const data = await user.client!.upload(file.value!);
@@ -172,12 +210,27 @@
         uploadData.value = data.result;
         file.value = undefined;
       }
+      // Copy the URL to the clipboard.
       await copyToClipboard();
     } catch (error) {
-      console.error(error);
-      toast.clientError();
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          break;
+        case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
+          console.error('what the hell, this should never happen');
+          break;
+        case 'NOT_RESPONSE_ERROR':
+        case 'NOT_HANDLED':
+        default:
+          toast.show(
+            'There was an error uploading your file. Please try again.',
+            7.5e3,
+          );
+          console.error(error);
+          break;
+      }
     } finally {
-      fsm.value!.hide();
+      fsm.value?.hide();
     }
   }
 
@@ -205,6 +258,7 @@
   }
 
   async function uploadFromShareTarget() {
+    // If the user is coming from a share target, we will automatically upload the file.
     if (router.currentRoute.value.query['shared-file'] === null) {
       const shareTargetCache = await caches.open('share-target-cache');
       const fileRes = await shareTargetCache.match('/shared-file');

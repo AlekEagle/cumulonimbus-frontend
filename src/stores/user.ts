@@ -250,7 +250,7 @@ export const userStore = defineStore('user', () => {
               user: (await client.value.getSelf()).result,
             };
             // Add the account to the account switcher.
-            // Use the username value from the account information, as the provided username may be different (an email, incorrect capitalization, etc).
+            // Use the username value from the account information, as the provided username may be different (incorrect capitalization, etc).
             addAccount(
               account.value.user.username,
               account.value.session.token,
@@ -265,6 +265,14 @@ export const userStore = defineStore('user', () => {
                 // If the error was handled, return false.
                 return false;
               case 'NOT_HANDLED':
+                switch ((error as Cumulonimbus.ResponseError).code) {
+                  case 'INVALID_USER_ERROR':
+                    toast.show("I can't find anyone with that username!");
+                    return false;
+                  default:
+                    // If it still wasn't handled, throw the error.
+                    throw error;
+                }
               case 'NOT_RESPONSE_ERROR':
               default:
                 // If the error wasn't handled, throw it.
@@ -272,6 +280,14 @@ export const userStore = defineStore('user', () => {
             }
           }
         case 'NOT_HANDLED':
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_USER_ERROR':
+              toast.show("I can't find anyone with that username!");
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
         case 'NOT_RESPONSE_ERROR':
         default:
           // If the error wasn't handled, throw it.

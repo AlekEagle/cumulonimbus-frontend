@@ -146,7 +146,7 @@ export default async function defaultErrorHandler(
     default:
       // Log the error to the console.
       console.trace(
-        'ResponseError unable to be handled by default handler. Dropping... ',
+        'ResponseError unable to be handled by default handler. Dropping...\n',
         error,
       );
       // The error was not handled, so return false.

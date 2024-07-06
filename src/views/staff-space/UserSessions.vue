@@ -166,6 +166,7 @@
       }
     } else {
       manageSessionModal.value!.show();
+      await sessions.getSession(session.id + '');
     }
   }
 

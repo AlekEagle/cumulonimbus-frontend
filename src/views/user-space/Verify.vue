@@ -60,6 +60,9 @@
       if (res) {
         statusText.value = 'Thank you for verifying your email!';
         return await returnToDashboard();
+      } else {
+        statusText.value = 'Something went wrong!';
+        return await returnToDashboard();
       }
     } catch (error) {
       console.error(error);
