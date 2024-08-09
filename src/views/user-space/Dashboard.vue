@@ -40,6 +40,7 @@
       :src="uploadIcon"
       theme-safe
       to="/dashboard/upload"
+      :disabled="!user.account?.user.verifiedAt"
     >
       Upload a file to Cumulonimbus without the need of an external service or
       program.
