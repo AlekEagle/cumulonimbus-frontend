@@ -754,6 +754,8 @@ export const userStore = defineStore('user', () => {
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'EMAIL_ALREADY_VERIFIED_ERROR':
               toast.show('Your email is already verified!');
+              // Since the email is already verified, let's go ahead and update the account information.
+              await refetch();
               return false;
             default:
               // If it still wasn't handled, throw the error.

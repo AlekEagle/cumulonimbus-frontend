@@ -6,7 +6,11 @@
     <BackButton fallback="/dashboard" />
   </div>
 
-  <EmphasizedBox>
+  <EmphasizedBox v-if="!user.account?.user.verifiedAt">
+    <h1>Sorry...</h1>
+    <h2>But you need to verify your email before you can upload files.</h2>
+  </EmphasizedBox>
+  <EmphasizedBox v-else>
     <Online>
       <div
         class="file-drop-zone"

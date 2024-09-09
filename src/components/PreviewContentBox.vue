@@ -1,7 +1,7 @@
 <template>
   <div
     class="content-box click-target"
-    v-intersection-observer="onInView as any"
+    v-intersection-observer="onInView"
     :href="location.href"
     v-if="selecting"
     @click="spanClicked"
@@ -32,7 +32,7 @@
   </div>
   <a
     class="content-box click-target"
-    v-intersection-observer="onInView as any"
+    v-intersection-observer="onInView"
     :href="location.href"
     @click.prevent="linkClicked"
     v-else
@@ -119,7 +119,7 @@
     emit('click', props.file);
   }
 
-  async function onInView([{ isIntersecting }]: [{ isIntersecting: boolean }]) {
+  async function onInView([{ isIntersecting }]: IntersectionObserverEntry[]) {
     if (!isIntersecting) return;
     if (imgBlobSrc.value) return;
     if (noPreview.value) return;

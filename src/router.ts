@@ -46,9 +46,6 @@ export const router = createRouter({
       path: '/verify',
       name: 'verify',
       component: () => import('@/views/user-space/Verify.vue'),
-      meta: {
-        requiresAuth: true,
-      },
     },
     // User space routes
     {
