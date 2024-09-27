@@ -4,7 +4,6 @@
       :class="{ 'modal-container': true, 'dismissible': props.dismissible }"
       v-if="visible"
       @click.self="__hide"
-      @wheel.self="disableScrolling"
     >
       <div class="modal">
         <h1 class="modal-title" v-text="props.title" />
@@ -82,11 +81,6 @@
     return;
   }
 
-  function disableScrolling(e: WheelEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
   onBeforeUnmount(__hide);
 
   defineExpose({
@@ -112,6 +106,7 @@
     -webkit-backdrop-filter: blur(3px);
     cursor: not-allowed;
     overflow: auto;
+    overscroll-behavior: contain;
   }
 
   .modal-container.dismissible {

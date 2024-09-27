@@ -523,7 +523,7 @@
   header nav ul {
     display: flex;
     align-items: center;
-    padding: 0;
+    padding: 20px 0;
     position: fixed;
     justify-content: center;
     bottom: 100vh;
@@ -531,28 +531,20 @@
     flex-direction: column;
     margin: 0;
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 40px);
     border-radius: 10px;
     text-align: center;
     transition: bottom 0.4s;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px) brightness(0.6);
+    -webkit-backdrop-filter: blur(5px) brightness(0.6);
     z-index: 10;
     overflow: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
   }
 
-  header nav ul:before {
-    content: '';
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    border-radius: 10px;
-    z-index: -1;
-    background-color: var(--background);
-    opacity: 0.6;
-    transition: background-color 0.25s;
+  header nav ul::-webkit-scrollbar {
+    display: none;
   }
 
   header nav.active ul {
