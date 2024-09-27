@@ -4,6 +4,7 @@
       :class="{ 'modal-container': true, 'dismissible': props.dismissible }"
       v-if="visible"
       @click.self="__hide"
+      @wheel.self="disableScrolling"
     >
       <div class="modal">
         <h1 class="modal-title" v-text="props.title" />
@@ -36,7 +37,6 @@
   // No Vue Components to import here.
 
   // In-House Modules
-  import { enableScrolling, disableScrolling } from '@/utils/scrollHandler';
   import { wait } from '@/utils/wait';
 
   // Store Modules
@@ -66,22 +66,25 @@
     if (!props.dismissible || !visible.value) return;
     visible.value = false;
     emit('close');
-    wait(400).then(enableScrolling);
+    wait(400);
   }
 
   // A hide function exposed that doesn't emit the closed event.
   async function hide() {
     visible.value = false;
     await wait(400);
-    enableScrolling();
     return;
   }
 
   async function show() {
     visible.value = true;
-    disableScrolling();
     await wait(400);
     return;
+  }
+
+  function disableScrolling(e: WheelEvent) {
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   onBeforeUnmount(__hide);
