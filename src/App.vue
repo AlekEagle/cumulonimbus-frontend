@@ -21,10 +21,7 @@
         <span class="bar"></span>
         <span class="bar"></span>
       </div>
-      <ul
-        @click.self="hamburgerMenu = false"
-        @wheel="preventScrollWhenMenuOpen"
-      >
+      <ul @click.self="hamburgerMenu = false">
         <li>
           <ThemeManager :no-tab-index="hamburgerMenu" />
         </li>
@@ -192,12 +189,6 @@
     }),
     hamburgerMenu = ref(false),
     ptbWarningModal = ref<InstanceType<typeof Modal>>();
-
-  function preventScrollWhenMenuOpen(e: WheelEvent) {
-    if (!hamburgerMenu.value) return;
-    e.stopImmediatePropagation();
-    e.preventDefault();
-  }
 
   watch(online, (val) => {
     if (!val) {
