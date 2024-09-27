@@ -21,7 +21,10 @@
         <span class="bar"></span>
         <span class="bar"></span>
       </div>
-      <ul @click.self="hamburgerMenu = false">
+      <ul
+        @click.self="hamburgerMenu = false"
+        @wheel="preventScrollWhenMenuOpen"
+      >
         <li>
           <ThemeManager :no-tab-index="hamburgerMenu" />
         </li>
@@ -103,7 +106,6 @@
 
   // In-House Modules
   import newTabIcon from '@/assets/images/newtab.svg';
-  import { enableScrolling, disableScrolling } from '@/utils/scrollHandler';
 
   // Store Modules
   import { userStore } from '@/stores/user';
@@ -191,13 +193,11 @@
     hamburgerMenu = ref(false),
     ptbWarningModal = ref<InstanceType<typeof Modal>>();
 
-  watch(hamburgerMenu, (val) => {
-    if (val) {
-      disableScrolling();
-    } else {
-      enableScrolling();
-    }
-  });
+  function preventScrollWhenMenuOpen(e: WheelEvent) {
+    if (!hamburgerMenu.value) return;
+    e.stopImmediatePropagation();
+    e.preventDefault();
+  }
 
   watch(online, (val) => {
     if (!val) {
@@ -321,7 +321,6 @@
   });
 
   function navMenuKeydown(e: KeyboardEvent) {
-    console.log(e);
     if (e.key === 'Enter' || e.key === ' ') {
       hamburgerMenu.value = !hamburgerMenu.value;
     }
@@ -388,11 +387,6 @@
     overflow-x: hidden;
     background-color: var(--background);
     color: var(--foreground);
-  }
-
-  body.no-scroll {
-    overflow-y: hidden;
-    position: static;
   }
 
   main.content {
