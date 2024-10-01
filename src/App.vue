@@ -512,24 +512,25 @@
   }
 
   header nav ul {
+    --padding: 20px;
     display: flex;
     align-items: center;
-    padding: 20px 0;
+    padding: var(--padding) 0;
     position: fixed;
-    justify-content: center;
+    justify-content: flex-start;
     bottom: 100vh;
     left: 0;
     flex-direction: column;
     margin: 0;
     width: 100vw;
-    height: calc(100vh - 40px);
+    height: calc(100vh - (var(--padding) * 2));
     border-radius: 10px;
     text-align: center;
     transition: bottom 0.4s;
     backdrop-filter: blur(5px) brightness(0.6);
     -webkit-backdrop-filter: blur(5px) brightness(0.6);
     z-index: 10;
-    overflow: hidden;
+    overflow: hidden auto;
     overscroll-behavior: contain;
     scrollbar-width: none;
   }
