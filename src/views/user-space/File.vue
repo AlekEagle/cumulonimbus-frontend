@@ -168,7 +168,8 @@
 
   // External Modules
   import { ref, onMounted, computed } from 'vue';
-  import { useOnline, useShare, useClipboard } from '@vueuse/core';
+  import { useShare, useClipboard } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter } from 'vue-router';
 
   const toast = toastStore(),

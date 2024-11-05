@@ -92,7 +92,8 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline, useClipboard } from '@vueuse/core';
+  import { useClipboard } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter } from 'vue-router';
 
   const instruction = instructionStore(),
