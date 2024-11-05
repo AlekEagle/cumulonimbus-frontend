@@ -1,4 +1,4 @@
-import { useOnline } from '@vueuse/core';
+import { useOnline } from '@/utils/ConnectivityCheck';
 import { watch } from 'vue';
 
 // This function takes a callback and conditions for when to call the callback.

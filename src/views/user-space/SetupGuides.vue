@@ -63,7 +63,7 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
 
   const instructions = instructionsStore(),
     toast = toastStore(),

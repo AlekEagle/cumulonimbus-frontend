@@ -227,7 +227,7 @@
 
   // External Modules
   import { ref, watch, onMounted } from 'vue';
-  import { useOnline } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter } from 'vue-router';
 
   const online = useOnline(),

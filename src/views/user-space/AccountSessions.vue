@@ -479,7 +479,7 @@
   // External Modules
   import { ref, onMounted, computed } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useOnline } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useClipboard } from '@vueuse/core';
 
   const confirmDeleteModal = ref<InstanceType<typeof ConfirmModal>>(),

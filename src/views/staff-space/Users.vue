@@ -97,7 +97,7 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
   import loadWhenOnline from '@/utils/loadWhenOnline';
 
   const users = usersStore(),

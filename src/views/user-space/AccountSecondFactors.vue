@@ -337,7 +337,7 @@
 
   // External Modules
   import { ref, onMounted, computed } from 'vue';
-  import { useOnline } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
   import QRCode from 'qrcode';
   import { startRegistration } from '@simplewebauthn/browser';
 
