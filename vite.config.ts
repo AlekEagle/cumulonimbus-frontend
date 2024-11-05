@@ -1,3 +1,5 @@
+//TODO: Add a way to extend the configuration without having to copy the whole file.
+
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import vue from '@vitejs/plugin-vue';

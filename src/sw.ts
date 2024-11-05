@@ -93,6 +93,60 @@ async function threadedPrecache(urls: string[], threads: number = 4) {
   debugLog('ServiceWorkerThreadedPrecache', 'Precaching complete.');
 }
 
+// ---- Refined Connectivity Check ----
+
+const checkInterval = 60e3,
+  checkTarget = 'https://connectivitycheck.alekeagle.com',
+  checkTargetResponseStatus = 204;
+
+// The variable we'll use to track if we're online or not. We'll initialize with the navigator's online status.
+let isOnline = navigator.onLine,
+  isOnlineInterval: ReturnType<typeof setInterval> | null = null;
+
+async function makeConnectionCheck() {
+  try {
+    // Make a call to a known online resource to check if we're online.
+    const res = await fetch(checkTarget, { method: 'HEAD' });
+    // If the response status matches the expected status, we're online.
+    if (isOnline !== (res.status === checkTargetResponseStatus)) {
+      isOnline = res.status === checkTargetResponseStatus;
+      debugLog(
+        'ServiceWorkerConnectivityCheck',
+        'Connection status changed:',
+        isOnline,
+      );
+    }
+  } catch (err) {
+    // If the fetch fails, we're probably offline.
+    if (isOnline) {
+      isOnline = false;
+      debugLog(
+        'ServiceWorkerConnectivityCheck',
+        'Connection status changed:',
+        isOnline,
+      );
+    }
+  }
+}
+
+async function runConnectionCheck() {
+  // Clear the interval if it exists.
+  if (isOnlineInterval) {
+    clearInterval(isOnlineInterval);
+    isOnlineInterval = null;
+  }
+  // Make a connection check immediately.
+  await makeConnectionCheck();
+  // Set the interval back up to check every x seconds.
+  isOnlineInterval = setInterval(makeConnectionCheck, checkInterval);
+}
+
+self.addEventListener('online', runConnectionCheck);
+self.addEventListener('offline', runConnectionCheck);
+
+// Start the connection check interval.
+runConnectionCheck();
+
 // ---- Service worker lifecycle ----
 
 self.addEventListener('install', async (event) => {
@@ -149,7 +203,7 @@ router.addRoute(
         'Cache hit',
         `URL: ${options.url}`,
       );
-      if (navigator.onLine) {
+      if (isOnline) {
         debugLog(
           'ServiceWorkerOfflineCacheManager',
           'Revalidating cache',
@@ -167,7 +221,7 @@ router.addRoute(
       'Cache miss',
       `URL: ${options.url}`,
     );
-    if (!navigator.onLine) {
+    if (!isOnline) {
       debugLog(
         'ServiceWorkerOfflineCacheManager',
         'Offline, serving default route',

@@ -117,7 +117,7 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useNetwork } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter, useRoute } from 'vue-router';
 
   const user = userStore(),
@@ -128,7 +128,7 @@
     toast = toastStore(),
     loginForm = ref<InstanceType<typeof Form>>(),
     registerForm = ref<InstanceType<typeof Form>>(),
-    { isOnline: online } = useNetwork();
+    online = useOnline();
 
   async function toggleState() {
     switch (action.value) {

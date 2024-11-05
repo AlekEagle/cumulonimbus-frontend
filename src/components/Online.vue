@@ -20,7 +20,7 @@
   // No Store Modules to import here.
 
   // External Modules
-  import { useOnline } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
 
   const props = defineProps({
     noMsg: {

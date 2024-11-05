@@ -562,7 +562,7 @@
 
   // External Modules
   import { ref, computed, onMounted } from 'vue';
-  import { useOnline } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter } from 'vue-router';
 
   const user = userStore(),

@@ -73,7 +73,7 @@
 
   // External Modules
   import { ref, onMounted, watch } from 'vue';
-  import { useNetwork } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
 
   const emit = defineEmits<{
     (event: 'submit', data: { domain: string; subdomain?: string }): void;
@@ -101,7 +101,7 @@
     domain = ref<string>(),
     subdomain = ref<string>(),
     allowsSubdomains = ref(false),
-    { isOnline: online } = useNetwork();
+    online = useOnline();
 
   function onSubdomainInput(event: Event) {
     const input = event.target as HTMLInputElement;

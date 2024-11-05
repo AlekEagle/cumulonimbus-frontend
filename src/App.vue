@@ -112,7 +112,7 @@
   // External Modules
   import { ref, onMounted, watch, computed } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
-  import { useOnline } from '@vueuse/core';
+  import { useOnline } from '@/utils/ConnectivityCheck';
 
   const user = userStore(),
     toast = toastStore(),
