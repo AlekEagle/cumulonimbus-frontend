@@ -571,19 +571,24 @@
       toast.connectivityOffline();
       return;
     }
+    let didError = false;
     try {
       switch (registrationData.value!.type) {
         case 'totp':
           if (!code) {
             throw new Error('No code provided.');
           }
-          registrationCompleteData.value =
-            await secondFactors.completeTOTPRegistration(
-              registrationData.value!.token,
-              name,
-              code,
-            );
-
+          try {
+            registrationCompleteData.value =
+              await secondFactors.completeTOTPRegistration(
+                registrationData.value!.token,
+                name,
+                code,
+              );
+          } catch (e) {
+            didError = true;
+            console.error(e);
+          }
           break;
         case 'webauthn':
           try {
@@ -598,19 +603,24 @@
                 response,
               );
           } catch (e) {
+            didError = true;
             console.error(e);
-            toast.clientError();
           }
           break;
         default:
           throw new Error('Invalid factor type to register.');
       }
       await fetchSecondFactors();
-      await secondFactorRegistrationModal.value?.hide();
-      factorTypeToRegister.value = null;
-      registrationData.value = null;
-      if (registrationCompleteData.value?.codes) {
-        backupCodesModal.value?.show();
+      // If we didn't error, we can hide the modal and clear the data.
+      if (!didError) {
+        await secondFactorRegistrationModal.value?.hide();
+        factorTypeToRegister.value = null;
+        registrationData.value = null;
+        if (registrationCompleteData.value?.codes) {
+          backupCodesModal.value?.show();
+        }
+      } else {
+        toast.clientError();
       }
     } catch (e) {
       console.error(e);

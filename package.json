@@ -14,7 +14,7 @@
     "preview": "vite preview --host"
   },
   "dependencies": {
-    "@simplewebauthn/browser": "^10.0.0",
+    "@simplewebauthn/browser": "^11.0.0",
     "@vueuse/components": "^10.11.0",
     "@vueuse/core": "^10.11.0",
     "cumulonimbus-wrapper": "^5.0.0",
