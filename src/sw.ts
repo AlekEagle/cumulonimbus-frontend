@@ -31,21 +31,6 @@ function errorLog(component: string = 'ServiceWorker', ...data: any[]) {
   console.error(`[${component}]`, ...data);
 }
 
-// Bind router to fetch event
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    (async () => {
-      const response = await router.handleRequest(event as FetchEvent);
-      if (!response) {
-        return (
-          (await caches.match(event.request)) || (await fetch(event.request))
-        );
-      }
-      return response;
-    })(),
-  );
-});
-
 // ---- Helper functions ----
 
 async function claimClients(skipWaiting: boolean = false): Promise<void> {
@@ -124,6 +109,8 @@ async function makeConnectionCheck() {
     // If the response status matches the expected status, we're online.
     if (isOnline !== (res.status === checkTargetResponseStatus)) {
       isOnline = res.status === checkTargetResponseStatus;
+      // Message clients to let them know we're online or offline.
+      await messageClients({ type: 'isOnline', payload: isOnline });
       debugLog(
         'ServiceWorkerConnectivityCheck',
         'Connection status changed:',
@@ -134,6 +121,8 @@ async function makeConnectionCheck() {
     // If the fetch fails, we're probably offline.
     if (isOnline) {
       isOnline = false;
+      // Message clients to let them know we're online or offline.
+      await messageClients({ type: 'isOnline', payload: isOnline });
       debugLog(
         'ServiceWorkerConnectivityCheck',
         'Failed to make connection check, assuming offline.',
@@ -176,6 +165,43 @@ self.addEventListener('install', async (event) => {
     await messageClients({ type: 'update-complete' });
   } catch (err) {
     errorLog('ServiceWorkerInstall', err);
+  }
+});
+
+// Bind router to fetch event
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    (async () => {
+      const response = await router.handleRequest(event as FetchEvent);
+      if (!response) {
+        try {
+          return (
+            (await caches.match(event.request)) || (await fetch(event.request))
+          );
+        } catch (err) {
+          // If the fetch fails, log the error, re-run, the connection check, and return a 502 Bad Gateway
+          runConnectionCheck();
+          errorLog(
+            'ServiceWorkerRouterHandler',
+            'Network request failed, returning 502',
+            err,
+          );
+          return new Response(null, { status: 502, statusText: 'Bad Gateway' });
+        }
+      }
+      return response;
+    })(),
+  );
+});
+
+// Listen for messages from clients
+self.addEventListener('message', (event) => {
+  switch (event.data.type) {
+    case 'checkOnline':
+      event.source?.postMessage({ type: 'isOnline', payload: isOnline });
+      break;
+    default:
+      errorLog('ServiceWorkerMessageHandler', 'Unknown message type', event);
   }
 });
 
