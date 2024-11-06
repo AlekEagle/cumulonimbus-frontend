@@ -276,8 +276,8 @@ router.addRoute(
     );
     try {
       const freshResponse = await fetch(options.request);
-      if (freshResponse.status === 404) {
-        // If the network returns a 404, return the 404 page.
+      if (freshResponse.status === 404 || freshResponse.headers.get('X-404')) {
+        // If the network returns a 404, or the response's 'X-404' header is set, serve the default route.
         debugLog(
           'ServiceWorkerOfflineCacheManager',
           'Fresh resource returned 404, serving default route',
