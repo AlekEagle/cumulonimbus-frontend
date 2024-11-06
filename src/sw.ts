@@ -76,16 +76,30 @@ async function threadedPrecache(urls: string[], threads: number = 4) {
   for (const chunk of chunks) {
     promises.push(
       new Promise<void>(async (resolve, reject) => {
-        const cache = await caches.open('offline-cache');
-        for (const url of chunk) {
-          try {
-            debugLog('ServiceWorkerThreadedPrecache', `URL: ${url}`);
-            await cache.add(url);
-          } catch (err) {
-            reject(err);
+        try {
+          const cache = await caches.open('offline-cache');
+          for (const url of chunk) {
+            try {
+              debugLog('ServiceWorkerThreadedPrecache', `Caching URL: ${url}`);
+              await cache.add(url);
+            } catch (err) {
+              errorLog(
+                'ServiceWorkerThreadedPrecache',
+                `Failed to cache URL: ${url}`,
+                err,
+              );
+              reject(err);
+            }
           }
+          resolve();
+        } catch (err) {
+          errorLog(
+            'ServiceWorkerThreadedPrecache',
+            'Failed to open cache',
+            err,
+          );
+          reject(err);
         }
-        resolve();
       }),
     );
   }
@@ -122,8 +136,7 @@ async function makeConnectionCheck() {
       isOnline = false;
       debugLog(
         'ServiceWorkerConnectivityCheck',
-        'Connection status changed:',
-        isOnline,
+        'Failed to make connection check, assuming offline.',
       );
     }
   }
@@ -141,6 +154,7 @@ async function runConnectionCheck() {
   isOnlineInterval = setInterval(makeConnectionCheck, checkInterval);
 }
 
+// Re-run connection check on online/offline events.
 self.addEventListener('online', runConnectionCheck);
 self.addEventListener('offline', runConnectionCheck);
 
@@ -153,6 +167,10 @@ self.addEventListener('install', async (event) => {
   debugLog('ServiceWorkerInstall', 'Install Event!');
   const urlsToCache = precacheManifest.map((entry: any) => entry.url);
   try {
+    // Obliterate the old cache
+    debugLog('ServiceWorkerInstall', 'Clearing old cache...');
+    await caches.delete('offline-cache');
+    debugLog('ServiceWorkerInstall', 'Old cache cleared.');
     await threadedPrecache(urlsToCache);
     await claimClients(true);
     await messageClients({ type: 'update-complete' });
@@ -209,7 +227,28 @@ router.addRoute(
           'Revalidating cache',
           `URL: ${options.url}`,
         );
-        options.event.waitUntil(cache.add(options.url));
+        // Not awaited, we don't want to wait for this to finish.
+        fetch(options.request)
+          .then((freshResponse) => {
+            if (freshResponse.ok) {
+              debugLog(
+                'ServiceWorkerOfflineCacheManager',
+                'Cache revalidated, updating cache',
+                `URL: ${options.url}`,
+              );
+              cache.put(options.url, freshResponse.clone());
+            }
+          })
+          .catch((err) => {
+            // If the revalidation fails, log the error and re-run the connection check.
+            runConnectionCheck();
+            errorLog(
+              'ServiceWorkerOfflineCacheManager',
+              'Failed to revalidate cache',
+              `URL: ${options.url}`,
+              err,
+            );
+          });
       }
       return response;
     }
@@ -235,24 +274,35 @@ router.addRoute(
       'Fetching fresh resource...',
       `URL: ${options.url}`,
     );
-    const freshResponse = await fetch(options.request);
-    if (freshResponse.status === 404) {
-      // If the network returns a 404, return the offline page.
+    try {
+      const freshResponse = await fetch(options.request);
+      if (freshResponse.status === 404) {
+        // If the network returns a 404, return the 404 page.
+        debugLog(
+          'ServiceWorkerOfflineCacheManager',
+          'Fresh resource returned 404, serving default route',
+          `URL: ${options.url}`,
+        );
+        return (await caches.match('/index.html')) as Response;
+      }
+      // If the network returns a 200, cache the response and return it.
       debugLog(
         'ServiceWorkerOfflineCacheManager',
-        'Fresh resource returned 404, serving default route',
+        'Fresh resource OK, serving and caching',
+        `URL: ${options.url}`,
+      );
+      cache.put(options.url, freshResponse.clone());
+      return freshResponse;
+    } catch (err) {
+      // If the network fetch fails, log the error, re-run the connection check, and return the offline page.
+      runConnectionCheck();
+      errorLog(
+        'ServiceWorkerOfflineCacheManager',
+        'Failed to fetch fresh resource, serving default route',
         `URL: ${options.url}`,
       );
       return (await caches.match('/index.html')) as Response;
     }
-    // If the network returns a 200, cache the response and return it.
-    debugLog(
-      'ServiceWorkerOfflineCacheManager',
-      'Fresh resource OK, serving and caching',
-      `URL: ${options.url}`,
-    );
-    cache.put(options.url, freshResponse.clone());
-    return freshResponse;
   },
 );
 
@@ -282,40 +332,51 @@ async function previewThumbnailHandler(
     'ServiceWorkerThumbnailCacheManager',
     'Cache miss, fetching fresh thumbnail',
   );
-  const freshThumb = await fetch((options.event as FetchEvent).request);
-  // Check if the thumbnail's status is one of the allowable statuses (200, 415)
-  switch (freshThumb.status) {
-    case 200:
-      // If the status is 200, Check if the thumbnail actually has content.
-      if (freshThumb.headers.get('content-length') === '0') {
-        // The thumbnail server timed out, FFMPEG is still processing the thumbnail. Return Gateway Timeout.
+  try {
+    const freshThumb = await fetch((options.event as FetchEvent).request);
+    // Check if the thumbnail's status is one of the allowable statuses (200, 415)
+    switch (freshThumb.status) {
+      case 200:
+        // If the status is 200, Check if the thumbnail actually has content.
+        if (freshThumb.headers.get('content-length') === '0') {
+          // The thumbnail server timed out, FFMPEG is still processing the thumbnail. Return Gateway Timeout.
+          debugLog(
+            'ServiceWorkerThumbnailCacheManager',
+            'Thumbnail failed to generate, not caching.',
+          );
+          return new Response(null, {
+            status: 504,
+            statusText: 'Gateway Timeout',
+          });
+        }
         debugLog(
           'ServiceWorkerThumbnailCacheManager',
-          'Thumbnail failed to generate, not caching.',
+          'Successfully fetched fresh thumbnail, caching and serving',
         );
-        return new Response(null, {
-          status: 504,
-          statusText: 'Gateway Timeout',
-        });
-      }
-      debugLog(
-        'ServiceWorkerThumbnailCacheManager',
-        'Successfully fetched fresh thumbnail, caching and serving',
-      );
-      // The thumbnail server returned a thumbnail. Cache it and return it.
-      cache.put((options.event as FetchEvent).request, freshThumb.clone());
-      return freshThumb;
-    case 415:
-      // The thumbnail server can't process the file. Cache it so we don't have to keep asking for it and return it.
-      debugLog(
-        'ServiceWorkerThumbnailCacheManager',
-        'Thumbnail not available, caching nonavailability',
-      );
-      cache.put((options.event as FetchEvent).request, freshThumb.clone());
-      return freshThumb;
-    default:
-      // The thumbnail server returned an error. Don't cache it and return it.
-      return freshThumb;
+        // The thumbnail server returned a thumbnail. Cache it and return it.
+        cache.put((options.event as FetchEvent).request, freshThumb.clone());
+        return freshThumb;
+      case 415:
+        // The thumbnail server can't process the file. Cache it so we don't have to keep asking for it and return it.
+        debugLog(
+          'ServiceWorkerThumbnailCacheManager',
+          'Thumbnail not available, caching nonavailability',
+        );
+        cache.put((options.event as FetchEvent).request, freshThumb.clone());
+        return freshThumb;
+      default:
+        // The thumbnail server returned an error. Don't cache it and return it.
+        return freshThumb;
+    }
+  } catch (err) {
+    // If the fetch fails, log the error, re-run, the connection check, and return a 502 Bad Gateway
+    runConnectionCheck();
+    errorLog(
+      'ServiceWorkerThumbnailCacheManager',
+      'Failed to fetch thumbnail, returning 502',
+      err,
+    );
+    return new Response(null, { status: 502, statusText: 'Bad Gateway' });
   }
 }
 router.addRoute((options) => {
