@@ -103,9 +103,9 @@
       throw new Error('No webauthn challenge available.');
     }
     try {
-      const credential = await startAuthentication(
-        secondFactorChallenger.webauthnChallenge,
-      );
+      const credential = await startAuthentication({
+        optionsJSON: secondFactorChallenger.webauthnChallenge,
+      });
       secondFactorChallenger.completeChallenge(credential);
     } catch (error) {
       console.error(error);

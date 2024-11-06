@@ -592,7 +592,9 @@
           break;
         case 'webauthn':
           try {
-            const response = await startRegistration(registrationData.value!);
+            const response = await startRegistration({
+              optionsJSON: registrationData.value!,
+            });
             if (!response) {
               throw new Error('No response provided.');
             }
