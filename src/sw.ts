@@ -143,10 +143,6 @@ async function runConnectionCheck() {
   isOnlineInterval = setInterval(makeConnectionCheck, checkInterval);
 }
 
-// Re-run connection check on online/offline events.
-self.addEventListener('online', runConnectionCheck);
-self.addEventListener('offline', runConnectionCheck);
-
 // Start the connection check interval.
 runConnectionCheck();
 
@@ -199,6 +195,10 @@ self.addEventListener('message', (event) => {
   switch (event.data.type) {
     case 'checkOnline':
       event.source?.postMessage({ type: 'isOnline', payload: isOnline });
+      break;
+    case 'onlineChange':
+      // Service worker's 'online' event is not reliable in all browsers, so we'll have clients tell us when they go online or offline and update our status accordingly.
+      runConnectionCheck();
       break;
     default:
       errorLog('ServiceWorkerMessageHandler', 'Unknown message type', event);

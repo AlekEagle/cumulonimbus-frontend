@@ -94,13 +94,21 @@ export const toastStore = defineStore('toast', () => {
   const rateLimit = async (error: Cumulonimbus.ResponseError) => {
     // Take reset time (time until the rate limit resets in seconds) and convert it to a date
     const reset = addSeconds(new Date(Date.now()), error.ratelimit!.reset);
+    // Calculate how many seconds until the rate limit resets
+    const seconds = Math.ceil((reset.getTime() - Date.now()) / 1e3);
     // construct the message
     const msg = computed(() => {
-      const toTimeString = useTimeString(ref(reset));
-      return `You are being rate limited! Please wait ${toTimeString.value} before trying again.`;
+      const toTimeString = useTimeString(
+        ref(reset),
+        1e3,
+        Math.min(seconds * 1e3, 10e3),
+      );
+      return toTimeString.value === 'Now'
+        ? 'Go ahead and try again now!'
+        : `You are being rate limited! Please wait ${toTimeString.value} before trying again.`;
     });
     // show the toast
-    await show(msg, 10000);
+    await show(msg, Math.min(seconds * 1e3, 10e3));
   };
 
   // A toast for when a user that is banned makes an API call.

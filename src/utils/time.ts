@@ -1,4 +1,4 @@
-import { ref, onUnmounted, Ref, unref, watch } from 'vue';
+import { ref, Ref, unref, watch } from 'vue';
 
 // Take milliseconds and return how many hours, minutes and seconds it is
 export function toTimeString(ms: number): string {
@@ -98,7 +98,8 @@ export function toFuzzyTimeString(ms: number): string {
 // Reactive fuzzy time passed since a date
 export function useTimeString(
   date: Ref<Date | null | undefined>,
-  updateInterval = 1000,
+  updateInterval = 1e3, // 1 second
+  updateDuration = 60e3, // 1 minute
 ) {
   let unrefDate = unref(date);
   // The time passed since the date
@@ -124,13 +125,15 @@ export function useTimeString(
   // @ts-expect-error Blame @types/qrcode for this error
   interval = setInterval(update, updateInterval);
 
-  // Stop the interval when the component unmounts
-  onUnmounted(() => {
-    if (interval) {
-      clearInterval(interval);
-      interval = null;
-    }
-  });
+  // Stop the interval when the update duration has passed, if updateInterval is -1, don't stop the interval
+  if (updateInterval !== -1)
+    // TODO: This is a hacky way to cleanup intervals, optimally we would clean it up when the component using this composable is unmounted.
+    setTimeout(() => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    }, updateDuration);
 
   // Watch for changes to the date
   watch(
@@ -156,7 +159,8 @@ export function useTimeString(
 // Reactive fuzzy time passed since a date (e.g. "less than a minute ago", "about 2 hours ago", "about 3 days ago", etc.)
 export function useFuzzyTimeString(
   date: Ref<Date | null | undefined>,
-  updateInterval = 1000,
+  updateInterval = 1e3, // 1 second
+  updateDuration = 60e3, // 1 minute
 ) {
   let unrefDate = unref(date);
   // The time passed since the date
@@ -182,13 +186,15 @@ export function useFuzzyTimeString(
   // @ts-expect-error Blame @types/qrcode for this error
   interval = setInterval(update, updateInterval);
 
-  // Stop the interval when the component unmounts
-  onUnmounted(() => {
-    if (interval) {
-      clearInterval(interval);
-      interval = null;
-    }
-  });
+  // Stop the interval when the update duration has passed, if updateInterval is -1, don't stop the interval
+  if (updateInterval !== -1)
+    // TODO: This is a hacky way to cleanup intervals, optimally we would clean it up when the component using this composable is unmounted.
+    setTimeout(() => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    }, updateDuration);
 
   // Watch for changes to the date
   watch(
