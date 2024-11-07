@@ -247,7 +247,7 @@ router.addRoute(
         'Cache hit',
         `URL: ${options.url}`,
       );
-      if (isOnline) {
+      /* if (isOnline) {
         debugLog(
           'ServiceWorkerOfflineCacheManager',
           'Revalidating cache',
@@ -275,7 +275,7 @@ router.addRoute(
               err,
             );
           });
-      }
+      } */
       return response;
     }
     // Cache miss
