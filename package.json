@@ -14,26 +14,27 @@
     "preview": "vite preview --host"
   },
   "dependencies": {
-    "@simplewebauthn/browser": "^11.0.0",
-    "@vueuse/components": "^10.11.0",
-    "@vueuse/core": "^10.11.0",
-    "cumulonimbus-wrapper": "^5.0.0",
+    "@simplewebauthn/browser": "^13.0.0",
+    "@vueuse/components": "^12.0.0",
+    "@vueuse/core": "^12.0.0",
+    "cumulonimbus-wrapper": "^5.0.1",
     "ms": "^2.1.3",
-    "pinia": "^2.1.7",
-    "qrcode": "^1.5.3",
-    "vue": "^3.4.30",
-    "vue-router": "4.4.0"
+    "pinia": "^2.3.0",
+    "qrcode": "^1.5.4",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@simplewebauthn/types": "^12.0.0",
     "@types/ms": "^0.7.34",
-    "@types/node": "^20.14.8",
+    "@types/node": "^22.10.1",
     "@types/qrcode": "^1.5.5",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "terser": "^5.31.1",
-    "typescript": "^5.5.2",
-    "vite": "^5.3.1",
-    "vite-plugin-pwa": "^0.20.0",
-    "vue-tsc": "^2.0.22"
+    "@vitejs/plugin-vue": "^5.2.1",
+    "terser": "^5.37.0",
+    "typescript": "~5.6",
+    "vite": "^6.0.3",
+    "vite-plugin-pwa": "^0.21.1",
+    "vue-tsc": "^2.1.10"
   },
   "packageManager": "yarn@3.5.0+sha512.2dc70be5fce9f66756d25b00a888f3ca66f86b502b76750e72ba54cec89da767b938c54124595e26f868825688e0fe3552c26c76a330673343057acadd5cfcf2"
 }
