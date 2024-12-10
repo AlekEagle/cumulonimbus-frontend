@@ -172,6 +172,11 @@
           external: false,
         },
         {
+          name: 'Status',
+          path: `https://status.${host}/`,
+          external: true,
+        },
+        {
           name: 'Documentation',
           path: `https://docs.${host}/`,
           external: true,
@@ -524,7 +529,6 @@
     margin: 0;
     width: 100vw;
     height: calc(100vh - (var(--padding) * 2));
-    border-radius: 10px;
     text-align: center;
     transition: bottom 0.4s;
     backdrop-filter: blur(5px) brightness(0.6);
