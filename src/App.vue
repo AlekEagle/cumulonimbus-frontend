@@ -806,7 +806,8 @@
     height: fit-content;
     grid: auto / repeat(auto-fit, minmax(300px, 1fr));
     grid-gap: 10px;
-    width: calc(100% - 20px);
+    width: fit-content;
+    max-width: calc(100% - 20px);
     margin: 0 auto;
   }
 

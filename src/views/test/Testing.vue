@@ -12,9 +12,10 @@
       <option :value="BasicEmphasizedBox">Basic Emphasized Box</option>
       <option :value="ContentBoxes">Content Boxes</option>
       <option :value="FormEmphasizedBox">Form Emphasized Box</option>
-      <option :value="FullscreenLoadingMessage"
-        >Fullscreen Loading Message</option
-      >
+      <option :value="FileContentBoxes">File Content Box</option>
+      <option :value="FullscreenLoadingMessage">
+        Fullscreen Loading Message
+      </option>
       <option :value="FullscreenProgressBar">Fullscreen Progress Bar</option>
       <option :value="LoadingMessage">Loading Message</option>
       <option :value="LoadingSpinner">Loading Spinner</option>
@@ -36,6 +37,7 @@
   import BasicEmphasizedBox from '@/views/test/BasicEmphasizedBox.vue';
   import ContentBoxes from '@/views/test/ContentBoxes.vue';
   import FormEmphasizedBox from '@/views/test/FormEmphasizedBox.vue';
+  import FileContentBoxes from '@/views/test/FileContentBoxes.vue';
   import FullscreenLoadingMessage from '@/views/test/FullscreenLoadingMessage.vue';
   import FullscreenProgressBar from '@/views/test/FullscreenProgressBar.vue';
   import LoadingMessage from '@/views/test/LoadingMessage.vue';
@@ -70,6 +72,9 @@
           break;
         case '#form-emphasized-box':
           currentItem.value = FormEmphasizedBox;
+          break;
+        case '#file-content-boxes':
+          currentItem.value = FileContentBoxes;
           break;
         case '#fullscreen-loading-message':
           currentItem.value = FullscreenLoadingMessage;

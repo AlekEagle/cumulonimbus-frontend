@@ -4,18 +4,11 @@
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard" />
     <button
-      v-if="!selecting"
-      @click="selecting = true"
-      :disabled="files.loading"
+      @click="displayModal"
+      :disabled="files.loading || selected.length < 1"
     >
-      Select...
+      Delete Selected
     </button>
-    <template v-else>
-      <button @click="cancelSelection" :disabled="files.loading">Cancel</button>
-      <button @click="displayModal" :disabled="files.loading">
-        Delete Selected
-      </button>
-    </template>
   </div>
   <Paginator
     v-model="page"
@@ -28,14 +21,12 @@
         <template v-if="!files.errored">
           <div
             v-if="files.data && files.data.count > 0"
-            class="content-box-container"
+            class="file-content-box-container"
           >
-            <PreviewContentBox
+            <FileContentBox
               v-for="file in files.data.items"
               :file="file"
-              :selecting="selecting"
-              :selected="selected.includes(file.id)"
-              @click="onFileClick(file)"
+              v-model="selected"
             />
           </div>
           <div v-else class="no-content-container">
@@ -70,6 +61,7 @@
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import FileContentBox from '@/components/FileContentBox.vue';
   import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
@@ -150,18 +142,5 @@
       console.error(e);
       toast.clientError();
     }
-  }
-
-  function onFileClick(file: Cumulonimbus.Data.File) {
-    if (selected.value.includes(file.id)) {
-      selected.value = selected.value.filter((f) => f !== file.id);
-    } else {
-      selected.value.push(file.id);
-    }
-  }
-
-  function cancelSelection() {
-    selecting.value = false;
-    selected.value = [];
   }
 </script>

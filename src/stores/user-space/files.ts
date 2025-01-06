@@ -20,6 +20,7 @@ export const filesStore = defineStore('user-space-files', () => {
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.File> | null>(null);
   const errored = ref(false);
   const page = ref(0);
+  const selected = ref<string[]>([]);
 
   async function getFiles(p: number): Promise<boolean> {
     if (user.client === null) return false;
