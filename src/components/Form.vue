@@ -31,12 +31,9 @@
 
   const form = ref<HTMLFormElement>();
 
-  const props = defineProps({
-    reset: {
-      type: Boolean,
-      default: false,
-    },
-  });
+  const { reset } = defineProps<{
+    reset?: boolean;
+  }>();
   function submit() {
     if (!form.value!.reportValidity()) return;
     const formElements = form.value!.elements as HTMLFormControlsCollection;
@@ -81,7 +78,7 @@
         data[element.name] = element.value === '' ? undefined : element.value;
       }
     }
-    if (props.reset) {
+    if (reset) {
       form.value!.reset();
     }
     emit('submit', data);

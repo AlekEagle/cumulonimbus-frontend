@@ -58,6 +58,7 @@
         </p>
       </template>
     </div>
+    <div class="file-content-box-content-overflow-shadow" />
     <div class="file-content-box-checkbox">
       <label @click.prevent.stop="checkModel">
         <input
@@ -84,7 +85,7 @@
   import { userStore } from '@/stores/user';
 
   // External Modules
-  import { computed, ref, onUnmounted, Ref } from 'vue';
+  import { computed, ref, onUnmounted } from 'vue';
   import { useRouter } from 'vue-router';
   import { vIntersectionObserver } from '@vueuse/components';
 
@@ -196,7 +197,7 @@
     display: grid;
     height: 200px;
     grid-template-columns: 8fr 1fr;
-    grid-template-rows: 4fr 2fr;
+    grid-template-rows: auto 64px;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -232,9 +233,37 @@
     flex-direction: column;
     justify-content: left;
     grid-row: 2 / span 1;
-    grid-column: 1 / span 1;
+    grid-column: 1 / span 2;
     text-align: left;
     overflow: auto hidden;
+  }
+
+  .file-content-box-primary-text {
+    display: inline-table;
+    margin: 0 64px 0 0;
+    padding: 6px 10px 2px;
+    font-size: 1.5rem;
+    color: var(--ui-foreground);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    word-break: keep-all;
+    white-space: nowrap;
+  }
+
+  .file-content-box-secondary-text {
+    margin: 0 64px 0 0;
+    padding: 2px 10px 6px;
+    font-size: 1rem;
+    color: var(--ui-foreground);
+    font-family: var(--font-body);
+    font-weight: 400;
+    word-break: keep-all;
+    white-space: nowrap;
+  }
+
+  .file-content-box-content::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
   }
 
   .file-content-box-content::-webkit-scrollbar-thumb {
@@ -242,8 +271,21 @@
     visibility: hidden;
   }
 
-  .file-content-box:hover ::-webkit-scrollbar-thumb {
+  .file-content-box-content:hover::-webkit-scrollbar-thumb {
     visibility: visible;
+  }
+
+  .file-content-box-content-overflow-shadow {
+    position: absolute;
+    grid-row: 2 / span 2;
+    grid-column: 2 / span 2;
+    width: 100%;
+    height: calc(100% - 3px);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--ui-background) 25%
+    );
   }
 
   .file-content-box-checkbox {
@@ -254,28 +296,6 @@
     grid-column: 2 / span 2;
     width: 64px;
     height: 64px;
-  }
-
-  .file-content-box .file-content-box-content .file-content-box-primary-text {
-    margin: 0;
-    padding: 6px 10px 2px;
-    font-size: 1.5rem;
-    color: var(--ui-foreground);
-    font-family: var(--font-heading);
-    font-weight: 600;
-    word-break: keep-all;
-    white-space: nowrap;
-  }
-
-  .file-content-box .file-content-box-content .file-content-box-secondary-text {
-    margin: 0;
-    padding: 2px 10px 6px;
-    font-size: 1rem;
-    color: var(--ui-foreground);
-    font-family: var(--font-body);
-    font-weight: 400;
-    word-break: keep-all;
-    white-space: nowrap;
   }
 
   .file-content-box-checkbox label {
@@ -307,35 +327,29 @@
     background-origin: border-box;
     background-image: radial-gradient(
       circle at 12.5px 12.5px,
-      var(--ui-background),
-      var(--ui-background)
-    );
-    border: 1px solid var(--ui-border);
-    border-radius: 5px;
-  }
-
-  .file-content-box-checkbox label input:checked ~ span:after {
-    display: block;
-  }
-
-  .file-content-box-checkbox label input:checked ~ span {
-    background-image: radial-gradient(
-      circle at 12.5px 12.5px,
       var(--logo-color-bottom),
       var(--logo-color-top)
     );
+    border: 1px solid var(--ui-border);
+    border-radius: 100%;
+    overflow: hidden;
+  }
+
+  .file-content-box-checkbox label input:checked ~ span:after {
+    transform: scale(0);
   }
 
   .file-content-box-checkbox label span:after {
     content: '';
-    position: absolute;
-    display: none;
-    left: 8px;
-    top: 1px;
-    width: 7px;
-    height: 15px;
-    border: solid var(--ui-foreground);
-    border-width: 0 3px 3px 0;
-    transform: rotate(45deg);
+    position: relative;
+    display: block;
+    border-radius: 100%;
+    background-color: var(--ui-background);
+    top: calc(50% - 2.5px);
+    left: calc(50% - 2.5px);
+    width: 5px;
+    height: 5px;
+    transform: scale(6);
+    transition: transform 0.25s;
   }
 </style>

@@ -1,17 +1,17 @@
 <template>
   <transition name="modal">
     <div
-      :class="{ 'modal-container': true, 'dismissible': props.dismissible }"
+      :class="{ 'modal-container': true, 'dismissible': dismissible }"
       v-if="visible"
       @click.self="__hide"
     >
       <div class="modal">
-        <h1 class="modal-title" v-text="props.title" />
+        <h1 class="modal-title" v-text="title" />
         <img
           class="modal-close"
           src="@/assets/images/close.svg"
           alt="Close Modal"
-          v-if="props.dismissible"
+          v-if="dismissible"
           @click="__hide"
         />
         <div class="modal-content">
@@ -19,11 +19,7 @@
         </div>
         <div class="modal-footer">
           <slot name="footer">
-            <button
-              v-if="props.dismissible"
-              @click="__hide"
-              v-text="props.closeButton"
-            />
+            <button v-if="dismissible" @click="__hide" v-text="closeButton" />
           </slot>
         </div>
       </div>
@@ -46,23 +42,21 @@
 
   const emit = defineEmits(['close']);
 
-  const props = defineProps({
-    title: {
-      type: String,
-      default: 'Modal Title',
-    },
-    dismissible: Boolean,
-    closeButton: {
-      type: String,
-      default: 'Close',
-    },
-  });
+  const {
+    title = 'Modal Title',
+    dismissible,
+    closeButton = 'Close',
+  } = defineProps<{
+    title?: string;
+    dismissible?: boolean;
+    closeButton?: string;
+  }>();
 
   const visible = ref(false);
 
   // Internal hide function, not to be used externally, use hide() instead
   function __hide() {
-    if (!props.dismissible || !visible.value) return;
+    if (!dismissible || !visible.value) return;
     visible.value = false;
     emit('close');
     wait(400);

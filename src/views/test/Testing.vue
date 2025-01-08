@@ -19,6 +19,7 @@
       <option :value="FullscreenProgressBar">Fullscreen Progress Bar</option>
       <option :value="LoadingMessage">Loading Message</option>
       <option :value="LoadingSpinner">Loading Spinner</option>
+      <option :value="MarqueeText">Marquee Text</option>
       <option :value="Modals">Modals</option>
       <option :value="Paginator">Paginator</option>
       <option :value="ProgressBar">Progress Bar</option>
@@ -42,6 +43,7 @@
   import FullscreenProgressBar from '@/views/test/FullscreenProgressBar.vue';
   import LoadingMessage from '@/views/test/LoadingMessage.vue';
   import LoadingSpinner from '@/views/test/LoadingSpinner.vue';
+  import MarqueeText from '@/views/test/MarqueeText.vue';
   import Modals from '@/views/test/Modals.vue';
   import Paginator from '@/views/test/Paginator.vue';
   import ProgressBar from '@/views/test/ProgressBar.vue';
@@ -87,6 +89,9 @@
           break;
         case '#loading-spinner':
           currentItem.value = LoadingSpinner;
+          break;
+        case '#marquee-text':
+          currentItem.value = MarqueeText;
           break;
         case '#modals':
           currentItem.value = Modals;

@@ -2,14 +2,14 @@
   <ConfirmModal
     ref="confirmModal"
     @submit="modalSubmit"
-    :title="props.title"
-    :disabled="props.disabled"
-    :confirm-button="props.confirmButton"
-    :deny-button="props.denyButton"
+    :title="title"
+    :disabled="disabled"
+    :confirm-button="confirmButton"
+    :deny-button="denyButton"
   >
     <template #default>
       <slot name="before-form" />
-      <Form ref="form" @submit="formSubmit" :reset="props.reset">
+      <Form ref="form" @submit="formSubmit" :reset="reset">
         <slot name="default" />
       </Form>
       <slot name="after-form" />
@@ -45,26 +45,21 @@
     ): void;
     (event: 'cancel'): void;
   }>();
-  const props = defineProps({
-    title: {
-      type: String,
-      default: 'Imagine leaving the title empty',
-    },
-    reset: {
-      type: Boolean,
-      default: false,
-    },
-    closeOnSubmit: Boolean,
-    disabled: Boolean,
-    confirmButton: {
-      type: String,
-      default: "I'm sure",
-    },
-    denyButton: {
-      type: String,
-      default: 'Nevermind',
-    },
-  });
+  const {
+    title = 'Form Modal Title',
+    reset,
+    closeOnSubmit,
+    disabled,
+    confirmButton = "I'm sure",
+    denyButton = 'Nevermind',
+  } = defineProps<{
+    title?: string;
+    reset?: boolean;
+    closeOnSubmit?: boolean;
+    disabled?: boolean;
+    confirmButton?: string;
+    denyButton?: string;
+  }>();
   const confirmModal = ref<InstanceType<typeof ConfirmModal>>(),
     form = ref<InstanceType<typeof Form>>();
 
@@ -77,7 +72,7 @@
 
   function formSubmit(data: any) {
     emit('submit', data);
-    if (props.closeOnSubmit) confirmModal.value!.hide();
+    if (closeOnSubmit) confirmModal.value!.hide();
   }
 
   async function show() {

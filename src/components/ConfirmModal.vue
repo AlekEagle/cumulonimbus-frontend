@@ -1,7 +1,7 @@
 <template>
   <Modal
-    :title="props.title"
-    :dismissible="!props.disabled"
+    :title="title"
+    :dismissible="!disabled"
     @close="submit(false)"
     ref="modal"
   >
@@ -9,15 +9,11 @@
       <slot name="default" />
     </template>
     <template #footer>
-      <button
-        @click="submit(false)"
-        v-text="props.denyButton"
-        :disabled="props.disabled"
-      />
+      <button @click="submit(false)" v-text="denyButton" :disabled="disabled" />
       <button
         @click="submit(true)"
-        v-text="props.confirmButton"
-        :disabled="props.disabled"
+        v-text="confirmButton"
+        :disabled="disabled"
       />
       <slot name="additional-buttons" />
     </template>
@@ -40,22 +36,19 @@
   const emit = defineEmits<{
     (event: 'submit', choice: boolean): void;
   }>();
-  const props = defineProps({
-    title: {
-      type: String,
-      default: 'Imagine leaving the title empty',
-    },
-    confirmButton: {
-      type: String,
-      default: "I'm sure",
-    },
-    denyButton: {
-      type: String,
-      default: 'Nevermind',
-    },
-    closeOnSubmit: Boolean,
-    disabled: Boolean,
-  });
+  const {
+    title = 'Imagine leaving the title empty',
+    confirmButton = "I'm sure",
+    denyButton = 'Nevermind',
+    closeOnSubmit,
+    disabled,
+  } = defineProps<{
+    title?: string;
+    confirmButton?: string;
+    denyButton?: string;
+    closeOnSubmit?: boolean;
+    disabled?: boolean;
+  }>();
   const modal = ref<InstanceType<typeof Modal>>(),
     confirmCallback = ref<(choice: boolean) => void>();
 
@@ -65,7 +58,7 @@
       return;
     }
     emit('submit', choice);
-    if (props.closeOnSubmit) {
+    if (closeOnSubmit) {
       modal.value!.hide();
     }
   }

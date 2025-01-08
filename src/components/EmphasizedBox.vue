@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'box': true, 'no-padding': props.noPadding }">
+  <div :class="{ 'box': true, 'no-padding': noPadding }">
     <slot></slot>
   </div>
 </template>
@@ -17,9 +17,9 @@
   // External Modules
   // No External Modules to import here.
 
-  const props = defineProps({
-    noPadding: Boolean,
-  });
+  const { noPadding } = defineProps<{
+    noPadding?: boolean;
+  }>();
 </script>
 
 <style>

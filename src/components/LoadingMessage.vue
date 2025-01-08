@@ -22,7 +22,7 @@
   // External Modules
   import { ref, onMounted } from 'vue';
 
-  const props = defineProps<{
+  const { spinner } = defineProps<{
     spinner?: boolean;
   }>();
 

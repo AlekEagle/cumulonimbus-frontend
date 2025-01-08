@@ -4,7 +4,7 @@
       <template v-if="user.loggedIn">
         <LoadingSpinner v-if="domainPicker.loading" />
         <div
-          :class="{ 'domain-container': true, 'disabled': props.disabled }"
+          :class="{ 'domain-container': true, 'disabled': disabled }"
           v-if="domainPicker.domains"
         >
           <div class="subdomain-container" v-if="allowsSubdomains">
@@ -15,7 +15,7 @@
               maxlength="63"
               ref="subdomainInput"
               @input="onSubdomainInput"
-              :disabled="props.disabled"
+              :disabled="disabled"
               v-model="subdomain"
             />
             <p>.</p>
@@ -24,7 +24,7 @@
             name="domain"
             ref="domainSelect"
             @change="onDomainSelect"
-            :disabled="props.disabled"
+            :disabled="disabled"
             v-model="domain"
           >
             <option
@@ -72,7 +72,7 @@
   import { userStore } from '@/stores/user';
 
   // External Modules
-  import { ref, onMounted, watch } from 'vue';
+  import { ref, onMounted, watchEffect } from 'vue';
   import { useOnline } from '@/utils/ConnectivityCheck';
 
   const emit = defineEmits<{
@@ -80,17 +80,15 @@
     (event: 'cancel'): void;
     (event: 'no-session'): void;
   }>();
-  const props = defineProps({
-    domain: {
-      type: String,
-      default: 'alekeagle.me',
-    },
-    subdomain: {
-      type: null,
-      default: '',
-    },
-    disabled: Boolean,
-  });
+  const {
+    domain: domainProp = 'alekeagle.me',
+    subdomain: subdomainProp = '',
+    disabled,
+  } = defineProps<{
+    domain?: string;
+    subdomain?: string;
+    disabled?: boolean;
+  }>();
   const confirmModal = ref<InstanceType<typeof ConfirmModal>>(),
     domainPicker = domainPickerStore(),
     toast = toastStore(),
@@ -134,23 +132,23 @@
     setCursorPos(input, cursorPos);
   }
 
-  watch(allowsSubdomains, (newValue) => {
-    if (newValue) {
+  watchEffect(() => {
+    if (allowsSubdomains.value) {
       setTimeout(() => {
         if (!subdomainInput.value) return;
-        subdomainInput.value.value = props.subdomain;
+        subdomainInput.value.value = subdomainProp;
       }, 10);
     }
   });
 
   async function show() {
     confirmModal.value!.show();
-    domain.value = props.domain;
-    subdomain.value = props.subdomain;
-    setDomainWidth(props.domain);
-    setSubdomainWidth(props.subdomain);
+    domain.value = domainProp;
+    subdomain.value = subdomainProp;
+    setDomainWidth(domainProp);
+    setSubdomainWidth(subdomainProp);
     allowsSubdomains.value = domainPicker.domains!.items.find(
-      (domain) => domain.id === props.domain,
+      (domain) => domain.id === domainProp,
     )!.subdomains;
   }
 
@@ -231,11 +229,11 @@
 
   onMounted(async () => {
     await reloadDomains();
-    domain.value = props.domain;
-    subdomain.value = props.subdomain;
+    domain.value = domainProp;
+    subdomain.value = subdomainProp;
     await wait(100);
     allowsSubdomains.value = domainPicker.domains!.items.find(
-      (domain) => domain.id === props.domain,
+      (domain) => domain.id === domainProp,
     )!.subdomains;
   });
 </script>

@@ -1,10 +1,7 @@
 <template>
   <p v-text="pageIndicatorText" />
   <div class="paginator-controls paginator-controls-top">
-    <button
-      @click="prevPage"
-      :disabled="0 >= props.modelValue || props.disabled"
-    >
+    <button @click="prevPage" :disabled="0 >= page || props.disabled">
       Prev
     </button>
     <input
@@ -17,10 +14,7 @@
       @change="onInputChange"
       @input="validateInput"
     />
-    <button
-      @click="nextPage"
-      :disabled="maxPage <= props.modelValue || props.disabled"
-    >
+    <button @click="nextPage" :disabled="maxPage <= page || props.disabled">
       Next
     </button>
   </div>
@@ -36,10 +30,7 @@
   </slot>
 
   <div class="paginator-controls paginator-controls-bottom">
-    <button
-      @click="prevPage"
-      :disabled="0 >= props.modelValue || props.disabled"
-    >
+    <button @click="prevPage" :disabled="0 >= page || props.disabled">
       Prev
     </button>
     <input
@@ -53,10 +44,7 @@
       @change="onInputChange"
       @input="validateInput"
     />
-    <button
-      @click="nextPage"
-      :disabled="maxPage <= props.modelValue || props.disabled"
-    >
+    <button @click="nextPage" :disabled="maxPage <= page || props.disabled">
       Next
     </button>
   </div>
@@ -74,15 +62,16 @@
   import { displayPrefStore } from '@/stores/displayPref';
 
   // External Modules
-  import { onMounted, watch, computed } from 'vue';
+  import { onMounted, computed, watchEffect } from 'vue';
   import { useRouter } from 'vue-router';
 
-  const emit = defineEmits(['update:modelValue', 'pageChange']);
+  const page = defineModel({
+    type: Number,
+    required: true,
+  });
+
+  const emit = defineEmits(['pageChange']);
   const props = defineProps({
-    modelValue: {
-      type: Number,
-      required: true,
-    },
     itemCount: {
       type: Number,
       default: 0,
@@ -92,7 +81,7 @@
 
   const router = useRouter(),
     displayPref = displayPrefStore(),
-    pageCount = computed(() => props.modelValue + 1),
+    pageCount = computed(() => page.value + 1),
     maxPage = computed(() => {
       let a = Math.ceil(props.itemCount / displayPref.itemsPerPage) - 1;
       if (isNaN(a)) return 0;
@@ -107,58 +96,56 @@
     );
 
   function prevPage() {
-    emit('update:modelValue', props.modelValue - 1);
+    page.value--;
     emit('pageChange');
   }
 
   function nextPage() {
-    emit('update:modelValue', props.modelValue + 1);
+    page.value++;
     emit('pageChange');
   }
 
   function onInputChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.value === '') {
-      input.value = props.modelValue + 1 + '';
+      input.value = page.value + 1 + '';
       return;
     }
     if (Number(input.value) <= 0) {
-      emit('update:modelValue', 0);
+      page.value = 0;
     } else if (Number(input.value) >= maxPage.value + 1) {
-      emit('update:modelValue', maxPage.value);
+      page.value = maxPage.value;
     } else {
-      emit('update:modelValue', Number(input.value) - 1);
+      page.value = Number(input.value) - 1;
     }
     input.blur();
     emit('pageChange');
   }
 
-  watch(props, ({ modelValue }) => {
-    router.replace({
-      query: {
-        ...router.currentRoute.value.query,
-        page: modelValue === 0 ? undefined : modelValue + 1,
-      },
-    });
+  watchEffect(() => {
+    updateQuery(page.value);
   });
 
   onMounted(() => {
     if (router.currentRoute.value.query.page) {
-      if (Number(router.currentRoute.value.query.page) === 1) {
-        router.replace({
-          query: {
-            ...router.currentRoute.value.query,
-            page: undefined,
-          },
-        });
-        return;
+      page.value = Number(router.currentRoute.value.query.page) - 1;
+      // Watch doesn't trigger because the value is the same, so we need to manually update the query.
+      if (page.value === 0) {
+        updateQuery(0);
       }
-      emit(
-        'update:modelValue',
-        Number(router.currentRoute.value.query.page) - 1,
-      );
     }
   });
+
+  async function updateQuery(p: number) {
+    router.replace({
+      query: {
+        ...router.currentRoute.value.query,
+        page: p === 0 ? undefined : p + 1,
+      },
+      // If hash is present, keep it
+      hash: router.currentRoute.value.hash,
+    });
+  }
 
   function validateInput(event: Event) {
     const input = event.target as HTMLInputElement;

@@ -2,20 +2,20 @@
   <div
     :class="{
       'content-box': true,
-      'disabled': props.disabled,
+      'disabled': disabled,
       'click-target': isClickTarget,
-      'nowrap': props.nowrap,
-      'grow-content': props.grow,
+      'nowrap': nowrap,
+      'grow-content': grow,
     }"
     v-if="!displayLink"
     @click="contentBoxClicked"
   >
     <div class="content-box-inner">
-      <h3 class="title" v-text="props.title" />
+      <h3 class="title" v-text="title" />
       <img
-        :class="{ 'theme-safe': props.themeSafe }"
-        v-if="props.src"
-        :src="props.src"
+        :class="{ 'theme-safe': themeSafe }"
+        v-if="src"
+        :src="src"
         width="80"
         height="80"
       />
@@ -30,20 +30,20 @@
     v-else
     :class="{
       'content-box': true,
-      'disabled': props.disabled,
+      'disabled': disabled,
       'click-target': isClickTarget,
-      'nowrap': props.nowrap,
-      'grow-content': props.grow,
+      'nowrap': nowrap,
+      'grow-content': grow,
     }"
     :href="linkToDisplay"
     @click.prevent="linkClicked"
   >
     <div class="content-box-inner">
-      <h3 class="title" v-text="props.title" />
+      <h3 class="title" v-text="title" />
       <img
-        :class="{ 'theme-safe': props.themeSafe }"
-        v-if="props.src"
-        :src="props.src"
+        :class="{ 'theme-safe': themeSafe }"
+        v-if="src"
+        :src="src"
         width="80"
         height="80"
       />
@@ -73,36 +73,35 @@
   const emit = defineEmits(['click']),
     router = useRouter();
 
-  const props = defineProps({
-    title: {
-      type: String,
-      default: 'Imagine leaving the title empty',
-    },
-    src: {
-      type: String,
-      default: undefined,
-    },
-    disabled: Boolean,
-    to: {
-      type: null,
-      default: undefined,
-    },
-    themeSafe: Boolean,
-    nowrap: Boolean,
-    grow: Boolean,
-  });
+  const {
+    title = 'Imagine leaving the title empty',
+    src,
+    disabled,
+    to,
+    themeSafe,
+    nowrap,
+    grow,
+  } = defineProps<{
+    title?: string;
+    src?: string;
+    disabled?: boolean;
+    to?: string | { name: string; params: Record<string, string> };
+    themeSafe?: boolean;
+    nowrap?: boolean;
+    grow?: boolean;
+  }>();
 
   const displayLink = computed(() => {
-    return props.to !== undefined && props.to !== null && !props.disabled;
+    return to !== undefined && to !== null && !disabled;
   });
 
   const linkToDisplay = computed(() => {
-    if (props.to === undefined || props.to === null) {
+    if (to === undefined || to === null) {
       return undefined;
-    } else if (typeof props.to === 'string') {
-      return props.to;
+    } else if (typeof to === 'string') {
+      return to;
     } else {
-      return router.resolve(props.to).href;
+      return router.resolve(to).href;
     }
   });
 
@@ -110,7 +109,7 @@
     return (
       !!getCurrentInstance()?.vnode?.props?.onClick ||
       displayLink.value ||
-      props.disabled
+      disabled
     );
   });
 
@@ -119,22 +118,24 @@
   }
 
   async function linkClicked() {
-    if (props.disabled) return;
+    // This should never happen, but it makes TypeScript happy, and it's good practice.
+    if (to === undefined || to === null) return;
+    if (disabled) return;
     // if the link is a string
-    if (typeof props.to === 'string') {
+    if (typeof to === 'string') {
       // if it is, check if its relative or absolute
-      if (!isExternal(props.to))
+      if (!isExternal(to))
         // if it is, use the router to navigate to it
-        await router.push(props.to);
+        await router.push(to);
       // if it is not, use window.open to open it in a new tab
-      else window.open(props.to, '_blank');
+      else window.open(to, '_blank');
     } else {
-      await router.push(props.to);
+      await router.push(to);
     }
   }
 
   async function contentBoxClicked() {
-    if (props.disabled) return;
+    if (disabled) return;
     emit('click');
   }
 </script>

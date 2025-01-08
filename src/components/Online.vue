@@ -2,7 +2,7 @@
   <template v-if="online">
     <slot name="default" />
   </template>
-  <template v-else-if="!props.noMsg">
+  <template v-else-if="!noMsg">
     <slot name="err-msg">
       <h2>You're offline, please connect to the internet to continue.</h2>
     </slot>
@@ -22,12 +22,9 @@
   // External Modules
   import { useOnline } from '@/utils/ConnectivityCheck';
 
-  const props = defineProps({
-    noMsg: {
-      type: Boolean,
-      default: false,
-    },
-  });
+  const { noMsg } = defineProps<{
+    noMsg?: boolean;
+  }>();
 
   const online = useOnline();
 </script>
