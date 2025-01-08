@@ -86,7 +86,7 @@
     disabled,
   } = defineProps<{
     domain?: string;
-    subdomain?: string;
+    subdomain?: string | null;
     disabled?: boolean;
   }>();
   const confirmModal = ref<InstanceType<typeof ConfirmModal>>(),
@@ -136,7 +136,7 @@
     if (allowsSubdomains.value) {
       setTimeout(() => {
         if (!subdomainInput.value) return;
-        subdomainInput.value.value = subdomainProp;
+        subdomainInput.value.value = subdomainProp!;
       }, 10);
     }
   });
@@ -144,9 +144,9 @@
   async function show() {
     confirmModal.value!.show();
     domain.value = domainProp;
-    subdomain.value = subdomainProp;
+    subdomain.value = subdomainProp!;
     setDomainWidth(domainProp);
-    setSubdomainWidth(subdomainProp);
+    setSubdomainWidth(subdomainProp!);
     allowsSubdomains.value = domainPicker.domains!.items.find(
       (domain) => domain.id === domainProp,
     )!.subdomains;
@@ -230,7 +230,7 @@
   onMounted(async () => {
     await reloadDomains();
     domain.value = domainProp;
-    subdomain.value = subdomainProp;
+    subdomain.value = subdomainProp!;
     await wait(100);
     allowsSubdomains.value = domainPicker.domains!.items.find(
       (domain) => domain.id === domainProp,
