@@ -1,9 +1,12 @@
-import { createApp } from 'vue';
+// In-House Modules
 import App from './App.vue';
 import { ConnectivityCheckPlugin } from './utils/ConnectivityCheck';
-import { createPinia } from 'pinia';
 import { router } from './router';
 import packageJson from '../package.json';
+
+// External Modules
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 
 import '@/assets/fonts/fonts.css';
 

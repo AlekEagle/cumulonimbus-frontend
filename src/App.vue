@@ -517,20 +517,21 @@
   }
 
   header nav ul {
-    --padding: 20px;
+    --padding: 60px;
+    transform: translate3d(0, 0, 0);
     display: flex;
     align-items: center;
     padding: var(--padding) 0;
     position: fixed;
     justify-content: flex-start;
-    bottom: 100vh;
+    top: 100vh;
     left: 0;
     flex-direction: column;
     margin: 0;
     width: 100vw;
     height: calc(100vh - (var(--padding) * 2));
     text-align: center;
-    transition: bottom 0.4s;
+    transition: top 0.4s;
     backdrop-filter: blur(5px) brightness(0.6);
     -webkit-backdrop-filter: blur(5px) brightness(0.6);
     z-index: 10;
@@ -544,7 +545,7 @@
   }
 
   header nav.active ul {
-    bottom: 0;
+    top: -0;
   }
 
   header nav > div {
@@ -809,6 +810,10 @@
     width: fit-content;
     max-width: calc(100% - 20px);
     margin: 0 auto;
+  }
+
+  .content-box-container.grow {
+    width: calc(100% - 20px);
   }
 
   .sb-code-label {

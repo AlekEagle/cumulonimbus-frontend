@@ -1,28 +1,35 @@
+<!-- This component is heavily inspired by vue3-marquee by megasanjay, go check it out https://github.com/megasanjay/vue3-marquee -->
 <template>
   <div
     :class="{
       'marquee': true,
-      'edge-fade': edgeFade,
-      'no-left-edge-fade': noLeftEdgeFade,
-      'no-right-edge-fade': noRightEdgeFade,
-      'vertical': direction === 'up' || direction === 'down',
+      'vertical': vertical,
+      'gradient': gradient,
+      'pause': pause,
+      'pause-on-hover': pauseOnHover,
+      'clone': clone,
     }"
     ref="marquee"
   >
+    <!-- Primary content tag -->
     <div class="inner" ref="inner">
-      <slot>
-        <p>This is a default marquee text.</p>
-      </slot>
+      <slot></slot>
     </div>
+
+    <!-- Clone content tag(s) -->
+    <div class="inner" v-for="i in cloneAmt" :key="i">
+      <slot></slot>
+    </div>
+    <!-- End clone content tag(s) -->
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
   // Vue Components
   // No Vue Components to import here.
 
   // In-House Modules
-  import { wait } from '@/utils/wait';
+  // No In-House Modules to import here.
 
   // Store Modules
   // No Store Modules to import here.
@@ -30,205 +37,222 @@
   // External Modules
   import { ref, computed, onMounted, watchEffect } from 'vue';
 
+  // Props
   const {
-    speed = 1,
-    interval = 0,
-    direction = 'left',
-    overlap = 90,
-    edgeFade,
-    edgeFadeWidth = 20,
+    vertical,
+    direction = 'normal',
+    duration = 10,
+    timingFunction = 'linear',
+    delay = 0,
+    loop = 0,
+    clone,
+    gradient,
+    gradientColor,
+    gradientStops,
+    pauseOnHover,
+    pause,
   } = defineProps<{
-    speed?: number;
-    interval?: number;
-    direction?: 'left' | 'right' | 'up' | 'down';
-    overlap?: number;
-    edgeFade?: boolean;
-    noLeftEdgeFade?: boolean;
-    noRightEdgeFade?: boolean;
-    edgeFadeWidth?: number;
+    vertical?: boolean;
+    direction?: 'normal' | 'reverse';
+    duration?: number;
+    timingFunction?: string;
+    delay?: number;
+    loop?: number;
+    clone?: boolean;
+    gradient?: boolean;
+    gradientColor?: string;
+    gradientStops?: number;
+    pauseOnHover?: boolean;
+    pause?: boolean;
   }>();
 
+  // Refs
   const marquee = ref<HTMLDivElement>(),
-    inner = ref<HTMLParagraphElement>(),
-    progress = ref(20 * 1.25),
-    parentBackgroundColor = computed(() => {
-      // Find the closest parent element with a background color that isn't transparent.
-      function getBackgroundColor(
-        element: HTMLElement | undefined,
-      ): string | null {
-        if (!element) return null;
-        const color = getComputedStyle(element).backgroundColor;
-        if (
-          (color === 'transparent' || color === 'rgba(0, 0, 0, 0)') &&
-          element.parentElement
-        )
-          return getBackgroundColor(element.parentElement);
-        return color;
-      }
+    inner = ref<HTMLDivElement>(),
+    cloneAmt = ref(0);
 
-      return getBackgroundColor(marquee.value);
-    }),
-    overlapFloat = computed(() => {
-      return overlap / 100;
-    }),
-    content = computed(() => {
-      // We only expect one child node in the inner element.
-      return inner.value?.children[0];
-    }),
-    innerWidth = computed(() => {
-      return inner.value?.clientWidth || 0;
-    }),
-    innerHeight = computed(() => {
-      return inner.value?.clientHeight || 0;
-    }),
-    contentWidth = computed(() => {
-      return content.value?.clientWidth || 0;
-    }),
-    contentHeight = computed(() => {
-      return content.value?.clientHeight || 0;
-    });
-
-  watchEffect(() => {
-    if (parentBackgroundColor.value && marquee.value)
-      marquee.value?.style.setProperty(
-        '--box-shadow-color',
-        parentBackgroundColor.value,
-      );
-  });
-  watchEffect(() => {
-    if (edgeFade) {
-      marquee.value?.style.setProperty(
-        '--box-shadow-width',
-        `${edgeFadeWidth}px`,
-      );
-    }
-  });
-  watchEffect(() => {
-    marquee.value?.style.setProperty('--overlap', `${overlap}%`);
-  });
-
-  async function scrollHoriz() {
-    if (!marquee.value || !inner.value || !content.value)
-      throw new Error('Scroll loop started before refs were initialized.');
-
-    switch (direction) {
-      case 'left':
-        progress.value -= speed;
-        if (
-          progress.value <=
-          -(innerWidth.value * overlapFloat.value + contentWidth.value)
-        ) {
-          progress.value = 0;
-          await wait(interval);
-        }
-        break;
-      case 'right':
-        progress.value += speed;
-        if (
-          progress.value >=
-          innerWidth.value * overlapFloat.value - edgeFadeWidth * 4
-        ) {
-          progress.value = -contentWidth.value - edgeFadeWidth * 4;
-          await wait(interval);
-        }
-        break;
-    }
-
-    inner.value.style.transform = `translateX(${progress.value}px)`;
-    requestAnimationFrame(scrollHoriz);
-  }
-
-  function scrollVert() {
-    if (!marquee.value || !inner.value || !content.value)
-      throw new Error('Scroll loop started before refs were initialized.');
-
-    progress.value -= speed;
+  // Methods
+  // Find the closest parent element with a background color that isn't transparent.
+  function getBackgroundColor(element: HTMLElement | undefined): string | null {
+    if (!element) return null;
+    const color = getComputedStyle(element).backgroundColor;
     if (
-      progress.value <=
-      -(innerHeight.value * overlapFloat.value + contentHeight.value)
-    ) {
-      progress.value = 0;
-    }
-
-    inner.value.style.transform = `translateY(${progress.value}px)`;
-    requestAnimationFrame(scrollVert);
+      (color === 'transparent' || color === 'rgba(0, 0, 0, 0)') &&
+      element.parentElement
+    )
+      return getBackgroundColor(element.parentElement);
+    return color;
   }
 
-  onMounted(() => {
-    // TODO: Clone the content element and append it to the inner element as needed to create a seamless loop regardless of the overlap percentage.
-    new Array(Math.ceil(1 / overlapFloat.value)).fill(0).forEach(() => {
-      inner.value?.appendChild(content.value?.cloneNode(true)!);
-    });
+  function calcCloneAmt() {
+    // If our marquee and inner refs are not defined, return 0
+    if (!marquee.value || !inner.value) return 0;
 
-    // Start the scroll loop.
-    switch (direction) {
-      case 'right':
-        progress.value = -contentWidth.value - edgeFadeWidth * 4;
-      case 'left':
-        scrollHoriz();
-        break;
-      case 'up':
-      case 'down':
-        // TODO: Implement vertical scrolling properly.
-        console.warn('Vertical scrolling is not yet properly implemented.');
-        scrollVert();
-        break;
+    // If we are not cloning, return 1 (we need to have at least one so the marquee can look like its entering as it leaves)
+    if (!clone) return 1;
+
+    // If we are vertical, calculate the amount of clones based on the height of the marquee and inner elements
+    if (vertical) {
+      return Math.ceil(marquee.value.clientHeight / inner.value.clientHeight);
     }
+
+    // If we are horizontal, calculate the amount of clones based on the width of the marquee and inner elements
+    return Math.ceil(marquee.value.clientWidth / inner.value.clientWidth);
+  }
+
+  // CSS Variable Watch Effects
+
+  // --gradient-color
+  watchEffect(() => {
+    marquee.value?.style.setProperty(
+      '--gradient-color',
+      gradientColor ?? getBackgroundColor(marquee.value),
+    );
+  });
+  // --gradient-stops
+  watchEffect(() => {
+    if (gradientStops) {
+      marquee.value?.style.setProperty(
+        '--gradient-stops',
+        gradientStops.toString() + '%',
+      );
+    }
+  });
+  // --direction
+  watchEffect(() => {
+    marquee.value?.style.setProperty('--direction', direction);
+  });
+  // --duration
+  watchEffect(() => {
+    marquee.value?.style.setProperty('--duration', duration + 's');
+  });
+  // --timing-function
+  watchEffect(() => {
+    marquee.value?.style.setProperty('--timing-function', timingFunction);
+  });
+  // --delay
+  watchEffect(() => {
+    marquee.value?.style.setProperty('--delay', delay + 's');
+  });
+  // --loop
+  watchEffect(() => {
+    marquee.value?.style.setProperty(
+      '--loop',
+      loop < 1 ? 'infinite' : loop + '',
+    );
+  });
+
+  // Component Lifecycle Hooks
+  onMounted(() => {
+    // Calculate the amount of clones needed
+    cloneAmt.value = calcCloneAmt();
+    // Create an event listener for when the marquee is resized
+    window.addEventListener('resize', () => {
+      cloneAmt.value = calcCloneAmt();
+    });
   });
 </script>
 
 <style>
+  @keyframes horizontal {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes vertical {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-100%);
+    }
+  }
+
   .marquee {
-    width: 100%;
+    display: flex;
     position: relative;
   }
 
-  .marquee:after {
+  .marquee:not(.vertical) {
+    overflow-x: hidden;
+    flex-direction: row;
+    width: 100%;
+    height: max-content;
+  }
+
+  .marquee.vertical {
+    overflow-y: hidden;
+    flex-direction: column;
+    width: max-content;
+    height: 100%;
+  }
+
+  .marquee.gradient:not(.vertical)::after {
     content: '';
     position: absolute;
-    top: 0px;
-    right: 0px;
-    height: 100%;
-    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    background: linear-gradient(
+      to right,
+      var(--gradient-color, #000) 0%,
+      rgba(255, 255, 255, 0) var(--gradient-stops, 50%),
+      rgba(255, 255, 255, 0) calc(100% - var(--gradient-stops, 50%)),
+      var(--gradient-color, #000) 100%
+    );
   }
 
-  .marquee.edge-fade:not(.vertical):after {
-    /* Left falloff shadow */
-    box-shadow: inset calc(var(--box-shadow-width) * 2.5) 0
-        var(--box-shadow-width) calc(-1.5 * var(--box-shadow-width))
-        var(--box-shadow-color, var(--background)),
-      /* Right falloff shadow                                                      */
-        inset calc(var(--box-shadow-width) * -2.5) 0 var(--box-shadow-width)
-        calc(-1.5 * var(--box-shadow-width))
-        var(--box-shadow-color, var(--background));
-  }
-
-  .marquee.no-left-edge-fade:not(.vertical):after {
-    /* Right falloff shadow */
-    box-shadow: inset calc(var(--box-shadow-width) * -2.5) 0
-      var(--box-shadow-width) calc(-1.5 * var(--box-shadow-width))
-      var(--box-shadow-color, var(--background));
-  }
-
-  .marquee.no-right-edge-fade:not(.vertical):after {
-    /* Left falloff shadow */
-    box-shadow: inset calc(var(--box-shadow-width) * 2.5) 0
-      var(--box-shadow-width) calc(-1.5 * var(--box-shadow-width))
-      var(--box-shadow-color, var(--background));
+  .marquee.gradient.vertical::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    background: linear-gradient(
+      to bottom,
+      var(--gradient-color, #000) 0%,
+      rgba(255, 255, 255, 0) var(--gradient-stops, 50%),
+      rgba(255, 255, 255, 0) calc(100% - var(--gradient-stops, 50%)),
+      var(--gradient-color, #000) 100%
+    );
   }
 
   .marquee .inner {
-    width: 100%;
-    text-align: left;
-    position: relative;
-    white-space: nowrap;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    animation-iteration-count: var(--loop, 1);
+    animation-timing-function: var(--timing-function, linear);
+    animation-duration: var(--duration, 10s);
+    animation-delay: var(--delay, 0s);
+    animation-direction: var(--direction, normal);
   }
 
-  .marquee .inner > * {
-    display: inline-block;
+  .marquee.pause .inner,
+  .marquee.pause-on-hover:hover .inner {
+    animation-play-state: paused;
   }
 
-  .marquee .inner > *:not(:last-child) {
-    margin-right: var(--overlap);
+  .marquee:not(.clone) .inner {
+    min-width: 100%;
+    min-height: 100%;
+  }
+
+  .marquee:not(.vertical) .inner {
+    animation-name: horizontal;
+    flex-direction: row;
+  }
+
+  .marquee.vertical .inner {
+    animation-name: vertical;
+    flex-direction: column;
   }
 </style>

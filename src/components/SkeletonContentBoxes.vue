@@ -1,5 +1,5 @@
 <template>
-  <div class="content-box-container" v-if="!props.noContainer">
+  <div class="content-box-container grow" v-if="!props.noContainer">
     <div
       class="content-box skeleton"
       v-for="() in new Array(props.count || displayPref.itemsPerPage).fill(0)"

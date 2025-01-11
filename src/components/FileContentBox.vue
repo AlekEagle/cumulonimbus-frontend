@@ -197,7 +197,7 @@
     display: grid;
     height: 200px;
     grid-template-columns: 8fr 1fr;
-    grid-template-rows: auto 64px;
+    grid-template-rows: 1fr 64px;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;

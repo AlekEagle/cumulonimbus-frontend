@@ -1,21 +1,16 @@
 <template>
-  <Marquee
-    :speed="2"
-    edge-fade
-    no-left-edge-fade
-    :edge-fade-width="100"
-    :overlap="12"
-    :interval="6000"
-  />
-  <Marquee
-    :acceleration="0.25"
-    :speed="2"
-    direction="right"
-    edge-fade
-    :edge-fade-width="50"
-  />
-  <!-- <Marquee direction="up"></Marquee>
-  <Marquee direction="down"></Marquee> -->
+  <Marquee gradient :duration="3">
+    <p>this is a marquee</p>
+  </Marquee>
+  <Marquee gradient direction="reverse" :duration="5">
+    <p>this is a marquee</p>
+  </Marquee>
+  <Marquee gradient vertical :duration="5">
+    <p>this is a marquee</p>
+  </Marquee>
+  <Marquee gradient direction="reverse" vertical :duration="5">
+    <p>this is a marquee</p>
+  </Marquee>
 </template>
 
 <script setup lang="ts">
@@ -29,7 +24,12 @@
   // No Store Modules to import here.
 
   // External Modules
-  import { ref } from 'vue';
+  // No External Modules to import here.
 </script>
 
-<style></style>
+<style>
+  .marquee p {
+    white-space: nowrap;
+    margin: 0 1rem;
+  }
+</style>
