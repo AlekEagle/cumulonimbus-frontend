@@ -34,7 +34,7 @@
       <template v-if="!domains.loading">
         <template v-if="!domains.errored">
           <div
-            class="content-box-container"
+            class="content-box-container grow"
             v-if="domains.data && domains.data.count > 0"
           >
             <SelectableContentBox

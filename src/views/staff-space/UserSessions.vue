@@ -36,7 +36,7 @@
         <template v-if="!sessions.errored">
           <div
             v-if="sessions.data && sessions.data.count > 0"
-            class="content-box-container"
+            class="content-box-container grow"
           >
             <SelectableContentBox
               v-for="session in sessions.data.items"

@@ -35,7 +35,7 @@
     <template v-if="!instructions.loading">
       <template v-if="!instructions.errored">
         <div
-          class="content-box-container"
+          class="content-box-container grow"
           v-if="instructions.data && instructions.data.count > 0"
         >
           <SelectableContentBox

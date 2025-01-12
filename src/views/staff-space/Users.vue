@@ -29,7 +29,7 @@
         <template v-if="!users.errored">
           <div
             v-if="users.data && users.data.count > 0"
-            class="content-box-container"
+            class="content-box-container grow"
           >
             <SelectableContentBox
               v-for="user in users.data.items"

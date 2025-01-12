@@ -5,7 +5,7 @@
     <BackButton fallback="/dashboard/setup-guides" />
   </div>
   <Online>
-    <div class="content-box-container" v-if="instruction.data">
+    <div class="content-box-container grow" v-if="instruction.data">
       <template v-if="!instruction.loading">
         <template v-if="!instruction.errored">
           <template v-if="instruction.data">

@@ -15,7 +15,7 @@
         <template v-if="!instructions.errored">
           <div
             v-if="instructions.data && instructions.data.count > 0"
-            class="content-box-container"
+            class="content-box-container grow"
           >
             <ContentBox
               v-for="instruction in instructions.data.items"

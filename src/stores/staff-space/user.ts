@@ -437,6 +437,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
         password,
       );
       data.value = result.result;
+      return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
@@ -461,6 +462,7 @@ export const otherUserStore = defineStore('staff-space-user', () => {
               SFR,
             );
             data.value = result.result;
+            return true;
           } catch (error) {
             errored.value = true;
             // Pass our error to the default error handler and check if it was handled.
@@ -510,7 +512,6 @@ export const otherUserStore = defineStore('staff-space-user', () => {
     } finally {
       loading.value = false;
     }
-    return true;
   }
 
   async function updateDomain(

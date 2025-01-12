@@ -15,7 +15,7 @@
       Staff Dashboard
     </RouterButton>
   </div>
-  <div class="content-box-container">
+  <div class="content-box-container grow">
     <ContentBox
       title="Account"
       :src="profileIcon"

@@ -6,7 +6,7 @@
       User Dashboard
     </RouterButton>
   </div>
-  <div class="content-box-container">
+  <div class="content-box-container grow">
     <ContentBox title="Users" :src="profileIcon" theme-safe to="/staff/users">
       See and manage all users.
     </ContentBox>

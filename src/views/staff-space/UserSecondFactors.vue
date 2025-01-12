@@ -36,7 +36,7 @@
         <template v-if="!secondFactors.errored">
           <div
             v-if="secondFactors.data && secondFactors.data.count > 0"
-            class="content-box-container"
+            class="content-box-container grow"
           >
             <SelectableContentBox
               v-for="secondFactor in secondFactors.data.items"

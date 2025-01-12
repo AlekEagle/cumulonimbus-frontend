@@ -713,9 +713,9 @@
     }
     try {
       const status = await otherUser.updatePassword(
+        password,
         newPassword,
         confirmNewPassword,
-        password,
       );
       if (status) {
         toast.show('Password updated.');

@@ -22,7 +22,7 @@
     </button>
   </div>
   <Online>
-    <div class="content-box-container">
+    <div class="content-box-container grow">
       <template v-if="!instruction.loading">
         <template v-if="!instruction.errored">
           <template v-if="instruction.data">
