@@ -138,6 +138,7 @@
     isolation: isolate;
     position: relative;
     height: 30px;
+    min-width: 60px;
     width: 60px;
     border-radius: 15px;
     overflow: hidden;
