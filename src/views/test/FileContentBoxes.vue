@@ -1,6 +1,6 @@
 <template>
   <div class="file-content-box-container">
-    <template v-for="i in 120">
+    <template v-for="i in 12">
       <FileContentBox debug v-model="model" />
     </template>
   </div>

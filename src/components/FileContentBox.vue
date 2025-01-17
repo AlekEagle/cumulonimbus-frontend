@@ -173,6 +173,16 @@
   onUnmounted(() => {
     if (imgBlob.value) URL.revokeObjectURL(imgBlob.value);
   });
+
+  // Register CSS Custom Property once and catch error if it already exists
+  try {
+    CSS.registerProperty({
+      name: '--file-content-box-content-overflow-shadow-gradient-color',
+      syntax: '<color>',
+      inherits: false,
+      initialValue: '#ffffff',
+    });
+  } catch (e) {}
 </script>
 
 <style>
@@ -276,6 +286,9 @@
   }
 
   .file-content-box-content-overflow-shadow {
+    --file-content-box-content-overflow-shadow-gradient-color: var(
+      --ui-background
+    );
     position: absolute;
     grid-row: 2 / span 2;
     grid-column: 2 / span 2;
@@ -284,8 +297,9 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      var(--ui-background) 25%
+      var(--file-content-box-content-overflow-shadow-gradient-color) 25%
     );
+    transition: --file-content-box-content-overflow-shadow-gradient-color 0.25s;
   }
 
   .file-content-box-checkbox {
@@ -333,6 +347,7 @@
     border: 1px solid var(--ui-border);
     border-radius: 100%;
     overflow: hidden;
+    transition: border 0.25s;
   }
 
   .file-content-box-checkbox label input:checked ~ span:after {
@@ -350,6 +365,6 @@
     width: 5px;
     height: 5px;
     transform: scale(6);
-    transition: transform 0.25s;
+    transition: transform 0.4s ease-in-out, background-color 0.25s;
   }
 </style>

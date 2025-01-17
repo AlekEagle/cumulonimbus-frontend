@@ -481,7 +481,8 @@
   h5,
   h6,
   p,
-  li {
+  li,
+  img {
     font-size: 18px;
     font-weight: 400;
     color: var(--foreground);
@@ -518,6 +519,7 @@
 
   header nav ul {
     --padding: 60px;
+    --background: rgba(255, 255, 255, 0.4);
     transform: translate3d(0, 0, 0);
     display: flex;
     align-items: center;
@@ -531,13 +533,18 @@
     width: 100vw;
     height: calc(100vh - (var(--padding) * 2));
     text-align: center;
-    transition: top 0.4s;
-    backdrop-filter: blur(5px) brightness(0.6);
-    -webkit-backdrop-filter: blur(5px) brightness(0.6);
+    transition: top 0.4s, background-color 0.25s;
+    background-color: var(--background);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     z-index: 10;
     overflow: hidden auto;
     overscroll-behavior: contain;
     scrollbar-width: none;
+  }
+
+  html.dark-theme header nav ul {
+    --background: rgba(33, 33, 33, 0.4);
   }
 
   header nav ul::-webkit-scrollbar {

@@ -26,29 +26,14 @@ export const displayPrefStore = defineStore('displayPref', () => {
   // --- End Persistent Refs ---
   // --- Internal Values ---
   const preferredDark = usePreferredDark(),
-    themeTransitionTimeout = ref(-1),
     html = document.documentElement;
 
   // --- Functions ---
 
-  function enableTransition() {
-    if (themeTransitionTimeout.value !== -1) {
-      clearTimeout(themeTransitionTimeout.value);
-    } else {
-      html.classList.add('dark-theme-transition');
-    }
-    // @ts-expect-error Blame @types/qrcode for this error
-    themeTransitionTimeout.value = setTimeout(() => {
-      html.classList.remove('dark-theme-transition');
-      themeTransitionTimeout.value = -1;
-    }, 0);
-  }
-
-  function setTheme(newThemeVal: boolean = !dark.value) {
+  function setDarkTheme(newThemeVal: boolean = !dark.value) {
     const metaThemeColor = document.querySelector(
       'meta[name=theme-color]',
     ) as HTMLMetaElement;
-    enableTransition();
     if (newThemeVal) {
       html.classList.add('dark-theme');
       metaThemeColor.setAttribute('content', '#212121');
@@ -60,7 +45,7 @@ export const displayPrefStore = defineStore('displayPref', () => {
 
   // Watch for changes to the dark theme preference
   watch(dark, (newVal: boolean) => {
-    setTheme(newVal);
+    setDarkTheme(newVal);
   });
 
   // Wait 500ms before removing the 'no-theme' class to allow the theme to be set
@@ -73,7 +58,7 @@ export const displayPrefStore = defineStore('displayPref', () => {
   }, 500);
 
   // Set the theme
-  setTheme(dark.value);
+  setDarkTheme(dark.value);
 
   return {
     dark,
