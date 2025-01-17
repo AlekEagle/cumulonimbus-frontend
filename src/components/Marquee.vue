@@ -35,7 +35,7 @@
   // No Store Modules to import here.
 
   // External Modules
-  import { ref, computed, onMounted, watchEffect } from 'vue';
+  import { ref, onMounted, watchEffect, watch, onUnmounted } from 'vue';
 
   // Props
   const {
@@ -141,15 +141,28 @@
       loop < 1 ? 'infinite' : loop + '',
     );
   });
+  watch(
+    () => clone,
+    () => {
+      cloneAmt.value = calcCloneAmt();
+    },
+  );
+
+  function resizeHandler() {
+    cloneAmt.value = calcCloneAmt();
+  }
 
   // Component Lifecycle Hooks
   onMounted(() => {
     // Calculate the amount of clones needed
     cloneAmt.value = calcCloneAmt();
     // Create an event listener for when the marquee is resized
-    window.addEventListener('resize', () => {
-      cloneAmt.value = calcCloneAmt();
-    });
+    window.addEventListener('resize', resizeHandler);
+  });
+
+  onUnmounted(() => {
+    // Remove the event listener when the component is unmounted
+    window.removeEventListener('resize', resizeHandler);
   });
 </script>
 

@@ -3,6 +3,7 @@
     <Paginator
       v-model="paginatorPage"
       :item-count="25"
+      :page-override="5"
       @page-change="toast.show('User changed page')"
     />
   </div>

@@ -38,7 +38,7 @@
     if (!form.value!.reportValidity()) return;
     const formElements = form.value!.elements as HTMLFormControlsCollection;
     const data: {
-      [key: string]: string | number | boolean | undefined;
+      [key: string]: string | string[] | number | boolean | undefined;
     } = {};
     for (let i = 0; i < formElements.length; i++) {
       const element = formElements[i];
@@ -73,7 +73,17 @@
             break;
         }
       } else if (element instanceof HTMLSelectElement) {
-        data[element.name] = element.value === '' ? undefined : element.value;
+        if (element.multiple) {
+          const selected: string[] = [];
+          for (let i = 0; i < element.options.length; i++) {
+            if (element.options[i].selected) {
+              selected.push(element.options[i].value);
+            }
+          }
+          data[element.name] = selected;
+        } else {
+          data[element.name] = element.value === '' ? undefined : element.value;
+        }
       } else if (element instanceof HTMLTextAreaElement) {
         data[element.name] = element.value === '' ? undefined : element.value;
       }

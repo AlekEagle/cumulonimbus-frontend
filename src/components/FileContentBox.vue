@@ -8,9 +8,9 @@
     <div class="file-content-box-preview-container">
       <!-- DEBUG IMAGE -->
       <img
-        v-if="props.debug"
+        v-if="debug"
         class="file-content-box-preview"
-        src="https://via.placeholder.com/512"
+        src="https://fakeimg.pl/256x256?font=noto&font_size=21"
         alt="Preview"
       />
       <!-- CAME INTO VIEW -->
@@ -42,7 +42,7 @@
     </div>
     <div class="file-content-box-content">
       <!-- DEBUG TEXT -->
-      <template v-if="props.debug">
+      <template v-if="debug">
         <p class="file-content-box-primary-text">Friendly File Name</p>
         <p class="file-content-box-secondary-text">
           Saved As: <code>abc.xyz</code>
@@ -51,10 +51,10 @@
       <template v-else>
         <p
           class="file-content-box-primary-text"
-          v-text="props.file?.name ?? props.file?.id ?? 'No File Loaded'"
+          v-text="file?.name ?? file?.id ?? 'No File Loaded'"
         />
         <p class="file-content-box-secondary-text">
-          Saved As: <code v-text="props.file?.id ?? 'No File Loaded'" />
+          Saved As: <code v-text="file?.id ?? 'No File Loaded'" />
         </p>
       </template>
     </div>
@@ -62,7 +62,7 @@
     <div class="file-content-box-checkbox">
       <label @click.prevent.stop="checkModel">
         <input
-          :checked="model.includes(props.file?.id ?? '')"
+          :checked="model.includes(file?.id ?? debugId!)"
           type="checkbox"
         />
         <span></span>
@@ -95,8 +95,9 @@
   const user = userStore();
   const cameIntoView = ref(false);
 
-  const props = defineProps<{
+  const { debug, debugId, file, toStaff } = defineProps<{
     debug?: boolean;
+    debugId?: string;
     file?: Cumulonimbus.Data.File;
     toStaff?: boolean;
   }>();
@@ -116,21 +117,18 @@
 
   const location = computed(() => {
     return router.resolve({
-      name: props.toStaff ? 'staff-space-file' : 'user-space-file',
+      name: toStaff ? 'staff-space-file' : 'user-space-file',
       query: {
-        id: props.file?.id,
+        id: file?.id,
       },
     });
   });
 
   async function linkClicked(e: MouseEvent) {
     console.log('linkClicked');
-    if (props.debug) return;
+    if (debug) return;
     if (e.ctrlKey)
-      return window.open(
-        `https://cdn.alekeagle.me/${props.file?.id}`,
-        '_blank',
-      );
+      return window.open(`https://cdn.alekeagle.me/${file?.id}`, '_blank');
     await router.push(location.value);
   }
 
@@ -139,7 +137,7 @@
       previewFailed.value = true;
     }
     try {
-      const thumb = await user.client!.getThumbnail(props.file!.id);
+      const thumb = await user.client!.getThumbnail(file!.id);
       const blob = new Blob([thumb], { type: 'image/webp' });
       imgBlob.value = URL.createObjectURL(blob);
     } catch (error) {
@@ -163,10 +161,10 @@
 
   function checkModel() {
     console.log('checkModel');
-    if (model.value.includes(props.file?.id ?? '')) {
-      model.value = model.value.filter((id) => id !== props.file?.id);
+    if (model.value.includes(file?.id ?? debugId!)) {
+      model.value = model.value.filter((id) => id !== (file?.id ?? debugId!));
     } else {
-      model.value.push(props.file?.id ?? '');
+      model.value.push(file?.id ?? debugId!);
     }
   }
 
@@ -350,11 +348,15 @@
     transition: border 0.25s;
   }
 
-  .file-content-box-checkbox label input:checked ~ span:after {
+  .file-content-box-checkbox:hover label span {
+    border: 1px solid var(--ui-border-hover);
+  }
+
+  .file-content-box-checkbox label input:checked ~ span::after {
     transform: scale(0);
   }
 
-  .file-content-box-checkbox label span:after {
+  .file-content-box-checkbox label span::after {
     content: '';
     position: relative;
     display: block;
@@ -365,6 +367,10 @@
     width: 5px;
     height: 5px;
     transform: scale(6);
-    transition: transform 0.4s ease-in-out, background-color 0.25s;
+    transition: transform 0.4s ease-in, background-color 0.25s;
+  }
+
+  .file-content-box-checkbox:hover label span::after {
+    background-color: var(--ui-background-hover);
   }
 </style>

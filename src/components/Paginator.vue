@@ -1,20 +1,18 @@
 <template>
   <p v-text="pageIndicatorText" />
   <div class="paginator-controls paginator-controls-top">
-    <button @click="prevPage" :disabled="0 >= page || props.disabled">
-      Prev
-    </button>
+    <button @click="prevPage" :disabled="0 >= page || disabled"> Prev </button>
     <input
       type="number"
       inputmode="numeric"
       :value="pageCount"
       min="0"
       :max="displayMax"
-      :disabled="props.disabled"
+      :disabled="disabled"
       @change="onInputChange"
       @input="validateInput"
     />
-    <button @click="nextPage" :disabled="maxPage <= page || props.disabled">
+    <button @click="nextPage" :disabled="maxPage <= page || disabled">
       Next
     </button>
   </div>
@@ -30,9 +28,7 @@
   </slot>
 
   <div class="paginator-controls paginator-controls-bottom">
-    <button @click="prevPage" :disabled="0 >= page || props.disabled">
-      Prev
-    </button>
+    <button @click="prevPage" :disabled="0 >= page || disabled"> Prev </button>
     <input
       type="number"
       inputmode="numeric"
@@ -40,11 +36,11 @@
       min="0"
       :max="displayMax"
       step="1"
-      :disabled="props.disabled"
+      :disabled="disabled"
       @change="onInputChange"
       @input="validateInput"
     />
-    <button @click="nextPage" :disabled="maxPage <= page || props.disabled">
+    <button @click="nextPage" :disabled="maxPage <= page || disabled">
       Next
     </button>
   </div>
@@ -71,27 +67,30 @@
   });
 
   const emit = defineEmits(['pageChange']);
-  const props = defineProps({
-    itemCount: {
-      type: Number,
-      default: 0,
-    },
-    disabled: Boolean,
-  });
+  const {
+    itemCount = 0,
+    disabled,
+    pageOverride,
+  } = defineProps<{
+    itemCount?: number;
+    disabled?: boolean;
+    pageOverride?: number;
+  }>();
 
   const router = useRouter(),
     displayPref = displayPrefStore(),
     pageCount = computed(() => page.value + 1),
     maxPage = computed(() => {
-      let a = Math.ceil(props.itemCount / displayPref.itemsPerPage) - 1;
+      if (pageOverride) return pageOverride - 1;
+      let a = Math.ceil(itemCount / displayPref.itemsPerPage) - 1;
       if (isNaN(a)) return 0;
       else return a;
     }),
     displayMax = computed(() => (maxPage.value < 0 ? 1 : maxPage.value + 1)),
     pageIndicatorText = computed(
       () =>
-        `Page ${pageCount.value.toLocaleString()} of ${displayMax.value.toLocaleString()} (${props.itemCount.toLocaleString()} item${
-          props.itemCount === 1 ? '' : 's'
+        `Page ${pageCount.value.toLocaleString()} of ${displayMax.value.toLocaleString()} (${itemCount.toLocaleString()} item${
+          itemCount === 1 ? '' : 's'
         })`,
     );
 

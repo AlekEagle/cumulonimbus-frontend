@@ -526,7 +526,7 @@
     padding: var(--padding) 0;
     position: fixed;
     justify-content: flex-start;
-    top: 100vh;
+    top: 110vh;
     left: 0;
     flex-direction: column;
     margin: 0;
@@ -707,6 +707,11 @@
   input[type='number'] {
     appearance: none;
     -moz-appearance: textfield;
+  }
+
+  input[type='color'] {
+    box-sizing: content-box;
+    block-size: 24px;
   }
 
   textarea {

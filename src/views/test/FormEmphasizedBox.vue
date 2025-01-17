@@ -5,17 +5,51 @@
       @submit="(data) => toast.show(JSON.stringify(data))"
       ref="emphasizedForm"
     >
-      <input type="text" placeholder="A text box" name="text" />
+      <input type="text" name="text" placeholder="Text" />
       <br />
-      <input type="password" placeholder="A password box" name="password" />
+      <input type="number" name="number" placeholder="Number" />
       <br />
-      <input type="number" placeholder="A number box" name="number" />
+      <input type="password" name="password" placeholder="Password" />
       <br />
-      <input type="email" placeholder="An email box" name="email" />
+      <input type="email" name="email" placeholder="Email" />
       <br />
-      <Switch name="switch">A switch</Switch>
+      <input type="url" name="url" placeholder="URL" />
       <br />
-      <button>Submit</button>
+      <input type="tel" name="tel" placeholder="Telephone" />
+      <br />
+      <input type="search" name="search" placeholder="Search" />
+      <br />
+      <input type="date" name="date" />
+      <br />
+      <input type="time" name="time" />
+      <br />
+      <input type="datetime-local" name="datetime-local" />
+      <br />
+      <input type="month" name="month" />
+      <br />
+      <input type="week" name="week" />
+      <br />
+      <input type="color" name="color" />
+      <br />
+      <input type="range" name="range" />
+      <br />
+      <textarea name="textarea" placeholder="Textarea"></textarea>
+      <br />
+      <select name="select">
+        <option value="">Select</option>
+        <option value="1">Option 1</option>
+        <option value="2">Option 2</option>
+        <option value="3">Option 3</option>
+      </select>
+      <br />
+      <!-- multiselect -->
+      <select name="multiselect" multiple>
+        <option value="1">Option 1</option>
+        <option value="2">Option 2</option>
+        <option value="3">Option 3</option>
+      </select>
+
+      <Switch name="switch">Switch</Switch>
     </Form>
     <button @click="emphasizedForm!.submit()">Submit outside of form</button>
   </EmphasizedBox>
