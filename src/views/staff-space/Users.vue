@@ -41,7 +41,7 @@
               :to="{ path: '/staff/user', query: { id: user.id } }"
               @click="onUserClick(user)"
             >
-              {{ user.id }}
+              <code v-text="user.id" />
             </SelectableContentBox>
           </div>
           <div v-else class="no-content-container">

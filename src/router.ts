@@ -220,6 +220,15 @@ export const router = createRouter({
         requiresStaff: true,
       },
     },
+    {
+      path: '/staff/utilities',
+      name: 'staff-space-utilities',
+      component: () => import('@/views/staff-space/Utilities.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresStaff: true,
+      },
+    },
     // Testing routes
     {
       path: '/testing/hush/dont/touch',

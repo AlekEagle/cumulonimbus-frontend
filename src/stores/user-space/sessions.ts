@@ -137,7 +137,6 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
       );
       return result.result.token;
     } catch (error) {
-      errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
       switch (await defaultErrorHandler(error, router)) {
         case 'OK':

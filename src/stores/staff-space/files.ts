@@ -5,7 +5,6 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler';
 // Other Store Modules
 import { userStore } from '../user';
 import { displayPrefStore } from '../displayPref';
-import { toastStore } from '../toast';
 
 // External Modules
 import { defineStore } from 'pinia';
@@ -15,7 +14,6 @@ import { useRouter } from 'vue-router';
 export const filesStore = defineStore('staff-space-files', () => {
   const user = userStore();
   const router = useRouter();
-  const toast = toastStore();
   const displayPref = displayPrefStore();
   const loading = ref(false);
   const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.File> | null>(null);
@@ -30,13 +28,15 @@ export const filesStore = defineStore('staff-space-files', () => {
     try {
       let result;
       if (selectedUser.value !== null)
-        result = await (user.client as Cumulonimbus).getFiles({
-          user: selectedUser.value.id,
-          limit: displayPref.itemsPerPage,
-          offset: displayPref.itemsPerPage * p,
-        });
+        result = await (user.client as Cumulonimbus).getUserFiles(
+          selectedUser.value.id,
+          {
+            limit: displayPref.itemsPerPage,
+            offset: displayPref.itemsPerPage * p,
+          },
+        );
       else
-        result = await (user.client as Cumulonimbus).getFiles({
+        result = await (user.client as Cumulonimbus).getAllFiles({
           limit: displayPref.itemsPerPage,
           offset: displayPref.itemsPerPage * p,
         });
@@ -68,7 +68,19 @@ export const filesStore = defineStore('staff-space-files', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteFiles(files);
+      let result;
+
+      // Use the appropriate method based on whether a user is selected.
+      if (selectedUser.value == null)
+        result = await (user.client as Cumulonimbus).deleteArbitraryFiles(
+          files,
+        );
+      else
+        result = await (user.client as Cumulonimbus).deleteUserFiles(
+          selectedUser.value.id,
+          files,
+        );
+
       return result.result.count!;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.

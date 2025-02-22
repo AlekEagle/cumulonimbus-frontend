@@ -404,6 +404,14 @@
       >
         Killswitches
       </Switch>
+      <Switch
+        class="indent-2"
+        name="STAFF_MODIFY_LOGLEVEL"
+        title="Grants a session write access to the log level."
+        :disabled="allPermissionsSwitch?.checked || staffSwitch?.checked"
+      >
+        Log Level
+      </Switch>
     </template>
     <Separator />
     <Switch

@@ -10,7 +10,7 @@
       <img
         v-if="debug"
         class="file-content-box-preview"
-        src="https://fakeimg.pl/256x256?font=noto&font_size=21"
+        src="https://cdn.alekeagle.me/eyK3KLBZyc.jpg"
         alt="Preview"
       />
       <!-- CAME INTO VIEW -->
@@ -32,7 +32,7 @@
         <!-- PREVIEW FAILED -->
         <img
           v-else-if="previewFailed"
-          class="file-content-box-preview no-fit theme-safe"
+          class="file-content-box-preview no-fit"
           :src="exclamationMarkIcon"
           alt="Preview Failed"
         />

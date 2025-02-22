@@ -32,6 +32,14 @@
     >
       Global feature kill switches and their current status.
     </ContentBox>
+    <ContentBox
+      title="Utilities"
+      :src="gearIcon"
+      theme-safe
+      to="/staff/utilities"
+    >
+      Some nice utilities for staff users.
+    </ContentBox>
   </div>
 </template>
 

@@ -79,6 +79,7 @@
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import FormModal from '@/components/FormModal.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Switch from '@/components/Switch.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
@@ -94,7 +95,6 @@
   // External Modules
   import { ref, onMounted } from 'vue';
   import { useOnline } from '@/utils/ConnectivityCheck';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
 
   const killSwitches = killSwitchesStore(),
     online = useOnline(),

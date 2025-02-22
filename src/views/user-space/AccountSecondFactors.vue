@@ -141,8 +141,8 @@
     :disabled="secondFactors.loading"
   >
     <p>
-      Are you sure you want to delete these {{ selected.length }} second
-      factors?
+      Are you sure you want to delete these
+      <code v-text="selected.length" /> second factors?
     </p>
     <p>Please enter your password to confirm.</p>
 
@@ -508,7 +508,6 @@
 
   async function beginRegenerateBackupCodes() {
     factorTypeToRegister.value = 'backup';
-    await registerNewSecondFactorModal.value?.hide();
     await secondFactorPasswordModal.value?.show();
   }
 
@@ -650,7 +649,7 @@
   function printBackupCodes() {
     const printWindow = window.open('', '_blank');
     if (printWindow) {
-      printWindow.document.write(
+      printWindow.document.writeln(
         `<pre>${registrationCompleteData.value!.codes!.join('\n')}</pre>`,
       );
       printWindow.document.close();

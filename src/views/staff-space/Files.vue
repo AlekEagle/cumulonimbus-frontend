@@ -72,7 +72,6 @@
   import FileContentBox from '@/components/FileContentBox.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
-  import PreviewContentBox from '@/components/PreviewContentBox.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
