@@ -540,12 +540,18 @@
         case 'webauthn':
           registrationData.value =
             await secondFactors.beginWebAuthnRegistration(password);
+          if (!registrationData.value) {
+            throw new Error('Failed to begin WebAuthn registration.');
+          }
           await secondFactorPasswordModal.value?.hide();
           await secondFactorRegistrationModal.value?.show();
           break;
         case 'backup':
           registrationCompleteData.value =
             await secondFactors.regenerateBackupCodes(password);
+          if (!registrationCompleteData.value) {
+            throw new Error('Failed to regenerate backup codes.');
+          }
           await secondFactorPasswordModal.value?.hide();
           await backupCodesModal.value?.show();
           break;

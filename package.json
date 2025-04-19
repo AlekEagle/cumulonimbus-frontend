@@ -5,9 +5,9 @@
   "type": "module",
   "license": "GNU-GPL-3.0",
   "scripts": {
-    "live-prod": "vite --host --port 6173 -c vite.config.production.ts",
+    "live-prod": "vite --host --port 6173 -c vite.config.ts",
     "live-ptb": "vite --host --port 4173 -c vite.config.ptb.ts",
-    "live-dev": "vite --host --port 5173",
+    "live-dev": "vite --host --port 5173 -c vite.config.development.ts",
     "build-prod": "vue-tsc --noEmit && vite build",
     "build-ptb": "vue-tsc --noEmit && vite build -c vite.config.ptb.ts",
     "build-dev": "vue-tsc --noEmit && vite build -c vite.config.development.ts",
