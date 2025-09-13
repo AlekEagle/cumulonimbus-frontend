@@ -76,19 +76,19 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import backWithFallback from '@/utils/routerBackWithFallback';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
   // Store Modules
-  import { filesStore } from '@/stores/staff-space/files';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { filesStore } from '@/stores/staff-space/files.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   const online = useOnline(),
     router = useRouter(),

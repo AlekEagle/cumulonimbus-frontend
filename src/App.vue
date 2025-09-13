@@ -105,14 +105,14 @@
   import newTabIcon from '@/assets/images/newtab.svg';
 
   // Store Modules
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import { ptbStore } from '@/stores/ptb';
+  import { userStore } from '@/stores/user.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { ptbStore } from '@/stores/ptb.js';
 
   // External Modules
   import { ref, onMounted, watch, computed } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const user = userStore(),
     toast = toastStore(),

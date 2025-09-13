@@ -386,17 +386,17 @@
   // In-House Modules
   import gearIcon from '@/assets/images/gear.svg';
   import profileIcon from '@/assets/images/profile.svg';
-  import toDateString from '@/utils/toDateString';
-  import toLogin from '@/utils/toLogin';
+  import toDateString from '@/utils/toDateString.js';
+  import toLogin from '@/utils/toLogin.js';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { displayPrefStore } from '@/stores/displayPref';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { displayPrefStore } from '@/stores/displayPref.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter } from 'vue-router';
 
   const deleteAccountModal = ref<InstanceType<typeof FormModal>>(),

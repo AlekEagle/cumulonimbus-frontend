@@ -79,10 +79,10 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import exclamationMarkIcon from '@/assets/images/exclamation-mark.svg';
   import noPreviewIcon from '@/assets/images/no-preview.svg';
-  import { wait } from '@/utils/wait';
+  import { wait } from '@/utils/wait.js';
 
   // Store Modules
-  import { userStore } from '@/stores/user';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { computed, ref, onUnmounted } from 'vue';

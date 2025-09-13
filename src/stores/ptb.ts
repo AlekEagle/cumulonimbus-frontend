@@ -1,5 +1,5 @@
 // In-House Modules
-import persistPiniaRef from '@/utils/persistPiniaRef';
+import persistPiniaRef from '@/utils/persistPiniaRef.js';
 
 // Other Store Modules
 // No Other Store Modules to import here.

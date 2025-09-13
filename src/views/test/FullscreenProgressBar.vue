@@ -14,7 +14,7 @@
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import ProgressBar from '@/components/ProgressBar.vue';
-  import { wait } from '@/utils/wait';
+  import { wait } from '@/utils/wait.js';
 
   // In-House Modules
   // No In-House Modules to import here.

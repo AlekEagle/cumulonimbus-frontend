@@ -114,21 +114,20 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import backWithFallback from '@/utils/routerBackWithFallback';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
   import infoIcon from '@/assets/images/info.svg';
-  import toDateString from '@/utils/toDateString';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
-  import { useFuzzyTimeString } from '@/utils/time';
+  import toDateString from '@/utils/toDateString.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
-  import { sessionsStore } from '@/stores/staff-space/sessions';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { sessionsStore } from '@/stores/staff-space/sessions.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted, computed } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const router = useRouter(),

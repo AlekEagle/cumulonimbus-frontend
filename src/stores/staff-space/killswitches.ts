@@ -1,10 +1,10 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
 // Other Store Modules
-import { userStore } from '../user';
-import { secondFactorChallengerStore } from '../secondFactorChallenger';
+import { userStore } from '../user.js';
+import { secondFactorChallengerStore } from '../secondFactorChallenger.js';
 
 // External Modules
 import { ref } from 'vue';

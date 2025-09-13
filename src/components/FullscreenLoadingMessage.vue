@@ -13,7 +13,7 @@
   import LoadingMessage from './LoadingMessage.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait';
+  import { wait } from '@/utils/wait.js';
 
   // Store Modules
   // No Store Modules to import here.

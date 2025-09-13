@@ -86,15 +86,15 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
-  import { killSwitchesStore } from '@/stores/staff-space/killswitches';
-  import { toastStore } from '@/stores/toast';
+  import { killSwitchesStore } from '@/stores/staff-space/killswitches.js';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const killSwitches = killSwitchesStore(),
     online = useOnline(),

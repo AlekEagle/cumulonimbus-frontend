@@ -1,11 +1,11 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
 // Other Store Modules
-import { userStore } from '../user';
-import { displayPrefStore } from '../displayPref';
-import { secondFactorChallengerStore } from '../secondFactorChallenger';
+import { userStore } from '../user.js';
+import { displayPrefStore } from '../displayPref.js';
+import { secondFactorChallengerStore } from '../secondFactorChallenger.js';
 
 // External Modules
 import { defineStore } from 'pinia';

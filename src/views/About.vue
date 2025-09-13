@@ -162,11 +162,11 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
-  import { useFuzzyTimeString } from '@/utils/time';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import { useFuzzyTimeString } from '@/utils/time.js';
 
   // Store Modules
-  import { userStore } from '@/stores/user';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted, computed, getCurrentInstance } from 'vue';

@@ -79,8 +79,8 @@
   // No In-House Modules to import here.
 
   // Store Modules
-  import { toastStore } from '@/stores/toast';
-  import { secondFactorChallengerStore } from '@/stores/secondFactorChallenger';
+  import { toastStore } from '@/stores/toast.js';
+  import { secondFactorChallengerStore } from '@/stores/secondFactorChallenger.js';
 
   // External Modules
   import { startAuthentication } from '@simplewebauthn/browser';

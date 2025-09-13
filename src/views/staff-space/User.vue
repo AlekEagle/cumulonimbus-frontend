@@ -547,22 +547,22 @@
   import Separator from '@/components/Separator.vue';
 
   // In-House Modules
-  import backWithFallback from '@/utils/routerBackWithFallback';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
   import profileIcon from '@/assets/images/profile.svg';
   import fileIcon from '@/assets/images/file.svg';
   import gearIcon from '@/assets/images/gear.svg';
-  import toDateString from '@/utils/toDateString';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import toDateString from '@/utils/toDateString.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
-  import { userStore } from '@/stores/user';
-  import { otherUserStore } from '@/stores/staff-space/user';
-  import { toastStore } from '@/stores/toast';
-  import { usersStore } from '@/stores/staff-space/users';
+  import { userStore } from '@/stores/user.js';
+  import { otherUserStore } from '@/stores/staff-space/user.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { usersStore } from '@/stores/staff-space/users.js';
 
   // External Modules
   import { ref, computed, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const user = userStore(),
@@ -755,7 +755,7 @@
         : await otherUser.grantStaff(password);
       if (status) {
         toast.show(
-          `Staff status ${otherUser.data?.staff ? 'revoked' : 'granted'}.`,
+          `Staff status ${otherUser.data?.staff ? 'granted' : 'revoked'}.`,
         );
         changeStaffModal.value!.hide();
       }
@@ -781,7 +781,7 @@
         ? await otherUser.unbanUser(password)
         : await otherUser.banUser(reason, password);
       if (status) {
-        toast.show(`${otherUser.data?.bannedAt ? 'Unbanned' : 'Banned'} user.`);
+        toast.show(`${otherUser.data?.bannedAt ? 'Banned' : 'Unbanned'} user.`);
         changeBanModal.value!.hide();
       }
     } catch (error) {

@@ -50,22 +50,18 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { filesStore } from '@/stores/user-space/files';
-  import { toastStore } from '@/stores/toast';
-  import { cumulonimbusOptions, userStore } from '@/stores/user';
+  import { filesStore } from '@/stores/user-space/files.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { cumulonimbusOptions, userStore } from '@/stores/user.js';
 
   // External Modules
   import { computed, ref, onMounted } from 'vue';
-  import {
-    useClipboard,
-    useDropZone,
-    useFileDialog,
-    useOnline,
-  } from '@vueuse/core';
+  import { useClipboard, useDropZone, useFileDialog } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
   const fileDropZone = ref<HTMLElement | null>(null),

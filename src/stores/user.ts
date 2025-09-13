@@ -1,12 +1,12 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
-import persistPiniaRef from '@/utils/persistPiniaRef';
+import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
+import persistPiniaRef from '@/utils/persistPiniaRef.js';
 
 // Other Store Modules
-import { domainPickerStore } from './domainPicker';
-import { toastStore } from './toast';
-import { secondFactorChallengerStore } from './secondFactorChallenger';
+import { domainPickerStore } from './domainPicker.js';
+import { toastStore } from './toast.js';
+import { secondFactorChallengerStore } from './secondFactorChallenger.js';
 
 // External Modules
 import { defineStore } from 'pinia';

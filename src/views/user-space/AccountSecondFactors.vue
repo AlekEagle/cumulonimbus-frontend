@@ -326,18 +326,18 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
   import plusIcon from '@/assets/images/plus.svg';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
-  import toDateString from '@/utils/toDateString';
-  import { useFuzzyTimeString } from '@/utils/time';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import toDateString from '@/utils/toDateString.js';
+  import { useFuzzyTimeString } from '@/utils/time.js';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { secondFactorsStore } from '@/stores/user-space/secondFactors';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { secondFactorsStore } from '@/stores/user-space/secondFactors.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted, computed } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
   import QRCode from 'qrcode';
   import { startRegistration } from '@simplewebauthn/browser';
 

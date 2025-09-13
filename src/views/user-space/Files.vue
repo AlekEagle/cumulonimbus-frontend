@@ -68,15 +68,15 @@
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { filesStore } from '@/stores/user-space/files';
-  import { toastStore } from '@/stores/toast';
+  import { filesStore } from '@/stores/user-space/files.js';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
 
   const files = filesStore(),
     page = ref(0),

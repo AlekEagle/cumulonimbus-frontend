@@ -81,19 +81,19 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import backWithFallback from '@/utils/routerBackWithFallback';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { instructionStore } from '@/stores/user-space/instruction';
-  import { toastStore } from '@/stores/toast';
-  import { sessionsStore } from '@/stores/user-space/sessions';
-  import { userStore } from '@/stores/user';
+  import { instructionStore } from '@/stores/user-space/instruction.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { sessionsStore } from '@/stores/user-space/sessions.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
   import { useClipboard } from '@vueuse/core';
-  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter } from 'vue-router';
 
   const instruction = instructionStore(),

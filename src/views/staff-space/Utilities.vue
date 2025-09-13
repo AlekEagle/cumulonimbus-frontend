@@ -74,13 +74,13 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
 
   // Store Modules
-  import { userStore } from '@/stores/user';
-  import { toastStore } from '@/stores/toast';
-  import { utilitiesStore } from '@/stores/staff-space/utilities';
+  import { userStore } from '@/stores/user.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { utilitiesStore } from '@/stores/staff-space/utilities.js';
 
   // External Modules
   import { ref } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const user = userStore(),
     online = useOnline(),

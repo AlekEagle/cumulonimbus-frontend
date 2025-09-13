@@ -100,17 +100,17 @@
   import closeIcon from '@/assets/images/close.svg';
   import plusIcon from '@/assets/images/plus.svg';
   import profileIcon from '@/assets/images/profile.svg';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { fileStore } from '@/stores/user-space/file';
-  import { filesStore } from '@/stores/user-space/files';
-  import { sessionsStore } from '@/stores/user-space/sessions';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { fileStore } from '@/stores/user-space/file.js';
+  import { filesStore } from '@/stores/user-space/files.js';
+  import { sessionsStore } from '@/stores/user-space/sessions.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onBeforeMount, computed } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter } from 'vue-router';
 
   const user = userStore(),

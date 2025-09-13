@@ -123,18 +123,17 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
   import gearIcon from '@/assets/images/gear.svg';
 
   // Store Modules
-  import { instructionsStore } from '@/stores/staff-space/instructions';
-  import { toastStore } from '@/stores/toast';
+  import { instructionsStore } from '@/stores/staff-space/instructions.js';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
-  import { ref, watch, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { ref, onMounted } from 'vue';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   const online = useOnline(),
     router = useRouter(),

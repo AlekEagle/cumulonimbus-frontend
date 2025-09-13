@@ -14,7 +14,7 @@
   import Paginator from '@/components/Paginator.vue';
 
   // In-House Modules
-  import { toastStore } from '@/stores/toast';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref } from 'vue';

@@ -64,16 +64,16 @@
   import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait';
+  import { wait } from '@/utils/wait.js';
 
   // Store Modules
-  import { domainPickerStore } from '@/stores/domainPicker';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { domainPickerStore } from '@/stores/domainPicker.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted, watchEffect } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const emit = defineEmits<{
     (event: 'submit', data: { domain: string; subdomain?: string }): void;

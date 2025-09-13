@@ -20,10 +20,10 @@
   import Switch from '@/components/Switch.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait';
+  import { wait } from '@/utils/wait.js';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

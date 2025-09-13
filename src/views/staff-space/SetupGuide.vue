@@ -214,20 +214,20 @@
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
-  import backWithFallback from '@/utils/routerBackWithFallback';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
   import infoIcon from '@/assets/images/info.svg';
   import plusIcon from '@/assets/images/plus.svg';
-  import toDateString from '@/utils/toDateString';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import toDateString from '@/utils/toDateString.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
-  import { instructionStore } from '@/stores/staff-space/instruction';
-  import { instructionsStore } from '@/stores/staff-space/instructions';
-  import { toastStore } from '@/stores/toast';
+  import { instructionStore } from '@/stores/staff-space/instruction.js';
+  import { instructionsStore } from '@/stores/staff-space/instructions.js';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref, watch, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const online = useOnline(),

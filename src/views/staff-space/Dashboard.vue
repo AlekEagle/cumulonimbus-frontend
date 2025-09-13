@@ -55,7 +55,7 @@
   import profileIcon from '@/assets/images/profile.svg';
 
   // Store Modules
-  import { userStore } from '@/stores/user';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   // No External Modules to import here.

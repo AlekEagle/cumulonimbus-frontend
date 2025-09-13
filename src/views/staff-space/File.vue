@@ -161,23 +161,23 @@
   import Separator from '@/components/Separator.vue';
 
   // In-House Modules
-  import backWithFallback from '@/utils/routerBackWithFallback';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
   import fileIcon from '@/assets/images/file.svg';
   import profileIcon from '@/assets/images/profile.svg';
-  import size from '@/utils/size';
-  import toDateString from '@/utils/toDateString';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import size from '@/utils/size.js';
+  import toDateString from '@/utils/toDateString.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
-  import { fileStore } from '@/stores/staff-space/file';
-  import { filesStore } from '@/stores/staff-space/files';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { fileStore } from '@/stores/staff-space/file.js';
+  import { filesStore } from '@/stores/staff-space/files.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted, computed } from 'vue';
 import { useClipboard, useShare } from '@vueuse/core';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const toast = toastStore(),
