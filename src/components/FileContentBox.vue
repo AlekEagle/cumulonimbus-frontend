@@ -367,7 +367,8 @@
     width: 5px;
     height: 5px;
     transform: scale(6);
-    transition: transform 0.4s ease-in, background-color 0.25s;
+    transition: transform 0.4s cubic-bezier(0.78, 0, 0.22, 1),
+      background-color 0.25s;
   }
 
   .file-content-box-checkbox:hover label span::after {
