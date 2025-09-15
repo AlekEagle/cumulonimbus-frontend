@@ -41,7 +41,7 @@
               :to="{ path: '/staff/user', query: { id: user.id } }"
               @click="onUserClick(user)"
             >
-              {{ user.id }}
+              <code v-text="user.id" />
             </SelectableContentBox>
           </div>
           <div v-else class="no-content-container">
@@ -92,13 +92,13 @@
   import profileIcon from '@/assets/images/profile.svg';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast';
-  import { usersStore } from '@/stores/staff-space/users';
+  import { toastStore } from '@/stores/toast.js';
+  import { usersStore } from '@/stores/staff-space/users.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   const users = usersStore(),
     page = ref(0),

@@ -20,7 +20,7 @@
   // No Store Modules to import here.
 
   // External Modules
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const { noMsg } = defineProps<{
     noMsg?: boolean;

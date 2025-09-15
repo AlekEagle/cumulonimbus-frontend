@@ -55,7 +55,7 @@
   // No In-House Modules to import here.
 
   // Store Modules
-  import { displayPrefStore } from '@/stores/displayPref';
+  import { displayPrefStore } from '@/stores/displayPref.js';
 
   // External Modules
   import { onMounted, computed, watchEffect } from 'vue';

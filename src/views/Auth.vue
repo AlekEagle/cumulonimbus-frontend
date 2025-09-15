@@ -109,15 +109,14 @@
   import Switch from '@/components/Switch.vue';
 
   // In-House Modules
-  // No In-House Modules to import here.
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter, useRoute } from 'vue-router';
 
   const user = userStore(),

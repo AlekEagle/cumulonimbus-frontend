@@ -4,7 +4,7 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
 // Other Store Modules
 import { userStore } from '../user.js';
-import { displayPrefStore } from '../displayPref.js';
+import { toastStore } from '../toast.js';
 import { secondFactorChallengerStore } from '../secondFactorChallenger.js';
 
 // External Modules
@@ -12,27 +12,22 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-export const usersStore = defineStore('staff-space-users', () => {
-  const user = userStore();
-  const displayPref = displayPrefStore();
-  const secondFactorChallenger = secondFactorChallengerStore();
-  const router = useRouter();
-  const loading = ref(false);
-  const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.User> | null>(null);
-  const errored = ref(false);
-  const page = ref(0);
+export const utilitiesStore = defineStore('staff-space-utilities', () => {
+  const user = userStore(),
+    router = useRouter(),
+    toast = toastStore(),
+    secondFactorChallenger = secondFactorChallengerStore(),
+    logLevelData = ref<Cumulonimbus.Data.LogLevel | null>(null), // Explicitly named to avoid confusion with any future data properties that may be added.
+    loading = ref(false),
+    errored = ref(false);
 
-  async function getUsers(p: number): Promise<boolean> {
+  async function getLogLevel(): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getUsers({
-        limit: displayPref.itemsPerPage,
-        offset: displayPref.itemsPerPage * p,
-      });
-      page.value = p;
-      data.value = result.result;
+      const result = await user.client!.getLogLevel();
+      logLevelData.value = result.result;
     } catch (error) {
       errored.value = true;
       // Pass our error to the default error handler and check if it was handled.
@@ -53,57 +48,61 @@ export const usersStore = defineStore('staff-space-users', () => {
     return true;
   }
 
-  async function deleteUsers(
-    users: string[],
+  async function setLogLevel(
+    level: Cumulonimbus.LogLevel,
     password: string,
-  ): Promise<number> {
-    if (user.client === null) return -1;
+  ): Promise<boolean> {
+    if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
-      const result = await user.client!.deleteUsers(users, password);
-      return result.result.count;
+      const result = await user.client!.setLogLevel(level, password);
+      logLevelData.value = result.result;
+      return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      const reason = await defaultErrorHandler(error, router);
-      switch (reason) {
+      switch (await defaultErrorHandler(error, router)) {
         case 'OK':
           errored.value = true;
           // If the error was handled, return true to signify success.
-          return -1;
+          return false;
+        case 'NOT_HANDLED':
+          errored.value = true;
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            case 'INVALID_LOGLEVEL_ERROR':
+              toast.show('Invalid log level.');
+              return false;
+            default:
+              // If it still wasn't handled, throw the error.
+              throw error;
+          }
         case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
           const SFR = await secondFactorChallenger.startChallenge(
             error as Cumulonimbus.SecondFactorChallengeRequiredError,
           );
 
           if (SFR === null) {
-            return -1;
+            return false;
           }
 
           try {
-            const result = await user.client!.deleteUsers(users, SFR);
-            return result.result.count;
+            const result = await user.client!.setLogLevel(level, SFR);
+            logLevelData.value = result.result;
+            return true;
           } catch (error) {
-            // Pass our error to the default error handler and check if it was handled.
-            const reason = await defaultErrorHandler(error, router);
-            switch (reason) {
+            errored.value = true;
+            switch (await defaultErrorHandler(error, router)) {
               case 'OK':
-                errored.value = true;
-                // If the error was handled, return true to signify success.
-                return -1;
+                return false;
               case 'NOT_HANDLED':
-              // No special cases to handle here.
               case 'NOT_RESPONSE_ERROR':
               default:
-                // If the error wasn't handled, throw it.
                 throw error;
             }
           }
-        case 'NOT_HANDLED':
-        // No special cases to handle here.
         case 'NOT_RESPONSE_ERROR':
         default:
-          errored.value = true;
           // If the error wasn't handled, throw it.
           throw error;
       }
@@ -113,11 +112,10 @@ export const usersStore = defineStore('staff-space-users', () => {
   }
 
   return {
+    logLevelData,
     loading,
-    data,
     errored,
-    page,
-    getUsers,
-    deleteUsers,
+    getLogLevel,
+    setLogLevel,
   };
 });

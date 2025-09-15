@@ -11,7 +11,7 @@
   // No Vue Components to import here.
 
   // In-House Modules
-  import backWithFallback from '@/utils/routerBackWithFallback';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
 
   // Store Modules
   // No Store Modules to import here.

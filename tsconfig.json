@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES2023",
     "useDefineForClassFields": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": ["esnext", "dom"],
+    "lib": ["ES2023", "DOM"],
     "skipLibCheck": true,
     "paths": {
       "@/*": ["./src/*"]

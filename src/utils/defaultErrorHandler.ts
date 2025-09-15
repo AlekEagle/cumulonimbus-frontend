@@ -1,7 +1,7 @@
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import toLogin from './toLogin';
-import { toastStore } from '@/stores/toast';
-import { userStore } from '@/stores/user';
+import toLogin from './toLogin.js';
+import { toastStore } from '@/stores/toast.js';
+import { userStore } from '@/stores/user.js';
 import { Router } from 'vue-router';
 
 export type ErrorHandledReason =

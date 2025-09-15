@@ -79,22 +79,22 @@
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import FormModal from '@/components/FormModal.vue';
+  import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Switch from '@/components/Switch.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
-  import { killSwitchesStore } from '@/stores/staff-space/killswitches';
-  import { toastStore } from '@/stores/toast';
+  import { killSwitchesStore } from '@/stores/staff-space/killswitches.js';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const killSwitches = killSwitchesStore(),
     online = useOnline(),

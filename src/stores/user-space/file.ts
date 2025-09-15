@@ -1,10 +1,10 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
 // Other Store Modules
-import { toastStore } from '../toast';
-import { userStore } from '../user';
+import { toastStore } from '../toast.js';
+import { userStore } from '../user.js';
 
 // External Modules
 import { defineStore } from 'pinia';
@@ -25,7 +25,7 @@ export const fileStore = defineStore('user-space-file', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getFile(fileId);
+      const result = await (user.client as Cumulonimbus).getSelfFile(fileId);
       data.value = result.result;
     } catch (error) {
       errored.value = true;
@@ -61,7 +61,7 @@ export const fileStore = defineStore('user-space-file', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).editFilename(
+      const result = await (user.client as Cumulonimbus).editSelfFilename(
         data.value.id,
         filename,
       );
@@ -100,7 +100,7 @@ export const fileStore = defineStore('user-space-file', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteFilename(
+      const result = await (user.client as Cumulonimbus).deleteSelfFilename(
         data.value.id,
       );
       data.value = result.result;
@@ -138,7 +138,7 @@ export const fileStore = defineStore('user-space-file', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).editFileExtension(
+      const result = await (user.client as Cumulonimbus).editSelfFileExtension(
         data.value.id,
         fileExtension,
       );
@@ -177,7 +177,7 @@ export const fileStore = defineStore('user-space-file', () => {
     errored.value = false;
     loading.value = true;
     try {
-      await (user.client as Cumulonimbus).deleteFile(data.value.id);
+      await (user.client as Cumulonimbus).deleteSelfFile(data.value.id);
       data.value = null;
       return true;
     } catch (error) {

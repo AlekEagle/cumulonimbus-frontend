@@ -32,6 +32,14 @@
     >
       Global feature kill switches and their current status.
     </ContentBox>
+    <ContentBox
+      title="Utilities"
+      :src="gearIcon"
+      theme-safe
+      to="/staff/utilities"
+    >
+      Some nice utilities for staff users.
+    </ContentBox>
   </div>
 </template>
 
@@ -47,7 +55,7 @@
   import profileIcon from '@/assets/images/profile.svg';
 
   // Store Modules
-  import { userStore } from '@/stores/user';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   // No External Modules to import here.

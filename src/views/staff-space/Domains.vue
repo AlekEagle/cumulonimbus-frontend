@@ -158,21 +158,18 @@
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import gearIcon from '@/assets/images/gear.svg';
-  import toDateString from '@/utils/toDateString';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import toDateString from '@/utils/toDateString.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
-  import { domainsStore } from '@/stores/staff-space/domains';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { domainsStore } from '@/stores/staff-space/domains.js';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
-  import { useRouter } from 'vue-router';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const online = useOnline(),
-    user = userStore(),
     toast = toastStore(),
     domains = domainsStore(),
     selecting = ref(false),

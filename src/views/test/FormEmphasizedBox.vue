@@ -65,7 +65,7 @@
   // No In-House Modules to import here.
 
   // Store Modules
-  import { toastStore } from '@/stores/toast';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref } from 'vue';

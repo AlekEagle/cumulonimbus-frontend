@@ -1,7 +1,7 @@
 // In-House Modules
 import App from './App.vue';
-import { ConnectivityCheckPlugin } from './utils/ConnectivityCheck';
-import { router } from './router';
+import { ConnectivityCheckPlugin } from './utils/ConnectivityCheck.js';
+import { router } from './router.js';
 import packageJson from '../package.json';
 
 // External Modules

@@ -172,19 +172,19 @@
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
-  import toDateString from '@/utils/toDateString';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
-  import backWithFallback from '@/utils/routerBackWithFallback';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler';
+  import toDateString from '@/utils/toDateString.js';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
+  import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
   // Store Modules
-  import { secondFactorsStore } from '@/stores/staff-space/secondFactors';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { secondFactorsStore } from '@/stores/staff-space/secondFactors.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const secondFactors = secondFactorsStore(),

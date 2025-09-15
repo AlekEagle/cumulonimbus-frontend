@@ -122,7 +122,7 @@
   import cumulonimbusIcon from '@/assets/images/Cumulonimbus.svg';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   // No External Modules to import here.

@@ -22,16 +22,16 @@
   import LoadingMessage from '@/components/LoadingMessage.vue';
 
   // In-House Modules
-  import loadWhenOnline from '@/utils/loadWhenOnline';
-  import { wait } from '@/utils/wait';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import { wait } from '@/utils/wait.js';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { onMounted, ref } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const user = userStore(),

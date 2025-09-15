@@ -1,12 +1,12 @@
 // In-House Modules
-import { useFuzzyTimeString } from '@/utils/time';
+import { useFuzzyTimeString } from '@/utils/time.js';
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
 // Other Store Modules
-import { displayPrefStore } from '../displayPref';
-import { userStore } from '../user';
-import { toastStore } from '../toast';
+import { displayPrefStore } from '../displayPref.js';
+import { userStore } from '../user.js';
+import { toastStore } from '../toast.js';
 
 // External Modules
 import { defineStore } from 'pinia';

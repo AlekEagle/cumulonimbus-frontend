@@ -60,8 +60,8 @@
   import uploadIcon from '@/assets/images/upload.svg';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref } from 'vue';

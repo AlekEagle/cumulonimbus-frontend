@@ -141,8 +141,8 @@
     :disabled="secondFactors.loading"
   >
     <p>
-      Are you sure you want to delete these {{ selected.length }} second
-      factors?
+      Are you sure you want to delete these
+      <code v-text="selected.length" /> second factors?
     </p>
     <p>Please enter your password to confirm.</p>
 
@@ -326,18 +326,18 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
   import plusIcon from '@/assets/images/plus.svg';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
-  import toDateString from '@/utils/toDateString';
-  import { useFuzzyTimeString } from '@/utils/time';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import toDateString from '@/utils/toDateString.js';
+  import { useFuzzyTimeString } from '@/utils/time.js';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { secondFactorsStore } from '@/stores/user-space/secondFactors';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { secondFactorsStore } from '@/stores/user-space/secondFactors.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted, computed } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
   import QRCode from 'qrcode';
   import { startRegistration } from '@simplewebauthn/browser';
 
@@ -508,7 +508,6 @@
 
   async function beginRegenerateBackupCodes() {
     factorTypeToRegister.value = 'backup';
-    await registerNewSecondFactorModal.value?.hide();
     await secondFactorPasswordModal.value?.show();
   }
 
@@ -541,12 +540,18 @@
         case 'webauthn':
           registrationData.value =
             await secondFactors.beginWebAuthnRegistration(password);
+          if (!registrationData.value) {
+            throw new Error('Failed to begin WebAuthn registration.');
+          }
           await secondFactorPasswordModal.value?.hide();
           await secondFactorRegistrationModal.value?.show();
           break;
         case 'backup':
           registrationCompleteData.value =
             await secondFactors.regenerateBackupCodes(password);
+          if (!registrationCompleteData.value) {
+            throw new Error('Failed to regenerate backup codes.');
+          }
           await secondFactorPasswordModal.value?.hide();
           await backupCodesModal.value?.show();
           break;
@@ -650,7 +655,7 @@
   function printBackupCodes() {
     const printWindow = window.open('', '_blank');
     if (printWindow) {
-      printWindow.document.write(
+      printWindow.document.writeln(
         `<pre>${registrationCompleteData.value!.codes!.join('\n')}</pre>`,
       );
       printWindow.document.close();

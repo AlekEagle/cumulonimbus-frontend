@@ -1,10 +1,10 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
 // Other Store Modules
-import { toastStore } from '../toast';
-import { userStore } from '../user';
+import { toastStore } from '../toast.js';
+import { userStore } from '../user.js';
 
 // External Modules
 import { defineStore } from 'pinia';

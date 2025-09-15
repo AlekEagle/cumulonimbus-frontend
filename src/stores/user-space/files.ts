@@ -1,10 +1,10 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler';
+import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
 // Other Store Modules
-import { displayPrefStore } from '../displayPref';
-import { userStore } from '../user';
+import { displayPrefStore } from '../displayPref.js';
+import { userStore } from '../user.js';
 
 // External Modules
 import { defineStore } from 'pinia';
@@ -27,8 +27,7 @@ export const filesStore = defineStore('user-space-files', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).getFiles({
-        user: 'me',
+      const result = await (user.client as Cumulonimbus).getSelfFiles({
         limit: displayPref.itemsPerPage,
         offset: displayPref.itemsPerPage * p,
       });
@@ -59,7 +58,7 @@ export const filesStore = defineStore('user-space-files', () => {
     errored.value = false;
     loading.value = true;
     try {
-      const result = await (user.client as Cumulonimbus).deleteFiles(files);
+      const result = await (user.client as Cumulonimbus).deleteSelfFiles(files);
       return result.result.count!;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.

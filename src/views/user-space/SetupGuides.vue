@@ -55,15 +55,15 @@
 
   // In-House Modules
   import infoIcon from '@/assets/images/info.svg';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { instructionsStore } from '@/stores/user-space/instructions';
-  import { toastStore } from '@/stores/toast';
+  import { instructionsStore } from '@/stores/user-space/instructions.js';
+  import { toastStore } from '@/stores/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck';
 
   const instructions = instructionsStore(),
     toast = toastStore(),

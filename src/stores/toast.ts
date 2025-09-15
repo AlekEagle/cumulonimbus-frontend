@@ -1,7 +1,7 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import { addSeconds, useTimeString } from '@/utils/time';
-import { wait, waitFor } from '@/utils/wait';
+import { addSeconds, useTimeString } from '@/utils/time.js';
+import { wait, waitFor } from '@/utils/wait.js';
 
 // Other Store Modules
 // No Other Store Modules to import here.

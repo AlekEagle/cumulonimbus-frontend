@@ -154,22 +154,22 @@
   import Online from '@/components/Online.vue';
 
   // In-House Modules
-  import backWithFallback from '@/utils/routerBackWithFallback';
+  import backWithFallback from '@/utils/routerBackWithFallback.js';
   import fileIcon from '@/assets/images/file.svg';
-  import loadWhenOnline from '@/utils/loadWhenOnline';
-  import size from '@/utils/size';
-  import toDateString from '@/utils/toDateString';
+  import loadWhenOnline from '@/utils/loadWhenOnline.js';
+  import size from '@/utils/size.js';
+  import toDateString from '@/utils/toDateString.js';
+  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
-  import { fileStore } from '@/stores/user-space/file';
-  import { filesStore } from '@/stores/user-space/files';
-  import { toastStore } from '@/stores/toast';
-  import { userStore } from '@/stores/user';
+  import { fileStore } from '@/stores/user-space/file.js';
+  import { filesStore } from '@/stores/user-space/files.js';
+  import { toastStore } from '@/stores/toast.js';
+  import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted, computed } from 'vue';
   import { useShare, useClipboard } from '@vueuse/core';
-  import { useOnline } from '@/utils/ConnectivityCheck';
   import { useRouter } from 'vue-router';
 
   const toast = toastStore(),

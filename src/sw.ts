@@ -2,7 +2,7 @@
 
 declare var self: ServiceWorkerGlobalScope;
 
-import { Router, RouteParams } from './utils/swRouter';
+import { Router, RouteParams } from './utils/swRouter.js';
 
 // ---- Constants ----
 
