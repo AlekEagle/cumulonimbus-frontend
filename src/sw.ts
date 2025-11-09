@@ -311,6 +311,15 @@ router.addRoute(
         );
         return (await caches.match('/index.html')) as Response;
       }
+      // If the network returns a 5xx status, return it but don't cache it.
+      if (freshResponse.status >= 500 && freshResponse.status < 600) {
+        debugLog(
+          'ServiceWorkerOfflineCacheManager',
+          'Fresh resource returned 5xx, not caching',
+          `URL: ${options.url}`,
+        );
+        return freshResponse;
+      }
       // If the network returns a 200, cache the response and return it.
       debugLog(
         'ServiceWorkerOfflineCacheManager',
