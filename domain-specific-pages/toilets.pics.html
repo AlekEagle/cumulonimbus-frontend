@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -7,7 +7,7 @@
     <meta name="og:title" content="Toilets!" />
     <meta name="description" content="toi let" />
     <meta name="og:description" content="toi let" />
-    <script>
+    <script defer>
       const toilets = [
         '/dbclwDY02s.png',
         '/hURNQQQk16.png',
@@ -73,26 +73,44 @@
         '/k5CwZJTC67.png',
       ];
 
-      const randomToilet = toilets[Math.floor(Math.random() * toilets.length)];
+      function randomToiletImage() {
+        const randomToilet =
+          toilets[Math.floor(Math.random() * toilets.length)];
 
-      const style = document.createElement('style');
-      style.innerHTML = `
-        body {
-          background-image: url('${randomToilet}');
-          background-size: contain;
-          background-repeat: no-repeat;
-          background-position: center;
-          background-attachment: fixed;
-        }
-      `;
-      document.head.appendChild(style);
-      const metaImage = document.createElement('meta');
-      metaImage.setAttribute('property', 'og:image');
-      metaImage.setAttribute('content', randomToilet);
-      document.head.appendChild(metaImage);
+        const img = document.getElementById('toilet-image');
+        img.src = 'https://toilets.pics' + randomToilet;
+      }
+
+      window.onload = randomToiletImage;
     </script>
+    <style>
+      .centering-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      img {
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+    </style>
   </head>
   <body>
+    <div class="centering-container">
+      <img
+        id="toilet-image"
+        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        alt="A random toilet image"
+      />
+    </div>
     <p
       style="
         position: absolute;
