@@ -107,7 +107,7 @@
   <FormModal
     ref="confirmDeleteModal"
     title="Are you sure?"
-    @submit="onDeleteSecondFactor"
+    @submit="deleteSecondFactor"
     @cancel="cancelSelection"
     :disabled="secondFactors.loading"
   >
@@ -134,13 +134,39 @@
   <FormModal
     ref="confirmDeleteMultipleModal"
     title="Are you sure?"
-    @submit="onDeleteSecondFactors"
+    @submit="deleteSecondFactors"
     @cancel="cancelSelection"
     :disabled="secondFactors.loading"
   >
     <p>
       Are you sure you want to delete the {{ selected.length }} selected second
       factors? This action cannot be undone.
+    </p>
+
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      :value="user.account?.user.username"
+    />
+    <input
+      type="password"
+      autocomplete="current-password"
+      placeholder="Password"
+      name="password"
+      :disabled="secondFactors.loading"
+    />
+  </FormModal>
+
+  <FormModal
+    ref="deleteAllSecondFactorsModal"
+    title="Are you sure?"
+    @submit="deleteAllSecondFactors"
+    :disabled="secondFactors.loading"
+  >
+    <p>
+      Are you sure you want to delete all second factors registered to this
+      user? This action cannot be undone.
     </p>
     <input
       hidden
@@ -264,15 +290,22 @@
     fetchSecondFactors();
   }
 
-  async function onDeleteSecondFactors({ password }: { password: string }) {
+  async function deleteSecondFactors({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
     }
     try {
-      await secondFactors.deleteSecondFactors(selected.value, password);
-      selected.value = [];
-      selecting.value = false;
+      const count = await secondFactors.deleteSecondFactors(
+        selected.value,
+        password,
+      );
+      if (count >= 0) {
+        toast.show(`Deleted ${count} second factor${count !== 1 ? 's' : ''}.`);
+        await confirmDeleteMultipleModal.value!.hide();
+        cancelSelection();
+        await fetchSecondFactors();
+      }
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -293,7 +326,27 @@
     } else await confirmDeleteModal.value!.show();
   }
 
-  async function onDeleteSecondFactor({ password }: { password: string }) {
+  async function deleteAllSecondFactors({ password }: { password: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      const count = await secondFactors.deleteAllSecondFactors(password);
+      if (count >= 0) {
+        toast.show(`Deleted all ${count} second factors.`);
+
+        await deleteAllSecondFactorsModal.value!.hide();
+        secondFactors.selectedSecondFactor = null;
+        await fetchSecondFactors();
+      }
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
+  }
+
+  async function deleteSecondFactor({ password }: { password: string }) {
     if (!online.value) {
       toast.connectivityOffline();
       return;
