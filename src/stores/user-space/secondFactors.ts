@@ -5,7 +5,6 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 // Other Store Modules
 import { displayPrefStore } from '../displayPref.js';
 import { userStore } from '../user.js';
-import { toastStore } from '../toast.js';
 import { secondFactorChallengerStore } from '../secondFactorChallenger';
 
 // External Modules
@@ -20,7 +19,6 @@ export const secondFactorsStore = defineStore(
     const user = userStore(),
       displayPref = displayPrefStore(),
       router = useRouter(),
-      toast = toastStore(),
       secondFactorChallenger = secondFactorChallengerStore(),
       data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.SecondFactor> | null>(
         null,
@@ -65,6 +63,7 @@ export const secondFactorsStore = defineStore(
     ): Promise<boolean> {
       if (user.client === null) return false;
       errored.value = false;
+      loading.value = true;
       try {
         await user.client!.deleteSelfSecondFactor(id, password);
         await getSecondFactors(page.value);
@@ -88,13 +87,13 @@ export const secondFactorsStore = defineStore(
               await getSecondFactors(page.value);
               return true;
             } catch (error) {
-              errored.value = true;
               switch (await defaultErrorHandler(error, router)) {
                 case 'OK':
                   return false;
                 case 'NOT_HANDLED':
                 case 'NOT_RESPONSE_ERROR':
                 default:
+                  errored.value = true;
                   throw error;
               }
             }
@@ -104,6 +103,8 @@ export const secondFactorsStore = defineStore(
             errored.value = true;
             throw error;
         }
+      } finally {
+        loading.value = false;
       }
     }
 
@@ -143,13 +144,13 @@ export const secondFactorsStore = defineStore(
               await getSecondFactors(page.value);
               return result.result.count;
             } catch (error) {
-              errored.value = true;
               switch (await defaultErrorHandler(error, router)) {
                 case 'OK':
                   return -1;
                 case 'NOT_HANDLED':
                 case 'NOT_RESPONSE_ERROR':
                 default:
+                  errored.value = true;
                   throw error;
               }
             }
@@ -164,37 +165,37 @@ export const secondFactorsStore = defineStore(
       }
     }
 
-    async function deleteAllSecondFactors(password: string): Promise<boolean> {
-      if (user.client === null) return false;
+    async function deleteAllSecondFactors(password: string): Promise<number> {
+      if (user.client === null) return -1;
       errored.value = false;
       loading.value = true;
       try {
-        await user.client!.deleteAllSelfSecondFactors(password);
+        const result = await user.client!.deleteAllSelfSecondFactors(password);
         await getSecondFactors(page.value);
-        return true;
+        return result.result.count;
       } catch (error) {
         switch (await defaultErrorHandler(error, router)) {
           case 'OK':
             errored.value = true;
-            return false;
+            return -1;
           case 'SECOND_FACTOR_CHALLENGE_REQUIRED':
             const SFR = await secondFactorChallenger.startChallenge(
               error as Cumulonimbus.SecondFactorChallengeRequiredError,
             );
 
             if (SFR === null) {
-              return false;
+              return -1;
             }
 
             try {
-              await user.client!.deleteAllSelfSecondFactors(SFR);
+              const result = await user.client!.deleteAllSelfSecondFactors(SFR);
               await getSecondFactors(page.value);
-              return true;
+              return result.result.count;
             } catch (error) {
               errored.value = true;
               switch (await defaultErrorHandler(error, router)) {
                 case 'OK':
-                  return false;
+                  return -1;
                 case 'NOT_HANDLED':
                 case 'NOT_RESPONSE_ERROR':
                 default:

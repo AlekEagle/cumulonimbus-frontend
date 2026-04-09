@@ -88,7 +88,7 @@
   <ConfirmModal
     ref="manageSecondFactorModal"
     :title="selectedFactor?.name"
-    @submit="onManageSecondFactor"
+    @submit="manageSecondFactor"
     deny-button="Close"
     confirm-button="Remove"
   >
@@ -121,15 +121,21 @@
   >
     <p>
       Are you sure you want to delete the second factor
-      <code v-text="selectedFactor?.name" />?
+      <code v-text="selectedFactor?.name" />? This action cannot be undone.
     </p>
-    <p>Please enter your password to confirm.</p>
+
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      :value="user.account?.user.username"
+    />
     <input
       type="password"
       placeholder="Your Password"
       name="password"
       required
-      autocomplete="off"
+      autocomplete="current-password"
       :disabled="secondFactors.loading"
     />
   </FormModal>
@@ -142,16 +148,22 @@
   >
     <p>
       Are you sure you want to delete these
-      <code v-text="selected.length" /> second factors?
+      <code v-text="selected.length" /> second factors? This action cannot be
+      undone.
     </p>
-    <p>Please enter your password to confirm.</p>
 
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      :value="user.account?.user.username"
+    />
     <input
       type="password"
       placeholder="Your Password"
       name="password"
       required
-      autocomplete="off"
+      autocomplete="current-password"
       :disabled="secondFactors.loading"
     />
   </FormModal>
@@ -162,15 +174,23 @@
     @submit="deleteAllSecondFactors"
     :disabled="secondFactors.loading"
   >
-    <p> Are you sure you want to delete all your second factors? </p>
-    <p>Please enter your password to confirm.</p>
+    <p>
+      Are you sure you want to delete all your second factors? This action
+      cannot be undone.
+    </p>
 
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      :value="user.account?.user.username"
+    />
     <input
       type="password"
       placeholder="Your Password"
       name="password"
       required
-      autocomplete="off"
+      autocomplete="current-password"
       :disabled="secondFactors.loading"
     />
   </FormModal>
@@ -435,8 +455,6 @@
         toast.show('Second factor deleted.');
         confirmDeleteModal.value?.hide();
         await fetchSecondFactors();
-      } else {
-        toast.clientError();
       }
     } catch (e) {
       console.error(e);
@@ -454,10 +472,8 @@
         selected.value,
         password,
       );
-      if (count < 0) {
-        toast.clientError();
-      } else {
-        toast.show(`${count} second factor(s) deleted.`);
+      if (count >= 0) {
+        toast.show(`Deleted ${count} second factor${count !== 1 ? 's' : ''}.`);
         confirmDeleteMultipleModal.value?.hide();
         cancelSelection();
         await fetchSecondFactors();
@@ -474,15 +490,21 @@
       return;
     }
     try {
-      await secondFactors.deleteAllSecondFactors(password);
-      await fetchSecondFactors();
+      const count = await secondFactors.deleteAllSecondFactors(password);
+      if (count >= 0) {
+        toast.show(
+          `Deleted all ${count} second factor${count !== 1 ? 's' : ''}.`,
+        );
+        deleteAllSecondFactorsModal.value?.hide();
+        await fetchSecondFactors();
+      }
     } catch (e) {
       console.error(e);
       toast.clientError();
     }
   }
 
-  async function onManageSecondFactor(choice: boolean) {
+  async function manageSecondFactor(choice: boolean) {
     await manageSecondFactorModal.value?.hide();
     if (choice) {
       confirmDeleteModal.value?.show();
@@ -519,45 +541,43 @@
     try {
       switch (factorTypeToRegister.value) {
         case 'totp':
-          registrationData.value = await secondFactors.beginTOTPRegistration(
-            password,
-          );
-          if (!registrationData.value) {
-            throw new Error('Failed to begin TOTP registration.');
+          if (
+            (registrationData.value =
+              await secondFactors.beginTOTPRegistration(password))
+          ) {
+            await secondFactorPasswordModal.value?.hide();
+            totpRegisterUrl.value = `otpauth://totp/${
+              user.account!.user.username
+            }?secret=${registrationData.value.secret}&algorithm=${
+              registrationData.value.algorithm
+            }&digits=${registrationData.value.digits}&period=${
+              registrationData.value.period
+            }&issuer=Cumulonimbus`;
+            // Generate QR Code
+            qrCode.value = await QRCode.toDataURL(totpRegisterUrl.value);
+            await secondFactorRegistrationModal.value?.show();
           }
-          await secondFactorPasswordModal.value?.hide();
-          totpRegisterUrl.value = `otpauth://totp/${
-            user.account!.user.username
-          }?secret=${registrationData.value.secret}&algorithm=${
-            registrationData.value.algorithm
-          }&digits=${registrationData.value.digits}&period=${
-            registrationData.value.period
-          }&issuer=Cumulonimbus`;
-          // Generate QR Code
-          qrCode.value = await QRCode.toDataURL(totpRegisterUrl.value);
-          await secondFactorRegistrationModal.value?.show();
           break;
         case 'webauthn':
-          registrationData.value =
-            await secondFactors.beginWebAuthnRegistration(password);
-          if (!registrationData.value) {
-            throw new Error('Failed to begin WebAuthn registration.');
+          if (
+            (registrationData.value =
+              await secondFactors.beginWebAuthnRegistration(password))
+          ) {
+            await secondFactorPasswordModal.value?.hide();
+            await secondFactorRegistrationModal.value?.show();
           }
-          await secondFactorPasswordModal.value?.hide();
-          await secondFactorRegistrationModal.value?.show();
           break;
         case 'backup':
-          registrationCompleteData.value =
-            await secondFactors.regenerateBackupCodes(password);
-          if (!registrationCompleteData.value) {
-            throw new Error('Failed to regenerate backup codes.');
+          if (
+            (registrationCompleteData.value =
+              await secondFactors.regenerateBackupCodes(password))
+          ) {
+            await secondFactorPasswordModal.value?.hide();
+            await backupCodesModal.value?.show();
           }
-          await secondFactorPasswordModal.value?.hide();
-          await backupCodesModal.value?.show();
           break;
         default:
           toast.show("You're are ddumb.");
-          throw new Error('Invalid factor type to register.');
       }
     } catch (e) {
       console.error(e);

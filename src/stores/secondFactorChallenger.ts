@@ -2,10 +2,6 @@
 import type Cumulonimbus from 'cumulonimbus-wrapper';
 import { waitUntil } from '@/utils/wait.js';
 
-// Other Store Modules
-import { userStore } from './user.js';
-import { toastStore } from './toast.js';
-
 // External Modules
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
@@ -18,8 +14,6 @@ export const secondFactorChallengerStore = defineStore(
   'second-factor-challenger',
   () => {
     const isChallenging = ref(false),
-      user = userStore(),
-      toast = toastStore(),
       challenge = ref<Cumulonimbus.SecondFactorChallengeRequiredError | null>(
         null,
       ),

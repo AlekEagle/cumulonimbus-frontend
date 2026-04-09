@@ -6,7 +6,6 @@ import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 // Other Store Modules
 import { displayPrefStore } from '../displayPref.js';
 import { userStore } from '../user.js';
-import { toastStore } from '../toast.js';
 import { secondFactorChallengerStore } from '../secondFactorChallenger.js';
 
 // External Modules
@@ -20,7 +19,6 @@ export const secondFactorsStore = defineStore(
     const user = userStore(),
       displayPref = displayPrefStore(),
       router = useRouter(),
-      toast = toastStore(),
       secondFactorChallenger = secondFactorChallengerStore(),
       data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.SecondFactor> | null>(
         null,
