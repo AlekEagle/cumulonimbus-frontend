@@ -8,6 +8,10 @@
     <meta name="description" content="toi let" />
     <meta name="og:description" content="toi let" />
     <script defer>
+      let slideshowButton, musicButton, refreshButton;
+
+      const slideshowInterval = 5000; // Change image every 5 seconds
+      let slideshowTimer;
       const toilets = [
         '/dbclwDY02s.png',
         '/hURNQQQk16.png',
@@ -78,12 +82,100 @@
           toilets[Math.floor(Math.random() * toilets.length)];
 
         const img = document.getElementById('toilet-image');
+        img.src =
+          'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Clear the image while loading the new one
         img.src = 'https://toilets.pics' + randomToilet;
       }
 
-      window.onload = randomToiletImage;
+      function toggleSlideshow() {
+        if (slideshowTimer) {
+          clearInterval(slideshowTimer);
+          slideshowButton.textContent = '▶️';
+          slideshowTimer = null;
+        } else {
+          randomToiletImage(); // Show a new image immediately
+          slideshowButton.textContent = '⏸️';
+          slideshowTimer = setInterval(randomToiletImage, slideshowInterval);
+        }
+      }
+
+      function toggleMusic() {
+        const music = document.getElementById('background-music');
+        if (music.paused) {
+          music.play();
+          musicButton.textContent = '🔊';
+        } else {
+          music.pause();
+          musicButton.textContent = '🔇';
+        }
+      }
+
+      function init() {
+        slideshowButton = document.getElementById('slideshow-button');
+        musicButton = document.getElementById('music-button');
+        refreshButton = document.getElementById('refresh-button');
+        slideshowButton.onclick = toggleSlideshow;
+        musicButton.onclick = toggleMusic;
+        refreshButton.onclick = randomToiletImage;
+
+        document.getElementById('slideshow-duration').oninput = function () {
+          const newDuration = parseInt(this.value);
+          if (slideshowTimer) {
+            clearInterval(slideshowTimer);
+            slideshowTimer = setInterval(randomToiletImage, newDuration);
+          }
+          document.getElementById('slideshow-duration-value').textContent =
+            newDuration / 1000;
+        };
+
+        // Load background music source audio so it can be played when the user clicks the music button
+        const music = document.getElementById('background-music');
+        music.src = 'https://toilets.pics/Yjl69sPg72.m4a';
+        randomToiletImage(); // Show an initial image
+      }
+
+      window.onload = init;
     </script>
     <style>
+      .controls-container {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        cursor: default;
+      }
+
+      button {
+        font-size: 24px;
+        padding: 10px;
+        margin: 5px;
+        border: none;
+        border-radius: 5px;
+        background-color: transparent;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .slideshow-duration-container {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 5px 10px;
+        border-radius: 5px;
+        width: 200px;
+      }
+
+      .slideshow-duration-container p {
+        margin: 0;
+        font-family: 'Courier New';
+      }
+
+      .slideshow-duration-container input[type='range'] {
+        width: 100%;
+      }
+
       .centering-container {
         position: fixed;
         top: 0;
@@ -104,6 +196,24 @@
     </style>
   </head>
   <body>
+    <div class="controls-container">
+      <button id="refresh-button" title="Another one!">🔄</button>
+      <button id="slideshow-button" title="Start/Stop Slideshow">▶️</button>
+      <button id="music-button" title="Play/Pause Music">🔇</button>
+    </div>
+    <div class="slideshow-duration-container">
+      <p>
+        Slideshow Duration: <span id="slideshow-duration-value">5</span> sec
+      </p>
+      <input
+        type="range"
+        id="slideshow-duration"
+        min="5000"
+        max="30000"
+        step="1000"
+        value="5000"
+      />
+    </div>
     <div class="centering-container">
       <img
         id="toilet-image"
@@ -139,5 +249,6 @@
         >Alek Evans</a
       ></p
     >
+    <audio id="background-music" loop> </audio>
   </body>
 </html>
