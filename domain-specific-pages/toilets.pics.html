@@ -10,7 +10,7 @@
     <script defer>
       let slideshowButton, musicButton, refreshButton;
 
-      const slideshowInterval = 5000; // Change image every 5 seconds
+      let slideshowInterval = 5000; // Change image every 5 seconds
       let slideshowTimer;
       const toilets = [
         '/dbclwDY02s.png',
@@ -119,10 +119,10 @@
         refreshButton.onclick = randomToiletImage;
 
         document.getElementById('slideshow-duration').oninput = function () {
-          const newDuration = parseInt(this.value);
+          slideshowInterval = parseInt(this.value);
           if (slideshowTimer) {
             clearInterval(slideshowTimer);
-            slideshowTimer = setInterval(randomToiletImage, newDuration);
+            slideshowTimer = setInterval(randomToiletImage, slideshowInterval);
           }
           document.getElementById('slideshow-duration-value').textContent =
             newDuration / 1000;
