@@ -26,9 +26,11 @@
             <span class="sb-code-label">
               <p>Verified:</p>
               <code
-                v-text="otherUser.data!.verifiedAt
+                v-text="
+                  otherUser.data!.verifiedAt
                     ? toDateString(new Date(otherUser.data!.verifiedAt))
-                    : 'Not yet...'"
+                    : 'Not yet...'
+                "
               />
             </span>
             <span class="sb-code-label">
@@ -46,9 +48,11 @@
             <span class="sb-code-label">
               <p>Banned:</p>
               <code
-                v-text="otherUser.data!.bannedAt
+                v-text="
+                  otherUser.data!.bannedAt
                     ? toDateString(new Date(otherUser.data!.bannedAt))
-                    : 'Not yet...'"
+                    : 'Not yet...'
+                "
               />
             </span>
             <span class="sb-code-label">
@@ -346,6 +350,22 @@
     :disabled="otherUser.loading"
   >
     <input
+      hidden
+      type="text"
+      autocomplete="username"
+      disabled
+      :value="user.account!.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Your Password"
+      name="password"
+      required
+      autocomplete="off"
+      :disabled="otherUser.loading"
+    />
+    <Separator />
+    <input
       type="password"
       placeholder="New Password"
       name="newPassword"
@@ -358,22 +378,6 @@
       type="password"
       placeholder="Confirm Password"
       name="confirmNewPassword"
-      required
-      autocomplete="off"
-      :disabled="otherUser.loading"
-    />
-    <br />
-    <input
-      hidden
-      type="text"
-      autocomplete="username"
-      disabled
-      :value="user.account!.user.username"
-    />
-    <input
-      type="password"
-      placeholder="Your Password"
-      name="password"
       required
       autocomplete="off"
       :disabled="otherUser.loading"

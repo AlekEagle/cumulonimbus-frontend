@@ -29,9 +29,11 @@
         <span class="sb-code-label">
           <p>Verified:</p>
           <code
-            v-text="user.account!.user.verifiedAt
-              ? toDateString(new Date(user.account.user!.verifiedAt))
-              : 'Not yet...'"
+            v-text="
+              user.account!.user.verifiedAt
+                ? toDateString(new Date(user.account.user!.verifiedAt))
+                : 'Not yet...'
+            "
           />
         </span>
         <span class="sb-code-label">
@@ -49,7 +51,13 @@
         <span class="sb-code-label">
           <p>Last used backup code:</p>
           <code
-            v-text="user.account.user!.twoFactorBackupCodeUsedAt ? toDateString(new Date(user.account.user!.twoFactorBackupCodeUsedAt)) : 'Not yet...'"
+            v-text="
+              user.account.user!.twoFactorBackupCodeUsedAt
+                ? toDateString(
+                    new Date(user.account.user!.twoFactorBackupCodeUsedAt),
+                  )
+                : 'Not yet...'
+            "
           />
         </span>
         <span class="sb-code-label">
@@ -271,6 +279,15 @@
     />
     <input
       type="password"
+      placeholder="Current Password"
+      autocomplete="current-password"
+      name="password"
+      :disabled="user.loading"
+      required
+    />
+    <br />
+    <input
+      type="password"
       placeholder="New Password"
       autocomplete="new-password"
       name="newPassword"
@@ -284,15 +301,6 @@
       placeholder="Confirm Password"
       autocomplete="new-password"
       name="confirmNewPassword"
-      :disabled="user.loading"
-      required
-    />
-    <br />
-    <input
-      type="password"
-      placeholder="Current Password"
-      autocomplete="current-password"
-      name="password"
       :disabled="user.loading"
       required
     />
