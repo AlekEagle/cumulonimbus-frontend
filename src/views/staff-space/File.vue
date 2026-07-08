@@ -172,11 +172,11 @@
   import { fileStore } from '@/stores/staff-space/file.js';
   import { filesStore } from '@/stores/staff-space/files.js';
   import { toastStore } from '@/stores/toast.js';
-  import { userStore } from '@/stores/user.js';
+  import { userStore, cumulonimbusOptions } from '@/stores/user.js';
 
   // External Modules
   import { ref, onMounted, computed } from 'vue';
-import { useClipboard, useShare } from '@vueuse/core';
+  import { useClipboard, useShare } from '@vueuse/core';
   import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
@@ -187,7 +187,10 @@ import { useClipboard, useShare } from '@vueuse/core';
     router = useRouter(),
     online = useOnline(),
     fileUrl = computed(() => {
-      if (file.data) return `https://cdn.alekeagle.me/${file.data.id}`;
+      if (file.data)
+        if (import.meta.env.MODE === 'development')
+          return `http://${new URL(cumulonimbusOptions.baseURL!).hostname}:8090/${file.data.id}`;
+        else return `https://cdn.alekeagle.me/${file.data.id}`;
     }),
     filename = computed(() => {
       if (file.data) return file.data.name ?? file.data.id;
@@ -350,7 +353,9 @@ import { useClipboard, useShare } from '@vueuse/core';
     border-radius: 10px;
     border: 1px solid var(--ui-border);
     background-color: var(--ui-background);
-    transition: background-color 0.25s, border 0.25s;
+    transition:
+      background-color 0.25s,
+      border 0.25s;
     margin: 10px auto 0;
     display: inline-flex;
     flex-direction: row;
