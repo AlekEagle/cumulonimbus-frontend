@@ -28,7 +28,7 @@
       <LoadingMessage spinner v-if="utilities.loading" />
       <div v-else>
         <p>Current Log Level: <code v-text="utilities.logLevelData!.name" /></p>
-        <select :value="utilities.logLevelData!.name" name="logLevel">
+        <Select :value="utilities.logLevelData!.name" name="logLevel">
           <option
             v-for="logLevel in Cumulonimbus.LogLevel"
             :key="logLevel"
@@ -36,7 +36,7 @@
           >
             {{ logLevel }}
           </option>
-        </select>
+        </Select>
         <br />
         <input
           hidden
@@ -68,6 +68,7 @@
   import FormModal from '@/components/FormModal.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
+  import Select from '@/components/Select.vue';
 
   // In-House Modules
   import gearIcon from '@/assets/images/gear.svg';

@@ -378,7 +378,9 @@
 
   body {
     margin: 0;
-    transition: background-color 0.25s, color 0.25s;
+    transition:
+      background-color 0.25s,
+      color 0.25s;
     overflow-y: scroll;
     overflow-x: hidden;
     background-color: var(--background);
@@ -429,7 +431,9 @@
     position: sticky;
     position: -webkit-sticky;
     background: var(--background);
-    transition: background-color 0.25s, box-shadow 0.25s;
+    transition:
+      background-color 0.25s,
+      box-shadow 0.25s;
     z-index: 10;
     box-shadow: 0px 10px 10px var(--background);
   }
@@ -448,7 +452,10 @@
     width: 25px;
     height: 3px;
     margin: 5px auto;
-    transition: transform 0.4s, opacity 0.4s, background-color 0.25s;
+    transition:
+      transform 0.4s,
+      opacity 0.4s,
+      background-color 0.25s;
     background-color: var(--foreground);
     border-radius: 2px;
   }
@@ -456,7 +463,9 @@
   a {
     text-decoration: none;
     color: var(--link-color);
-    transition: background-color 0.25s, color 0.25s;
+    transition:
+      background-color 0.25s,
+      color 0.25s;
   }
 
   .dark-mode-widget {
@@ -487,7 +496,9 @@
     font-weight: 400;
     color: var(--foreground);
     font-family: var(--font-body);
-    transition: background-color 0.25s, color 0.25s;
+    transition:
+      background-color 0.25s,
+      color 0.25s;
   }
 
   header a div.logo {
@@ -533,7 +544,9 @@
     width: 100vw;
     height: calc(100vh - (var(--padding) * 2));
     text-align: center;
-    transition: top 0.4s, background-color 0.25s;
+    transition:
+      top 0.4s,
+      background-color 0.25s;
     background-color: var(--background);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
@@ -588,7 +601,9 @@
     font-weight: 600;
     color: var(--foreground);
     border-bottom: transparent solid 4px;
-    transition: border 0.25s, color 0.25s;
+    transition:
+      border 0.25s,
+      color 0.25s;
     font-size: 33px;
   }
 
@@ -638,7 +653,10 @@
     border: 1px solid var(--ui-border);
     background-color: var(--ui-background);
     color: var(--ui-foreground);
-    transition: border 0.25s, background-color 0.25s, color 0.25s;
+    transition:
+      border 0.25s,
+      background-color 0.25s,
+      color 0.25s;
     user-select: none;
   }
 
@@ -693,7 +711,10 @@
     font-family: var(--font-heading);
     font-weight: 600;
     margin: 5px 0;
-    transition: border 0.25s, background-color 0.25s, color 0.25s;
+    transition:
+      border 0.25s,
+      background-color 0.25s,
+      color 0.25s;
     outline: none;
   }
 
@@ -733,7 +754,10 @@
     background-color: var(--ui-background);
     color: var(--ui-foreground);
     font-size: 18px;
-    transition: border 0.25s, background-color 0.25s, color 0.25s;
+    transition:
+      border 0.25s,
+      background-color 0.25s,
+      color 0.25s;
   }
 
   input:disabled,
@@ -762,13 +786,20 @@
   }
 
   select {
-    font-family: 'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', 'Arial',
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-family:
+      'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', 'Arial',
       'sans-serif';
     border-radius: 10px;
     font-weight: 600;
     outline: none;
     padding: 10px;
-    transition: border 0.25s, background-color 0.25s, color 0.25s;
+    transition:
+      border 0.25s,
+      background-color 0.25s,
+      color 0.25s;
   }
 
   option {
@@ -790,7 +821,10 @@
     border: 1px solid var(--ui-border);
     font-size: 18px;
     font-family: var(--font-body);
-    transition: background-color 0.25s, color 0.25s, border 0.25s;
+    transition:
+      background-color 0.25s,
+      color 0.25s,
+      border 0.25s;
     overflow-y: hidden;
     margin-left: 35px;
     max-width: 80vw;
@@ -800,7 +834,9 @@
 
   .toast-enter-active,
   .toast-leave-active {
-    transition: bottom 0.5s, opacity 0.5s;
+    transition:
+      bottom 0.5s,
+      opacity 0.5s;
   }
 
   .toast-enter-from,

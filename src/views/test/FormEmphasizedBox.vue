@@ -35,19 +35,19 @@
       <br />
       <textarea name="textarea" placeholder="Textarea"></textarea>
       <br />
-      <select name="select">
-        <option value="">Select</option>
+      <Select name="select" value="">
+        <option :value="''">Select</option>
         <option value="1">Option 1</option>
         <option value="2">Option 2</option>
         <option value="3">Option 3</option>
-      </select>
+      </Select>
       <br />
       <!-- multiselect -->
-      <select name="multiselect" multiple>
+      <Select name="multiselect" multiple>
         <option value="1">Option 1</option>
         <option value="2">Option 2</option>
         <option value="3">Option 3</option>
-      </select>
+      </Select>
 
       <Switch name="switch">Switch</Switch>
     </Form>
@@ -59,6 +59,7 @@
   // Vue Components
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import Form from '@/components/Form.vue';
+  import Select from '@/components/Select.vue';
   import Switch from '@/components/Switch.vue';
 
   // In-House Modules

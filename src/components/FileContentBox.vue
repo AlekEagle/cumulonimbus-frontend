@@ -127,7 +127,11 @@
   async function linkClicked(e: MouseEvent) {
     console.log('linkClicked');
     if (debug) return;
-    if (e.ctrlKey)
+    // Open in new tab if Ctrl key (or Cmd key on Mac) is pressed
+    if (
+      (e.ctrlKey && !/Mac/i.test(navigator.platform)) ||
+      (e.metaKey && /Mac/i.test(navigator.platform))
+    )
       return window.open(`https://cdn.alekeagle.me/${file?.id}`, '_blank');
     await router.push(location.value);
   }
@@ -200,7 +204,9 @@
     border-radius: 10px;
     background-color: var(--ui-background);
     border: 1px solid var(--ui-border);
-    transition: background-color 0.25s, border 0.25s;
+    transition:
+      background-color 0.25s,
+      border 0.25s;
     overflow-y: hidden;
     display: grid;
     height: 200px;
@@ -367,7 +373,8 @@
     width: 5px;
     height: 5px;
     transform: scale(6);
-    transition: transform 0.4s cubic-bezier(0.78, 0, 0.22, 1),
+    transition:
+      transform 0.4s cubic-bezier(0.78, 0, 0.22, 1),
       background-color 0.25s;
   }
 
