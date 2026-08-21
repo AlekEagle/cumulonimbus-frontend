@@ -8,7 +8,7 @@
   </div>
 
   <div class="test-select">
-    <select v-model="currentItem" @change="updateHash">
+    <Select v-model="currentItem" @change="updateHash">
       <option :value="BasicEmphasizedBox">Basic Emphasized Box</option>
       <option :value="ContentBoxes">Content Boxes</option>
       <option :value="FormEmphasizedBox">Form Emphasized Box</option>
@@ -24,7 +24,7 @@
       <option :value="ProgressBar">Progress Bar</option>
       <option :value="SkeletonContentBoxes">Skeleton Content Boxes</option>
       <option :value="Switches">Switches</option>
-    </select>
+    </Select>
   </div>
 
   <KeepAlive>
@@ -45,6 +45,7 @@
   import Modals from '@/views/test/Modals.vue';
   import Paginator from '@/views/test/Paginator.vue';
   import ProgressBar from '@/views/test/ProgressBar.vue';
+  import Select from '@/components/Select.vue';
   import SkeletonContentBoxes from '@/views/test/SkeletonContentBoxes.vue';
   import Switches from '@/views/test/Switches.vue';
 

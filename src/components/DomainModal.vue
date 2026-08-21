@@ -20,7 +20,7 @@
             />
             <p>.</p>
           </div>
-          <select
+          <Select
             name="domain"
             ref="domainSelect"
             @change="onDomainSelect"
@@ -32,7 +32,7 @@
               :value="domain.id"
               v-text="domain.id"
             />
-          </select>
+          </Select>
         </div>
         <div v-else-if="!domainPicker.loading">
           <h1>I wasn't able to get the available domains.</h1>
@@ -62,6 +62,7 @@
   // Vue Components
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import LoadingSpinner from '@/components/LoadingSpinner.vue';
+  import Select from '@/components/Select.vue';
 
   // In-House Modules
   import { wait } from '@/utils/wait.js';
@@ -245,7 +246,9 @@
     border-radius: 10px;
     border: 1px solid var(--ui-border);
     background-color: var(--ui-background);
-    transition: background-color 0.25s, border 0.25s;
+    transition:
+      background-color 0.25s,
+      border 0.25s;
     margin: 0 auto;
   }
 

@@ -35,7 +35,9 @@
       ref="confirmModal"
       title="I am a confirm modal"
       @submit="
-  (choice: boolean) => { toast.show(`you do${choice ? '' : 'n\'t'} like men`) }
+        (choice: boolean) => {
+          toast.show(`you do${choice ? '' : 'n\'t'} like men`);
+        }
       "
       close-on-submit
       deny-button="No"
@@ -131,19 +133,19 @@
       <br />
       <textarea name="textarea" placeholder="Textarea"></textarea>
       <br />
-      <select name="select">
+      <Select name="select">
         <option value="">Select</option>
         <option value="1">Option 1</option>
         <option value="2">Option 2</option>
         <option value="3">Option 3</option>
-      </select>
+      </Select>
       <br />
       <!-- multiselect -->
-      <select name="multiselect" multiple>
+      <Select name="multiselect" multiple>
         <option value="1">Option 1</option>
         <option value="2">Option 2</option>
         <option value="3">Option 3</option>
-      </select>
+      </Select>
 
       <Switch name="switch">Switch</Switch>
     </FormModal>
@@ -152,7 +154,7 @@
     </ContentBox>
     <DomainModal
       ref="domainModal"
-      @submit="(data:any) => toast.show(JSON.stringify(data))"
+      @submit="(data: any) => toast.show(JSON.stringify(data))"
       @cancel="toast.show('cancelled domain modal')"
       domain="alekeagle.me"
     />
@@ -182,6 +184,7 @@
   import FormModal from '@/components/FormModal.vue';
   import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import Modal from '@/components/Modal.vue';
+  import Select from '@/components/Select.vue';
   import Switch from '@/components/Switch.vue';
 
   // In-House Modules
