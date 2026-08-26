@@ -102,7 +102,10 @@
           const img = document.getElementById('toilet-image');
           img.src =
             'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Clear the image while loading the new one
-          img.onload = () => resolve();
+          img.onload = () => {
+            resolve();
+            img.onload = null; // Remove the onload handler after it's called
+          };
           img.src = 'https://toilets.pics' + randomToilet;
         });
       }
