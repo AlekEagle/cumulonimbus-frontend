@@ -108,11 +108,10 @@
     setSubdomainWidth(input.value || input.placeholder);
   }
 
-  function onDomainSelect(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    setDomainWidth(select.value);
+  function onDomainSelect(domain: string) {
+    setDomainWidth(domain);
     allowsSubdomains.value = domainPicker.domains!.items.find(
-      (domain) => domain.id === select.value,
+      (d) => d.id === domain,
     )!.subdomains;
   }
 
