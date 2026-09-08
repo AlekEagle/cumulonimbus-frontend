@@ -74,6 +74,7 @@
 
   // External Modules
   import { ref, onMounted, watchEffect } from 'vue';
+  import type { Ref } from 'vue';
   import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const emit = defineEmits<{
@@ -108,10 +109,10 @@
     setSubdomainWidth(input.value || input.placeholder);
   }
 
-  function onDomainSelect(domain: string) {
-    setDomainWidth(domain);
+  function onDomainSelect() {
+    setDomainWidth(domain.value!);
     allowsSubdomains.value = domainPicker.domains!.items.find(
-      (d) => d.id === domain,
+      (d) => d.id === domain.value,
     )!.subdomains;
   }
 
@@ -165,10 +166,11 @@
         domain: string;
         subdomain?: string;
       } = {
-        domain: domainSelect.value!.value,
+        domain: domain.value!,
       };
       if (allowsSubdomains.value) {
-        response.subdomain = subdomainInput.value!.value;
+        response.subdomain =
+          subdomain.value! === null ? undefined : subdomain.value!;
       }
       emit('submit', response);
     }
@@ -295,9 +297,13 @@
     background-color: transparent;
   }
 
+  .domain-container:not(:has(.subdomain-container)) select {
+    padding: 10px 0px 10px 10px;
+  }
+
   .domain-container select {
     width: calc(var(--domain-width, 6ch) + 30px);
-    padding: 10px 5px;
+    padding: 10px 0px;
     min-width: 10vw;
     margin: 0;
     border: none;

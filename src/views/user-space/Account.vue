@@ -499,6 +499,9 @@
       const res = await user.changeDomain(data.domain, data.subdomain);
       if (res) {
         domainModal.value!.hide();
+        toast.show(
+          `Domain updated to ${data.subdomain ? data.subdomain + '.' : ''}${data.domain}`,
+        );
       }
     } catch (error) {
       console.error(error);
