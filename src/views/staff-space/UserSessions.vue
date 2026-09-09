@@ -97,15 +97,43 @@
         <code v-text="sessions.selectedSessionFuzzyUsedAt" />
       </span>
       <p>If you delete this session, they will have to sign back in.</p>
+      <button @click="startRenameSession">Rename this session</button>
     </template>
     <LoadingMessage spinner v-else />
   </ConfirmModal>
+  <FormModal
+    ref="renameSessionModal"
+    title="Rename Session"
+    @submit="onRenameSession"
+    :disabled="sessions.loading"
+    confirm-button="Rename"
+  >
+    <p
+      >Enter a new name for
+      <code
+        v-text="
+          sessions.selectedSession
+            ? sessions.selectedSession.name
+            : 'Loading...'
+        "
+      />
+    </p>
+    <input
+      type="text"
+      name="name"
+      required
+      maxlength="255"
+      placeholder="New Session Name"
+      :disabled="sessions.loading"
+    />
+  </FormModal>
 </template>
 
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
+  import FormModal from '@/components/FormModal.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
   import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
@@ -126,7 +154,7 @@
   import { userStore } from '@/stores/user.js';
 
   // External Modules
-  import { ref, onMounted, computed } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
@@ -139,6 +167,7 @@
     selected = ref<string[]>([]),
     confirmDeleteModal = ref<InstanceType<typeof ConfirmModal>>(),
     manageSessionModal = ref<InstanceType<typeof ConfirmModal>>(),
+    renameSessionModal = ref<InstanceType<typeof FormModal>>(),
     page = ref(0),
     deleteAllSessionsModal = ref<InstanceType<typeof ConfirmModal>>();
 
@@ -199,6 +228,32 @@
       }
     }
     fetchSessions();
+  }
+
+  async function startRenameSession() {
+    await manageSessionModal.value!.hide();
+    await renameSessionModal.value!.show();
+  }
+
+  async function onRenameSession(data: { name: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+    try {
+      const status = await sessions.renameSession(
+        sessions.selectedSession!.id + '',
+        data.name,
+      );
+      if (status) {
+        toast.show('Session renamed.');
+        await fetchSessions();
+      }
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
+    await renameSessionModal.value!.hide();
   }
 
   async function onManageSessionChoice(choice: boolean) {

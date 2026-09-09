@@ -108,9 +108,30 @@
         </p>
         <code v-text="selectedSessionPermissions.join('\n')" />
       </template>
+      <button @click="startRenameSession">Rename this Session</button>
     </template>
     <LoadingMessage spinner v-else />
   </ConfirmModal>
+  <FormModal
+    ref="renameSessionModal"
+    title="Rename Session"
+    @submit="onRenameSession"
+    :disabled="sessions.loading"
+    confirm-button="Rename"
+  >
+    <p>
+      Enter a new name for
+      <code v-text="selectedSession ? selectedSession.name : ''" />
+    </p>
+    <input
+      type="text"
+      name="name"
+      required
+      maxlength="255"
+      placeholder="New Session Name"
+      :disabled="sessions.loading"
+    />
+  </FormModal>
   <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
 
   <FormModal
@@ -494,6 +515,7 @@
     fullscreenLoadingMessage =
       ref<InstanceType<typeof FullscreenLoadingMessage>>(),
     manageSessionModal = ref<InstanceType<typeof ConfirmModal>>(),
+    renameSessionModal = ref<InstanceType<typeof FormModal>>(),
     registerSessionModal = ref<InstanceType<typeof FormModal>>(),
     scopedSessionTokenModal = ref<InstanceType<typeof Modal>>(),
     online = useOnline(),
@@ -632,6 +654,39 @@
           await confirmDeleteModal.value!.hide();
         }
       } else fullscreenLoadingMessage.value!.hide();
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
+    }
+  }
+
+  async function startRenameSession() {
+    await manageSessionModal.value!.hide();
+    await renameSessionModal.value!.show();
+  }
+
+  async function onRenameSession(newName: { name: string }) {
+    if (!online.value) {
+      toast.connectivityOffline();
+      return;
+    }
+
+    if (!selectedSession.value) {
+      toast.show('No session selected.');
+      return;
+    }
+
+    try {
+      const status = await sessions.renameSession(
+        selectedSession.value.id + '',
+        newName.name,
+      );
+      if (status) {
+        cancelSelection();
+        toast.show('Session renamed.');
+        await fetchSessions();
+        await renameSessionModal.value!.hide();
+      }
     } catch (e) {
       console.error(e);
       toast.clientError();
