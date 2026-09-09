@@ -58,6 +58,35 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     return true;
   }
 
+  async function renameSession(
+    session: string,
+    newName: string,
+  ): Promise<boolean> {
+    if (user.client === null) return false;
+    errored.value = false;
+    loading.value = true;
+    try {
+      await user.client.updateSelfSession(session, newName);
+      return true;
+    } catch (error) {
+      errored.value = true;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return false.
+          return false;
+        case 'NOT_HANDLED':
+        // No special cases to handle here.
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function deleteSession(session: string): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
@@ -183,6 +212,7 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
     errored,
     page,
     getSessions,
+    renameSession,
     deleteSession,
     deleteSessions,
     createScopedSession,

@@ -108,6 +108,41 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     return true;
   }
 
+  async function renameSession(id: string, newName: string): Promise<boolean> {
+    if (user.client === null) return false;
+    if (owner.value === null) return false;
+    errored.value = false;
+    loading.value = true;
+    try {
+      await user.client!.updateUserSession(owner.value.id, id, newName);
+      return true;
+    } catch (error) {
+      errored.value = true;
+      // Pass our error to the default error handler and check if it was handled.
+      switch (await defaultErrorHandler(error, router)) {
+        case 'OK':
+          // If the error was handled, return false to signify that the error was successfully handled, but the overall request failed.
+          return false;
+        case 'NOT_HANDLED':
+          // Handle special cases.
+          switch ((error as Cumulonimbus.ResponseError).code) {
+            // If the session the user is trying to rename is invalid.
+            case 'INVALID_SESSION_ERROR':
+              // Display the invalid session message.
+              toast.show("That session doesn't exist.");
+              return false;
+          }
+        case 'NOT_RESPONSE_ERROR':
+        default:
+          // If the error wasn't handled, throw it.
+          throw error;
+      }
+    } finally {
+      loading.value = false;
+    }
+    return true;
+  }
+
   async function deleteSession(id: string): Promise<boolean> {
     if (user.client === null) return false;
     if (owner.value === null) return false;
@@ -179,6 +214,7 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     page,
     getSessions,
     getSession,
+    renameSession,
     deleteSession,
     deleteSessions,
   };

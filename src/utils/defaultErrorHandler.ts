@@ -21,7 +21,8 @@ export type HandledErrors =
   | 'INVALID_SECOND_FACTOR_RESPONSE_ERROR'
   | 'ENDPOINT_REQUIRES_SECOND_FACTOR_ERROR'
   | 'SECOND_FACTOR_CHALLENGE_REQUIRED_ERROR'
-  | 'SERVICE_UNAVAILABLE_ERROR';
+  | 'SERVICE_UNAVAILABLE_ERROR'
+  | 'BODY_TOO_LARGE_ERROR';
 
 // Handle common errors from the API
 export default async function defaultErrorHandler(
@@ -142,6 +143,13 @@ export default async function defaultErrorHandler(
         return 'NOT_HANDLED';
       // Display the invalid second factor response message.
       toast.invalidSecondFactorResponse();
+      return 'OK';
+    // If the user encounters a body too large error.
+    case 'BODY_TOO_LARGE_ERROR':
+      // If the error is being overridden, return NOT_HANDLED.
+      if (override.includes('BODY_TOO_LARGE_ERROR')) return 'NOT_HANDLED';
+      // Display the body too large message.
+      toast.show('That was too big!');
       return 'OK';
     default:
       // Log the error to the console.
