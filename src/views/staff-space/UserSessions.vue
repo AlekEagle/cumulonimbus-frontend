@@ -290,6 +290,7 @@
           selected.value = [];
           selecting.value = false;
           toast.show(`Deleted ${status} sessions.`);
+          await confirmDeleteModal.value!.hide();
           await fetchSessions();
         }
       }
