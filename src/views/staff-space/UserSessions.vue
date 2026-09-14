@@ -96,6 +96,16 @@
         <p>Used:</p>
         <code v-text="sessions.selectedSessionFuzzyUsedAt" />
       </span>
+      <p v-if="!sessions.selectedSessionPermissions">
+        <strong>This session is a standard browser session.</strong>
+      </p>
+      <template v-else>
+        <p>
+          <strong>Permissions:</strong>
+        </p>
+        <code v-text="sessions.selectedSessionPermissions.join(', ')" />
+        <br />
+      </template>
       <p>If you delete this session, they will have to sign back in.</p>
       <button @click="startRenameSession">Rename this session</button>
     </template>

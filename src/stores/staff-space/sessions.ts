@@ -25,6 +25,23 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
         ? useFuzzyTimeString(ref(new Date(selectedSession.value.usedAt))).value
         : 'Not yet...',
     ),
+    selectedSessionPermissions = computed(() => {
+      if (
+        !selectedSession.value ||
+        !selectedSession.value.permissionFlags === null
+      )
+        return null;
+      // Convert the permissions bitmask to an array of strings
+      return Object.keys(Cumulonimbus.PermissionFlags)
+        .filter((key) => isNaN(Number(key)))
+        .filter(
+          (key) =>
+            selectedSession.value!.permissionFlags &
+            Cumulonimbus.PermissionFlags[
+              key as keyof typeof Cumulonimbus.PermissionFlags
+            ],
+        );
+    }),
     loading = ref(false),
     errored = ref(false),
     owner = ref<Cumulonimbus.Data.User | null>(null),
@@ -208,6 +225,7 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     data,
     selectedSession,
     selectedSessionFuzzyUsedAt,
+    selectedSessionPermissions,
     loading,
     errored,
     owner,
