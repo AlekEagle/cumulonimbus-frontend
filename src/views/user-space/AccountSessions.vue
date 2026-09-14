@@ -107,6 +107,7 @@
           <strong>Permissions:</strong>
         </p>
         <code v-text="selectedSessionPermissions.join('\n')" />
+        <br />
       </template>
       <button @click="startRenameSession">Rename this Session</button>
     </template>
@@ -539,7 +540,9 @@
         .filter(
           (key) =>
             selectedSession.value!.permissionFlags &
-            (Cumulonimbus.PermissionFlags[key as any] as unknown as number),
+            Cumulonimbus.PermissionFlags[
+              key as keyof typeof Cumulonimbus.PermissionFlags
+            ],
         );
     }),
     createdScopedSessionToken = ref<string | null>(null),
