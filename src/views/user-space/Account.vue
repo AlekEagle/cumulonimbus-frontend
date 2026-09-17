@@ -332,7 +332,11 @@
     @submit="deleteFiles"
     :disabled="user.loading"
   >
-    <p>This is going to delete all files in your account.</p>
+    <p>This is going to initiate the deletion of all files in your account.</p>
+    <p>Once initiated, the deletion process cannot be undone.</p>
+    <p>
+      You will receive an email when the deletion process has been completed.
+    </p>
     <p>Please enter your password to confirm.</p>
     <input
       hidden
@@ -357,7 +361,11 @@
     @submit="deleteAccount"
     :disabled="user.loading"
   >
-    <p>This is going to delete your account.</p>
+    <p>This is going to initiate the deletion of your account.</p>
+    <p>Once initiated, the deletion process cannot be undone.</p>
+    <p>
+      You will receive an email when the deletion process has been completed.
+    </p>
     <p>Are you sure?</p>
     <input
       type="text"
@@ -477,12 +485,13 @@
   }) {
     if (!online.value) return toast.connectivityOffline();
 
+    if (data.newPassword !== data.confirmNewPassword) {
+      toast.show('New passwords do not match.');
+      return;
+    }
+
     try {
-      const res = await user.changePassword(
-        data.newPassword,
-        data.confirmNewPassword,
-        data.password,
-      );
+      const res = await user.changePassword(data.newPassword, data.password);
       if (res) {
         passwordFormModal.value!.hide();
       }

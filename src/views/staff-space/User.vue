@@ -486,8 +486,12 @@
     :disabled="otherUser.loading"
   >
     <p>
-      Are you sure you want to delete
+      Are you sure you want to initiate the deletion of
       <code v-text="otherUser.data?.username" />'s files?
+    </p>
+    <p>Once initiated, the deletion process cannot be undone.</p>
+    <p>
+      The user will be notified via email once the deletion process is complete.
     </p>
     <br />
     <input
@@ -513,12 +517,16 @@
     :disabled="otherUser.loading"
   >
     <p>
-      Are you sure you want to delete
+      Are you sure you want to initiate the deletion of
       <code v-text="otherUser.data?.username" />'s account?
     </p>
     <p>
       This will delete all of <code v-text="otherUser.data?.username" />'s files
       and account.
+    </p>
+    <p>Once initiated, the deletion process cannot be undone.</p>
+    <p>
+      The user will be notified via email once the deletion process is complete.
     </p>
     <br />
     <input
@@ -715,12 +723,14 @@
       toast.connectivityOffline();
       return;
     }
+
+    if (newPassword !== confirmNewPassword) {
+      toast.show('New passwords do not match.');
+      return;
+    }
+
     try {
-      const status = await otherUser.updatePassword(
-        password,
-        newPassword,
-        confirmNewPassword,
-      );
+      const status = await otherUser.updatePassword(password, newPassword);
       if (status) {
         toast.show('Password updated.');
         changePasswordModal.value!.hide();

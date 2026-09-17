@@ -1,6 +1,6 @@
 <template>
   <h1>Dashboard</h1>
-  <h2>Welcome to your dashboard, {{ user.account!.user.username }}.</h2>
+  <h2>Welcome to your dashboard, {{ user.account?.user.username }}.</h2>
   <div class="quick-action-buttons-container">
     <button
       @click="logout"

@@ -63,8 +63,12 @@
     :disabled="users.loading"
   >
     <p>
-      Are you sure you want to delete the selected users? This action cannot be
-      undone. Enter your password to confirm.
+      Are you sure you want to initiate the deletion of the selected users?
+    </p>
+    <p>Once initiated, the deletion process cannot be undone.</p>
+    <p>
+      The selected users will be notified via email once the deletion process is
+      complete.
     </p>
     <br />
     <input

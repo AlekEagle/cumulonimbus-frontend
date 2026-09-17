@@ -424,7 +424,6 @@ export const otherUserStore = defineStore('staff-space-user', () => {
   async function updatePassword(
     password: string,
     newPassword: string,
-    confirmNewPassword: string,
   ): Promise<boolean> {
     if (user.client === null) return false;
     errored.value = false;
@@ -433,7 +432,6 @@ export const otherUserStore = defineStore('staff-space-user', () => {
       const result = await user.client!.editUserPassword(
         data.value!.id,
         newPassword,
-        confirmNewPassword,
         password,
       );
       data.value = result.result;
@@ -458,7 +456,6 @@ export const otherUserStore = defineStore('staff-space-user', () => {
             const result = await user.client!.editUserPassword(
               data.value!.id,
               newPassword,
-              confirmNewPassword,
               SFR,
             );
             data.value = result.result;
@@ -476,9 +473,6 @@ export const otherUserStore = defineStore('staff-space-user', () => {
                   case 'INVALID_USER_ERROR':
                     toast.show('User not found.');
                     return false;
-                  case 'PASSWORDS_DO_NOT_MATCH_ERROR':
-                    toast.show('These passwords do not match.');
-                    return false;
                   default:
                     // If it still wasn't handled, throw the error.
                     throw error;
@@ -495,9 +489,6 @@ export const otherUserStore = defineStore('staff-space-user', () => {
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
               toast.show('User not found.');
-              return false;
-            case 'PASSWORDS_DO_NOT_MATCH_ERROR':
-              toast.show('These passwords do not match.');
               return false;
             default:
               // If it still wasn't handled, throw the error.
