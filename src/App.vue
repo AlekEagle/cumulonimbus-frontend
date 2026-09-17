@@ -204,11 +204,11 @@
   });
 
   // use the beforeEach hook on the router to check if the user is logged in when navigating to a route that requires authentication
-  router.beforeEach(async (to, from, next) => {
+  router.beforeEach(async (to, from) => {
     // is the route the user is trying to navigate to the soft 404 page?
     if (to.name === '404') {
       // don't do anything
-      next();
+      return;
     }
 
     // is the route the user is trying to navigate to a route that requires authentication?
@@ -220,31 +220,31 @@
           // if so, check if the user is staff
           if (user.account!.user.staff) {
             // if so, continue to the route
-            next();
+            return;
           } else {
             // if not, display the insufficient permissions error and redirect to the home page
             toast.insufficientPermissions();
-            next({
+            return {
               path: '/',
-            });
+            };
           }
         } else {
           // if not, continue to the route
-          next();
+          return;
         }
       } else {
         // if not, display a toast that says the user needs to login and redirect to the auth page with the redirect query param set to the current route
         toast.login();
-        next({
+        return {
           name: 'account-switcher',
           query: {
             redirect: to.fullPath,
           },
-        });
+        };
       }
     } else {
       // if not, continue to the route
-      next();
+      return;
     }
   });
 

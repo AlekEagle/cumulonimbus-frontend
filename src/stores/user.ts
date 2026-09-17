@@ -304,7 +304,6 @@ export const userStore = defineStore('user', () => {
     username: string,
     email: string,
     password: string,
-    confirmPassword: string,
     remember: boolean = false,
   ): Promise<boolean> {
     // Set the loading state.
@@ -316,7 +315,6 @@ export const userStore = defineStore('user', () => {
         username,
         email,
         password,
-        confirmPassword,
         remember,
         cumulonimbusOptions,
       );
@@ -351,9 +349,6 @@ export const userStore = defineStore('user', () => {
               return false;
             case 'INVALID_EMAIL_ERROR':
               toast.show('Invalid email!');
-              return false;
-            case 'PASSWORDS_DO_NOT_MATCH_ERROR':
-              toast.show('Passwords do not match!');
               return false;
             default:
               // If it still wasn't handled, throw the error.
@@ -775,7 +770,6 @@ export const userStore = defineStore('user', () => {
   // Change the password of the current account.
   async function changePassword(
     newPassword: string,
-    confirmNewPassword: string,
     password: string,
   ): Promise<boolean> {
     // Set the loading state.
@@ -785,11 +779,7 @@ export const userStore = defineStore('user', () => {
       // Change the password. Use the old password to reauthenticate.
       // Only provide the password, that way we aren't changing data that we don't need to.
       account.value!.user = (
-        await client.value!.editSelfPassword(
-          newPassword,
-          confirmNewPassword,
-          password,
-        )
+        await client.value!.editSelfPassword(newPassword, password)
       ).result;
       // If nothing went wrong:
       // Return true to signify success.
@@ -812,11 +802,7 @@ export const userStore = defineStore('user', () => {
           try {
             // Change the password. Use the second factor response we received to reauthenticate.
             account.value!.user = (
-              await client.value!.editSelfPassword(
-                newPassword,
-                confirmNewPassword,
-                SFR,
-              )
+              await client.value!.editSelfPassword(newPassword, SFR)
             ).result;
             // If nothing went wrong:
             // Return true to signify success.
@@ -838,9 +824,6 @@ export const userStore = defineStore('user', () => {
         case 'NOT_HANDLED':
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
-            case 'PASSWORDS_DO_NOT_MATCH_ERROR':
-              toast.show('These passwords do not match!');
-              return false;
             default:
               // If it still wasn't handled, throw the error.
               throw error;

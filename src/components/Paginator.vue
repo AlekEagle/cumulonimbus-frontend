@@ -110,7 +110,7 @@
       input.value = page.value + 1 + '';
       return;
     }
-    if (Number(input.value) <= 0) {
+    if (Number(input.value) <= 1) {
       page.value = 0;
     } else if (Number(input.value) >= maxPage.value + 1) {
       page.value = maxPage.value;
@@ -147,6 +147,7 @@
   }
 
   function validateInput(event: Event) {
+    event.preventDefault();
     const input = event.target as HTMLInputElement;
     if (input.value === '') return;
     if (Number(input.value) < 1) {
