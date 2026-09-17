@@ -20,8 +20,8 @@
           action === 'login'
             ? 'Don\'t have an account?'
             : action === 'register'
-            ? 'Already have an account?'
-            : 'How'
+              ? 'Already have an account?'
+              : 'How'
         "
         :disabled="processing"
       />
@@ -236,13 +236,16 @@
       toast.connectivityOffline();
       return;
     }
+    if (data.password !== data.confirmPassword) {
+      toast.show('Passwords do not match');
+      return;
+    }
     processing.value = true;
     try {
       const res = await user.register(
         data.username,
         data.email,
         data.password,
-        data.confirmPassword,
         data.remember,
       );
       if (res) await redirect();
