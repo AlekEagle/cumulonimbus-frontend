@@ -60,13 +60,10 @@
     </div>
     <div class="file-content-box-content-overflow-shadow" />
     <div class="file-content-box-checkbox">
-      <label @click.prevent.stop="checkModel">
-        <input
-          :checked="model.includes(file?.id ?? debugId!)"
-          type="checkbox"
-        />
-        <span></span>
-      </label>
+      <Checkmark
+        :checked="model.includes(file?.id ?? debugId!)"
+        @click.prevent.stop="checkModel"
+      />
     </div>
   </a>
 </template>
@@ -74,6 +71,7 @@
 <script setup lang="ts">
   // Vue Components
   import LoadingSpinner from '@/components/LoadingSpinner.vue';
+  import Checkmark from '@/components/Checkmark.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
@@ -314,71 +312,5 @@
     grid-column: 2 / span 2;
     width: 64px;
     height: 64px;
-  }
-
-  .file-content-box-checkbox label {
-    display: block;
-    position: relative;
-    padding-left: 16px;
-    margin-bottom: 24px;
-    cursor: pointer;
-    font-size: 22px;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-  }
-
-  .file-content-box-checkbox label input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-  }
-
-  .file-content-box-checkbox label span {
-    position: absolute;
-    top: 0;
-    left: -5px;
-    height: 25px;
-    width: 25px;
-    background-origin: border-box;
-    background-image: radial-gradient(
-      circle at 12.5px 12.5px,
-      var(--logo-color-bottom),
-      var(--logo-color-top)
-    );
-    border: 1px solid var(--ui-border);
-    border-radius: 100%;
-    overflow: hidden;
-    transition: border 0.25s;
-  }
-
-  .file-content-box-checkbox:hover label span {
-    border: 1px solid var(--ui-border-hover);
-  }
-
-  .file-content-box-checkbox label input:checked ~ span::after {
-    transform: scale(0);
-  }
-
-  .file-content-box-checkbox label span::after {
-    content: '';
-    position: relative;
-    display: block;
-    border-radius: 100%;
-    background-color: var(--ui-background);
-    top: calc(50% - 2.5px);
-    left: calc(50% - 2.5px);
-    width: 5px;
-    height: 5px;
-    transform: scale(6);
-    transition:
-      transform 0.4s cubic-bezier(0.78, 0, 0.22, 1),
-      background-color 0.25s;
-  }
-
-  .file-content-box-checkbox:hover label span::after {
-    background-color: var(--ui-background-hover);
   }
 </style>

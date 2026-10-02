@@ -148,6 +148,7 @@
       </Select>
 
       <Switch name="switch">Switch</Switch>
+      <Checkmark name="checkmark">Checkmark</Checkmark>
     </FormModal>
     <ContentBox title="Display domain modal" @click="domainModal!.show()">
       Display domain modal
@@ -178,6 +179,7 @@
 
 <script lang="ts" setup>
   // Vue Components
+  import Checkmark from '@/components/Checkmark.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import DomainModal from '@/components/DomainModal.vue';

@@ -50,6 +50,7 @@
       </Select>
 
       <Switch name="switch">Switch</Switch>
+      <Checkmark name="checkmark"> Checkmark </Checkmark>
     </Form>
     <button @click="emphasizedForm!.submit()">Submit outside of form</button>
   </EmphasizedBox>
@@ -57,6 +58,7 @@
 
 <script lang="ts" setup>
   // Vue Components
+  import Checkmark from '@/components/Checkmark.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import Form from '@/components/Form.vue';
   import Select from '@/components/Select.vue';
