@@ -43,7 +43,9 @@
     <div class="file-content-box-content">
       <!-- DEBUG TEXT -->
       <template v-if="debug">
-        <p class="file-content-box-primary-text">Friendly File Name</p>
+        <p class="file-content-box-primary-text"
+          >Friendly File Name That is Long Enough to Overflow Hopefully</p
+        >
         <p class="file-content-box-secondary-text">
           Saved As: <code>abc.xyz</code>
         </p>

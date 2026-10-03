@@ -70,7 +70,6 @@
     justify-content: center;
     font-size: 22px;
     top: 0;
-    left: -5px;
     height: 25px;
     width: 25px;
     align-items: center;
@@ -134,7 +133,7 @@
 
   .checkmark-label {
     display: inline;
-    margin: 0 0 0 0.25rem;
+    margin: 0 0 0 0.5rem;
     font-weight: 600;
     font-size: 20px;
     font-family: var(--font-heading);
