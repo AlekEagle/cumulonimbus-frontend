@@ -77,7 +77,9 @@
     border: 1px solid var(--ui-border);
     border-radius: 10px;
     overflow: hidden;
-    transition: border 0.25s;
+    transition:
+      border 0.25s,
+      background-color 0.25s;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
