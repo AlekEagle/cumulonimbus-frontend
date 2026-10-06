@@ -80,6 +80,7 @@
     transition:
       border 0.25s,
       background-color 0.25s;
+    cursor: pointer;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
