@@ -93,7 +93,7 @@
       </span>
       <span class="sb-code-label">
         <p>Expires:</p>
-        <code v-text="toDateString(new Date(selectedSession.exp * 1000))" />
+        <code v-text="toDateString(new Date(selectedSession.exp))" />
       </span>
       <span class="sb-code-label">
         <p>Used:</p>
@@ -539,7 +539,7 @@
         .filter((key) => isNaN(Number(key)))
         .filter(
           (key) =>
-            selectedSession.value!.permissionFlags &
+            selectedSession.value!.permissionFlags! &
             Cumulonimbus.PermissionFlags[
               key as keyof typeof Cumulonimbus.PermissionFlags
             ],
@@ -578,7 +578,7 @@
     }
   }
 
-  async function onSessionClick(session: Cumulonimbus.Data.Session) {
+  async function onSessionClick(session: Pick<Cumulonimbus.Data.Session, 'id' | 'name'>) {
     if (selecting.value) {
       if (selected.value.includes(session.id + '')) {
         selected.value = selected.value.filter((id) => id !== session.id + '');

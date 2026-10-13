@@ -116,7 +116,9 @@
     loadWhenOnline(fetchUsers, !users.data || users.page !== page.value),
   );
 
-  async function onUserClick(user: Cumulonimbus.Data.User) {
+  async function onUserClick(
+    user: Pick<Cumulonimbus.Data.User, 'id' | 'username'>,
+  ) {
     if (selected.value.includes(user.id)) {
       selected.value = selected.value.filter((u) => u !== user.id);
     } else {

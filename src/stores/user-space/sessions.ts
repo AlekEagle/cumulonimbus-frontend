@@ -21,9 +21,9 @@ export const sessionsStore = defineStore('user-space-sessions', () => {
   const secondFactorChallenger = secondFactorChallengerStore();
   const router = useRouter();
   const loading = ref(false);
-  const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(
-    null,
-  );
+  const data = ref<Cumulonimbus.Data.List<
+    Pick<Cumulonimbus.Data.Session, 'id' | 'name'>
+  > | null>(null);
   const errored = ref(false);
   const page = ref(0);
 

@@ -17,9 +17,9 @@ export const instructionsStore = defineStore('staff-space-instructions', () => {
     displayPref = displayPrefStore(),
     router = useRouter(),
     toast = toastStore(),
-    data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Instruction> | null>(
-      null,
-    ),
+    data = ref<Cumulonimbus.Data.List<
+      Pick<Cumulonimbus.Data.Instruction, 'id' | 'name' | 'description'>
+    > | null>(null),
     loading = ref(false),
     errored = ref(false),
     page = ref(0);

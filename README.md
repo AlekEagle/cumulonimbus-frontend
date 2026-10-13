@@ -9,6 +9,7 @@ The frontend of the Cumulonimbus ecosystem.
 - [Cumulonimbus Wrapper](https://github.com/AlekEagle/cumulonimbus-wrapper)
 - [Cumulonimbus Documentation](https://github.com/AlekEagle/cumulonimbus-docs)
 - Cumulonimbus Frontend (You are here.)
+- [Cumulonimbus Types](https://github.com/AlekEagle/cumulonimbus-types)
 
 ## What is in this repository?
 

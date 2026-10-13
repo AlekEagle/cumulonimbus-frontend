@@ -11,7 +11,7 @@ import { secondFactorChallengerStore } from '../secondFactorChallenger';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import type { RegistrationResponseJSON } from '@simplewebauthn/types';
+import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
 
 export const secondFactorsStore = defineStore(
   'user-space-second-factors',
@@ -20,9 +20,9 @@ export const secondFactorsStore = defineStore(
       displayPref = displayPrefStore(),
       router = useRouter(),
       secondFactorChallenger = secondFactorChallengerStore(),
-      data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.SecondFactor> | null>(
-        null,
-      ),
+      data = ref<Cumulonimbus.Data.List<
+        Pick<Cumulonimbus.Data.SecondFactor, 'id' | 'name'>
+      > | null>(null),
       loading = ref(false),
       errored = ref(false),
       page = ref(0);

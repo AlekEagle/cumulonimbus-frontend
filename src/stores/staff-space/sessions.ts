@@ -18,7 +18,9 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
     displayPref = displayPrefStore(),
     router = useRouter(),
     toast = toastStore(),
-    data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Session> | null>(null),
+    data = ref<Cumulonimbus.Data.List<
+      Pick<Cumulonimbus.Data.Session, 'id' | 'name'>
+    > | null>(null),
     selectedSession = ref<Cumulonimbus.Data.Session | null>(null),
     selectedSessionFuzzyUsedAt = computed(() =>
       selectedSession.value?.usedAt
@@ -36,7 +38,7 @@ export const sessionsStore = defineStore('staff-space-sessions', () => {
         .filter((key) => isNaN(Number(key)))
         .filter(
           (key) =>
-            selectedSession.value!.permissionFlags &
+            selectedSession.value!.permissionFlags! &
             Cumulonimbus.PermissionFlags[
               key as keyof typeof Cumulonimbus.PermissionFlags
             ],

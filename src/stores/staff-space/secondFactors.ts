@@ -20,9 +20,9 @@ export const secondFactorsStore = defineStore(
       displayPref = displayPrefStore(),
       router = useRouter(),
       secondFactorChallenger = secondFactorChallengerStore(),
-      data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.SecondFactor> | null>(
-        null,
-      ),
+      data = ref<Cumulonimbus.Data.List<
+        Pick<Cumulonimbus.Data.SecondFactor, 'id' | 'name'>
+      > | null>(null),
       selectedSecondFactor = ref<Cumulonimbus.Data.SecondFactor | null>(null),
       selectedFactorFuzzyLastUsedAt = computed(() =>
         selectedSecondFactor.value?.usedAt

@@ -380,7 +380,7 @@
       | null
     >(null),
     registrationTimeoutDate = computed(
-      () => new Date((registrationData.value?.exp ?? 0) * 1000),
+      () => new Date(registrationData.value?.exp!),
     ),
     registrationTimeout = useFuzzyTimeString(registrationTimeoutDate),
     registrationCompleteData = ref<
@@ -415,7 +415,7 @@
   }
 
   async function onSecondFactorClick(
-    secondFactor: Cumulonimbus.Data.SecondFactor,
+    secondFactor: Pick<Cumulonimbus.Data.SecondFactor, 'id' | 'name'>,
   ) {
     if (selecting.value) {
       if (selected.value.includes(secondFactor.id + '')) {

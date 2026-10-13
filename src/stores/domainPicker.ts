@@ -15,9 +15,9 @@ export const domainPickerStore = defineStore('domainPicker', () => {
   const user = userStore();
   const router = useRouter();
   const loading = ref(false);
-  const domains = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Domain> | null>(
-    null,
-  );
+  const domains = ref<Cumulonimbus.Data.List<
+    Pick<Cumulonimbus.Data.Domain, 'id' | 'subdomains'>
+  > | null>(null);
 
   async function sync(): Promise<boolean> {
     if (user.client === null) return false;

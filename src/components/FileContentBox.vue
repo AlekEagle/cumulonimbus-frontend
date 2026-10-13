@@ -98,7 +98,7 @@
   const { debug, debugId, file, toStaff } = defineProps<{
     debug?: boolean;
     debugId?: string;
-    file?: Cumulonimbus.Data.File;
+    file?: Pick<Cumulonimbus.Data.File, 'id' | 'name'>;
     toStaff?: boolean;
   }>();
 

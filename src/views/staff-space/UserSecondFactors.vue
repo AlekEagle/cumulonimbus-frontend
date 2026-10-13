@@ -241,7 +241,7 @@
   }
 
   async function onSecondFactorClick(
-    secondFactor: Cumulonimbus.Data.SecondFactor,
+    secondFactor: Pick<Cumulonimbus.Data.SecondFactor, 'id' | 'name'>,
   ) {
     if (selecting.value) {
       if (selected.value.includes(secondFactor.id + '')) {

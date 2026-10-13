@@ -195,7 +195,7 @@
   }
 
   async function onDomainClick(
-    domain: Cumulonimbus.Data.Domain,
+    domain: Pick<Cumulonimbus.Data.Domain, 'id' | 'subdomains'>,
   ): Promise<void> {
     if (selecting.value) {
       if (selected.value.includes(domain.id)) {

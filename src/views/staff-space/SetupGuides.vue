@@ -145,7 +145,10 @@
     manageInstructionModal = ref<InstanceType<typeof ConfirmModal>>(),
     bulkDeleteInstructionModal = ref<InstanceType<typeof ConfirmModal>>(),
     createInstructionModal = ref<InstanceType<typeof FormModal>>(),
-    selectedInstruction = ref<Cumulonimbus.Data.Instruction | null>(null);
+    selectedInstruction = ref<Pick<
+      Cumulonimbus.Data.Instruction,
+      'id' | 'name' | 'description'
+    > | null>(null);
 
   async function fetchInstructions() {
     if (!online) {
@@ -168,7 +171,12 @@
     ),
   );
 
-  function onInstructionClick(instruction: Cumulonimbus.Data.Instruction) {
+  function onInstructionClick(
+    instruction: Pick<
+      Cumulonimbus.Data.Instruction,
+      'id' | 'name' | 'description'
+    >,
+  ) {
     if (selecting.value) {
       if (selected.value.includes(instruction.name)) {
         selected.value = selected.value.filter(
@@ -178,7 +186,10 @@
         selected.value.push(instruction.name);
       }
     } else {
-      selectedInstruction.value = instruction;
+      selectedInstruction.value = instruction as Pick<
+        Cumulonimbus.Data.Instruction,
+        'id' | 'name' | 'description'
+      >;
       manageInstructionModal.value!.show();
     }
   }

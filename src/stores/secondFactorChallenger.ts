@@ -8,7 +8,7 @@ import { ref, computed } from 'vue';
 import type {
   PublicKeyCredentialRequestOptionsJSON,
   AuthenticationResponseJSON,
-} from '@simplewebauthn/types';
+} from '@simplewebauthn/browser';
 
 export const secondFactorChallengerStore = defineStore(
   'second-factor-challenger',

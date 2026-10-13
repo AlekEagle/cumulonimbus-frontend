@@ -88,9 +88,7 @@
       </span>
       <span class="sb-code-label">
         <p>Expires:</p>
-        <code
-          v-text="toDateString(new Date(sessions.selectedSession.exp * 1000))"
-        />
+        <code v-text="toDateString(new Date(sessions.selectedSession.exp))" />
       </span>
       <span class="sb-code-label">
         <p>Used:</p>
@@ -195,7 +193,9 @@
     }
   }
 
-  async function onSessionClick(session: Cumulonimbus.Data.Session) {
+  async function onSessionClick(
+    session: Pick<Cumulonimbus.Data.Session, 'id' | 'name'>,
+  ) {
     if (selecting.value) {
       if (selected.value.includes(session.id + '')) {
         selected.value = selected.value.filter((id) => id !== session.id + '');

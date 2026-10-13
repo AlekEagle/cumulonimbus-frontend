@@ -18,7 +18,9 @@ export const domainsStore = defineStore('staff-space-domains', () => {
     toast = toastStore(),
     displayPref = displayPrefStore(),
     router = useRouter(),
-    data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.Domain> | null>(null),
+    data = ref<Cumulonimbus.Data.List<
+      Pick<Cumulonimbus.Data.Domain, 'id' | 'subdomains'>
+    > | null>(null),
     selectedDomain = ref<Cumulonimbus.Data.Domain | null>(null),
     loading = ref(false),
     errored = ref(false),

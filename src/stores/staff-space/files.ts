@@ -16,7 +16,9 @@ export const filesStore = defineStore('staff-space-files', () => {
   const router = useRouter();
   const displayPref = displayPrefStore();
   const loading = ref(false);
-  const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.File> | null>(null);
+  const data = ref<Cumulonimbus.Data.List<
+    Pick<Cumulonimbus.Data.File, 'id' | 'name'>
+  > | null>(null);
   const errored = ref(false);
   const page = ref(0);
   const selectedUser = ref<Cumulonimbus.Data.User | null>(null);

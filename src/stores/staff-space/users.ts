@@ -18,7 +18,9 @@ export const usersStore = defineStore('staff-space-users', () => {
   const secondFactorChallenger = secondFactorChallengerStore();
   const router = useRouter();
   const loading = ref(false);
-  const data = ref<Cumulonimbus.Data.List<Cumulonimbus.Data.User> | null>(null);
+  const data = ref<Cumulonimbus.Data.List<
+    Pick<Cumulonimbus.Data.User, 'id' | 'username'>
+  > | null>(null);
   const errored = ref(false);
   const page = ref(0);
 
