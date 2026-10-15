@@ -110,15 +110,17 @@
   import { ptbStore } from '@/stores/ptb.js';
 
   // External Modules
-  import { ref, onMounted, watch, computed } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
+  import { ref, onMounted, computed } from 'vue';
+  import {
+    useRouter,
+    useRoute,
+    RouteLocationNormalizedGeneric,
+  } from 'vue-router';
 
   const user = userStore(),
     toast = toastStore(),
     router = useRouter(),
     route = useRoute(),
-    online = useOnline(),
     ptb = ptbStore(),
     host = window.location.host,
     menuItems = computed(() => {
@@ -195,16 +197,21 @@
     hamburgerMenu = ref(false),
     ptbWarningModal = ref<InstanceType<typeof Modal>>();
 
-  watch(online, (val) => {
-    if (!val) {
-      toast.connectivityChangeOffline();
-    } else {
-      toast.connectivityChangeOnline();
-    }
-  });
+  async function rehydrateUser() {
+    await user.rehydrate();
 
-  // use the beforeEach hook on the router to check if the user is logged in when navigating to a route that requires authentication
-  router.beforeEach(async (to, from) => {
+    // Now the user has been rehydrated, we will re-run the route guard to ensure the user is redirected appropriately if needed
+    await routeGuard(router.currentRoute.value, router.currentRoute.value);
+  }
+
+  rehydrateUser();
+
+  async function routeGuard(
+    to: RouteLocationNormalizedGeneric,
+    from: RouteLocationNormalizedGeneric,
+  ) {
+    // if the client has not been rehydrated yet, wait until it has been rehydrated before checking authentication
+    if (!user.hasRehydrated) return;
     // is the route the user is trying to navigate to the soft 404 page?
     if (to.name === '404') {
       // don't do anything
@@ -246,7 +253,10 @@
       // if not, continue to the route
       return;
     }
-  });
+  }
+
+  // use the beforeEach hook on the router to check if the user is logged in when navigating to a route that requires authentication
+  router.beforeEach(routeGuard);
 
   function acceptPtbWarning() {
     ptb.shownWarning = true;
@@ -257,52 +267,9 @@
     window.location.href = 'https://alekeagle.me';
   }
 
-  onMounted(() => {
+  onMounted(async () => {
     if (ptb.isPtb && !ptb.shownWarning) ptbWarningModal.value!.show();
-    // check if the user is on the soft 404 page
-    if (route.name === '404') {
-      // if so, do nothing
-      return;
-    }
-
-    // check if the user is on a route that requires authentication
-    if (route.meta.requiresAuth) {
-      // check if the user is logged in
-      if (user.loggedIn) {
-        // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
-        if (route.meta.requiresStaff) {
-          // if so, check if the user is staff
-          if (user.account!.user.staff) {
-            // if so, continue to the route
-            return;
-          } else {
-            // if not, display the insufficient permissions error and redirect to the home page
-            toast.insufficientPermissions();
-            router.replace({
-              path: '/',
-            });
-          }
-        } else {
-          // if not, continue to the route
-          return;
-        }
-      } else {
-        // if not, display a toast that says the user needs to login and redirect to the auth page with the redirect query param set to the current route
-        toast.login();
-        router.replace({
-          name: 'account-switcher',
-          query: {
-            redirect: route.fullPath,
-          },
-        });
-      }
-    } else {
-      // if not, continue to the route
-      return;
-    }
   });
-
-  user.restoreClient();
 
   // Register a message handler for the service worker
   navigator.serviceWorker?.addEventListener('message', (event) => {

@@ -42,13 +42,18 @@ export const userStore = defineStore('user', () => {
   }>({});
   // Persist the user accounts store.
   persistPiniaRef(accounts, 'accounts', { deep: true, immediate: true });
+  // Which user is currently selected in the account switcher.
+  const selectedUser = ref<string | null>(null);
+  persistPiniaRef(selectedUser, 'selectedUser', {
+    deep: true,
+    immediate: true,
+  });
   // The current account information.
   const account = ref<{
-    session: Cumulonimbus.Data.Session & { token: string };
+    session: Cumulonimbus.Data.Session;
     user: Cumulonimbus.Data.User;
   } | null>(null);
-  // Persist the current account information.
-  persistPiniaRef(account, 'account', { deep: true, immediate: true });
+  // persistPiniaRef(account, 'account', { deep: true, immediate: true });
   // --- Non-Persistent Data ---
   // The Cumulonimbus client.
   const client = ref<Cumulonimbus | null>(null);
@@ -56,33 +61,23 @@ export const userStore = defineStore('user', () => {
   const loggedIn = computed(
     () => account.value !== null && client.value !== null,
   );
+  // The selected user's token.
+  const token = computed(() => {
+    if (selectedUser.value === null) return null;
+    const t = accounts.value[selectedUser.value];
+    return typeof t === 'string' ? t : null;
+  });
+
   const domain = computed(() => {
     if (account.value === null) return null;
     return `${
       account.value.user.subdomain ? account.value.user.subdomain + '.' : ''
     }${account.value.user.domain}`;
   });
+  // Have we tried to rehydrate the client from a stored session?
+  const hasRehydrated = ref(false);
   // Is the stored account information being modified?
   const loading = ref(false);
-
-  // Migrate old account stores to the new format.
-  if (
-    localStorage.getItem('user') !== null &&
-    localStorage.getItem('session') !== null
-  ) {
-    const user = JSON.parse(localStorage.getItem('user') as string);
-    const session = JSON.parse(localStorage.getItem('session') as string);
-    accounts.value[user.username] = session.token;
-    account.value = {
-      session: {
-        ...session,
-        token: session.token,
-      },
-      user,
-    };
-    localStorage.removeItem('user');
-    localStorage.removeItem('session');
-  }
 
   // --- External Stores ---
 
@@ -208,13 +203,12 @@ export const userStore = defineStore('user', () => {
       account.value = {
         session: {
           ...(await client.value.getSelfSession()).result,
-          token: (client.value as any).token,
         },
         user: (await client.value.getSelf()).result,
       };
       // Add the account to the account switcher.
       // Use the username value from the account information, as the provided username may be different (an email, incorrect capitalization, etc).
-      addAccount(account.value.user.username, account.value.session.token);
+      addAccount(account.value.user.username, (client.value as any).token);
       // If nothing went wrong:
       // Return true to signify success.
       return true;
@@ -245,7 +239,6 @@ export const userStore = defineStore('user', () => {
             account.value = {
               session: {
                 ...(await client.value.getSelfSession()).result,
-                token: (client.value as any).token,
               },
               user: (await client.value.getSelf()).result,
             };
@@ -253,7 +246,7 @@ export const userStore = defineStore('user', () => {
             // Use the username value from the account information, as the provided username may be different (incorrect capitalization, etc).
             addAccount(
               account.value.user.username,
-              account.value.session.token,
+              (client.value as any).token,
             );
             // If nothing went wrong:
             // Return true to signify success.
@@ -322,13 +315,12 @@ export const userStore = defineStore('user', () => {
       account.value = {
         session: {
           ...(await client.value.getSelfSession()).result,
-          token: (client.value as any).token,
         },
         user: (await client.value.getSelf()).result,
       };
       // Add the account to the account switcher.
       // Use the username value from the account information, as the provided username may be different (an email, incorrect capitalization, etc).
-      addAccount(account.value.user.username, account.value.session.token);
+      addAccount(account.value.user.username, (client.value as any).token);
       // If nothing went wrong:
       // Return true to signify success.
       return true;
@@ -422,16 +414,35 @@ export const userStore = defineStore('user', () => {
     }
   }
 
-  // Restore the client from a stored session.
-  // We don't care if the session is invalid, we'll take care of that when we try to use the client.
-  function restoreClient(): void {
-    // If there's no account information stored, return.
-    if (!account.value) return;
-    // Create a new client with the stored session information.
-    client.value = new Cumulonimbus(
-      account.value.session.token,
-      cumulonimbusOptions,
-    );
+  // Restore the client from a stored session and rehydrate the user information.
+  async function rehydrate(): Promise<boolean> {
+    try {
+      if (loading.value || client.value) return false;
+      // Set the loading state.
+      loading.value = true;
+      // If there's no account information stored, return.
+      if (!token.value) {
+        loading.value = false;
+        return false;
+      }
+      // Create a new client with the stored session information.
+      client.value = new Cumulonimbus(token.value, cumulonimbusOptions);
+      await refetch();
+      // If nothing went wrong:
+      // Return true to signify success.
+      return true;
+    } catch (error) {
+      // If an error occurred during rehydration, reset the client and account information.
+      client.value = null;
+      account.value = null;
+      // If an error occurred, return false to signify failure.
+      console.error(error);
+      return false;
+    } finally {
+      // Reset the loading state.
+      loading.value = false;
+      hasRehydrated.value = true;
+    }
   }
 
   // --- Account Switching ---
@@ -465,10 +476,11 @@ export const userStore = defineStore('user', () => {
       account.value = {
         session: {
           ...(await client.value.getSelfSession()).result,
-          token: (client.value as any).token,
         },
         user: (await client.value.getSelf()).result,
       };
+      // Set the selected user to the current account's username.
+      selectedUser.value = account.value.user.username;
       // If nothing went wrong:
       // Return true to signify success.
       return true;
@@ -512,6 +524,7 @@ export const userStore = defineStore('user', () => {
     username: string,
     password: string,
   ): Promise<boolean> {
+    const oldUsername = account.value!.user.username;
     // Set the loading state.
     loading.value = true;
     // Try to change the username.
@@ -520,6 +533,12 @@ export const userStore = defineStore('user', () => {
       account.value!.user = (
         await client.value!.editSelfUsername(username, password)
       ).result;
+      // Update saved account information with the new username.
+      accounts.value[account.value!.user.username] =
+        accounts.value[oldUsername];
+      delete accounts.value[oldUsername];
+      // Update the selected user to the new username.
+      selectedUser.value = account.value!.user.username;
       // If nothing went wrong:
       // Return true to signify success.
       return true;
@@ -898,8 +917,12 @@ export const userStore = defineStore('user', () => {
       // Revoke all sessions.
       const res = await client.value!.deleteAllSelfSessions(includeSelf);
       // If nothing went wrong:
-      // Logout if the current session was included.
-      if (includeSelf) await logout();
+      // Clean up the account if the current session was included.
+      if (includeSelf) {
+        markAccountExpired(account.value?.user.username!);
+        account.value = null;
+        client.value = null;
+      }
       return res.result.count!;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
@@ -1079,7 +1102,6 @@ export const userStore = defineStore('user', () => {
         user: (await client.value!.getSelf()).result,
         session: {
           ...(await client.value!.getSelfSession()).result,
-          token: account.value!.session.token,
         },
       };
       // If nothing went wrong:
@@ -1112,13 +1134,15 @@ export const userStore = defineStore('user', () => {
     client,
     loading,
     loggedIn,
+    token,
+    hasRehydrated,
     addAccount,
     removeAccount,
     markAccountExpired,
     login,
     logout,
     register,
-    restoreClient,
+    rehydrate,
     switchAccount,
     changeUsername,
     changeEmail,

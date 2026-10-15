@@ -34,47 +34,45 @@
       Edit Extension
     </button>
   </div>
-  <Online>
-    <div class="content-box-container">
-      <template v-if="!file.loading">
-        <template v-if="!file.errored">
-          <template v-if="file.data">
-            <ContentBox
-              :title="filename"
-              :src="fileIcon"
-              :to="fileUrl"
-              theme-safe
-              nowrap
-            >
-              <span class="sb-code-label">
-                <p>Saved on Cumulonimbus as:</p>
-                <code v-text="file.data.id" />
-              </span>
-              <span class="sb-code-label">
-                <p>Uploaded:</p>
-                <code v-text="toDateString(new Date(file.data.createdAt))" />
-              </span>
-              <span class="sb-code-label">
-                <p>Last modified:</p>
-                <code v-text="toDateString(new Date(file.data.updatedAt))" />
-              </span>
-              <span class="sb-code-label">
-                <p>Size:</p>
-                <code v-text="size(file.data.size)" />
-              </span>
-              <p>Click me to open the file in a new tab.</p>
-            </ContentBox>
-          </template>
-          <LoadingMessage spinner v-else />
+  <div class="content-box-container">
+    <template v-if="!file.loading">
+      <template v-if="!file.errored">
+        <template v-if="file.data">
+          <ContentBox
+            :title="filename"
+            :src="fileIcon"
+            :to="fileUrl"
+            theme-safe
+            nowrap
+          >
+            <span class="sb-code-label">
+              <p>Saved on Cumulonimbus as:</p>
+              <code v-text="file.data.id" />
+            </span>
+            <span class="sb-code-label">
+              <p>Uploaded:</p>
+              <code v-text="toDateString(new Date(file.data.createdAt))" />
+            </span>
+            <span class="sb-code-label">
+              <p>Last modified:</p>
+              <code v-text="toDateString(new Date(file.data.updatedAt))" />
+            </span>
+            <span class="sb-code-label">
+              <p>Size:</p>
+              <code v-text="size(file.data.size)" />
+            </span>
+            <p>Click me to open the file in a new tab.</p>
+          </ContentBox>
         </template>
-        <div v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchFile">Retry</button>
-        </div>
+        <LoadingMessage spinner v-else />
       </template>
-      <LoadingMessage spinner v-else />
-    </div>
-  </Online>
+      <div v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchFile">Retry</button>
+      </div>
+    </template>
+    <LoadingMessage spinner v-else />
+  </div>
   <ConfirmModal
     ref="deleteFileModal"
     @submit="deleteFile"
@@ -140,7 +138,10 @@
       />
     </div>
   </FormModal>
-  <FullscreenLoadingMessage ref="fullscreenLoadingMessage" />
+  <FullscreenLoadingMessage ref="fullscreenLoadingMessage">
+    <h1>Downloading {{ filename }}...</h1>
+    <ProgressBar :progress="progress" />
+  </FullscreenLoadingMessage>
 </template>
 
 <script lang="ts" setup>
@@ -151,15 +152,15 @@
   import FormModal from '@/components/FormModal.vue';
   import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Online from '@/components/Online.vue';
+  import ProgressBar from '@/components/ProgressBar.vue';
 
   // In-House Modules
   import backWithFallback from '@/utils/routerBackWithFallback.js';
+  import downloadBlob from '@/utils/downloadBlob.js';
+  import fetchWithProgress from '@/utils/fetchWithProgress.js';
   import fileIcon from '@/assets/images/file.svg';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
   import size from '@/utils/size.js';
   import toDateString from '@/utils/toDateString.js';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
   import { fileStore } from '@/stores/user-space/file.js';
@@ -168,7 +169,7 @@
   import { userStore, cumulonimbusOptions } from '@/stores/user.js';
 
   // External Modules
-  import { ref, onMounted, computed } from 'vue';
+  import { ref, onMounted, computed, watch } from 'vue';
   import { useShare, useClipboard } from '@vueuse/core';
   import { useRouter } from 'vue-router';
 
@@ -177,7 +178,6 @@
     file = fileStore(),
     files = filesStore(),
     router = useRouter(),
-    online = useOnline(),
     fileUrl = computed(() => {
       if (file.data)
         if (import.meta.env.MODE === 'development')
@@ -201,15 +201,12 @@
     editFileExtensionModal = ref<InstanceType<typeof FormModal>>(),
     fullscreenLoadingMessage =
       ref<InstanceType<typeof FullscreenLoadingMessage>>(),
+    progress = ref(0),
     extensionInput = ref<HTMLInputElement>(),
     { isSupported: clipboardIsSupported, copy, copied } = useClipboard(),
     { share, isSupported: shareIsSupported } = useShare();
 
   async function fetchFile() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await file.getFile(
         router.currentRoute.value.query.id as string,
@@ -224,28 +221,16 @@
     }
   }
 
-  onMounted(() =>
-    loadWhenOnline(
-      fetchFile,
-      !file.data || file.data?.id !== router.currentRoute.value.query.id,
-    ),
-  );
+  onMounted(fetchFile);
 
   async function renameFile(data: { filename: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
-      fullscreenLoadingMessage.value!.show();
       const status = await file.editFilename(data.filename);
       if (status) {
         toast.show('File renamed.');
         await files.getFiles(files.page);
-        fullscreenLoadingMessage.value!.hide();
         await renameFileModal.value!.hide();
       }
-      fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -253,10 +238,6 @@
   }
 
   async function deleteFilename() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await file.deleteFilename();
       if (status) {
@@ -264,7 +245,6 @@
         await files.getFiles(files.page);
         await renameFileModal.value!.hide();
       }
-      fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -272,12 +252,7 @@
   }
 
   async function editFileExtension(data: { extension: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
-      fullscreenLoadingMessage.value!.show();
       const status = await file.editFileExtension(data.extension);
       if (status) {
         toast.show('File extension edited.');
@@ -289,7 +264,6 @@
           },
         });
       }
-      fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -301,12 +275,7 @@
       deleteFileModal.value!.hide();
       return;
     }
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
-      fullscreenLoadingMessage.value!.show();
       const status = await file.deleteFile();
       if (status) {
         toast.show('File deleted.');
@@ -315,7 +284,6 @@
         await deleteFileModal.value!.hide();
         await backWithFallback(router, '/dashboard/files', true);
       }
-      fullscreenLoadingMessage.value!.hide();
     } catch (e) {
       console.error(e);
       toast.clientError();
@@ -340,18 +308,36 @@
   }
 
   async function download() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (file.data) {
-      // Download the file as a blob
-      const blob = await (await fetch(fileUrl.value!)).blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.data.name ?? file.data.id;
-      a.click();
+      fullscreenLoadingMessage.value!.show();
+      try {
+        const { progress: downloadProgress, download } = fetchWithProgress(
+          fileUrl.value!,
+        );
+        const stopWatch = watch(downloadProgress, (value) => {
+          progress.value = value;
+        });
+        const { body, response } = await download();
+        if (!response.ok) {
+          switch (response.status) {
+            case 404:
+              toast.show('File has been deleted.');
+              await files.getFiles(files.page);
+              await backWithFallback(router, '/staff/files', true);
+              break;
+            default:
+              toast.show('Failed to download file.');
+              break;
+          }
+        } else {
+          downloadBlob(body, filename.value);
+          stopWatch();
+        }
+        stopWatch();
+      } finally {
+        await fullscreenLoadingMessage.value!.hide();
+        progress.value = 0;
+      }
     }
   }
 </script>

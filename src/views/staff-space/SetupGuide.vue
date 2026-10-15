@@ -21,7 +21,6 @@
       Manage Setup Guide
     </button>
   </div>
-  <Online>
     <div class="content-box-container grow">
       <template v-if="!instruction.loading">
         <template v-if="!instruction.errored">
@@ -29,15 +28,36 @@
             <ContentBox
               v-for="(step, index) in instruction.data.steps"
               :title="`Step ${index + 1}`"
-              :src="infoIcon"
               @click="onInstructionStepClick(index)"
               theme-safe
             >
-              <template v-if="index === 0">
-                <strong> This step gives the setup file. </strong>
+              <template
+                v-if="
+                  step.action ===
+                  Cumulonimbus.InstructionStepActions.DOWNLOAD_CONFIG_FILE
+                "
+              >
+                <strong> This step downloads a setup file. </strong>
                 <br />
               </template>
-              {{ step }}
+              <template
+                v-if="
+                  step.action === Cumulonimbus.InstructionStepActions.OPEN_URL
+                "
+              >
+                <strong> This step opens a URL. </strong>
+                <br />
+              </template>
+              <template
+                v-if="
+                  step.action ===
+                  Cumulonimbus.InstructionStepActions.COPY_TOKEN_TO_CLIPBOARD
+                "
+              >
+                <strong> This step copies the token to the clipboard. </strong>
+                <br />
+              </template>
+              {{ step.content }}
             </ContentBox>
             <ContentBox
               title="Add Step"
@@ -57,7 +77,6 @@
       </template>
       <LoadingMessage spinner v-else />
     </div>
-  </Online>
   <Modal dismissible title="Info" ref="setupGuideInfoModal">
     <template v-if="instruction.data">
       <p>
@@ -88,7 +107,6 @@
       <button @click="deleteSetupGuide">Delete</button>
       <button @click="editDisplayName">Edit Display Name</button>
       <button @click="editDescription">Edit Description</button>
-      <button @click="editFile">Edit File</button>
     </div>
   </Modal>
   <FormModal
@@ -101,24 +119,58 @@
     confirm-button="Save"
   >
     <template v-if="instruction.data && selectedStep > -1">
-      <template v-if="selectedStep === 0">
-        <strong>This step gives the setup file.</strong>
-        <br />
-      </template>
+      <Select
+        v-model="selectedStepAction"
+        name="action"
+        :disabled="instruction.loading"
+        required
+      >
+        <option
+          v-for="option in Object.values(Cumulonimbus.InstructionStepActions)"
+          :key="option"
+          :value="option"
+        >
+          {{ option }}
+        </option>
+      </Select>
       <textarea
-        :value="instruction.data.steps[selectedStep]"
-        :placeholder="`Step ${selectedStep + 1}`"
-        name="stepContent"
+        :value="instruction.data.steps[selectedStep]?.content ?? ''"
+        placeholder="All you have to do is..."
+        name="content"
         autocomplete="off"
         :disabled="instruction.loading"
         required
       />
+      <template
+        v-if="
+          selectedStepAction ===
+          Cumulonimbus.InstructionStepActions.DOWNLOAD_CONFIG_FILE
+        "
+      >
+        <button @click="editFile" type="button">Edit Config File</button>
+      </template>
+      <template
+        v-else-if="
+          selectedStepAction === Cumulonimbus.InstructionStepActions.OPEN_URL
+        "
+      >
+        <input
+          name="url"
+          type="url"
+          required
+          :value="instruction.data.steps[selectedStep]?.url ?? ''"
+          placeholder="URL to Open"
+        />
+      </template>
     </template>
     <LoadingMessage spinner v-else />
     <template #additional-buttons>
       <button
         @click="deleteStep"
-        :disabled="instruction.data?.steps[selectedStep] === undefined"
+        :disabled="
+          instruction.data?.steps[selectedStep] === undefined ||
+          instruction.loading
+        "
       >
         Delete Step
       </button>
@@ -174,15 +226,14 @@
     deny-button="Cancel"
     confirm-button="Save"
   >
-    <strong>Leave blank to specify clipboard content.</strong>
-    <br />
     <input
       type="text"
-      name="filename"
-      :value="instruction.data?.filename"
+      name="name"
+      :value="selectedStepFileData?.name ?? ''"
       placeholder="Filename"
       autocomplete="off"
       :disabled="instruction.loading"
+      required
     />
     <br />
     <br />
@@ -192,7 +243,7 @@
     <br />
     <textarea
       name="content"
-      :value="instruction.data?.content"
+      :value="selectedStepFileData?.content ?? ''"
       placeholder="File Content"
       autocomplete="off"
       :disabled="instruction.loading"
@@ -210,15 +261,14 @@
   import FormModal from '@/components/FormModal.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
   import Modal from '@/components/Modal.vue';
-  import Online from '@/components/Online.vue';
+  import Select from '@/components/Select.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import backWithFallback from '@/utils/routerBackWithFallback.js';
-  import infoIcon from '@/assets/images/info.svg';
+  import Cumulonimbus from 'cumulonimbus-wrapper';
   import plusIcon from '@/assets/images/plus.svg';
   import toDateString from '@/utils/toDateString.js';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
   import { instructionStore } from '@/stores/staff-space/instruction.js';
@@ -226,12 +276,10 @@
   import { toastStore } from '@/stores/toast.js';
 
   // External Modules
-  import { ref, watch, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
+  import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
 
-  const online = useOnline(),
-    router = useRouter(),
+  const router = useRouter(),
     toast = toastStore(),
     instruction = instructionStore(),
     instructions = instructionsStore(),
@@ -242,13 +290,13 @@
     editDisplayNameModal = ref<InstanceType<typeof FormModal>>(),
     editDescriptionModal = ref<InstanceType<typeof FormModal>>(),
     editFileModal = ref<InstanceType<typeof FormModal>>(),
-    selectedStep = ref<number>(-1);
+    selectedStep = ref<number>(-1),
+    selectedStepAction = ref<Cumulonimbus.InstructionStepActions>(
+      Cumulonimbus.InstructionStepActions.NOOP,
+    ),
+    selectedStepFileData = ref<Cumulonimbus.Data.InstructionFile | null>(null);
 
   async function fetchInstruction() {
-    if (!online) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       await instruction.getInstruction(
         router.currentRoute.value.query.id as string,
@@ -259,30 +307,35 @@
     }
   }
 
-  onMounted(async () =>
-    loadWhenOnline(
-      fetchInstruction,
-      !instruction.data ||
-        instruction.data.name !== router.currentRoute.value.query.id,
-    ),
-  );
+  onMounted(fetchInstruction);
 
   function onInstructionStepClick(index: number) {
     selectedStep.value = index;
+    selectedStepAction.value =
+      instruction.data!.steps[index]?.action ??
+      Cumulonimbus.InstructionStepActions.NOOP;
+    selectedStepFileData.value = instruction.data!.steps[index]?.file ?? null;
     editStepModal.value!.show();
   }
 
   function cancelEditStep() {
     selectedStep.value = -1;
+    selectedStepAction.value = Cumulonimbus.InstructionStepActions.NOOP;
+    selectedStepFileData.value = null;
   }
 
-  async function editStep(data: { stepContent: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+  async function editStep(data: {
+    content: string;
+    action: Cumulonimbus.InstructionStepActions;
+    url?: string;
+  }) {
     const steps = instruction.data!.steps;
-    steps[selectedStep.value] = data.stepContent;
+    steps[selectedStep.value] = {
+      content: data.content,
+      action: selectedStepAction.value,
+      file: selectedStepFileData.value ?? undefined,
+      url: data.url,
+    };
     try {
       const status = await instruction.updateInstructionSteps(steps);
       if (status) {
@@ -297,10 +350,6 @@
   }
 
   async function deleteStep() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     const steps = instruction.data!.steps;
     steps.splice(selectedStep.value, 1);
     try {
@@ -332,15 +381,11 @@
   }
 
   async function editFile() {
-    await manageSetupGuideModal.value!.hide();
+    await editStepModal.value!.hide();
     await editFileModal.value!.show();
   }
 
   async function confirmDeleteSetupGuide(choice: boolean) {
-    if (!online) {
-      toast.connectivityOffline();
-      return;
-    }
     if (!choice) {
       deleteSetupGuideModal.value!.hide();
       return;
@@ -360,10 +405,6 @@
   }
 
   async function onEditDisplayName(data: { name: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await instruction.updateInstructionDisplayName(data.name);
       if (status) {
@@ -377,10 +418,6 @@
   }
 
   async function onEditDescription(data: { description: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await instruction.updateInstructionDescription(
         data.description,
@@ -395,20 +432,14 @@
     }
   }
 
-  async function onEditFile(data: { filename: string; content: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
+  async function onEditFile(data: { name: string; content: string }) {
     try {
-      const status = await instruction.updateInstructionFile(
-        data.content,
-        data.filename,
+      selectedStepFileData.value = data;
+      toast.show(
+        'Step file saved to memory, changes will be submitted when you save the step.',
       );
-      if (status) {
-        toast.show('File updated successfully.');
-        editFileModal.value!.hide();
-      }
+      await editFileModal.value!.hide();
+      await editStepModal.value!.show();
     } catch (e) {
       console.error(e);
       toast.clientError();

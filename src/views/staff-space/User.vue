@@ -5,242 +5,240 @@
     <BackButton fallback="/staff/users" />
   </div>
 
-  <Online>
-    <template v-if="!!otherUser && !otherUser.loading && !!otherUser.data">
-      <template v-if="!otherUser.errored">
-        <div class="content-box-container">
-          <ContentBox
-            :title="otherUser.data.username"
-            nowrap
-            theme-safe
-            :src="profileIcon"
-          >
-            <span class="sb-code-label">
-              <p>ID:</p>
-              <code v-text="otherUser.data.id" />
-            </span>
-            <span class="sb-code-label">
-              <p>Email:</p>
-              <code v-text="otherUser.data.email" />
-            </span>
-            <span class="sb-code-label">
-              <p>Verified:</p>
-              <code
-                v-text="
-                  otherUser.data!.verifiedAt
-                    ? toDateString(new Date(otherUser.data!.verifiedAt))
-                    : 'Not yet...'
-                "
-              />
-            </span>
-            <span class="sb-code-label">
-              <p>Domain:</p>
-              <code v-text="domain" />
-            </span>
-            <span class="sb-code-label">
-              <p>Created:</p>
-              <code v-text="toDateString(new Date(otherUser.data.createdAt))" />
-            </span>
-            <span class="sb-code-label">
-              <p>Updated:</p>
-              <code v-text="toDateString(new Date(otherUser.data.updatedAt))" />
-            </span>
-            <span class="sb-code-label">
-              <p>Banned:</p>
-              <code
-                v-text="
-                  otherUser.data!.bannedAt
-                    ? toDateString(new Date(otherUser.data!.bannedAt))
-                    : 'Not yet...'
-                "
-              />
-            </span>
-            <span class="sb-code-label">
-              <p>Staff:</p>
-              <code v-text="otherUser.data.staff ? 'Yes' : 'No'" />
-            </span>
-          </ContentBox>
-        </div>
-        <Separator />
-        <h1 title="These actions require no additional verification from you.">
-          Quick Settings
-        </h1>
-        <div class="content-box-container">
-          <ContentBox
-            title="View User's Files"
-            :src="fileIcon"
-            theme-safe
-            :to="`/staff/files?user=${otherUser.data.id}`"
-          >
-            <p>
-              View <code>{{ otherUser.data.username }}</code
-              >'s files.
-            </p>
-          </ContentBox>
-          <ContentBox
-            v-if="!otherUser.data!.verifiedAt"
-            title="Resend Verification Email"
-            :src="gearIcon"
-            theme-safe
-            @click="resendVerificationEmailModal!.show()"
-          >
-            <p>
-              Resend <code>{{ otherUser.data.username }}</code> a verification
-              email.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Change Domain"
-            :src="gearIcon"
-            theme-safe
-            @click="changeDomainModal!.show()"
-          >
-            <p>
-              Change <code>{{ otherUser.data.username }}</code
-              >'s domain.
-            </p>
-          </ContentBox>
-        </div>
-        <Separator />
-        <h1 title="These actions require your password for verification.">
-          Account Management
-        </h1>
-        <div class="content-box-container">
-          <ContentBox
-            title="Change Username"
-            :src="gearIcon"
-            theme-safe
-            @click="changeUsernameModal!.show()"
-          >
-            <p>
-              Change <code>{{ otherUser.data.username }}</code
-              >'s username.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Change Email"
-            :src="gearIcon"
-            theme-safe
-            @click="changeEmailModal!.show()"
-          >
-            <p>
-              Change <code>{{ otherUser.data.username }}</code
-              >'s email.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Toggle Verified Status"
-            :src="gearIcon"
-            theme-safe
-            @click="changeVerifiedModal!.show()"
-          >
-            <p>
-              Toggle <code>{{ otherUser.data.username }}</code
-              >'s verified status.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Change Password"
-            :src="gearIcon"
-            theme-safe
-            @click="changePasswordModal!.show()"
-          >
-            <p>
-              Change <code>{{ otherUser.data.username }}</code
-              >'s password.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Change Staff Status"
-            :src="gearIcon"
-            theme-safe
-            @click="changeStaffModal!.show()"
-          >
-            <p>
-              Change <code>{{ otherUser.data.username }}</code
-              >'s staff status.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Change Ban Status"
-            :src="gearIcon"
-            theme-safe
-            @click="changeBanModal!.show()"
-          >
-            <p>
-              Change <code>{{ otherUser.data.username }}</code
-              >'s ban status.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Manage User Sessions"
-            :src="gearIcon"
-            theme-safe
-            :to="`/staff/user/sessions?id=${otherUser.data.id}`"
-          >
-            <p>
-              Manage <code>{{ otherUser.data.username }}</code
-              >'s sessions.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Manage User Second Factors"
-            :src="gearIcon"
-            theme-safe
-            :to="`/staff/user/second-factors?id=${otherUser.data.id}`"
-          >
-            <p>
-              Manage <code>{{ otherUser.data.username }}</code
-              >'s second factors.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Sign User Out Everywhere"
-            :src="gearIcon"
-            theme-safe
-            @click="signOutModal!.show()"
-          >
-            <p>
-              Sign <code>{{ otherUser.data.username }}</code> out everywhere.
-            </p>
-          </ContentBox>
-        </div>
-        <Separator />
-        <h1 title="These actions can permanently delete user data, be careful!">
-          Danger Zone
-        </h1>
-        <div class="content-box-container">
-          <ContentBox
-            title="Delete User Files"
-            :src="gearIcon"
-            theme-safe
-            @click="deleteUserFilesModal!.show()"
-          >
-            <p>
-              Delete <code>{{ otherUser.data.username }}</code
-              >'s files.
-            </p>
-          </ContentBox>
-          <ContentBox
-            title="Delete User"
-            :src="gearIcon"
-            theme-safe
-            @click="deleteUserModal!.show()"
-          >
-            <p>
-              Delete <code>{{ otherUser.data.username }}</code
-              >'s account.
-            </p>
-          </ContentBox>
-        </div>
-      </template>
-      <div v-else>
-        <h1>Something went wrong.</h1>
-        <button @click="fetchUser">Retry</button>
+  <template v-if="!!otherUser && !otherUser.loading && !!otherUser.data">
+    <template v-if="!otherUser.errored">
+      <div class="content-box-container">
+        <ContentBox
+          :title="otherUser.data.username"
+          nowrap
+          theme-safe
+          :src="profileIcon"
+        >
+          <span class="sb-code-label">
+            <p>ID:</p>
+            <code v-text="otherUser.data.id" />
+          </span>
+          <span class="sb-code-label">
+            <p>Email:</p>
+            <code v-text="otherUser.data.email" />
+          </span>
+          <span class="sb-code-label">
+            <p>Verified:</p>
+            <code
+              v-text="
+                otherUser.data!.verifiedAt
+                  ? toDateString(new Date(otherUser.data!.verifiedAt))
+                  : 'Not yet...'
+              "
+            />
+          </span>
+          <span class="sb-code-label">
+            <p>Domain:</p>
+            <code v-text="domain" />
+          </span>
+          <span class="sb-code-label">
+            <p>Created:</p>
+            <code v-text="toDateString(new Date(otherUser.data.createdAt))" />
+          </span>
+          <span class="sb-code-label">
+            <p>Updated:</p>
+            <code v-text="toDateString(new Date(otherUser.data.updatedAt))" />
+          </span>
+          <span class="sb-code-label">
+            <p>Banned:</p>
+            <code
+              v-text="
+                otherUser.data!.bannedAt
+                  ? toDateString(new Date(otherUser.data!.bannedAt))
+                  : 'Not yet...'
+              "
+            />
+          </span>
+          <span class="sb-code-label">
+            <p>Staff:</p>
+            <code v-text="otherUser.data.staff ? 'Yes' : 'No'" />
+          </span>
+        </ContentBox>
+      </div>
+      <Separator />
+      <h1 title="These actions require no additional verification from you.">
+        Quick Settings
+      </h1>
+      <div class="content-box-container">
+        <ContentBox
+          title="View User's Files"
+          :src="fileIcon"
+          theme-safe
+          :to="`/staff/files?user=${otherUser.data.id}`"
+        >
+          <p>
+            View <code>{{ otherUser.data.username }}</code
+            >'s files.
+          </p>
+        </ContentBox>
+        <ContentBox
+          v-if="!otherUser.data!.verifiedAt"
+          title="Resend Verification Email"
+          :src="gearIcon"
+          theme-safe
+          @click="resendVerificationEmailModal!.show()"
+        >
+          <p>
+            Resend <code>{{ otherUser.data.username }}</code> a verification
+            email.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Change Domain"
+          :src="gearIcon"
+          theme-safe
+          @click="changeDomainModal!.show()"
+        >
+          <p>
+            Change <code>{{ otherUser.data.username }}</code
+            >'s domain.
+          </p>
+        </ContentBox>
+      </div>
+      <Separator />
+      <h1 title="These actions require your password for verification.">
+        Account Management
+      </h1>
+      <div class="content-box-container">
+        <ContentBox
+          title="Change Username"
+          :src="gearIcon"
+          theme-safe
+          @click="changeUsernameModal!.show()"
+        >
+          <p>
+            Change <code>{{ otherUser.data.username }}</code
+            >'s username.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Change Email"
+          :src="gearIcon"
+          theme-safe
+          @click="changeEmailModal!.show()"
+        >
+          <p>
+            Change <code>{{ otherUser.data.username }}</code
+            >'s email.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Toggle Verified Status"
+          :src="gearIcon"
+          theme-safe
+          @click="changeVerifiedModal!.show()"
+        >
+          <p>
+            Toggle <code>{{ otherUser.data.username }}</code
+            >'s verified status.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Change Password"
+          :src="gearIcon"
+          theme-safe
+          @click="changePasswordModal!.show()"
+        >
+          <p>
+            Change <code>{{ otherUser.data.username }}</code
+            >'s password.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Change Staff Status"
+          :src="gearIcon"
+          theme-safe
+          @click="changeStaffModal!.show()"
+        >
+          <p>
+            Change <code>{{ otherUser.data.username }}</code
+            >'s staff status.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Change Ban Status"
+          :src="gearIcon"
+          theme-safe
+          @click="changeBanModal!.show()"
+        >
+          <p>
+            Change <code>{{ otherUser.data.username }}</code
+            >'s ban status.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Manage User Sessions"
+          :src="gearIcon"
+          theme-safe
+          :to="`/staff/user/sessions?id=${otherUser.data.id}`"
+        >
+          <p>
+            Manage <code>{{ otherUser.data.username }}</code
+            >'s sessions.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Manage User Second Factors"
+          :src="gearIcon"
+          theme-safe
+          :to="`/staff/user/second-factors?id=${otherUser.data.id}`"
+        >
+          <p>
+            Manage <code>{{ otherUser.data.username }}</code
+            >'s second factors.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Sign User Out Everywhere"
+          :src="gearIcon"
+          theme-safe
+          @click="signOutModal!.show()"
+        >
+          <p>
+            Sign <code>{{ otherUser.data.username }}</code> out everywhere.
+          </p>
+        </ContentBox>
+      </div>
+      <Separator />
+      <h1 title="These actions can permanently delete user data, be careful!">
+        Danger Zone
+      </h1>
+      <div class="content-box-container">
+        <ContentBox
+          title="Delete User Files"
+          :src="gearIcon"
+          theme-safe
+          @click="deleteUserFilesModal!.show()"
+        >
+          <p>
+            Delete <code>{{ otherUser.data.username }}</code
+            >'s files.
+          </p>
+        </ContentBox>
+        <ContentBox
+          title="Delete User"
+          :src="gearIcon"
+          theme-safe
+          @click="deleteUserModal!.show()"
+        >
+          <p>
+            Delete <code>{{ otherUser.data.username }}</code
+            >'s account.
+          </p>
+        </ContentBox>
       </div>
     </template>
-    <LoadingMessage spinner v-else />
-  </Online>
+    <div v-else>
+      <h1>Something went wrong.</h1>
+      <button @click="fetchUser">Retry</button>
+    </div>
+  </template>
+  <LoadingMessage spinner v-else />
   <FormModal
     ref="changeUsernameModal"
     title="Change Username"
@@ -555,7 +553,6 @@
   import DomainModal from '@/components/DomainModal.vue';
   import FormModal from '@/components/FormModal.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Online from '@/components/Online.vue';
   import Separator from '@/components/Separator.vue';
 
   // In-House Modules
@@ -564,7 +561,6 @@
   import fileIcon from '@/assets/images/file.svg';
   import gearIcon from '@/assets/images/gear.svg';
   import toDateString from '@/utils/toDateString.js';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
   import { userStore } from '@/stores/user.js';
@@ -574,7 +570,6 @@
 
   // External Modules
   import { ref, computed, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const user = userStore(),
@@ -582,7 +577,6 @@
     otherUser = otherUserStore(),
     router = useRouter(),
     toast = toastStore(),
-    online = useOnline(),
     changeUsernameModal = ref<InstanceType<typeof FormModal>>(),
     changeEmailModal = ref<InstanceType<typeof FormModal>>(),
     changeVerifiedModal = ref<InstanceType<typeof FormModal>>(),
@@ -603,19 +597,9 @@
       : '',
   );
 
-  onMounted(async () =>
-    loadWhenOnline(
-      fetchUser,
-      !otherUser.data ||
-        otherUser.data.id !== router.currentRoute.value.query.id,
-    ),
-  );
+  onMounted(fetchUser);
 
   async function fetchUser() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       await otherUser.getUser(router.currentRoute.value.query.id as string);
     } catch (error) {
@@ -631,10 +615,6 @@
     username: string;
     password: string;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await otherUser.updateUsername(username, password);
       if (status) {
@@ -654,10 +634,6 @@
     email: string;
     password: string;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await otherUser.updateEmail(email, password);
       if (status) {
@@ -671,10 +647,6 @@
   }
 
   async function updateVerified({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = otherUser.data?.verifiedAt
         ? await otherUser.unverifyEmail(password)
@@ -690,10 +662,6 @@
   }
 
   async function resendVerificationEmail(choice: boolean) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (!choice) {
       resendVerificationEmailModal.value!.hide();
       return;
@@ -719,11 +687,6 @@
     newPassword: string;
     confirmNewPassword: string;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-
     if (newPassword !== confirmNewPassword) {
       toast.show('New passwords do not match.');
       return;
@@ -742,10 +705,6 @@
   }
 
   async function updateDomain(data: { domain: string; subdomain?: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await otherUser.updateDomain(data.domain, data.subdomain);
       if (status) {
@@ -759,10 +718,6 @@
   }
 
   async function updateStaff({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = otherUser.data?.staff
         ? await otherUser.revokeStaff(password)
@@ -786,10 +741,6 @@
     reason: string;
     password: string;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = otherUser.data?.bannedAt
         ? await otherUser.unbanUser(password)
@@ -805,10 +756,6 @@
   }
 
   async function signOut({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await otherUser.deleteAllSessions(password);
       if (status > -1) {
@@ -822,10 +769,6 @@
   }
 
   async function deleteUserFiles({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await otherUser.deleteAllFiles(password);
       if (status > -1) {
@@ -839,10 +782,6 @@
   }
 
   async function deleteUser({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await otherUser.deleteUser(password);
       if (status) {

@@ -155,10 +155,13 @@
             await wait(1000);
             await loadImage(tryCount + 1);
             break;
+          case 502:
           default:
             previewFailed.value = true;
             break;
         }
+      } else {
+        previewFailed.value = true;
       }
     }
   }

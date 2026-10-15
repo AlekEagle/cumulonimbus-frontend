@@ -1,6 +1,6 @@
 <template>
   <h1>Staff Dashboard</h1>
-  <h2>Welcome, {{ user.account!.user.username }}!</h2>
+  <h2>Welcome, {{ user.account?.user.username ?? 'loading' }}!</h2>
   <div class="quick-action-buttons-container">
     <RouterButton to="/dashboard" title="Go to User Dashboard">
       User Dashboard

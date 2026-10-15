@@ -28,43 +28,41 @@
     v-model="page"
     @page-change="fetchSessions"
     :item-count="sessions.data?.count || 0"
-    :disabled="sessions.loading || !online"
+    :disabled="sessions.loading"
   >
-    <Online>
-      <template v-if="!sessions.loading">
-        <template v-if="!sessions.errored">
-          <div
-            v-if="sessions.data && sessions.data.count > 0"
-            class="content-box-container grow"
+    <template v-if="!sessions.loading">
+      <template v-if="!sessions.errored">
+        <div
+          v-if="sessions.data && sessions.data.count > 0"
+          class="content-box-container grow"
+        >
+          <SelectableContentBox
+            v-for="session in sessions.data.items"
+            :title="session.name"
+            :selecting="selecting"
+            :src="infoIcon"
+            theme-safe
+            :selected="selected.includes(session.id + '')"
+            @click="onSessionClick(session)"
           >
-            <SelectableContentBox
-              v-for="session in sessions.data.items"
-              :title="session.name"
-              :selecting="selecting"
-              :src="infoIcon"
-              theme-safe
-              :selected="selected.includes(session.id + '')"
-              @click="onSessionClick(session)"
+            <strong v-if="session.id === user.account?.session.id"
+              >This Session!</strong
             >
-              <strong v-if="session.id === user.account?.session.id"
-                >This Session!</strong
-              >
-              <br v-if="session.id === user.account?.session.id" />
-              Click me to manage this session.
-            </SelectableContentBox>
-          </div>
-          <div v-else class="no-content-container">
-            <h1>This should not ever be seen.</h1>
-            <h2>I am horribly broken.</h2>
-          </div>
-        </template>
-        <div class="no-content-container" v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchSessions">Retry</button>
+            <br v-if="session.id === user.account?.session.id" />
+            Click me to manage this session.
+          </SelectableContentBox>
+        </div>
+        <div v-else class="no-content-container">
+          <h1>This should not ever be seen.</h1>
+          <h2>I am horribly broken.</h2>
         </div>
       </template>
-      <SkeletonContentBoxes v-else />
-    </Online>
+      <div class="no-content-container" v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchSessions">Retry</button>
+      </div>
+    </template>
+    <SkeletonContentBoxes v-else />
   </Paginator>
   <ConfirmModal
     ref="confirmDeleteModal"
@@ -484,7 +482,6 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
@@ -496,7 +493,6 @@
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
   import toDateString from '@/utils/toDateString.js';
   import { useFuzzyTimeString } from '@/utils/time.js';
   import toLogin from '@/utils/toLogin.js';
@@ -509,7 +505,6 @@
   // External Modules
   import { ref, onMounted, computed } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useClipboard } from '@vueuse/core';
 
   const confirmDeleteModal = ref<InstanceType<typeof ConfirmModal>>(),
@@ -519,7 +514,6 @@
     renameSessionModal = ref<InstanceType<typeof FormModal>>(),
     registerSessionModal = ref<InstanceType<typeof FormModal>>(),
     scopedSessionTokenModal = ref<InstanceType<typeof Modal>>(),
-    online = useOnline(),
     page = ref(0),
     selected = ref<string[]>([]),
     selectedSession = ref<Cumulonimbus.Data.Session | null>(null),
@@ -565,10 +559,6 @@
     staffSecondFactorsSwitch = ref<InstanceType<typeof Switch>>();
 
   async function fetchSessions() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     window.scrollTo(0, 0);
     try {
       await sessions.getSessions(page.value);
@@ -578,7 +568,9 @@
     }
   }
 
-  async function onSessionClick(session: Pick<Cumulonimbus.Data.Session, 'id' | 'name'>) {
+  async function onSessionClick(
+    session: Pick<Cumulonimbus.Data.Session, 'id' | 'name'>,
+  ) {
     if (selecting.value) {
       if (selected.value.includes(session.id + '')) {
         selected.value = selected.value.filter((id) => id !== session.id + '');
@@ -600,12 +592,7 @@
     }
   }
 
-  onMounted(() =>
-    loadWhenOnline(
-      fetchSessions,
-      !sessions.data || sessions.page !== page.value,
-    ),
-  );
+  onMounted(fetchSessions);
 
   async function onManageSessionChoice(choice: boolean) {
     if (choice) {
@@ -632,10 +619,6 @@
   }
 
   async function onDeleteSessionsChoice(choice: boolean) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (!choice) {
       await confirmDeleteModal.value!.hide();
       selected.value = [];
@@ -669,11 +652,6 @@
   }
 
   async function onRenameSession(newName: { name: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-
     if (!selectedSession.value) {
       toast.show('No session selected.');
       return;
@@ -702,11 +680,6 @@
   }
 
   async function registerSession(fart: any) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-
     // Iterate over the switches and build the permissions bitmask
     let permissions = 0;
     theLoop: for (const sw of Object.entries(fart)) {

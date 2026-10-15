@@ -7,24 +7,21 @@
   </div>
 
   <EmphasizedBox>
-    <Online>
-      <template v-if="killSwitches.data">
-        <Switch
-          v-for="sw in killSwitches.data.items"
-          :title="`Endpoints guarded by ${sw.name} are ${
-            sw.state ? 'not' : 'currently'
-          } available.`"
-          @defer="
-            (event, cancelDefer) =>
-              handleKillSwitchToggle(sw, event, cancelDefer)
-          "
-          :checked="!sw.state"
-        >
-          {{ sw.name }}
-        </Switch>
-      </template>
-      <LoadingMessage spinner v-else />
-    </Online>
+    <template v-if="killSwitches.data">
+      <Switch
+        v-for="sw in killSwitches.data.items"
+        :title="`Endpoints guarded by ${sw.name} are ${
+          sw.state ? 'not' : 'currently'
+        } available.`"
+        @defer="
+          (event, cancelDefer) => handleKillSwitchToggle(sw, event, cancelDefer)
+        "
+        :checked="!sw.state"
+      >
+        {{ sw.name }}
+      </Switch>
+    </template>
+    <LoadingMessage spinner v-else />
   </EmphasizedBox>
 
   <FormModal
@@ -80,13 +77,11 @@
   import BackButton from '@/components/BackButton.vue';
   import FormModal from '@/components/FormModal.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Online from '@/components/Online.vue';
   import Switch from '@/components/Switch.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
   import { killSwitchesStore } from '@/stores/staff-space/killswitches.js';
@@ -94,10 +89,8 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const killSwitches = killSwitchesStore(),
-    online = useOnline(),
     toast = toastStore(),
     selectedKillSwitch = ref<Cumulonimbus.Data.KillSwitch | null>(null),
     cancelDeferFunc = ref<() => void>(),
@@ -105,10 +98,6 @@
     restoreModal = ref<InstanceType<typeof FormModal>>();
 
   async function fetchKillSwitchesState() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       await killSwitches.getKillSwitches();
     } catch (e) {
@@ -117,9 +106,7 @@
     }
   }
 
-  onMounted(async () => {
-    loadWhenOnline(fetchKillSwitchesState, !killSwitches.data);
-  });
+  onMounted(fetchKillSwitchesState);
 
   async function handleKillSwitchToggle(
     killSwitch: Cumulonimbus.Data.KillSwitch,
@@ -132,11 +119,6 @@
   }
 
   async function commitKillSwitchToggle({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      cancelKillSwitchToggle();
-      return;
-    }
     if (!selectedKillSwitch.value) {
       toast.clientError();
       cancelKillSwitchToggle();
@@ -172,10 +154,6 @@
   }
 
   async function disableAllKillSwitches({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       if (await killSwitches.disableAllKillSwitches(password)) {
         toast.show(

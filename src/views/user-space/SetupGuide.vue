@@ -4,29 +4,27 @@
   <div class="quick-action-buttons-container">
     <BackButton fallback="/dashboard/setup-guides" />
   </div>
-  <Online>
-    <div class="content-box-container grow" v-if="instruction.data">
-      <template v-if="!instruction.loading">
-        <template v-if="!instruction.errored">
-          <template v-if="instruction.data">
-            <ContentBox
-              v-for="(step, index) in instruction.data.steps"
-              :title="`Step ${index + 1}`"
-              @click="index === 0 ? getSetupFile() : undefined"
-            >
-              {{ step }}
-            </ContentBox>
-          </template>
-          <LoadingMessage spinner v-else />
+  <div class="content-box-container grow" v-if="instruction.data">
+    <template v-if="!instruction.loading">
+      <template v-if="!instruction.errored">
+        <template v-if="instruction.data">
+          <ContentBox
+            v-for="(step, index) in instruction.data.steps"
+            :title="`Step ${index + 1}`"
+            @click="stepClick(index)"
+          >
+            {{ step.content }}
+          </ContentBox>
         </template>
-        <div v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchInstruction">Retry</button>
-        </div>
+        <LoadingMessage spinner v-else />
       </template>
-      <LoadingMessage spinner v-else />
-    </div>
-  </Online>
+      <div v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchInstruction">Retry</button>
+      </div>
+    </template>
+    <LoadingMessage spinner v-else />
+  </div>
   <FormModal
     title="Verify Your Identity"
     ref="verifyIdentityModal"
@@ -34,40 +32,38 @@
     @submit="verifyIdentity"
     :disabled="processing"
   >
-    <Online>
-      <p>Please login again to verify your identity.</p>
-      <p>
-        Name what your new
-        {{ instruction.data ? instruction.data.name : 'thing' }}
-        will be called.
-      </p>
-      <input
-        type="text"
-        :placeholder="`${
-          instruction.data ? instruction.data.name : 'thing'
-        } on ${OS}`"
-        autocomplete="off"
-        name="name"
-        required
-        :disabled="processing"
-      />
-      <br />
-      <input
-        hidden
-        type="text"
-        autocomplete="username"
-        name="username"
-        :value="user.account?.user.username"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        autocomplete="current-password"
-        name="password"
-        required
-        :disabled="processing"
-      />
-    </Online>
+    <p>Please login again to verify your identity.</p>
+    <p>
+      Name what your new
+      {{ instruction.data ? instruction.data.name : 'thing' }}
+      will be called.
+    </p>
+    <input
+      type="text"
+      :placeholder="`${
+        instruction.data ? instruction.data.name : 'thing'
+      } on ${OS}`"
+      autocomplete="off"
+      name="name"
+      required
+      :disabled="processing"
+    />
+    <br />
+    <input
+      hidden
+      type="text"
+      autocomplete="username"
+      name="username"
+      :value="user.account?.user.username"
+    />
+    <input
+      type="password"
+      placeholder="Password"
+      autocomplete="current-password"
+      name="password"
+      required
+      :disabled="processing"
+    />
   </FormModal>
 </template>
 
@@ -77,13 +73,11 @@
   import ContentBox from '@/components/ContentBox.vue';
   import FormModal from '@/components/FormModal.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Online from '@/components/Online.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import backWithFallback from '@/utils/routerBackWithFallback.js';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
+  import downloadBlob from '@/utils/downloadBlob.js';
 
   // Store Modules
   import { instructionStore } from '@/stores/user-space/instruction.js';
@@ -100,7 +94,6 @@
     user = userStore(),
     toast = toastStore(),
     router = useRouter(),
-    online = useOnline(),
     sessions = sessionsStore(),
     { copy } = useClipboard(),
     session = ref<string>(),
@@ -113,10 +106,6 @@
     );
 
   async function fetchInstruction() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await instruction.getInstruction(
         router.currentRoute.value.query.id as string,
@@ -133,11 +122,7 @@
   onMounted(() => {
     verifyIdentityModal.value!.show();
 
-    loadWhenOnline(
-      fetchInstruction,
-      !instruction.data ||
-        instruction.data?.name !== router.currentRoute.value.query.id,
-    );
+    fetchInstruction();
   });
 
   async function cancelVerify() {
@@ -145,33 +130,45 @@
     backWithFallback(router, '/dashboard/setup-guides', true);
   }
 
-  async function getSetupFile() {
-    if (!instruction.data) return;
-    const setupFileData = instruction.data.content.replace(
-      '{{token}}',
-      session.value!,
-    );
-    if (instruction.data.filename) {
-      // generate a new setup file and download it
-      const blob = new Blob([setupFileData], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = instruction.data.filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      // if it's not a file, just copy the fileData to the clipboard
-      copy(setupFileData);
-      toast.show('Copied to clipboard.');
+  async function stepClick(index: number) {
+    const step = instruction.data?.steps[index];
+
+    if (!step) {
+      toast.clientError();
+      return;
+    }
+
+    switch (step?.action) {
+      case Cumulonimbus.InstructionStepActions.COPY_TOKEN_TO_CLIPBOARD:
+        copy(session.value!);
+        toast.show('Copied to clipboard.');
+        break;
+      case Cumulonimbus.InstructionStepActions.DOWNLOAD_CONFIG_FILE:
+        await getSetupFile(step);
+        break;
+      case Cumulonimbus.InstructionStepActions.OPEN_URL:
+        window.open(step.url, '_blank');
+        break;
+      case Cumulonimbus.InstructionStepActions.NOOP:
+      default:
+        break;
     }
   }
 
-  async function verifyIdentity(data: { name: string; password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
+  async function getSetupFile(step: Cumulonimbus.Data.InstructionStep) {
+    if (!step.file) {
+      toast.clientError();
       return;
     }
+
+    const setupFileData = step.file.content.replace(
+      '{{token}}',
+      session.value!,
+    );
+    downloadBlob(setupFileData, step.file.name, 'text/plain');
+  }
+
+  async function verifyIdentity(data: { name: string; password: string }) {
     processing.value = true;
     try {
       const status = await sessions.createScopedSession(

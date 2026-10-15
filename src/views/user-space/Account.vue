@@ -67,110 +67,105 @@
       </ContentBox>
     </div>
     <Separator />
-    <template v-if="online">
-      <h1>Quick Settings</h1>
-      <div class="content-box-container">
-        <ContentBox
-          title="Display Preferences"
-          :src="gearIcon"
-          theme-safe
-          @click="displayPrefsModal!.show()"
-        >
-          Change your display preferences.
-        </ContentBox>
-        <ContentBox
-          title="Update Domain"
-          :src="gearIcon"
-          theme-safe
-          @click="domainModal!.show()"
-        >
-          Update your domain selection.
-        </ContentBox>
-      </div>
-      <Separator />
-      <h1>Account Management</h1>
-      <div class="content-box-container">
-        <ContentBox
-          title="Update Username"
-          :src="gearIcon"
-          theme-safe
-          @click="usernameFormModal!.show()"
-        >
-          Update your username.
-        </ContentBox>
-        <ContentBox
-          title="Update Email"
-          :src="gearIcon"
-          theme-safe
-          @click="emailFormModal!.show()"
-        >
-          Update your email.
-        </ContentBox>
-        <ContentBox
-          v-if="!user.account!.user.verifiedAt"
-          title="Resend Verification Email"
-          :src="gearIcon"
-          theme-safe
-          @click="resendVerificationEmailModal!.show()"
-        >
-          Resend your verification email.
-        </ContentBox>
-        <ContentBox
-          title="Update Password"
-          :src="gearIcon"
-          theme-safe
-          @click="passwordFormModal!.show()"
-        >
-          Update your password.
-        </ContentBox>
-        <ContentBox
-          title="Manage Second Factors"
-          :src="gearIcon"
-          theme-safe
-          to="/dashboard/account/second-factors"
-        >
-          Manage your second factors.
-        </ContentBox>
-        <ContentBox
-          title="Manage Signed In Devices"
-          :src="gearIcon"
-          theme-safe
-          to="/dashboard/account/sessions"
-        >
-          Manage your signed in devices.
-        </ContentBox>
-        <ContentBox
-          title="Sign Out Everywhere"
-          :src="gearIcon"
-          theme-safe
-          @click="deleteSessionsModal!.show()"
-        >
-          Signing out everywhere can help keep your account safe.
-        </ContentBox>
-      </div>
-      <Separator />
-      <h1>Danger Zone</h1>
-      <div class="content-box-container">
-        <ContentBox
-          title="Delete All Files"
-          :src="gearIcon"
-          theme-safe
-          @click="deleteFilesModal!.show()"
-        >
-          Delete all files in your account.
-        </ContentBox>
-        <ContentBox
-          title="Delete Account"
-          :src="gearIcon"
-          theme-safe
-          @click="deleteAccountModal!.show()"
-        >
-          Delete your account.
-        </ContentBox>
-      </div>
-    </template>
-    <div v-else>
-      <h1>You're offline, to manage your account please go back online.</h1>
+    <h1>Quick Settings</h1>
+    <div class="content-box-container">
+      <ContentBox
+        title="Display Preferences"
+        :src="gearIcon"
+        theme-safe
+        @click="displayPrefsModal!.show()"
+      >
+        Change your display preferences.
+      </ContentBox>
+      <ContentBox
+        title="Update Domain"
+        :src="gearIcon"
+        theme-safe
+        @click="domainModal!.show()"
+      >
+        Update your domain selection.
+      </ContentBox>
+    </div>
+    <Separator />
+    <h1>Account Management</h1>
+    <div class="content-box-container">
+      <ContentBox
+        title="Update Username"
+        :src="gearIcon"
+        theme-safe
+        @click="usernameFormModal!.show()"
+      >
+        Update your username.
+      </ContentBox>
+      <ContentBox
+        title="Update Email"
+        :src="gearIcon"
+        theme-safe
+        @click="emailFormModal!.show()"
+      >
+        Update your email.
+      </ContentBox>
+      <ContentBox
+        v-if="!user.account!.user.verifiedAt"
+        title="Resend Verification Email"
+        :src="gearIcon"
+        theme-safe
+        @click="resendVerificationEmailModal!.show()"
+      >
+        Resend your verification email.
+      </ContentBox>
+      <ContentBox
+        title="Update Password"
+        :src="gearIcon"
+        theme-safe
+        @click="passwordFormModal!.show()"
+      >
+        Update your password.
+      </ContentBox>
+      <ContentBox
+        title="Manage Second Factors"
+        :src="gearIcon"
+        theme-safe
+        to="/dashboard/account/second-factors"
+      >
+        Manage your second factors.
+      </ContentBox>
+      <ContentBox
+        title="Manage Signed In Devices"
+        :src="gearIcon"
+        theme-safe
+        to="/dashboard/account/sessions"
+      >
+        Manage your signed in devices.
+      </ContentBox>
+      <ContentBox
+        title="Sign Out Everywhere"
+        :src="gearIcon"
+        theme-safe
+        @click="deleteSessionsModal!.show()"
+      >
+        Signing out everywhere can help keep your account safe.
+      </ContentBox>
+    </div>
+    <Separator />
+    <h1>Danger Zone</h1>
+    <div class="content-box-container">
+      <ContentBox
+        title="Delete All Files"
+        :src="gearIcon"
+        theme-safe
+        @click="deleteFilesModal!.show()"
+      >
+        Delete all files in your account.
+      </ContentBox>
+      <ContentBox
+        title="Delete Account"
+        :src="gearIcon"
+        theme-safe
+        @click="deleteAccountModal!.show()"
+      >
+        Delete your account.
+      </ContentBox>
     </div>
   </template>
   <LoadingMessage spinner v-else />
@@ -404,7 +399,6 @@
   import profileIcon from '@/assets/images/profile.svg';
   import toDateString from '@/utils/toDateString.js';
   import toLogin from '@/utils/toLogin.js';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
   import { displayPrefStore } from '@/stores/displayPref.js';
@@ -422,7 +416,6 @@
     displayPrefsModal = ref<InstanceType<typeof Modal>>(),
     domainModal = ref<InstanceType<typeof DomainModal>>(),
     emailFormModal = ref<InstanceType<typeof FormModal>>(),
-    online = useOnline(),
     passwordFormModal = ref<InstanceType<typeof FormModal>>(),
     resendVerificationEmailModal = ref<InstanceType<typeof ConfirmModal>>(),
     router = useRouter(),
@@ -431,8 +424,6 @@
     usernameFormModal = ref<InstanceType<typeof FormModal>>();
 
   async function updateUsername(data: { username: string; password: string }) {
-    if (!online.value) return toast.connectivityOffline();
-
     const oldUsername = user.account!.user.username;
     try {
       const res = await user.changeUsername(data.username, data.password);
@@ -449,8 +440,6 @@
   }
 
   async function updateEmail(data: { email: string; password: string }) {
-    if (!online.value) return toast.connectivityOffline();
-
     try {
       const res = await user.changeEmail(data.email, data.password);
       if (res) {
@@ -464,7 +453,6 @@
 
   async function resendVerificationEmail(choice: boolean) {
     if (!choice) return;
-    if (!online.value) return toast.connectivityOffline();
 
     try {
       const res = await user.resendVerificationEmail();
@@ -483,8 +471,6 @@
     confirmNewPassword: string;
     password: string;
   }) {
-    if (!online.value) return toast.connectivityOffline();
-
     if (data.newPassword !== data.confirmNewPassword) {
       toast.show('New passwords do not match.');
       return;
@@ -502,8 +488,6 @@
   }
 
   async function updateDomain(data: { domain: string; subdomain?: string }) {
-    if (!online.value) return toast.connectivityOffline();
-
     try {
       const res = await user.changeDomain(data.domain, data.subdomain);
       if (res) {
@@ -519,15 +503,13 @@
   }
 
   async function deleteSessions(data: { includeSelf: boolean }) {
-    if (!online.value) return toast.connectivityOffline();
-
     try {
       const res = await user.revokeSessions(data.includeSelf);
       if (res > -1) {
         deleteSessionsModal.value!.hide();
         toast.show(`Deleted ${res} sessions.`);
         if (data.includeSelf) {
-          toLogin(router);
+          toLogin(router, true);
         }
       }
     } catch (error) {
@@ -537,8 +519,6 @@
   }
 
   async function deleteFiles(data: { password: string }) {
-    if (!online.value) return toast.connectivityOffline();
-
     try {
       const res = await user.deleteFiles(data.password);
       if (res > -1) {
@@ -552,8 +532,6 @@
   }
 
   async function deleteAccount(data: { username: string; password: string }) {
-    if (!online.value) return toast.connectivityOffline();
-
     try {
       const res = await user.deleteAccount(data.username, data.password);
       if (res) {
@@ -593,8 +571,6 @@
   }
 
   async function refreshUser() {
-    if (!online.value) return toast.connectivityOffline();
-
     try {
       const res = await user.refetch();
       if (res) {

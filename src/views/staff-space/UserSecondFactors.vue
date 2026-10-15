@@ -29,43 +29,39 @@
     v-model="page"
     @page-change="fetchSecondFactors"
     :item-count="secondFactors.data?.count || 0"
-    :disabled="secondFactors.loading || !online"
+    :disabled="secondFactors.loading"
   >
-    <Online>
-      <template v-if="!secondFactors.loading">
-        <template v-if="!secondFactors.errored">
-          <div
-            v-if="secondFactors.data && secondFactors.data.count > 0"
-            class="content-box-container grow"
+    <template v-if="!secondFactors.loading">
+      <template v-if="!secondFactors.errored">
+        <div
+          v-if="secondFactors.data && secondFactors.data.count > 0"
+          class="content-box-container grow"
+        >
+          <SelectableContentBox
+            v-for="secondFactor in secondFactors.data.items"
+            :title="secondFactor.name"
+            :selecting="selecting"
+            :src="infoIcon"
+            theme-safe
+            :selected="selected.includes(secondFactor.id + '')"
+            @click="onSecondFactorClick(secondFactor)"
           >
-            <SelectableContentBox
-              v-for="secondFactor in secondFactors.data.items"
-              :title="secondFactor.name"
-              :selecting="selecting"
-              :src="infoIcon"
-              theme-safe
-              :selected="selected.includes(secondFactor.id + '')"
-              @click="onSecondFactorClick(secondFactor)"
-            >
-              Click me to manage this second factor.
-            </SelectableContentBox>
-          </div>
-          <div v-else class="no-content-container">
-            <h1>
-              {{
-                secondFactors.owner ? secondFactors.owner.username : 'A user'
-              }}
-              has no registered second factors.
-            </h1>
-          </div>
-        </template>
-        <div class="no-content-container" v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchSecondFactors">Retry</button>
+            Click me to manage this second factor.
+          </SelectableContentBox>
+        </div>
+        <div v-else class="no-content-container">
+          <h1>
+            {{ secondFactors.owner ? secondFactors.owner.username : 'A user' }}
+            has no registered second factors.
+          </h1>
         </div>
       </template>
-      <SkeletonContentBoxes v-else />
-    </Online>
+      <div class="no-content-container" v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchSecondFactors">Retry</button>
+      </div>
+    </template>
+    <SkeletonContentBoxes v-else />
   </Paginator>
 
   <ConfirmModal
@@ -189,7 +185,6 @@
   import BackButton from '@/components/BackButton.vue';
   import FormModal from '@/components/FormModal.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
-  import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
@@ -199,7 +194,6 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
   import toDateString from '@/utils/toDateString.js';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
   import backWithFallback from '@/utils/routerBackWithFallback.js';
   import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
 
@@ -210,14 +204,12 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const secondFactors = secondFactorsStore(),
     toast = toastStore(),
     router = useRouter(),
     user = userStore(),
-    online = useOnline(),
     selecting = ref(false),
     selected = ref<string[]>([]),
     page = ref(0),
@@ -227,10 +219,6 @@
     deleteAllSecondFactorsModal = ref<InstanceType<typeof FormModal>>();
 
   async function fetchSecondFactors() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     window.scrollTo(0, 0);
     try {
       await secondFactors.getSecondFactors(page.value);
@@ -257,15 +245,7 @@
     }
   }
 
-  onMounted(async () => {
-    loadWhenOnline(
-      initPage,
-      !secondFactors.data ||
-        secondFactors.page !== page.value ||
-        secondFactors.owner?.id !==
-          (router.currentRoute.value.query.id as string),
-    );
-  });
+  onMounted(initPage);
 
   async function initPage() {
     try {
@@ -291,10 +271,6 @@
   }
 
   async function deleteSecondFactors({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const count = await secondFactors.deleteSecondFactors(
         selected.value,
@@ -327,10 +303,6 @@
   }
 
   async function deleteAllSecondFactors({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const count = await secondFactors.deleteAllSecondFactors(password);
       if (count >= 0) {
@@ -347,10 +319,6 @@
   }
 
   async function deleteSecondFactor({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       await secondFactors.deleteSecondFactor(
         secondFactors.selectedSecondFactor!.id + '',

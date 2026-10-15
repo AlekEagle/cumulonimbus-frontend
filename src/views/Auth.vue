@@ -12,92 +12,90 @@
     <h2>I am broken</h2>
   </template>
   <EmphasizedBox>
-    <Online>
-      <button
-        @click="toggleState"
-        class="state-toggle"
-        v-text="
-          action === 'login'
-            ? 'Don\'t have an account?'
-            : action === 'register'
-              ? 'Already have an account?'
-              : 'How'
-        "
-        :disabled="processing"
-      />
-      <template v-if="action === 'login'">
-        <Form @submit="login" ref="loginForm">
-          <input
-            type="text"
-            placeholder="Username"
-            autocomplete="username"
-            :disabled="processing"
-            name="username"
-          />
-          <br />
-          <input
-            type="password"
-            placeholder="Password"
-            autocomplete="current-password"
-            :disabled="processing"
-            name="password"
-          />
-          <Switch :disabled="processing" name="remember">Remember me</Switch>
-          <button
-            :disabled="processing"
-            v-text="processing ? 'Logging in...' : 'Login'"
-          />
-        </Form>
-      </template>
-      <template v-else-if="action === 'register'">
-        <Form @submit="register" ref="registerForm">
-          <input
-            type="text"
-            placeholder="Username"
-            autocomplete="username"
-            :disabled="processing"
-            name="username"
-          />
-          <br />
-          <input
-            type="email"
-            placeholder="Email"
-            autocomplete="email"
-            :disabled="processing"
-            name="email"
-          />
-          <br />
-          <input
-            type="password"
-            placeholder="Password"
-            autocomplete="new-password"
-            :disabled="processing"
-            name="password"
-          />
-          <br />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            autocomplete="new-password"
-            :disabled="processing"
-            name="confirmPassword"
-          />
-          <Switch :disabled="processing" name="remember">Remember me</Switch>
-          <button
-            :disabled="processing"
-            v-text="processing ? 'Registering...' : 'Register'"
-          />
-        </Form>
-        <p>
-          By creating an account, you agree to the
-          <a target="_blank" ref="noopener" href="/tos">Terms of Service</a> and
-          <a target="_blank" rel="noopener" href="/privacy">Privacy Policy</a>.
-        </p>
-      </template>
-      <template v-else>
-        <h1>How</h1>
-      </template>
-    </Online>
+    <button
+      @click="toggleState"
+      class="state-toggle"
+      v-text="
+        action === 'login'
+          ? 'Don\'t have an account?'
+          : action === 'register'
+            ? 'Already have an account?'
+            : 'How'
+      "
+      :disabled="processing"
+    />
+    <template v-if="action === 'login'">
+      <Form @submit="login">
+        <input
+          type="text"
+          placeholder="Username"
+          autocomplete="username"
+          :disabled="processing"
+          name="username"
+        />
+        <br />
+        <input
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+          :disabled="processing"
+          name="password"
+        />
+        <Switch :disabled="processing" name="remember">Remember me</Switch>
+        <button
+          :disabled="processing"
+          v-text="processing ? 'Logging in...' : 'Login'"
+        />
+      </Form>
+    </template>
+    <template v-else-if="action === 'register'">
+      <Form @submit="register">
+        <input
+          type="text"
+          placeholder="Username"
+          autocomplete="username"
+          :disabled="processing"
+          name="username"
+        />
+        <br />
+        <input
+          type="email"
+          placeholder="Email"
+          autocomplete="email"
+          :disabled="processing"
+          name="email"
+        />
+        <br />
+        <input
+          type="password"
+          placeholder="Password"
+          autocomplete="new-password"
+          :disabled="processing"
+          name="password"
+        />
+        <br />
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          autocomplete="new-password"
+          :disabled="processing"
+          name="confirmPassword"
+        />
+        <Switch :disabled="processing" name="remember">Remember me</Switch>
+        <button
+          :disabled="processing"
+          v-text="processing ? 'Registering...' : 'Register'"
+        />
+      </Form>
+      <p>
+        By creating an account, you agree to the
+        <a target="_blank" ref="noopener" href="/tos">Terms of Service</a> and
+        <a target="_blank" rel="noopener" href="/privacy">Privacy Policy</a>.
+      </p>
+    </template>
+    <template v-else>
+      <h1>How</h1>
+    </template>
   </EmphasizedBox>
 </template>
 
@@ -105,11 +103,10 @@
   // Vue Components
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import Form from '@/components/Form.vue';
-  import Online from '@/components/Online.vue';
   import Switch from '@/components/Switch.vue';
 
   // In-House Modules
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
+  // No In-House Modules to import here.
 
   // Store Modules
   import { toastStore } from '@/stores/toast.js';
@@ -124,10 +121,7 @@
     route = useRoute(),
     action = ref<'login' | 'register'>('login'),
     processing = ref(false),
-    toast = toastStore(),
-    loginForm = ref<InstanceType<typeof Form>>(),
-    registerForm = ref<InstanceType<typeof Form>>(),
-    online = useOnline();
+    toast = toastStore();
 
   async function toggleState() {
     switch (action.value) {
@@ -210,10 +204,6 @@
     password: string;
     remember: boolean;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     processing.value = true;
     try {
       const res = await user.login(data.username, data.password, data.remember);
@@ -232,10 +222,6 @@
     confirmPassword: string;
     remember: boolean;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (data.password !== data.confirmPassword) {
       toast.show('Passwords do not match');
       return;

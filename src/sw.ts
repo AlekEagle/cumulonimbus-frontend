@@ -92,60 +92,6 @@ async function threadedPrecache(urls: string[], threads: number = 4) {
   debugLog('ServiceWorkerThreadedPrecache', 'Precaching complete.');
 }
 
-// ---- Refined Connectivity Check ----
-
-const checkInterval = 60e3,
-  checkTarget = 'https://connectivitycheck.alekeagle.com',
-  checkTargetResponseStatus = 204;
-
-// The variable we'll use to track if we're online or not. We'll initialize with the navigator's online status.
-let isOnline = navigator.onLine,
-  isOnlineInterval: ReturnType<typeof setInterval> | null = null;
-
-async function makeConnectionCheck() {
-  try {
-    // Make a call to a known online resource to check if we're online.
-    const res = await fetch(checkTarget, { method: 'HEAD' });
-    // If the response status matches the expected status, we're online.
-    if (isOnline !== (res.status === checkTargetResponseStatus)) {
-      isOnline = res.status === checkTargetResponseStatus;
-      // Message clients to let them know we're online or offline.
-      await messageClients({ type: 'isOnline', payload: isOnline });
-      debugLog(
-        'ServiceWorkerConnectivityCheck',
-        'Connection status changed:',
-        isOnline,
-      );
-    }
-  } catch (err) {
-    // If the fetch fails, we're probably offline.
-    if (isOnline) {
-      isOnline = false;
-      // Message clients to let them know we're online or offline.
-      await messageClients({ type: 'isOnline', payload: isOnline });
-      debugLog(
-        'ServiceWorkerConnectivityCheck',
-        'Failed to make connection check, assuming offline.',
-      );
-    }
-  }
-}
-
-async function runConnectionCheck() {
-  // Clear the interval if it exists.
-  if (isOnlineInterval) {
-    clearInterval(isOnlineInterval);
-    isOnlineInterval = null;
-  }
-  // Make a connection check immediately.
-  await makeConnectionCheck();
-  // Set the interval back up to check every x seconds.
-  isOnlineInterval = setInterval(makeConnectionCheck, checkInterval);
-}
-
-// Start the connection check interval.
-runConnectionCheck();
-
 // ---- Service worker lifecycle ----
 
 self.addEventListener('install', async (event) => {
@@ -176,7 +122,6 @@ self.addEventListener('fetch', (event) => {
           );
         } catch (err) {
           // If the fetch fails, log the error, re-run, the connection check, and return a 502 Bad Gateway
-          runConnectionCheck();
           errorLog(
             'ServiceWorkerRouterHandler',
             'Network request failed, returning 502',
@@ -188,21 +133,6 @@ self.addEventListener('fetch', (event) => {
       return response;
     })(),
   );
-});
-
-// Listen for messages from clients
-self.addEventListener('message', (event) => {
-  switch (event.data.type) {
-    case 'checkOnline':
-      event.source?.postMessage({ type: 'isOnline', payload: isOnline });
-      break;
-    case 'onlineChange':
-      // Service worker's 'online' event is not reliable in all browsers, so we'll have clients tell us when they go online or offline and update our status accordingly.
-      runConnectionCheck();
-      break;
-    default:
-      errorLog('ServiceWorkerMessageHandler', 'Unknown message type', event);
-  }
 });
 
 // ---- Router routes ----
@@ -286,14 +216,6 @@ router.addRoute(
       'Cache miss',
       `URL: ${options.url}`,
     );
-    if (!isOnline) {
-      debugLog(
-        'ServiceWorkerOfflineCacheManager',
-        'Offline, serving default route',
-        `URL: ${options.url}`,
-      );
-      return (await caches.match('/index.html')) as Response;
-    }
     // Otherwise, fetch from the network.
     debugLog(
       'ServiceWorkerOfflineCacheManager',
@@ -329,8 +251,6 @@ router.addRoute(
       cache.put(options.url, freshResponse.clone());
       return freshResponse;
     } catch (err) {
-      // If the network fetch fails, log the error, re-run the connection check, and return the offline page.
-      runConnectionCheck();
       errorLog(
         'ServiceWorkerOfflineCacheManager',
         'Failed to fetch fresh resource, serving default route',
@@ -404,8 +324,6 @@ async function previewThumbnailHandler(
         return freshThumb;
     }
   } catch (err) {
-    // If the fetch fails, log the error, re-run, the connection check, and return a 502 Bad Gateway
-    runConnectionCheck();
     errorLog(
       'ServiceWorkerThumbnailCacheManager',
       'Failed to fetch thumbnail, returning 502',

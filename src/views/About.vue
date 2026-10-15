@@ -162,7 +162,6 @@
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
   import { useFuzzyTimeString } from '@/utils/time.js';
 
   // Store Modules
@@ -209,5 +208,5 @@
     asOf.value = new Date();
   }
 
-  onMounted(() => loadWhenOnline(update));
+  onMounted(update);
 </script>

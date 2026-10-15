@@ -8,40 +8,37 @@
     v-model="page"
     @page-change="fetchInstructions"
     :item-count="instructions.data?.count || 0"
-    :disabled="instructions.loading || !online"
+    :disabled="instructions.loading"
   >
-    <Online>
-      <template v-if="!instructions.loading">
-        <template v-if="!instructions.errored">
-          <div
-            v-if="instructions.data && instructions.data.count > 0"
-            class="content-box-container grow"
+    <template v-if="!instructions.loading">
+      <template v-if="!instructions.errored">
+        <div
+          v-if="instructions.data && instructions.data.count > 0"
+          class="content-box-container grow"
+        >
+          <ContentBox
+            v-for="instruction in instructions.data.items"
+            :title="instruction.name"
+            :src="infoIcon"
+            theme-safe
+            :to="`/dashboard/setup-guide?id=${instruction.id}`"
           >
-            <ContentBox
-              v-for="instruction in instructions.data.items"
-              :title="instruction.name"
-              :src="infoIcon"
-              theme-safe
-              :to="`/dashboard/setup-guide?id=${instruction.id}`"
-            >
-              {{ instruction.description }}
-            </ContentBox>
-          </div>
-          <div v-else class="no-content-container">
-            <h1>There isn't anything here yet...</h1>
-            <h2>
-              The developers are either lazy or accidentally deleted the
-              database
-            </h2>
-          </div>
-        </template>
-        <template v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchInstructions">Try again</button>
-        </template>
+            {{ instruction.description }}
+          </ContentBox>
+        </div>
+        <div v-else class="no-content-container">
+          <h1>There isn't anything here yet...</h1>
+          <h2>
+            The developers are either lazy or accidentally deleted the database
+          </h2>
+        </div>
       </template>
-      <SkeletonContentBoxes v-else />
-    </Online>
+      <template v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchInstructions">Try again</button>
+      </template>
+    </template>
+    <SkeletonContentBoxes v-else />
   </Paginator>
 </template>
 
@@ -49,14 +46,11 @@
   // Vue Components
   import BackButton from '@/components/BackButton.vue';
   import ContentBox from '@/components/ContentBox.vue';
-  import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import infoIcon from '@/assets/images/info.svg';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
   import { instructionsStore } from '@/stores/user-space/instructions.js';
@@ -67,14 +61,9 @@
 
   const instructions = instructionsStore(),
     toast = toastStore(),
-    online = useOnline(),
     page = ref(0);
 
   async function fetchInstructions() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     window.scrollTo(0, 0);
     try {
       await instructions.getInstructions(page.value);
@@ -84,10 +73,5 @@
     }
   }
 
-  onMounted(async () => {
-    loadWhenOnline(
-      fetchInstructions,
-      !instructions.data || instructions.page !== page.value,
-    );
-  });
+  onMounted(() => fetchInstructions());
 </script>

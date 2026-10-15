@@ -1,6 +1,6 @@
 <template>
   <div class="select-wrapper">
-    <select v-model="internalValue" v-bind="$attrs">
+    <select v-model="internalValue">
       <slot />
     </select>
   </div>

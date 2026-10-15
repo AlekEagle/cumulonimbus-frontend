@@ -32,57 +32,55 @@
     v-model="page"
     @page-change="fetchSecondFactors"
     :item-count="secondFactors.data?.count || 0"
-    :disabled="secondFactors.loading || !online"
+    :disabled="secondFactors.loading"
   >
-    <Online>
-      <template v-if="!secondFactors.loading">
-        <template v-if="!secondFactors.errored">
-          <div
-            v-if="secondFactors.data && secondFactors.data.count > 0"
-            class="content-box-container grow"
+    <template v-if="!secondFactors.loading">
+      <template v-if="!secondFactors.errored">
+        <div
+          v-if="secondFactors.data && secondFactors.data.count > 0"
+          class="content-box-container grow"
+        >
+          <SelectableContentBox
+            v-for="secondFactor in secondFactors.data.items"
+            :key="secondFactor.id"
+            :title="secondFactor.name"
+            :selecting="selecting"
+            :src="infoIcon"
+            theme-safe
+            :selected="selected.includes(secondFactor.id + '')"
+            @click="onSecondFactorClick(secondFactor)"
           >
-            <SelectableContentBox
-              v-for="secondFactor in secondFactors.data.items"
-              :key="secondFactor.id"
-              :title="secondFactor.name"
-              :selecting="selecting"
-              :src="infoIcon"
-              theme-safe
-              :selected="selected.includes(secondFactor.id + '')"
-              @click="onSecondFactorClick(secondFactor)"
-            >
-              Click me to manage this second factor.
-            </SelectableContentBox>
-            <ContentBox
-              v-if="!selecting"
-              theme-safe
-              :src="plusIcon"
-              @click="registerNewSecondFactorModal?.show()"
-              title="Register New Second Factor"
-            >
-              Help increase your account security by registering a new second
-              factor.
-            </ContentBox>
-          </div>
-          <div v-else class="content-box-container">
-            <ContentBox
-              theme-safe
-              :src="plusIcon"
-              @click="registerNewSecondFactorModal?.show()"
-              title="Register New Second Factor"
-            >
-              Help increase your account security by registering a new second
-              factor.
-            </ContentBox>
-          </div>
-        </template>
-        <div class="no-content-container" v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchSecondFactors">Retry</button>
+            Click me to manage this second factor.
+          </SelectableContentBox>
+          <ContentBox
+            v-if="!selecting"
+            theme-safe
+            :src="plusIcon"
+            @click="registerNewSecondFactorModal?.show()"
+            title="Register New Second Factor"
+          >
+            Help increase your account security by registering a new second
+            factor.
+          </ContentBox>
+        </div>
+        <div v-else class="content-box-container">
+          <ContentBox
+            theme-safe
+            :src="plusIcon"
+            @click="registerNewSecondFactorModal?.show()"
+            title="Register New Second Factor"
+          >
+            Help increase your account security by registering a new second
+            factor.
+          </ContentBox>
         </div>
       </template>
-      <SkeletonContentBoxes v-else />
-    </Online>
+      <div class="no-content-container" v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchSecondFactors">Retry</button>
+      </div>
+    </template>
+    <SkeletonContentBoxes v-else />
   </Paginator>
 
   <ConfirmModal
@@ -334,7 +332,6 @@
   import BackButton from '@/components/BackButton.vue';
   import ContentBox from '@/components/ContentBox.vue';
   import Paginator from '@/components/Paginator.vue';
-  import Online from '@/components/Online.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -346,10 +343,8 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import infoIcon from '@/assets/images/info.svg';
   import plusIcon from '@/assets/images/plus.svg';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
   import toDateString from '@/utils/toDateString.js';
   import { useFuzzyTimeString } from '@/utils/time.js';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
   import { secondFactorsStore } from '@/stores/user-space/secondFactors.js';
@@ -364,7 +359,6 @@
   const secondFactors = secondFactorsStore(),
     toast = toastStore(),
     user = userStore(),
-    online = useOnline(),
     selecting = ref(false),
     selected = ref<string[]>([]),
     selectedFactor = ref<Cumulonimbus.Data.SecondFactor | null>(null),
@@ -401,10 +395,6 @@
     backupCodesModal = ref<InstanceType<typeof Modal>>();
 
   async function fetchSecondFactors() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     window.scrollTo(0, 0);
     try {
       await secondFactors.getSecondFactors(page.value);
@@ -434,18 +424,9 @@
     }
   }
 
-  onMounted(async () => {
-    loadWhenOnline(
-      fetchSecondFactors,
-      !secondFactors.data || secondFactors.page !== page.value,
-    );
-  });
+  onMounted(fetchSecondFactors);
 
   async function deleteSecondFactor({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const result = await secondFactors.deleteSecondFactor(
         selectedFactor.value!.id,
@@ -463,10 +444,6 @@
   }
 
   async function deleteSecondFactors({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const count = await secondFactors.deleteSecondFactors(
         selected.value,
@@ -485,10 +462,6 @@
   }
 
   async function deleteAllSecondFactors({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const count = await secondFactors.deleteAllSecondFactors(password);
       if (count >= 0) {
@@ -534,10 +507,6 @@
   }
 
   async function registerNewSecondFactor({ password }: { password: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       switch (factorTypeToRegister.value) {
         case 'totp':
@@ -592,10 +561,6 @@
     code: string;
     response: undefined;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     let didError = false;
     try {
       switch (registrationData.value!.type) {

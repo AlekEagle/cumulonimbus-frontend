@@ -6,7 +6,7 @@
     <button
       v-if="!managingAccounts"
       @click="managingAccounts = true"
-      :disabled="user.loading || !online"
+      :disabled="user.loading"
     >
       Remove Accounts
     </button>
@@ -16,55 +16,51 @@
     <button
       v-if="managingAccounts"
       @click="removeAllAccountsModal?.show()"
-      :disabled="user.loading || !online"
+      :disabled="user.loading"
     >
       Remove All Accounts
     </button>
   </div>
-  <Online>
-    <EmphasizedBox :no-padding="!user.loading">
-      <div v-if="!user.loading" class="account-switcher-accounts">
-        <div
-          :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
-          v-for="(token, account) in user.accounts"
-          @click="handleAccountClick(account as string)"
-        >
-          <img
-            v-if="!managingAccounts"
-            :src="profileIcon"
-            alt="Generic account icon"
-          />
-          <img v-else :src="closeIcon" alt="Delete account icon" />
-          <p v-text="account" />
-          <p
-            v-if="user.account?.user.username === account && !managingAccounts"
-          >
-            Currently logged in.
-          </p>
-          <p v-if="token === false && !managingAccounts">Not logged in.</p>
-          <p v-if="managingAccounts">Click to remove this account.</p>
-        </div>
-        <div
-          v-if="Object.keys(user.accounts).length < 1"
-          class="account-switcher-account"
-        >
-          <img :src="profileIcon" alt="Generic account icon" />
-          <p>Nobody here but us chickens!</p>
-          <p>Click the "Add Account" button to add an account.</p>
-        </div>
-        <div
+  <EmphasizedBox :no-padding="!user.loading">
+    <div v-if="!user.loading" class="account-switcher-accounts">
+      <div
+        :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
+        v-for="(token, account) in user.accounts"
+        @click="handleAccountClick(account as string)"
+      >
+        <img
           v-if="!managingAccounts"
-          :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
-          @click="addAccount"
-        >
-          <img :src="plusIcon" alt="Plus icon" />
-          <p>Add Account</p>
-          <p>Add another account.</p>
-        </div>
+          :src="profileIcon"
+          alt="Generic account icon"
+        />
+        <img v-else :src="closeIcon" alt="Delete account icon" />
+        <p v-text="account" />
+        <p v-if="user.account?.user.username === account && !managingAccounts">
+          Currently logged in.
+        </p>
+        <p v-if="token === false && !managingAccounts">Not logged in.</p>
+        <p v-if="managingAccounts">Click to remove this account.</p>
       </div>
-      <LoadingMessage spinner v-else />
-    </EmphasizedBox>
-  </Online>
+      <div
+        v-if="Object.keys(user.accounts).length < 1"
+        class="account-switcher-account"
+      >
+        <img :src="profileIcon" alt="Generic account icon" />
+        <p>Nobody here but us chickens!</p>
+        <p>Click the "Add Account" button to add an account.</p>
+      </div>
+      <div
+        v-if="!managingAccounts"
+        :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
+        @click="addAccount"
+      >
+        <img :src="plusIcon" alt="Plus icon" />
+        <p>Add Account</p>
+        <p>Add another account.</p>
+      </div>
+    </div>
+    <LoadingMessage spinner v-else />
+  </EmphasizedBox>
   <ConfirmModal
     title="Remove All Accounts"
     ref="removeAllAccountsModal"
@@ -94,13 +90,11 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Online from '@/components/Online.vue';
 
   // In-House Modules
   import closeIcon from '@/assets/images/close.svg';
   import plusIcon from '@/assets/images/plus.svg';
   import profileIcon from '@/assets/images/profile.svg';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
   import { fileStore } from '@/stores/user-space/file.js';
@@ -116,7 +110,6 @@
   const user = userStore(),
     router = useRouter(),
     toast = toastStore(),
-    online = useOnline(),
     file = fileStore(),
     files = filesStore(),
     sessions = sessionsStore(),
@@ -268,7 +261,10 @@
     gap: 0 5px;
     border-bottom: 1px solid var(--ui-border);
     cursor: pointer;
-    transition: background-color 0.25s, border-color 0.25s, color 0.25s;
+    transition:
+      background-color 0.25s,
+      border-color 0.25s,
+      color 0.25s;
   }
 
   .account-switcher-account:hover,

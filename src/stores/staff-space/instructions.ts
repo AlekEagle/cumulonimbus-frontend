@@ -25,7 +25,6 @@ export const instructionsStore = defineStore('staff-space-instructions', () => {
     page = ref(0);
 
   async function getInstructions(p: number): Promise<boolean> {
-    if (user.client === null) return false;
     errored.value = false;
     loading.value = true;
     try {
@@ -94,7 +93,6 @@ export const instructionsStore = defineStore('staff-space-instructions', () => {
         name,
         description,
         steps: [],
-        content: '{{token}}',
       });
       toast.show('Instruction created.');
       return true;

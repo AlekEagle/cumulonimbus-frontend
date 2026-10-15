@@ -3,11 +3,7 @@
   <h2>This will only take a second.</h2>
 
   <EmphasizedBox>
-    <template v-if="!online">
-      <h1>Something went wrong.</h1>
-      <h2>Check your internet connection and try again.</h2>
-    </template>
-    <template v-else-if="statusText">
+    <template v-if="statusText">
       <h1 v-text="statusText" />
     </template>
     <template v-else>
@@ -22,32 +18,22 @@
   import LoadingMessage from '@/components/LoadingMessage.vue';
 
   // In-House Modules
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
   import { wait } from '@/utils/wait.js';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast.js';
   import { userStore } from '@/stores/user.js';
 
   // External Modules
   import { onMounted, ref } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const user = userStore(),
     router = useRouter(),
-    online = useOnline(),
-    toast = toastStore(),
     statusText = ref('');
 
-  onMounted(() => loadWhenOnline(verifyEmail));
+  onMounted(verifyEmail);
 
   async function verifyEmail() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-
     if (!window.location.search.includes('token')) {
       statusText.value = 'Your verification link is invalid!';
       return await returnToDashboard();

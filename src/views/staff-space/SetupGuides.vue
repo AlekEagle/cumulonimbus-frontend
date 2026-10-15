@@ -30,7 +30,7 @@
     v-model="page"
     :item-count="instructions.data?.count || 0"
     @page-change="fetchInstructions"
-    :disabled="instructions.loading || !online"
+    :disabled="instructions.loading"
   >
     <template v-if="!instructions.loading">
       <template v-if="!instructions.errored">
@@ -131,12 +131,9 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
-  const online = useOnline(),
-    router = useRouter(),
+  const router = useRouter(),
     toast = toastStore(),
     instructions = instructionsStore(),
     selecting = ref(false),
@@ -151,10 +148,6 @@
     > | null>(null);
 
   async function fetchInstructions() {
-    if (!online) {
-      toast.connectivityOffline();
-      return;
-    }
     window.scrollTo(0, 0);
     try {
       await instructions.getInstructions(page.value);
@@ -164,12 +157,7 @@
     }
   }
 
-  onMounted(async () =>
-    loadWhenOnline(
-      fetchInstructions,
-      !instructions.data || instructions.page !== page.value,
-    ),
-  );
+  onMounted(fetchInstructions);
 
   function onInstructionClick(
     instruction: Pick<
@@ -195,10 +183,6 @@
   }
 
   async function bulkDeleteInstructions(choice: boolean) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (!choice) {
       bulkDeleteInstructionModal.value!.hide();
       return;
@@ -232,10 +216,6 @@
     name: string;
     description: string;
   }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const result = await instructions.createInstruction(
         data.name,

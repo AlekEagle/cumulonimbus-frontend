@@ -1,6 +1,6 @@
 <template>
   <ConfirmModal ref="confirmModal" @submit="submit" title="Select Your Domain">
-    <template v-if="online || !!domainPicker.domains">
+    <template v-if="!!domainPicker.domains">
       <template v-if="user.loggedIn">
         <LoadingSpinner v-if="domainPicker.loading" />
         <div
@@ -74,8 +74,6 @@
 
   // External Modules
   import { ref, onMounted, watchEffect } from 'vue';
-  import type { Ref } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   const emit = defineEmits<{
     (event: 'submit', data: { domain: string; subdomain?: string }): void;
@@ -100,8 +98,7 @@
     subdomainInput = ref<HTMLInputElement>(),
     domain = ref<string>(),
     subdomain = ref<string>(),
-    allowsSubdomains = ref(false),
-    online = useOnline();
+    allowsSubdomains = ref(false);
 
   function onSubdomainInput(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -177,11 +174,6 @@
   }
 
   async function reloadDomains() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
-
     try {
       await domainPicker.sync();
     } catch (error) {

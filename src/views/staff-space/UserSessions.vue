@@ -29,39 +29,37 @@
     v-model="page"
     @page-change="fetchSessions"
     :item-count="sessions.data?.count || 0"
-    :disabled="sessions.loading || !online"
+    :disabled="sessions.loading"
   >
-    <Online>
-      <template v-if="!sessions.loading">
-        <template v-if="!sessions.errored">
-          <div
-            v-if="sessions.data && sessions.data.count > 0"
-            class="content-box-container grow"
+    <template v-if="!sessions.loading">
+      <template v-if="!sessions.errored">
+        <div
+          v-if="sessions.data && sessions.data.count > 0"
+          class="content-box-container grow"
+        >
+          <SelectableContentBox
+            v-for="session in sessions.data.items"
+            :title="session.name"
+            :selecting="selecting"
+            :src="infoIcon"
+            theme-safe
+            :selected="selected.includes(session.id + '')"
+            @click="onSessionClick(session)"
           >
-            <SelectableContentBox
-              v-for="session in sessions.data.items"
-              :title="session.name"
-              :selecting="selecting"
-              :src="infoIcon"
-              theme-safe
-              :selected="selected.includes(session.id + '')"
-              @click="onSessionClick(session)"
-            >
-              Click me to manage this session.
-            </SelectableContentBox>
-          </div>
-          <div v-else class="no-content-container">
-            <h1>This user has no active sessions.</h1>
-            <h2>They have not used their account.</h2>
-          </div>
-        </template>
-        <div class="no-content-container" v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchSessions">Retry</button>
+            Click me to manage this session.
+          </SelectableContentBox>
+        </div>
+        <div v-else class="no-content-container">
+          <h1>This user has no active sessions.</h1>
+          <h2>They have not used their account.</h2>
         </div>
       </template>
-      <SkeletonContentBoxes v-else />
-    </Online>
+      <div class="no-content-container" v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchSessions">Retry</button>
+      </div>
+    </template>
+    <SkeletonContentBoxes v-else />
   </Paginator>
   <ConfirmModal
     ref="confirmDeleteModal"
@@ -143,7 +141,6 @@
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
   import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
@@ -154,7 +151,6 @@
   import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
   import infoIcon from '@/assets/images/info.svg';
   import toDateString from '@/utils/toDateString.js';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
   import { sessionsStore } from '@/stores/staff-space/sessions.js';
@@ -163,11 +159,9 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
   import { useRouter } from 'vue-router';
 
   const router = useRouter(),
-    online = useOnline(),
     sessions = sessionsStore(),
     user = userStore(),
     toast = toastStore(),
@@ -180,10 +174,6 @@
     deleteAllSessionsModal = ref<InstanceType<typeof ConfirmModal>>();
 
   async function fetchSessions() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     window.scrollTo(0, 0);
     try {
       await sessions.getSessions(page.value);
@@ -208,14 +198,7 @@
     }
   }
 
-  onMounted(async () =>
-    loadWhenOnline(
-      initPage,
-      !sessions.data ||
-        sessions.page !== page.value ||
-        sessions.owner?.id !== router.currentRoute.value.query.id,
-    ),
-  );
+  onMounted(initPage);
 
   async function initPage() {
     try {
@@ -246,10 +229,6 @@
   }
 
   async function onRenameSession(data: { name: string }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await sessions.renameSession(
         sessions.selectedSession!.id + '',
@@ -281,10 +260,6 @@
   }
 
   async function onDeleteSessionsChoice(choice: boolean) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (!choice) {
       await confirmDeleteModal.value!.hide();
       selected.value = [];

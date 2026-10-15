@@ -11,17 +11,15 @@
     <h2>But you need to verify your email before you can upload files.</h2>
   </EmphasizedBox>
   <EmphasizedBox v-else>
-    <Online>
-      <div
-        class="file-drop-zone"
-        ref="fileDropZone"
-        @click="openFileDialog()"
-        tabindex="0"
-      >
-        <h1 v-text="dropZoneText" />
-        <h2>Or click to select a file.</h2>
-      </div>
-    </Online>
+    <div
+      class="file-drop-zone"
+      ref="fileDropZone"
+      @click="openFileDialog()"
+      tabindex="0"
+    >
+      <h1 v-text="dropZoneText" />
+      <h2>Or click to select a file.</h2>
+    </div>
     <div class="upload-buttons-container">
       <button :disabled="!file" @click="file = undefined">Deselect File</button>
       <button :disabled="!file" @click="uploadFile">To Mars it goes!</button>
@@ -45,14 +43,11 @@
   import BackButton from '@/components/BackButton.vue';
   import EmphasizedBox from '@/components/EmphasizedBox.vue';
   import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
-  import Online from '@/components/Online.vue';
   import ProgressBar from '@/components/ProgressBar.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
   // Store Modules
   import { filesStore } from '@/stores/user-space/files.js';
@@ -66,7 +61,6 @@
 
   const fileDropZone = ref<HTMLElement | null>(null),
     files = filesStore(),
-    online = useOnline(),
     router = useRouter(),
     toast = toastStore(),
     user = userStore(),
@@ -99,10 +93,6 @@
   }
 
   async function uploadFile() {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (!file.value) {
       toast.show(
         'In order to upload a file, you need a file to upload.',
@@ -175,7 +165,7 @@
         const data = await fetch(`${cumulonimbusOptions.baseURL}/upload`, {
           method: 'POST',
           headers: {
-            'Authorization': user.account!.session.token,
+            'Authorization': user.token!,
             'Content-Type': contentTypeHeader,
           },
           body: multipartFormDataStream.pipeThrough(transformStream),
@@ -272,7 +262,7 @@
     }
   }
 
-  onMounted(() => loadWhenOnline(uploadFromShareTarget));
+  onMounted(uploadFromShareTarget);
 </script>
 
 <style>
@@ -283,7 +273,9 @@
     background-color: var(--ui-background);
     border-radius: 10px;
     padding: 10px 15px;
-    transition: border 0.25s, background-color 0.25s;
+    transition:
+      border 0.25s,
+      background-color 0.25s;
     outline: none;
   }
 

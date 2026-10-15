@@ -171,50 +171,9 @@ export const instructionStore = defineStore('staff-space-instruction', () => {
     }
   }
 
-  async function updateInstructionFile(
-    content: string,
-    filename?: string,
+  async function updateInstructionSteps(
+    steps: Cumulonimbus.Data.InstructionStep[],
   ): Promise<boolean> {
-    if (user.client === null) return false;
-    if (data.value === null) return false;
-    errored.value = false;
-    loading.value = true;
-    try {
-      const result = await user.client!.editInstructionFile(
-        data.value!.id,
-        content,
-        filename === undefined || filename === '' ? undefined : filename,
-      );
-      data.value = result.result;
-      return true;
-    } catch (error) {
-      errored.value = true;
-      // Pass our error to the default error handler and check if it was handled.
-      switch (await defaultErrorHandler(error, router)) {
-        case 'OK':
-          // If the error was handled, return true to signify success.
-          return false;
-        case 'NOT_HANDLED':
-          // Handle special cases.
-          switch ((error as Cumulonimbus.ResponseError).code) {
-            case 'INVALID_INSTRUCTION_ERROR':
-              toast.show("This set up guide doesn't exist.");
-              return false;
-            default:
-              // If it still wasn't handled, throw the error.
-              throw error;
-          }
-        case 'NOT_RESPONSE_ERROR':
-        default:
-          // If the error wasn't handled, throw it.
-          throw error;
-      }
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function updateInstructionSteps(steps: string[]): Promise<boolean> {
     if (user.client === null) return false;
     if (data.value === null) return false;
     errored.value = false;
@@ -261,7 +220,6 @@ export const instructionStore = defineStore('staff-space-instruction', () => {
     deleteInstruction,
     updateInstructionDisplayName,
     updateInstructionDescription,
-    updateInstructionFile,
     updateInstructionSteps,
   };
 });

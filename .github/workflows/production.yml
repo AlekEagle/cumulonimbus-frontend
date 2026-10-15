@@ -25,8 +25,8 @@ jobs:
           cp -R nginx/ /var/www-data
           cp -R domain-specific-pages/ /var/www-data
       - name: Install Dependencies
-        run: yarn
+        run: npm i
       - name: Build Production
-        run: yarn build-prod
+        run: npm run build-prod
       - name: Copy Build Artifacts
         run: cp -R dist/ /var/www-data

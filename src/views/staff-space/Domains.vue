@@ -27,45 +27,43 @@
   <Paginator
     v-model="page"
     :item-count="domains.data?.count || 0"
-    :disabled="domains.loading || !online"
+    :disabled="domains.loading"
     @page-change="fetchDomains"
   >
-    <Online>
-      <template v-if="!domains.loading">
-        <template v-if="!domains.errored">
-          <div
-            class="content-box-container grow"
-            v-if="domains.data && domains.data.count > 0"
+    <template v-if="!domains.loading">
+      <template v-if="!domains.errored">
+        <div
+          class="content-box-container grow"
+          v-if="domains.data && domains.data.count > 0"
+        >
+          <SelectableContentBox
+            v-for="domain in domains.data.items"
+            :title="domain.id"
+            :selecting="selecting"
+            :src="gearIcon"
+            theme-safe
+            :selected="selected.includes(domain.id)"
+            @click="onDomainClick(domain)"
           >
-            <SelectableContentBox
-              v-for="domain in domains.data.items"
-              :title="domain.id"
-              :selecting="selecting"
-              :src="gearIcon"
-              theme-safe
-              :selected="selected.includes(domain.id)"
-              @click="onDomainClick(domain)"
-            >
-              <p>
-                Subdomains are
-                <code>{{ domain.subdomains ? 'allowed' : 'not allowed' }}</code
-                >.
-              </p>
-            </SelectableContentBox>
-          </div>
-          <div v-else class="no-content-container">
-            <h1>There are no domains.</h1>
-            <h2>You should probably fix that.</h2>
-            <button @click="createDomainModal!.show()">Create</button>
-          </div>
-        </template>
-        <div class="no-content-container" v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchDomains">Retry</button>
+            <p>
+              Subdomains are
+              <code>{{ domain.subdomains ? 'allowed' : 'not allowed' }}</code
+              >.
+            </p>
+          </SelectableContentBox>
+        </div>
+        <div v-else class="no-content-container">
+          <h1>There are no domains.</h1>
+          <h2>You should probably fix that.</h2>
+          <button @click="createDomainModal!.show()">Create</button>
         </div>
       </template>
-      <SkeletonContentBoxes v-else />
-    </Online>
+      <div class="no-content-container" v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchDomains">Retry</button>
+      </div>
+    </template>
+    <SkeletonContentBoxes v-else />
   </Paginator>
   <ConfirmModal
     ref="bulkDeleteDomainModal"
@@ -149,7 +147,6 @@
   import BackButton from '@/components/BackButton.vue';
   import ConfirmModal from '@/components/ConfirmModal.vue';
   import FormModal from '@/components/FormModal.vue';
-  import Online from '@/components/Online.vue';
   import Paginator from '@/components/Paginator.vue';
   import SelectableContentBox from '@/components/SelectableContentBox.vue';
   import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
@@ -159,7 +156,6 @@
   import Cumulonimbus from 'cumulonimbus-wrapper';
   import gearIcon from '@/assets/images/gear.svg';
   import toDateString from '@/utils/toDateString.js';
-  import loadWhenOnline from '@/utils/loadWhenOnline.js';
 
   // Store Modules
   import { domainsStore } from '@/stores/staff-space/domains.js';
@@ -167,10 +163,8 @@
 
   // External Modules
   import { ref, onMounted } from 'vue';
-  import { useOnline } from '@/utils/ConnectivityCheck.js';
 
-  const online = useOnline(),
-    toast = toastStore(),
+  const toast = toastStore(),
     domains = domainsStore(),
     selecting = ref(false),
     selected = ref<string[]>([]),
@@ -181,10 +175,6 @@
     createDomainModal = ref<InstanceType<typeof FormModal>>();
 
   async function fetchDomains(): Promise<void> {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     window.scrollTo(0, 0);
     try {
       await domains.getDomains(page.value);
@@ -225,10 +215,6 @@
   }
 
   async function deleteDomain(choice: boolean): Promise<void> {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (!choice) {
       await deselect();
       return;
@@ -247,10 +233,6 @@
   }
 
   async function deleteDomains(choice: boolean) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     if (!choice) {
       await deselectBulk();
       return;
@@ -269,10 +251,6 @@
   }
 
   async function enableSubdomains(): Promise<void> {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await domains.enableSubdomains(domains.selectedDomain!.id);
       if (status) {
@@ -286,10 +264,6 @@
   }
 
   async function disableSubdomains(): Promise<void> {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await domains.disableSubdomains(
         domains.selectedDomain!.id,
@@ -304,9 +278,7 @@
     }
   }
 
-  onMounted(async () =>
-    loadWhenOnline(fetchDomains, !domains.data || domains.page !== page.value),
-  );
+  onMounted(fetchDomains);
 
   async function showDeleteModal(choice: boolean) {
     await manageDomainModal.value!.hide();
@@ -315,10 +287,6 @@
   }
 
   async function createDomain(data: { id: string; subdomains: boolean }) {
-    if (!online.value) {
-      toast.connectivityOffline();
-      return;
-    }
     try {
       const status = await domains.createDomain(data.id, data.subdomains);
       if (status) {
