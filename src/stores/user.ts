@@ -207,8 +207,10 @@ export const userStore = defineStore('user', () => {
         user: (await client.value.getSelf()).result,
       };
       // Add the account to the account switcher.
-      // Use the username value from the account information, as the provided username may be different (an email, incorrect capitalization, etc).
+      // Use the username value from the account information, as the provided username may be different (incorrect capitalization, etc).
       addAccount(account.value.user.username, (client.value as any).token);
+      // Switch the selected account in the account switcher to the newly registered account.
+      selectedUser.value = account.value.user.username;
       // If nothing went wrong:
       // Return true to signify success.
       return true;
@@ -248,6 +250,8 @@ export const userStore = defineStore('user', () => {
               account.value.user.username,
               (client.value as any).token,
             );
+            // Switch the selected account in the account switcher to the newly registered account.
+            selectedUser.value = account.value.user.username;
             // If nothing went wrong:
             // Return true to signify success.
             return true;
@@ -319,8 +323,10 @@ export const userStore = defineStore('user', () => {
         user: (await client.value.getSelf()).result,
       };
       // Add the account to the account switcher.
-      // Use the username value from the account information, as the provided username may be different (an email, incorrect capitalization, etc).
+      // Use the username value from the account information, as the provided username may be different (incorrect capitalization, etc).
       addAccount(account.value.user.username, (client.value as any).token);
+      // Switch the selected account in the account switcher to the newly registered account.
+      selectedUser.value = account.value.user.username;
       // If nothing went wrong:
       // Return true to signify success.
       return true;
