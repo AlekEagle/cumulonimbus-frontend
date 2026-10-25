@@ -10,6 +10,7 @@
     "live-dev": "vite --host --port 5173 -c vite.config.development.ts",
     "build-prod": "vue-tsc --noEmit && vite build",
     "build-ptb": "vue-tsc --noEmit && vite build -c vite.config.ptb.ts",
+    "build-demo": "vue-tsc --noEmit && vite build -c vite.config.demo.ts",
     "build-dev": "vue-tsc --noEmit && vite build -c vite.config.development.ts",
     "preview": "vite preview --host"
   },
@@ -33,6 +34,7 @@
     "typescript": "^5.9.2",
     "vite": "^7.1.5",
     "vite-plugin-pwa": "^1.0.3",
+    "vite-plugin-singlefile": "^2.3.4",
     "vue-tsc": "^3.0.7"
   },
   "allowScripts": {
