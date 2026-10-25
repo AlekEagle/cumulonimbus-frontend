@@ -89,7 +89,7 @@ watch(theme, (value) => {
           <div class="dh-text">
             <p class="dh-title">Drop some media to upload</p>
             <p class="dh-sub">
-              Or paste a screenshot. You'll get a link as soon as it's up.
+              Or paste a screenshot. You'll get a link, like the ones above, as soon as it's up.
             </p>
           </div>
           <button class="button" type="button" data-pick>Choose a file</button>
@@ -152,6 +152,20 @@ watch(theme, (value) => {
         aperiam pariatur quod reprehenderit dolorum!
       </section>
     </div>
+  </div>
+
+  <div class="footer">
+    <footer class="footer-content">
+      <span>Cumulonimbus, the funny cloud platform.</span>
+      <nav aria-label="Footer">
+        <a href="/dashboard">Dashboard</a>
+        <a href="https://alekeagle.com/d">Discord</a>
+        <a
+          href="mailto:abuse@alekeagle.me?subject=Report%20Abuse&body=URL%2FLink%20to%20offending%20content%3A%20%5BReplace%20me%20with%20the%20link%20to%20the%20offending%20content%5D%0A%0AUse%20the%20space%20below%20to%20explain%20how%20the%20content%20above%20is%20potentially%20abusing%20the%20service%3A%0A%5BYour%20reasoning%20here%5D"
+          >Report abuse</a
+        >
+      </nav>
+    </footer>
   </div>
 
   <!-- yes i generated this element with ai -->
@@ -282,6 +296,9 @@ html {
   --look-band: #e8f4fc;
   --look-band-text: #0a2540;
 
+  --look-footer: #0a2540;
+  --look-footer-text: #c4d6e6;
+
   --look-button: #ffffff;
   --look-button-text: #0d4f86;
   --look-button-hover: #e8f4fc;
@@ -304,6 +321,9 @@ html.dark-mode {
   --look-band: #12233a;
   --look-band-text: #dce7f2;
 
+  --look-footer: #09131f;
+  --look-footer-text: #93a9bf;
+
   --hint-bg: rgba(143, 203, 255, 0.06);
   --hint-line: rgba(159, 190, 220, 0.55);
 
@@ -321,6 +341,9 @@ html.dark-mode {
 
     --look-band: #12233a;
     --look-band-text: #dce7f2;
+
+    --look-footer: #09131f;
+    --look-footer-text: #93a9bf;
 
     --hint-bg: rgba(143, 203, 255, 0.06);
     --hint-line: rgba(159, 190, 220, 0.55);
@@ -371,12 +394,18 @@ html.dark-mode {
 	}*/
 
 body {
+  display: flex;
+  flex-direction: column;
+
   margin: 0;
   /*transition:
 	    background 0.25s,
 	    color 0.25s;*/
   overflow-y: scroll;
   overflow-x: hidden;
+
+  line-height: 1.55;
+  min-height: 100vh;
 
   /* notice: font is currently installed in html because fuck you */
   font-family: "Bricolage Grotesque", sans-serif;
@@ -616,6 +645,33 @@ button {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.footer {
+  background: var(--look-footer);
+  color: var(--look-footer-text);
+  flex-grow: 1;
+
+  transition:
+    background var(--theme-switch-time),
+    color var(--theme-switch-time);
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px clamp(18px, 4vw, 56px);
+  font-size: 0.98rem;
+}
+
+.footer-content nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.375rem;
 }
 
 @keyframes roll {
