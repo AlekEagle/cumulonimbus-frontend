@@ -21,15 +21,18 @@
 
 			<p class="url">
 				<span class="url-part">https://</span>
-				<span>
-					<span class="reel" aria-hidden="true">
-						<span v-for="site in sites">{{site}}</span>
-						<span>{{sites[0]}}</span>
+				<span class="domain">
+					<span class="reel-container">
+						<span class="reel" aria-hidden="true">
+							<span v-for="site in sites">{{site}}</span>
+							<span>{{sites[0]}}</span>
+						</span>
 					</span>
 
 					<span class="sr-only">{{sites[0]}}</span>
 				</span>
-				<span class="url-part">/iu94IKgA1w.mp4</span>
+				 <span class="url-part">/iu94IKgA1w.mp4</span>
+				 <!-- <span class="url-part">ÁÂgjpqy_,;</span> -->
 			</p>
 
 			<div class="drop-hint js-required">
@@ -37,11 +40,11 @@
 				<p class="dh-sub">Or paste a screenshot. You'll get a link as soon as it's up.</p>
 			</div>
 
-			<a href="/auth">Open the dashboard</a>
+			 <!-- <a href="/auth">Open the dashboard</a> -->
 			<p>Anyone can sign up, host any file, then share it from whichever of our domains you like.</p>
 		</section>
 
-		 <img class="bank" aria-hidden="true" src="@/assets/images/bank.webp" alt="" decoding="async"/>
+		 <img class="bank" aria-hidden="true" src="@/assets/images/bank2.webp" alt="" decoding="async"/>
 		<div class="bank-fade" aria-hidden="true"></div>
 	</div>
 
@@ -107,7 +110,37 @@
 			/>
 			Dark mode
 		</label>
+		<div
+			@input="($event) => {
+				const controls = $event.currentTarget as HTMLDivElement;
+				const reel = controls.ownerDocument.querySelector('.reel') as (HTMLElement & { originalReelNodes?: Node[] }) | null;
+				if (!reel) return;
+				const enabled = controls.querySelector('input[type=checkbox]') as HTMLInputElement;
+				const text = controls.querySelector('input[type=text]') as HTMLInputElement;
+				if (enabled.checked) {
+					if (!reel.originalReelNodes) reel.originalReelNodes = Array.from(reel.childNodes);
+					reel.replaceChildren(...Array.from({ length: 7 }, () => {
+						const span = reel.ownerDocument.createElement('span');
+						span.textContent = text.value;
+						return span;
+					}));
+				} else if (reel.originalReelNodes) {
+					reel.replaceChildren(...reel.originalReelNodes);
+					delete reel.originalReelNodes;
+				}
+			}"
+		>
+			<label>
+				<input type="checkbox" />
+				Override URL reel
+			</label>
+			<label>
+				Reel text
+				<input type="text" :value="sites[0]" />
+			</label>
+		</div>
 	</fieldset>
+
 
 </template>
 
@@ -119,11 +152,13 @@
 
 	html {
 		/* Wider than the viewport (cropping the tall side peaks) until 1800px (112.5rem), then 100vw */
-		--bank-width: clamp(45rem, 130vw, max(112.5rem, 100vw));
+		--bank-width: clamp(45rem, 180vw, max(2400px, 100vw));
 		/* Exact rendered height of bank-1.webp */
-		--bank: calc(var(--bank-width) * 509 / 2048);
+		--bank: calc(var(--bank-width) * 426 / 2095);
 		/* Percent that the bank should be shifted up */
 		--bank-shift-up: 0.75;
+
+		--cloud-cover: min(calc(var(--bank) * var(--bank-shift-up)), 18rem);
 	}
 
 	/* light mode */
@@ -240,8 +275,8 @@
 		background: var(--look-sky);
 		color: var(--look-sky-text);
 		position: relative;
-		overflow-x: clip;
-		padding-bottom: calc(var(--bank) * var(--bank-shift-up) + 0.75rem);
+		overflow: clip;
+		padding-bottom: calc(var(--cloud-cover) + 0.75rem);
 	}
 
 	.hero-content {
@@ -284,7 +319,7 @@
 	}
 
 	.hero-content h1 {
-		font-size: clamp(1.6rem, 3vw, 2.4rem);
+		font-size: clamp(1.6rem, 3vw, 1.9rem);
 		font-weight: 700;
 		line-height: 1.15;
 		max-width: 22ch;
@@ -292,23 +327,45 @@
 
 	.url {
 		font-family: "JetBrains Mono", ui-monospace, monospace;
+		user-select: none;
 
-		font-size: clamp(1.9rem, 8.2vw, 7rem);
-		line-height: 1.1;
+		font-size: clamp(1.9rem, 7.2vw, 6.5rem);
+		line-height: 1.05;
 		font-weight: 700;
 		letter-spacing: -0.03em;
 		margin: clamp(20px, 3vw, 36px) 0 28px;
 	}
 
 	.url > span {
-		user-select: none;
 		display: block;
-		overflow: hidden;
-		height: 1.05em;
+		/*overflow: hidden;*/
+		height: 1lh;
 	}
 
 	.url-part {
 		color: var(--look-sky-text-light);
+	}
+
+	.domain {
+		position: relative;
+		/*overflow: hidden;*/
+	}
+
+	.reel-container {
+		position: absolute;
+		top: -0.1em;
+		left: 0;
+		bottom: -0.2em;
+		/*inset-inline: 0;*/
+		/*inset-block: -0.1em 0.2em;*/
+		padding-block: 0.1em 0.2em;
+		mask-image: linear-gradient(
+			to bottom,
+			transparent 0%,
+			black 4%,
+			black 96%,
+			transparent 100%
+		);
 	}
 
 	.reel {
@@ -318,7 +375,11 @@
 
 	.reel span {
 		display: block;
-		height: 1.1em;
+		height: 1.3em;
+		text-overflow: ellipsis;
+		overflow: hidden;
+    white-space: nowrap;
+    max-width: 19ch;
 	}
 
 	.drop-hint {
@@ -328,7 +389,7 @@
 	.bank {
 		position: absolute;
 		left: calc((100% - var(--bank-width)) / 2);
-		bottom: -1px;
+		bottom: calc(var(--cloud-cover) - var(--bank) * var(--bank-shift-up) - 1px);
 		z-index: 1;
 		width: var(--bank-width);
 		height: auto;
@@ -340,10 +401,9 @@
 
 	.bank-fade {
 	  position: absolute; left: 0; right: 0; bottom: -1px; z-index: 1;
-	  height: calc(var(--bank) * .35);
+	  height: calc(var(--cloud-cover) * .35);
 	  background: linear-gradient(transparent, var(--look-page));
 	}
-
 
 	.features {
 		background: var(--look-page);
@@ -373,12 +433,12 @@
 
   @keyframes roll {
     0%, 14%    { transform: translateY(0); }
-    16.6%, 30% { transform: translateY(-1.1em); }
-    33.3%, 47% { transform: translateY(-2.2em); }
-    50%, 63%   { transform: translateY(-3.3em); }
-    66.6%, 80% { transform: translateY(-4.4em); }
-    83.3%, 97% { transform: translateY(-5.5em); }
-    100%       { transform: translateY(-6.6em); }
+    16.6%, 30% { transform: translateY(-1.3em); }
+    33.3%, 47% { transform: translateY(-2.6em); }
+    50%, 63%   { transform: translateY(-3.9em); }
+    66.6%, 80% { transform: translateY(-5.2em); }
+    83.3%, 97% { transform: translateY(-6.5em); }
+    100%       { transform: translateY(-7.8em); }
   }
 
 	.sr-only {
