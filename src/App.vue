@@ -60,7 +60,7 @@ const sites = [
 		<img
 			class="bank"
 			aria-hidden="true"
-			src="@/assets/images/bank2.webp"
+			src="@/assets/images/bank.webp"
 			alt=""
 			decoding="async"
 		/>
