@@ -13,21 +13,9 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-const BaseAPIURLs: { [key: string]: string } = {
-  production: `${window.location.protocol}//${window.location.host}/api`,
-  ptb: 'https://alekeagle.me/api',
-  development: 'http://localhost:8000/api',
-};
-
-const BaseThumbnailURLs: { [key: string]: string } = {
-  production: `${window.location.protocol}//previews.${window.location.host}`,
-  ptb: 'https://previews.alekeagle.me',
-  development: 'http://localhost:8100',
-};
-
 export const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
-  baseURL: BaseAPIURLs[import.meta.env.MODE],
-  baseThumbnailURL: BaseThumbnailURLs[import.meta.env.MODE],
+  baseURL: __API_BASE_URL__,
+  baseThumbnailURL: __THUMBNAIL_BASE_URL__,
 };
 
 // Store Definition

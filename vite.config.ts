@@ -11,9 +11,17 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  define: {
+    __THUMBNAIL_BASE_URL__: JSON.stringify('https://previews.alekeagle.me'),
+    __CDN_BASE_URL__: JSON.stringify('https://cdn.alekeagle.me'),
+    __API_BASE_URL__: JSON.stringify('https://alekeagle.me/api'),
+  },
   plugins: [
     VitePWA({
       strategies: 'injectManifest',
+      injectManifest: {
+        globPatterns: ['**/*'],
+      },
       manifest: {
         name: 'Cumulonimbus',
         short_name: 'Cumulonimbus',
@@ -150,9 +158,6 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       injectRegister: 'script',
-      injectManifest: {
-        globPatterns: ['**/*'],
-      },
       devOptions: {
         enabled: true,
         type: 'module',

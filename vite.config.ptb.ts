@@ -15,6 +15,9 @@ export default defineConfig({
   },
   define: {
     __VUE_PROD_DEVTOOLS__: true,
+    __THUMBNAIL_BASE_URL__: JSON.stringify('https://previews.alekeagle.me'),
+    __CDN_BASE_URL__: JSON.stringify('https://cdn.alekeagle.me'),
+    __API_BASE_URL__: JSON.stringify('https://alekeagle.me/api'),
   },
 
   plugins: [

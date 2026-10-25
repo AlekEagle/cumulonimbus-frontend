@@ -15,6 +15,9 @@ export default defineConfig({
   },
   define: {
     __VUE_PROD_DEVTOOLS__: true,
+    __THUMBNAIL_BASE_URL__: JSON.stringify('http://localhost:8100'),
+    __CDN_BASE_URL__: JSON.stringify('http://localhost:8200'),
+    __API_BASE_URL__: JSON.stringify('http://localhost:8000/api'),
   },
   plugins: [
     VitePWA({

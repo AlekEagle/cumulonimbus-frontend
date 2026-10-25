@@ -157,7 +157,6 @@
       ref="domainModal"
       @submit="(data: any) => toast.show(JSON.stringify(data))"
       @cancel="toast.show('cancelled domain modal')"
-      domain="alekeagle.me"
     />
     <ContentBox
       title="Display Fullscreen Loading Message Modal"

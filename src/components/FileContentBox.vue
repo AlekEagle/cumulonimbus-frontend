@@ -132,7 +132,7 @@
       (e.ctrlKey && !/Mac/i.test(navigator.platform)) ||
       (e.metaKey && /Mac/i.test(navigator.platform))
     )
-      return window.open(`https://cdn.alekeagle.me/${file?.id}`, '_blank');
+      return window.open(`${__CDN_BASE_URL__}/${file?.id}`, '_blank');
     await router.push(location.value);
   }
 

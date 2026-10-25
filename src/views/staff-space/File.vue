@@ -189,10 +189,7 @@
     files = filesStore(),
     router = useRouter(),
     fileUrl = computed(() => {
-      if (file.data)
-        if (import.meta.env.MODE === 'development')
-          return `http://${new URL(cumulonimbusOptions.baseURL!).hostname}:8090/${file.data.id}`;
-        else return `https://cdn.alekeagle.me/${file.data.id}`;
+      if (file.data) return `${__CDN_BASE_URL__}/${file.data.id}`;
     }),
     filename = computed(() => {
       if (file.data) return file.data.name ?? file.data.id;

@@ -13,13 +13,9 @@ const precacheManifest = self.__WB_MANIFEST;
 const router = new Router();
 
 // BaseThumbnailURLs is a map of environments to regexps that match the base URL of the thumbnail server.
-const BaseThumbnailURLs: { [key: string]: RegExp } = {
-  production: new RegExp(
-    `previews\\.${self.location.hostname.replace('.', '\\.')}`,
-  ),
-  ptb: new RegExp('previews\\.alekeagle\\.me'),
-  development: /localhost(?::\d{1,5})?/,
-};
+const thumbnailHostRegex = new RegExp(
+  new URL(__THUMBNAIL_BASE_URL__).hostname.replace('.', '\\.'),
+);
 
 // ---- Debugging functions ----
 
@@ -144,7 +140,7 @@ router.addRoute(
     if (
       options.request.method !== 'GET' || // Only cache GET requests
       options.url.pathname.match(/^\/api\/?/) || // Don't cache API requests
-      options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE]) || // Don't cache thumbnails, they have their own cache.
+      options.url.host.match(thumbnailHostRegex) || // Don't cache thumbnails, they have their own cache.
       options.url.protocol === 'chrome-extension:' || // Don't cache chrome extensions
       import.meta.env.MODE === 'development' // Don't cache anything! (This is a development service worker.)
     ) {
@@ -338,7 +334,7 @@ router.addRoute((options) => {
 
   if (
     options.request.method === 'GET' &&
-    options.url.host.match(BaseThumbnailURLs[import.meta.env.MODE])
+    options.url.host.match(thumbnailHostRegex)
   )
     return true;
   return false;

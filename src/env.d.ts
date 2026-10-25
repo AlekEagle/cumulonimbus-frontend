@@ -15,3 +15,9 @@ declare module 'vue' {
     $devDependencies: { [key: string]: string };
   }
 }
+
+declare global {
+  const __THUMBNAIL_BASE_URL__: string;
+  const __CDN_BASE_URL__: string;
+  const __API_BASE_URL__: string;
+}

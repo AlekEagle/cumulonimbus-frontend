@@ -81,7 +81,7 @@
     (event: 'no-session'): void;
   }>();
   const {
-    domain: domainProp = 'alekeagle.me',
+    domain: domainProp = new URL(__CDN_BASE_URL__).hostname,
     subdomain: subdomainProp = '',
     disabled,
   } = defineProps<{
