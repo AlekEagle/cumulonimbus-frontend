@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { ref, onMounted, Ref, watch } from "vue";
+
+// const featured = "iu94IKgA1w.mp4"; // 404
+const featured = "-r7kKbtZbD.mp4"; // funny
+
 const sites = [
   "cumulonimbus.link",
   "obama.solutions",
@@ -7,6 +12,37 @@ const sites = [
   "shit.computer",
   "toilets.pics",
 ];
+
+const visible = ref(false);
+const theme: Ref<"system" | "light" | "dark"> = ref("system");
+// const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+onMounted(() => {
+  visible.value = true;
+
+  document.addEventListener("keydown", (event) => {
+    if (event.repeat || event.isComposing) return;
+
+    switch (event.key) {
+      case ".":
+        theme.value = theme.value == "light" ? "dark" : "light";
+        break;
+    }
+  });
+});
+
+watch(theme, (value) => {
+  document.documentElement.classList.remove("dark-mode");
+  document.documentElement.classList.remove("light-mode");
+  switch (value) {
+    case "dark":
+      document.documentElement.classList.add("dark-mode");
+      break;
+    case "light":
+      document.documentElement.classList.add("light-mode");
+      break;
+  }
+});
 </script>
 
 <template>
@@ -24,38 +60,48 @@ const sites = [
       </nav>
     </header>
 
-    <section class="content hero-content">
-      <h1>Upload a file. Get a link like this one.</h1>
+    <Transition name="slide" appear>
+      <section v-if="visible" class="content hero-content">
+        <h1>Upload a file. Get a link like this one.</h1>
 
-      <p class="url">
-        <span class="url-part">https://</span>
-        <span class="domain">
-          <span class="reel-container">
-            <span class="reel" aria-hidden="true">
-              <span v-for="site in sites">{{ site }}</span>
-              <span>{{ sites[0] }}</span>
+        <p class="url">
+          <span class="url-part">https://</span>
+          <span class="domain">
+            <span class="reel-container">
+              <span class="reel" aria-hidden="true">
+                <span v-for="site in sites">{{ site }}</span>
+                <span>{{ sites[0] }}</span>
+              </span>
             </span>
+
+            <span class="sr-only">{{ sites[0] }}</span>
           </span>
-
-          <span class="sr-only">{{ sites[0] }}</span>
-        </span>
-        <span class="url-part">/iu94IKgA1w.mp4</span>
-        <!-- <span class="url-part">ÁÂgjpqy_,;</span> -->
-      </p>
-
-      <div class="drop-hint js-required">
-        <p class="dh-title">Drop some media to upload</p>
-        <p class="dh-sub">
-          Or paste a screenshot. You'll get a link as soon as it's up.
+          <span class="url-part">/{{ featured }}</span>
+          <!-- <span class="url-part">ÁÂgjpqy_,;</span> -->
         </p>
-      </div>
 
-      <!-- <a href="/auth">Open the dashboard</a> -->
-      <p>
-        Anyone can sign up, host any file, then share it from whichever of our
-        domains you like.
-      </p>
-    </section>
+        <div class="drop-hint js-required">
+          <img
+            aria-hidden="true"
+            src="@/assets/images/upload.svg"
+            style="filter: brightness(0) invert(1)"
+          />
+          <div class="dh-text">
+            <p class="dh-title">Drop some media to upload</p>
+            <p class="dh-sub">
+              Or paste a screenshot. You'll get a link as soon as it's up.
+            </p>
+          </div>
+          <button class="button" type="button" data-pick>Choose a file</button>
+        </div>
+
+        <a class="button" href="/auth">Open the dashboard</a>
+        <p>
+          Anyone can sign up, host any file, then share it from whichever of our
+          domains you like.
+        </p>
+      </section>
+    </Transition>
 
     <img
       class="bank"
@@ -149,26 +195,15 @@ const sites = [
     "
   >
     <legend>Development Options</legend>
-    <p>Press Enter to toggle visibility</p>
+    <p>Toggle window with "Enter"</p>
     <label>
-      <input
-        type="checkbox"
-        @vue:mounted="
-          ({ el }: any) => {
-            el.checked =
-              el.ownerDocument.documentElement.classList.contains('dark-mode');
-          }
-        "
-        @change="
-          (
-            $event.target as HTMLInputElement
-          ).ownerDocument.documentElement.classList.toggle(
-            'dark-mode',
-            ($event.target as HTMLInputElement).checked,
-          )
-        "
-      />
-      Dark mode
+      Theme
+      <select v-model="theme">
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+      (toggle with ".")
     </label>
     <div
       @input="
@@ -204,10 +239,7 @@ const sites = [
         <input type="checkbox" />
         Override URL reel
       </label>
-      <label>
-        Reel text
-        <input type="text" :value="sites[0]" />
-      </label>
+      <input type="text" :value="sites[0]" />
     </div>
   </fieldset>
 </template>
@@ -227,6 +259,15 @@ html {
   --bank-shift-up: 0.75;
 
   --cloud-cover: min(calc(var(--bank) * var(--bank-shift-up)), 18rem);
+
+  --theme-switch-time: 0.12s;
+  /*--theme-switch-time: 1s;*/
+}
+
+@property --look-page {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff;
 }
 
 /* light mode */
@@ -240,6 +281,10 @@ html {
 
   --look-band: #e8f4fc;
   --look-band-text: #0a2540;
+
+  --look-button: #ffffff;
+  --look-button-text: #0d4f86;
+  --look-button-hover: #e8f4fc;
 
   --hint-bg: rgba(255, 255, 255, 0.1);
   --hint-line: rgba(255, 255, 255, 0.65);
@@ -263,6 +308,25 @@ html.dark-mode {
   --hint-line: rgba(159, 190, 220, 0.55);
 
   --bank-tone: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light-mode) {
+    --look-sky: linear-gradient(180deg, #08162b 0%, #102847 60%, #173556 100%);
+    --look-sky-text: #eef4fa;
+    --look-sky-text-light: #9fbedc;
+
+    --look-page: #0e1a2b;
+    --look-page-text: #dce7f2;
+
+    --look-band: #12233a;
+    --look-band-text: #dce7f2;
+
+    --hint-bg: rgba(143, 203, 255, 0.06);
+    --hint-line: rgba(159, 190, 220, 0.55);
+
+    --bank-tone: 0.5;
+  }
 }
 
 /*html {
@@ -330,6 +394,12 @@ body {
 a {
   color: inherit;
   text-underline-offset: 3px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
 .content {
@@ -472,6 +542,21 @@ a {
   background: var(--hint-bg);
 }
 
+.dh-text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.dh-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.dh-sub {
+  font-size: 0.98rem;
+  color: var(--look-sky-text-light);
+}
+
 .bank {
   position: absolute;
   left: calc((100% - var(--bank-width)) / 2);
@@ -483,6 +568,8 @@ a {
   object-position: center top;
   filter: brightness(var(--bank-tone));
   mix-blend-mode: screen;
+
+  transition: filter var(--theme-switch-time);
 }
 
 .bank-fade {
@@ -493,11 +580,17 @@ a {
   z-index: 1;
   height: calc(var(--cloud-cover) * 0.35);
   background: linear-gradient(transparent, var(--look-page));
+
+  transition: --look-page var(--theme-switch-time);
 }
 
 .features {
   background: var(--look-page);
   color: var(--look-page-text);
+
+  transition:
+    background var(--theme-switch-time),
+    color var(--theme-switch-time);
 }
 
 .features-content {
@@ -511,6 +604,10 @@ a {
 .questions {
   background: var(--look-band);
   color: var(--look-band-text);
+
+  transition:
+    background var(--theme-switch-time),
+    color var(--theme-switch-time);
 }
 
 .questions-content {
@@ -522,32 +619,44 @@ a {
 }
 
 @keyframes roll {
-  0%,
-  14% {
+  0%,     /* 0 / 15 */
+  13.333% /* 2 / 15 */ {
     transform: translateY(0);
   }
-  16.6%,
-  30% {
+  16.667%, /* 2.5 / 15 */
+  30%      /* 4.5 / 15 */ {
     transform: translateY(-1.3em);
   }
-  33.3%,
-  47% {
+  33.333%, /* 5 / 15 */
+  46.667%  /* 7 / 15 */ {
     transform: translateY(-2.6em);
   }
-  50%,
-  63% {
+  50%,    /* 7.5 / 15 */
+  63.333% /* 9.5 / 15 */ {
     transform: translateY(-3.9em);
   }
-  66.6%,
-  80% {
+  66.667%, /* 10 / 15 */
+  80%      /* 12 / 15 */ {
     transform: translateY(-5.2em);
   }
-  83.3%,
-  97% {
+  83.333%, /* 12.5 / 15 */
+  96.667%  /* 14.5 / 15 */ {
     transform: translateY(-6.5em);
   }
-  100% {
+  100% /* 15 / 15 */ {
     transform: translateY(-7.8em);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .only-fine {
+    display: none;
+  }
+}
+
+@media (hover: hover), (pointer: fine) {
+  .only-touch {
+    display: none;
   }
 }
 
@@ -559,5 +668,35 @@ a {
   height: 1px;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.button {
+  display: inline-block;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 9em;
+  padding: 0.8125rem 1.5rem;
+  border: 2px solid var(--look-button);
+  background: transparent;
+
+  /* solid */
+  background: var(--look-button);
+  color: var(--look-button-text);
+}
+
+.button:hover {
+  background: var(--look-button-hover);
+  border-color: var(--look-button-hover);
+}
+
+.hero-content.slide-enter-active {
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+
+.hero-content.slide-enter-from {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
 }
 </style>
