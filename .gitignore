@@ -15,6 +15,7 @@ dist
 dev-dist
 dist-ssr
 *.local
+*.tsbuildinfo
 .yarn
 
 # Editor directories and files

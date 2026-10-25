@@ -1,168 +1,156 @@
-//TODO: Add a way to extend the configuration without having to copy the whole file.
-
-import { defineConfig } from 'vite';
-import { VitePWA } from 'vite-plugin-pwa';
+import { defineConfig, type UserConfig } from 'vite';
+import {
+  VitePWA,
+  type ManifestOptions,
+  type VitePWAOptions,
+} from 'vite-plugin-pwa';
 import vue from '@vitejs/plugin-vue';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  resolve: {
-    alias: {
-      '@': '/src',
+// Production is the single source of truth. The other environments
+// (vite.config.development.ts, vite.config.ptb.ts) call `createConfig`
+// with only the parts they need to change.
+
+// PWA options identical across every environment.
+const pwaOptions: Partial<VitePWAOptions> = {
+  strategies: 'injectManifest',
+  injectManifest: {
+    globPatterns: ['**/*'],
+  },
+  srcDir: 'src',
+  filename: 'sw.ts',
+  injectRegister: 'script',
+  devOptions: {
+    enabled: true,
+    type: 'module',
+  },
+};
+
+// Full production manifest; every env inherits this and overrides what differs.
+// Kept as a plain object on purpose: `tab_strip` and `display_override: ['tabbed']`
+// are ChromeOS-specific fields the PWA manifest type doesn't model, so the type
+// escape is handled once at the `VitePWA(...)` call instead of per-line suppressions.
+const baseManifest = {
+  name: 'Cumulonimbus',
+  short_name: 'Cumulonimbus',
+  start_url: '/dashboard',
+  display: 'standalone',
+  display_override: ['tabbed'],
+  tab_strip: {
+    home_tab: {
+      url: '/dashboard',
+      icons: [
+        { src: 'icons/72x72.png', sizes: '72x72', type: 'image/png' },
+        { src: 'icons/96x96.png', sizes: '96x96', type: 'image/png' },
+        { src: 'icons/128x128.png', sizes: '128x128', type: 'image/png' },
+        { src: 'icons/144x144.png', sizes: '144x144', type: 'image/png' },
+        { src: 'icons/152x152.png', sizes: '152x152', type: 'image/png' },
+        { src: 'icons/192x192.png', sizes: '192x192', type: 'image/png' },
+        { src: 'icons/384x384.png', sizes: '384x384', type: 'image/png' },
+        { src: 'icons/512x512.png', sizes: '512x512', type: 'image/png' },
+      ],
+      new_tab_button: 'absent',
     },
   },
-  define: {
-    __THUMBNAIL_BASE_URL__: JSON.stringify('https://previews.alekeagle.me'),
-    __CDN_BASE_URL__: JSON.stringify('https://cdn.alekeagle.me'),
-    __API_BASE_URL__: JSON.stringify('https://alekeagle.me/api'),
-  },
-  plugins: [
-    VitePWA({
-      strategies: 'injectManifest',
-      injectManifest: {
-        globPatterns: ['**/*'],
-      },
-      manifest: {
-        name: 'Cumulonimbus',
-        short_name: 'Cumulonimbus',
-        start_url: '/dashboard',
-        display: 'standalone',
-        // @ts-expect-error
-        display_override: ['tabbed'],
-        tab_strip: {
-          home_tab: {
-            url: '/dashboard',
-            icons: [
-              {
-                src: 'icons/72x72.png',
-                sizes: '72x72',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/96x96.png',
-                sizes: '96x96',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/128x128.png',
-                sizes: '128x128',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/144x144.png',
-                sizes: '144x144',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/152x152.png',
-                sizes: '152x152',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/192x192.png',
-                sizes: '192x192',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/384x384.png',
-                sizes: '384x384',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/512x512.png',
-                sizes: '512x512',
-                type: 'image/png',
-              },
-            ],
-            new_tab_button: 'absent',
-          },
-        },
-        scope: '/',
-        background_color: '#808080',
-        screenshots: [
-          {
-            src: 'https://cdn.alekeagle.me/DVAQGiggrG.png',
-            form_factor: 'wide',
-            sizes: '1920x1080',
-          },
-          {
-            src: 'https://cdn.alekeagle.me/jUf_rGepqK.png',
-            form_factor: 'narrow',
-            sizes: '1080x2260',
-          },
-        ],
-        icons: [
-          {
-            src: 'icons/72x72.png',
-            sizes: '72x72',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/96x96.png',
-            sizes: '96x96',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/128x128.png',
-            sizes: '128x128',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/144x144.png',
-            sizes: '144x144',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/152x152.png',
-            sizes: '152x152',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/384x384.png',
-            sizes: '384x384',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/maskable.png',
-            sizes: '1024x1024',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
-        ],
-        description: 'The funny cloud platform.',
-        lang: 'en',
-        dir: 'ltr',
-        orientation: 'portrait-primary',
-        // @ts-ignore
-        share_target: {
-          action: '/dashboard/upload',
-          method: 'POST',
-          enctype: 'multipart/form-data',
-          params: {
-            files: [{ name: 'file', accept: ['*/*', '.*'] }],
-          },
-        },
-        theme_color: '#808080',
-        id: 'cumulonimbus',
-      },
-      srcDir: 'src',
-      filename: 'sw.ts',
-      injectRegister: 'script',
-      devOptions: {
-        enabled: true,
-        type: 'module',
-      },
-    }),
-    vue(),
+  scope: '/',
+  background_color: '#808080',
+  screenshots: [
+    {
+      src: 'https://cdn.alekeagle.me/DVAQGiggrG.png',
+      form_factor: 'wide',
+      sizes: '1920x1080',
+    },
+    {
+      src: 'https://cdn.alekeagle.me/jUf_rGepqK.png',
+      form_factor: 'narrow',
+      sizes: '1080x2260',
+    },
   ],
-});
+  icons: [
+    { src: 'icons/72x72.png', sizes: '72x72', type: 'image/png' },
+    { src: 'icons/96x96.png', sizes: '96x96', type: 'image/png' },
+    { src: 'icons/128x128.png', sizes: '128x128', type: 'image/png' },
+    { src: 'icons/144x144.png', sizes: '144x144', type: 'image/png' },
+    { src: 'icons/152x152.png', sizes: '152x152', type: 'image/png' },
+    { src: 'icons/192x192.png', sizes: '192x192', type: 'image/png' },
+    { src: 'icons/384x384.png', sizes: '384x384', type: 'image/png' },
+    { src: 'icons/512x512.png', sizes: '512x512', type: 'image/png' },
+    {
+      src: 'icons/maskable.png',
+      sizes: '1024x1024',
+      type: 'image/png',
+      purpose: 'maskable',
+    },
+  ],
+  description: 'The funny cloud platform.',
+  lang: 'en',
+  dir: 'ltr',
+  orientation: 'portrait-primary',
+  share_target: {
+    action: '/dashboard/upload',
+    method: 'POST',
+    enctype: 'multipart/form-data',
+    params: {
+      files: [{ name: 'file', accept: ['*/*', '.*'] }],
+    },
+  },
+  theme_color: '#808080',
+  id: 'cumulonimbus',
+};
+
+// Production compile-time definitions; every env inherits these and overrides what differs.
+const baseDefine: Record<string, string> = {
+  __THUMBNAIL_BASE_URL__: JSON.stringify('https://previews.alekeagle.me'),
+  __CDN_BASE_URL__: JSON.stringify('https://cdn.alekeagle.me'),
+  __API_BASE_URL__: JSON.stringify('https://alekeagle.me/api'),
+  __APP_BASE_URL__: JSON.stringify('https://alekeagle.me'),
+};
+
+export interface EnvOverrides {
+  mode?: string;
+  sourcemap?: boolean;
+  define?: Record<string, string | number | boolean>;
+  manifest?: Record<string, unknown>;
+  pwa?: Partial<VitePWAOptions>;
+}
+
+// Builds a complete config on top of the production baseline. Plugin
+// instances are created here so they are never duplicated across envs.
+export function createConfig(overrides: EnvOverrides = {}): UserConfig {
+  const define = { ...baseDefine, ...overrides.define };
+  return {
+    ...(overrides.mode ? { mode: overrides.mode } : {}),
+    resolve: {
+      alias: {
+        '@': '/src',
+      },
+    },
+    ...(overrides.sourcemap !== undefined
+      ? { build: { sourcemap: overrides.sourcemap } }
+      : {}),
+    define,
+    plugins: [
+      VitePWA({
+        ...pwaOptions,
+        ...overrides.pwa,
+        // `tab_strip`/`display_override` aren't in the manifest type (see baseManifest).
+        manifest: {
+          ...baseManifest,
+          ...overrides.manifest,
+        } as unknown as Partial<ManifestOptions>,
+      }),
+      vue(),
+      {
+        name: 'html-transform',
+        transformIndexHtml(html) {
+          // replace the base URL placeholders with the actual values
+          Object.entries(define).forEach(([key, value]) => {
+            html = html.replace(new RegExp(key, 'g'), value as string);
+          });
+          return html;
+        },
+      },
+    ],
+  };
+}
+
+export default defineConfig(createConfig());

@@ -376,3 +376,21 @@
   src: url(@/assets/fonts/SourceCodePro/SourceCodePro-Italic-VariableFont_wght.ttf)
     format("truetype");
 }
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(@/assets/fonts/BricolageGrotesque/BricolageGrotesque-VariableFont_opsz_wdth_wght.ttf)
+    format("truetype");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url(@/assets/fonts/JetBrainsMono/JetBrainsMono-VariableFont_wght.ttf)
+    format("truetype");
+}

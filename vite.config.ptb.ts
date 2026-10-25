@@ -1,172 +1,20 @@
 import { defineConfig } from 'vite';
-import { VitePWA } from 'vite-plugin-pwa';
-import vue from '@vitejs/plugin-vue';
+import { createConfig } from './vite.config';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  resolve: {
-    alias: {
-      '@': '/src',
-    },
-  },
-  mode: 'ptb',
-  build: {
+// Inherits everything from the production config (./vite.config.ts)
+// and overrides only what's different for the production preview.
+export default defineConfig(
+  createConfig({
+    mode: 'ptb',
     sourcemap: true,
-  },
-  define: {
-    __VUE_PROD_DEVTOOLS__: true,
-    __THUMBNAIL_BASE_URL__: JSON.stringify('https://previews.alekeagle.me'),
-    __CDN_BASE_URL__: JSON.stringify('https://cdn.alekeagle.me'),
-    __API_BASE_URL__: JSON.stringify('https://alekeagle.me/api'),
-  },
-
-  plugins: [
-    VitePWA({
-      strategies: 'injectManifest',
-      manifest: {
-        name: 'Cumulonimbus Production Preview',
-        short_name: 'Cumulonimbus Prod Preview',
-        start_url: '/dashboard',
-        display: 'standalone',
-        // @ts-expect-error
-        display_override: ['tabbed'],
-        tab_strip: {
-          home_tab: {
-            url: '/dashboard',
-            icons: [
-              {
-                src: 'icons/72x72.png',
-                sizes: '72x72',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/96x96.png',
-                sizes: '96x96',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/128x128.png',
-                sizes: '128x128',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/144x144.png',
-                sizes: '144x144',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/152x152.png',
-                sizes: '152x152',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/192x192.png',
-                sizes: '192x192',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/384x384.png',
-                sizes: '384x384',
-                type: 'image/png',
-              },
-              {
-                src: 'icons/512x512.png',
-                sizes: '512x512',
-                type: 'image/png',
-              },
-            ],
-            new_tab_button: 'absent',
-          },
-        },
-        scope: '/',
-        background_color: '#000000',
-        screenshots: [
-          {
-            src: 'https://cdn.alekeagle.me/DVAQGiggrG.png',
-            form_factor: 'wide',
-            sizes: '1920x1080',
-          },
-          {
-            src: 'https://cdn.alekeagle.me/jUf_rGepqK.png',
-            form_factor: 'narrow',
-            sizes: '1080x2260',
-          },
-        ],
-        icons: [
-          {
-            src: 'icons/72x72.png',
-            sizes: '72x72',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/96x96.png',
-            sizes: '96x96',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/128x128.png',
-            sizes: '128x128',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/144x144.png',
-            sizes: '144x144',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/152x152.png',
-            sizes: '152x152',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/384x384.png',
-            sizes: '384x384',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/maskable.png',
-            sizes: '1024x1024',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
-        ],
-        description: 'The funny cloud platform.',
-        lang: 'en',
-        dir: 'ltr',
-        orientation: 'portrait-primary',
-        // @ts-ignore
-        share_target: {
-          action: '/dashboard/upload',
-          method: 'POST',
-          enctype: 'multipart/form-data',
-          params: {
-            files: [{ name: 'file', accept: ['*/*', '.*'] }],
-          },
-        },
-        theme_color: '#808080',
-        id: 'cumulonimbus-prod-preview',
-      },
-      srcDir: 'src',
-      filename: 'sw.ts',
-      injectRegister: 'script',
-      injectManifest: {
-        globPatterns: ['**/*'],
-      },
-      devOptions: {
-        enabled: true,
-        type: 'module',
-      },
-    }),
-    vue(),
-  ],
-});
+    define: {
+      __VUE_PROD_DEVTOOLS__: true,
+    },
+    manifest: {
+      name: 'Cumulonimbus Production Preview',
+      short_name: 'Cumulonimbus Prod Preview',
+      background_color: '#000000',
+      id: 'cumulonimbus-prod-preview',
+    },
+  }),
+);

@@ -110,7 +110,7 @@
   async function linkClicked(e: MouseEvent) {
     if (props.selecting) return;
     if (e.ctrlKey)
-      return window.open(`https://cdn.alekeagle.me/${props.file.id}`, '_blank');
+      return window.open(`${__CDN_BASE_URL__}/${props.file.id}`, '_blank');
     await router.push(location.value);
   }
 

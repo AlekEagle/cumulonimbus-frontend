@@ -1,7 +1,7 @@
 {
   "name": "cumulonimbus-frontend",
   "private": true,
-  "version": "4.10.1",
+  "version": "5.0.0",
   "type": "module",
   "license": "GNU-GPL-3.0",
   "scripts": {
