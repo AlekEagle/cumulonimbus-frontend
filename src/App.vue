@@ -1,877 +1,393 @@
-<template>
-  <header>
-    <RouterLink to="/">
-      <div class="logo">
-        <img
-          src="@/assets/images/Cumulonimbus.svg"
-          alt="Cumulonimbus Logo"
-          height="50"
-          width="50"
-        />
-        <p>Cumulonimbus</p>
-      </div>
-    </RouterLink>
-    <nav :class="{ active: hamburgerMenu }">
-      <div
-        @click="hamburgerMenu = !hamburgerMenu"
-        @keydown="navMenuKeydown"
-        tabindex="0"
-      >
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </div>
-      <ul @click.self="hamburgerMenu = false">
-        <li>
-          <ThemeManager :no-tab-index="hamburgerMenu" />
-        </li>
-        <li
-          v-for="(item, index) in menuItems"
-          @click="hamburgerMenu = false"
-          :key="index"
-        >
-          <RouterLink v-if="!item.external" :to="item.path" custom>
-            <template #default="{ navigate, href, isExactActive }">
-              <a
-                :class="isExactActive ? 'router-link-active' : ''"
-                :href="href"
-                @click="navigate"
-                :tabindex="hamburgerMenu ? '0' : '-1'"
-                v-text="item.name"
-              />
-            </template>
-          </RouterLink>
-          <a
-            v-else
-            :href="item.path"
-            rel="noopener"
-            target="_blank"
-            :tabindex="hamburgerMenu ? '0' : '-1'"
-          >
-            {{ item.name }}
-            <img
-              :src="newTabIcon"
-              alt="Icon indicating this link will open a new tab"
-              height="24"
-              width="24"
-            />
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </header>
-
-  <!-- The main element that contains the real deal content -->
-  <main class="content">
-    <!-- The real deal content -->
-    <RouterView />
-    <!-- The end of the real deal content -->
-  </main>
-  <!-- The end of the main element that contains the real deal content -->
-
-  <Modal ref="ptbWarningModal" title="Warning">
-    <template #default>
-      This is the preview of frontend of Cumulonimbus, it may be unstable and
-      will be revised in the future.
-      <br />
-      <br />
-      If you are aware of the risks of using this preview, please click the
-      button below to continue. Otherwise, you can click the other button to be
-      taken to the stable version. If you don't know what this means, please go
-      to the stable version. You will not see this message again if you
-      continue.
-    </template>
-
-    <template #footer>
-      <button @click="acceptPtbWarning">Continue</button>
-      <button @click="gotoStable">Go to stable version</button>
-    </template>
-  </Modal>
-
-  <SecondFactorModal />
-
-  <Transition name="toast">
-    <div class="toast-box" v-text="toast.text" v-if="toast.visible" />
-  </Transition>
-</template>
-
-<script lang="ts" setup>
-  // Vue Components
-  import ThemeManager from '@/components/ThemeManager.vue';
-  import Modal from '@/components/Modal.vue';
-  import SecondFactorModal from '@/components/SecondFactorModal.vue';
-
-  // In-House Modules
-  import newTabIcon from '@/assets/images/newtab.svg';
-
-  // Store Modules
-  import { userStore } from '@/stores/user.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { ptbStore } from '@/stores/ptb.js';
-
-  // External Modules
-  import { ref, onMounted, computed } from 'vue';
-  import {
-    useRouter,
-    useRoute,
-    RouteLocationNormalizedGeneric,
-  } from 'vue-router';
-
-  const user = userStore(),
-    toast = toastStore(),
-    router = useRouter(),
-    route = useRoute(),
-    ptb = ptbStore(),
-    host = window.location.host,
-    menuItems = computed(() => {
-      const currentLoc = route.fullPath;
-      return [
-        ...(user.account
-          ? [
-              {
-                name: 'Dashboard',
-                path: {
-                  name: 'user-space-dashboard',
-                },
-                external: false,
-              },
-              {
-                name: 'Switch Accounts',
-                path: {
-                  name: 'account-switcher',
-                  query: {
-                    redirect: currentLoc,
-                  },
-                },
-                external: false,
-              },
-            ]
-          : [
-              {
-                name: 'Login',
-                path: {
-                  name: 'account-switcher',
-                  query: {
-                    redirect: '/dashboard',
-                  },
-                },
-                external: false,
-              },
-            ]),
-        {
-          name: 'About',
-          path: '/about',
-          external: false,
-        },
-        {
-          name: 'Terms of Service',
-          path: '/tos',
-          external: false,
-        },
-        {
-          name: 'Privacy Policy',
-          path: '/privacy',
-          external: false,
-        },
-        {
-          name: 'Status',
-          path: `https://status.${host}/`,
-          external: true,
-        },
-        {
-          name: 'Documentation',
-          path: `https://docs.${host}/`,
-          external: true,
-        },
-        {
-          name: 'GitHub',
-          path: 'https://github.com/AlekEagle/cumulonimbus-frontend',
-          external: true,
-        },
-      ].filter((a) => typeof a !== 'undefined') as Array<{
-        name: string;
-        path: string;
-        external: boolean;
-      }>;
-    }),
-    hamburgerMenu = ref(false),
-    ptbWarningModal = ref<InstanceType<typeof Modal>>();
-
-  async function rehydrateUser() {
-    await user.rehydrate();
-
-    // Now the user has been rehydrated, we will re-run the route guard to ensure the user is redirected appropriately if needed
-    await routeGuard(router.currentRoute.value, router.currentRoute.value);
-  }
-
-  rehydrateUser();
-
-  async function routeGuard(
-    to: RouteLocationNormalizedGeneric,
-    from: RouteLocationNormalizedGeneric,
-  ) {
-    // if the client has not been rehydrated yet, wait until it has been rehydrated before checking authentication
-    if (!user.hasRehydrated) return;
-    // is the route the user is trying to navigate to the soft 404 page?
-    if (to.name === '404') {
-      // don't do anything
-      return;
-    }
-
-    // is the route the user is trying to navigate to a route that requires authentication?
-    else if (to.meta.requiresAuth) {
-      // check if the user is logged in
-      if (user.loggedIn) {
-        // if so, check if the route the user is trying to navigate to is a route that requires staff privileges
-        if (to.meta.requiresStaff) {
-          // if so, check if the user is staff
-          if (user.account!.user.staff) {
-            // if so, continue to the route
-            return;
-          } else {
-            // if not, display the insufficient permissions error and redirect to the home page
-            toast.insufficientPermissions();
-            return {
-              path: '/',
-            };
-          }
-        } else {
-          // if not, continue to the route
-          return;
-        }
-      } else {
-        // if not, display a toast that says the user needs to login and redirect to the auth page with the redirect query param set to the current route
-        toast.login();
-        return {
-          name: 'account-switcher',
-          query: {
-            redirect: to.fullPath,
-          },
-        };
-      }
-    } else {
-      // if not, continue to the route
-      return;
-    }
-  }
-
-  // use the beforeEach hook on the router to check if the user is logged in when navigating to a route that requires authentication
-  router.beforeEach(routeGuard);
-
-  function acceptPtbWarning() {
-    ptb.shownWarning = true;
-    ptbWarningModal.value!.hide();
-  }
-
-  function gotoStable() {
-    window.location.href = 'https://alekeagle.me';
-  }
-
-  onMounted(async () => {
-    if (ptb.isPtb && !ptb.shownWarning) ptbWarningModal.value!.show();
-  });
-
-  // Register a message handler for the service worker
-  navigator.serviceWorker?.addEventListener('message', (event) => {
-    switch (event.data.type) {
-      case 'update-complete':
-        toast.updateComplete();
-        break;
-      case 'update-failed':
-        toast.updateFailed();
-        break;
-    }
-  });
-
-  function navMenuKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' || e.key === ' ') {
-      hamburgerMenu.value = !hamburgerMenu.value;
-    }
-  }
-
-  window.addEventListener('unhandledrejection', (event) => {
-    console.error(
-      'An unhandled promise rejection occurred:',
-      event.reason,
-      '\nFull event trace:',
-    );
-    console.error(event);
-
-    toast.clientError();
-  });
+<script setup lang="ts">
+	const sites = ["cumulonimbus.link", "obama.solutions", "linus-tech.tips", "you.are-so.gay", "shit.computer", "toilets.pics"];
 </script>
 
+<template>
+	<div class="sky"> <!-- container div for sky -->
+		<header class="bar">
+			<a class="brand" href="/about">
+				<img aria-hidden="true" alt="" src="@/assets/images/Cumulonimbus.svg"/>
+				Cumulonimbus
+			</a>
+
+			<nav aria-label="Main">
+				<a href="/about">About</a>
+				<a href="/auth">Dashboard</a>
+			</nav>
+		</header>
+
+		<section class="content hero-content">
+			<h1>Upload a file. Get a link like this one.</h1>
+
+			<p class="url">
+				<span class="url-part">https://</span>
+				<span>
+					<span class="reel" aria-hidden="true">
+						<span v-for="site in sites">{{site}}</span>
+						<span>{{sites[0]}}</span>
+					</span>
+
+					<span class="sr-only">{{sites[0]}}</span>
+				</span>
+				<span class="url-part">/iu94IKgA1w.mp4</span>
+			</p>
+
+			<div class="drop-hint js-required">
+				<p class="dh-title">Drop some media to upload</p>
+				<p class="dh-sub">Or paste a screenshot. You'll get a link as soon as it's up.</p>
+			</div>
+
+			<a href="/auth">Open the dashboard</a>
+			<p>Anyone can sign up, host any file, then share it from whichever of our domains you like.</p>
+		</section>
+
+		 <img class="bank" aria-hidden="true" src="@/assets/images/bank.webp" alt="" decoding="async"/>
+		<div class="bank-fade" aria-hidden="true"></div>
+	</div>
+
+	<div class="features">
+		<main class="content features-content">
+			<section aria-labelledby="domain-list-title">
+				<h2 id="domain-list-title">Choose the domain on your links</h2>
+				features sect
+			</section>
+
+			<section aria-labelledby="upload-tools-title">
+				<h2 id="upload-tools-title">Upload from the tools you already use</h2>
+				Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam similique voluptate corporis nesciunt velit, ipsa quod nemo molestiae maiores rem asperiores ut obcaecati assumenda tempore qui eos modi reprehenderit veniam.
+			</section>
+		</main>
+	</div>
+
+	<div class="questions">
+		<div class="content questions-content">
+			<section aria-labelledby="questions-ideas-title">
+				<h3 id="questions-ideas-title">Questions or ideas?</h3>
+				questions sect
+			</section>
+
+			<section aria-labelledby="abuse report title">
+				<h3 class="abuse-report-title">See something wrong?</h3>
+				Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nostrum, numquam dolores, placeat omnis explicabo sunt dicta harum velit earum obcaecati odit aliquid error cumque. Enim maxime ut atque vero debitis?
+			</section>
+
+			<section aria-labelledby="joke-filler-title">
+				<h3 class="joke-filler-title">The only file host.*</h3>
+				Lorem, ipsum dolor sit amet consectetur adipisicing elit. Reiciendis ad voluptatem, eos officia commodi voluptatum tenetur veritatis. Blanditiis distinctio mollitia ducimus quisquam, exercitationem ea suscipit, aperiam pariatur quod reprehenderit dolorum!
+			</section>
+		</div>
+	</div>
+
+	<!-- yes i generated this element with ai -->
+	<fieldset
+		style="position: fixed; right: 1rem; bottom: 1rem; z-index: 1000; background: Canvas; color: CanvasText;"
+		@vue:mounted="(vnode: import('vue').VNode) => {
+			const fieldset = vnode.el as HTMLFieldSetElement & { appearanceKeyHandler?: (event: KeyboardEvent) => void };
+			fieldset.appearanceKeyHandler = (event: KeyboardEvent) => {
+				if (event.key === 'Enter' && !event.repeat && !event.isComposing) {
+					fieldset.hidden = !fieldset.hidden;
+				}
+			};
+			fieldset.ownerDocument.addEventListener('keydown', fieldset.appearanceKeyHandler);
+		}"
+		@vue:before-unmount="(vnode: import('vue').VNode) => {
+			const fieldset = vnode.el as HTMLFieldSetElement & { appearanceKeyHandler?: (event: KeyboardEvent) => void };
+			if (fieldset.appearanceKeyHandler) {
+				fieldset.ownerDocument.removeEventListener('keydown', fieldset.appearanceKeyHandler);
+			}
+		}"
+	>
+		<legend>Development Options</legend>
+		<p>Press Enter to toggle visibility</p>
+		<label>
+			<input
+				type="checkbox"
+				@vue:mounted="({ el }: any) => { el.checked = el.ownerDocument.documentElement.classList.contains('dark-mode'); }"
+				@change="($event.target as HTMLInputElement).ownerDocument.documentElement.classList.toggle('dark-mode', ($event.target as HTMLInputElement).checked)"
+			/>
+			Dark mode
+		</label>
+	</fieldset>
+
+</template>
+
 <style>
-  html {
-    --background: #fff;
-    --foreground: #000;
-    --link-color: #0059ff;
-    --logo-color-top: #7084e6;
-    --logo-color-bottom: #00faff;
-    --logo-shadow: #818181;
-    --ui-code-background: #ddd;
-    --ui-background: #f3f3f3;
-    --ui-foreground: #000;
-    --ui-border: #aaaaaa;
-    --ui-background-hover: #c0c0c0;
-    --ui-foreground-hover: #000;
-    --ui-border-hover: #8c8c8c;
-    --ui-background-disabled: #b8b8b8;
-    --ui-foreground-disabled: #000;
-    --ui-border-disabled: #9e9e9e;
-    --ui-fs-overlay-background: #ffffff80;
-    --font-heading: 'Montserrat', Verdana, sans-serif;
-    --font-body: 'Ubuntu', 'Trebuchet MS', sans-serif;
-    --font-code: 'Source Code Pro', 'Courier New', monospace;
-  }
-
-  html.dark-theme {
-    --background: #212121;
-    --foreground: #fff;
-    --link-color: #00ccff;
-    --logo-shadow: #000;
-    --ui-code-background: #161616;
-    --ui-background: #272727;
-    --ui-foreground: #fff;
-    --ui-border: #424242;
-    --ui-background-hover: #3c3c3c;
-    --ui-foreground-hover: #fff;
-    --ui-border-hover: #616161;
-    --ui-background-disabled: #161616;
-    --ui-foreground-disabled: #949494;
-    --ui-border-disabled: #353535;
-    --ui-fs-overlay-background: #00000080;
-  }
-
-  body {
-    margin: 0;
-    transition:
-      background-color 0.25s,
-      color 0.25s;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    background-color: var(--background);
-    color: var(--foreground);
-  }
-
-  main.content {
-    padding-bottom: 15px;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  h1 {
-    font-size: 1.65em;
-    font-weight: 700;
-  }
-
-  h2,
-  h3 {
-    font-size: 1.35em;
-    font-weight: 600;
-    line-height: 1.5;
-  }
-
-  .content > h1,
-  .content > h1 + h2 {
-    margin-left: 30px;
-    margin-right: 30px;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: var(--font-heading);
-
-    transition: background-color 0.25s;
-  }
-
-  header {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 10px 0;
-    align-items: center;
-    top: 0;
-    position: sticky;
-    position: -webkit-sticky;
-    background: var(--background);
-    transition:
-      background-color 0.25s,
-      box-shadow 0.25s;
-    z-index: 10;
-    box-shadow: 0px 10px 10px var(--background);
-  }
-
-  .nav-links {
-    margin-right: 15px;
-    float: right;
-  }
-
-  header nav > div {
-    display: none;
-  }
-
-  .bar {
-    display: block;
-    width: 25px;
-    height: 3px;
-    margin: 5px auto;
-    transition:
-      transform 0.4s,
-      opacity 0.4s,
-      background-color 0.25s;
-    background-color: var(--foreground);
-    border-radius: 2px;
-  }
-
-  a {
-    text-decoration: none;
-    color: var(--link-color);
-    transition:
-      background-color 0.25s,
-      color 0.25s;
-  }
-
-  .dark-mode-widget {
-    margin-left: auto;
-  }
-
-  .content h2 {
-    margin-left: 5px;
-    margin-right: 5px;
-  }
-
-  code {
-    display: inline-block;
-    font-family: var(--font-code);
-    padding: 0 10px;
-    background-color: var(--ui-code-background);
-    border-radius: 4px;
-    transition: background-color 0.25s;
-    white-space: pre-wrap;
-  }
-
-  h5,
-  h6,
-  p,
-  li,
-  img {
-    font-size: 18px;
-    font-weight: 400;
-    color: var(--foreground);
-    font-family: var(--font-body);
-    transition:
-      background-color 0.25s,
-      color 0.25s;
-  }
-
-  header a div.logo {
-    display: flex;
-    align-items: center;
-    user-select: none;
-  }
-
-  header a div.logo p {
-    height: fit-content;
-    margin: 0 0 0 10px;
-    padding: 0;
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 28px;
-    color: var(--foreground);
-  }
-
-  header a div.logo img {
-    height: 50px;
-    border-radius: 50%;
-    box-shadow: 4px 4px 4px var(--logo-shadow);
-    transition: box-shadow 0.25s;
-  }
-
-  .content {
-    text-align: center;
-  }
-
-  header nav ul {
-    --padding: 60px;
-    --background: rgba(255, 255, 255, 0.4);
-    transform: translate3d(0, 0, 0);
-    display: flex;
-    align-items: center;
-    padding: var(--padding) 0;
-    position: fixed;
-    justify-content: flex-start;
-    top: 110vh;
-    left: 0;
-    flex-direction: column;
-    margin: 0;
-    width: 100vw;
-    height: calc(100vh - (var(--padding) * 2));
-    text-align: center;
-    transition:
-      top 0.4s,
-      background-color 0.25s;
-    background-color: var(--background);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    z-index: 10;
-    overflow: hidden auto;
-    overscroll-behavior: contain;
-    scrollbar-width: none;
-  }
-
-  html.dark-theme header nav ul {
-    --background: rgba(33, 33, 33, 0.4);
-  }
-
-  header nav ul::-webkit-scrollbar {
-    display: none;
-  }
-
-  header nav.active ul {
-    top: -0;
-  }
-
-  header nav > div {
-    display: block;
-    cursor: pointer;
-    position: relative;
-    z-index: 11;
-    top: 3px;
-  }
-
-  header nav.active .bar:nth-child(2) {
-    opacity: 0;
-  }
-
-  header nav.active .bar:nth-child(1) {
-    transform: translateY(8px) rotate(45deg);
-  }
-
-  header nav.active .bar:nth-child(3) {
-    transform: translateY(-8px) rotate(-45deg);
-  }
-
-  header nav ul li {
-    user-select: none;
-    list-style: none;
-    padding: 2px 0;
-  }
-
-  header nav ul li a {
-    height: fit-content;
-    font-family: var(--font-heading);
-    margin: 0 5px;
-    font-weight: 600;
-    color: var(--foreground);
-    border-bottom: transparent solid 4px;
-    transition:
-      border 0.25s,
-      color 0.25s;
-    font-size: 33px;
-  }
-
-  header nav ul li a.router-link-active {
-    border-bottom: var(--foreground) solid 4px;
-  }
-
-  header nav ul li a:hover:not(.router-link-active) {
-    border-bottom: var(--link-color) solid 4px;
-  }
-
-  header nav ul li a img {
-    width: 24px;
-    transition: filter 0.25s;
-  }
-
-  html.dark-theme nav ul li a img {
-    filter: invert(100%);
-  }
-
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--foreground);
-    border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-corner {
-    background-color: transparent;
-  }
-
-  button {
-    padding: 10px;
-    border-radius: 10px;
-    margin: 5px 0;
-    font-size: 18px;
-    font-family: var(--font-heading);
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid var(--ui-border);
-    background-color: var(--ui-background);
-    color: var(--ui-foreground);
-    transition:
-      border 0.25s,
-      background-color 0.25s,
-      color 0.25s;
-    user-select: none;
-  }
-
-  button:hover:not(:disabled),
-  button:focus:not(:disabled) {
-    border: 1px solid var(--ui-border-hover);
-    background-color: var(--ui-background-hover);
-    color: var(--ui-foreground-hover);
-  }
-
-  button:disabled {
-    cursor: not-allowed;
-    border: 1px solid var(--ui-border-disabled);
-    background-color: var(--ui-background-disabled);
-    color: var(--ui-foreground-disabled);
-  }
-
-  button:focus {
-    outline: none;
-  }
-
-  .quick-action-buttons-container {
-    display: flex;
-    padding: 0 5px;
-    justify-content: space-evenly;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin: 0 auto 15px;
-    width: 40%;
-  }
-
-  .quick-action-buttons-container > a {
-    pointer-events: none;
-  }
-
-  .quick-action-buttons-container > button,
-  .quick-action-buttons-container > a > button {
-    margin-left: 5px;
-    margin-right: 5px;
-    pointer-events: all;
-  }
-
-  @media screen and (max-width: 781px) {
-    .quick-action-buttons-container {
-      width: 90%;
-    }
-  }
-
-  input {
-    padding: 10px;
-    border-radius: 10px;
-    font-family: var(--font-heading);
-    font-weight: 600;
-    margin: 5px 0;
-    transition:
-      border 0.25s,
-      background-color 0.25s,
-      color 0.25s;
-    outline: none;
-  }
-
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    appearance: none;
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input[type='number'] {
-    appearance: none;
-    -moz-appearance: textfield;
-  }
-
-  input[type='color'] {
-    box-sizing: content-box;
-    block-size: 24px;
-  }
-
-  textarea {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    border-radius: 10px;
-    padding: 10px;
-    margin: 5px 0;
-    outline: none;
-    resize: none;
-    box-sizing: border-box;
-    width: 100%;
-  }
-
-  input,
-  textarea,
-  select {
-    border: 1px solid var(--ui-border);
-    background-color: var(--ui-background);
-    color: var(--ui-foreground);
-    font-size: 18px;
-    transition:
-      border 0.25s,
-      background-color 0.25s,
-      color 0.25s;
-  }
-
-  input:disabled,
-  textarea:disabled,
-  select:disabled {
-    cursor: not-allowed;
-    border: 1px solid var(--ui-border-disabled);
-    background-color: var(--ui-background-disabled);
-    color: var(--ui-foreground-disabled);
-  }
-
-  input:hover:not(:disabled),
-  input:focus:not(:disabled),
-  textarea:hover:not(:disabled),
-  textarea:focus:not(:disabled),
-  select:hover:not(:disabled),
-  select:focus:not(:disabled) {
-    border: 1px solid var(--ui-border-hover);
-    background-color: var(--ui-background-hover);
-    color: var(--ui-foreground-hover);
-    outline: none;
-  }
-
-  form input[type='submit'] {
-    display: none;
-  }
-
-  select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    font-family:
-      'Montserrat', 'Franklin Gothic Medium', 'Arial Narrow', 'Arial',
-      'sans-serif';
-    border-radius: 10px;
-    font-weight: 600;
-    outline: none;
-    padding: 10px;
-    transition:
-      border 0.25s,
-      background-color 0.25s,
-      color 0.25s;
-  }
-
-  option {
-    font-weight: 600;
-    border: 1px solid var(--ui-border);
-    background-color: var(--ui-background);
-    color: var(--ui-foreground);
-  }
-
-  .toast-box {
-    position: fixed;
-    right: 35px;
-    bottom: 35px;
-    padding: 10px 15px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    background-color: var(--ui-background);
-    color: var(--ui-foreground);
-    border: 1px solid var(--ui-border);
-    font-size: 18px;
-    font-family: var(--font-body);
-    transition:
-      background-color 0.25s,
-      color 0.25s,
-      border 0.25s;
-    overflow-y: hidden;
-    margin-left: 35px;
-    max-width: 80vw;
-    overflow-wrap: break-word;
-    z-index: 100;
-  }
-
-  .toast-enter-active,
-  .toast-leave-active {
-    transition:
-      bottom 0.5s,
-      opacity 0.5s;
-  }
-
-  .toast-enter-from,
-  .toast-leave-to {
-    bottom: -50px;
-    opacity: 0;
-  }
-
-  .toast-enter-to,
-  .toast-leave-from {
-    bottom: 35px;
-  }
-
-  .content-box-container {
-    display: grid;
-    height: fit-content;
-    grid: auto / repeat(auto-fit, minmax(300px, 1fr));
-    grid-gap: 10px;
-    width: fit-content;
-    max-width: calc(100% - 20px);
-    margin: 0 auto;
-  }
-
-  .content-box-container.grow {
-    width: calc(100% - 20px);
-  }
-
-  .sb-code-label {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .sb-code-label p {
-    display: inline-block;
-  }
-
-  .content-box-container + .content-box-container {
-    margin-top: 15px;
-  }
-
-  .no-content-container {
-    padding: 30px 0;
-  }
-
-  .hero-points {
-    display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-  }
-
-  .hero-points div {
-    width: 45vw;
-  }
-
-  @media screen and (min-width: 769px) {
-    .hero-points div:nth-child(even) {
-      text-align: left;
-    }
-
-    .hero-points div:nth-child(odd):not(:last-child) {
-      text-align: right;
-    }
-  }
-
-  @media only screen and (max-width: 768px) {
-    .hero-points div {
-      width: 70vw;
-    }
-  }
+	* {
+		box-sizing: border-box;
+		margin: 0;
+	}
+
+	html {
+		/* Wider than the viewport (cropping the tall side peaks) until 1800px (112.5rem), then 100vw */
+		--bank-width: clamp(45rem, 130vw, max(112.5rem, 100vw));
+		/* Exact rendered height of bank-1.webp */
+		--bank: calc(var(--bank-width) * 509 / 2048);
+		/* Percent that the bank should be shifted up */
+		--bank-shift-up: 0.75;
+	}
+
+	/* light mode */
+	html {
+		--look-sky: #1877BD;
+		--look-sky-text: #FFFFFF;
+		--look-sky-text-light: #C6E0F3;
+
+		--look-page: #FFFFFF;
+		--look-page-text: #0A2540;
+
+		--look-band: #E8F4FC;
+		--look-band-text: #0A2540;
+
+		--hint-bg: rgba(255, 255, 255, .1);
+    --hint-line: rgba(255, 255, 255, .65);
+
+    --bank-tone: 1;
+	}
+
+	/* dark mode */
+	html.dark-mode {
+		--look-sky: linear-gradient(180deg, #08162B 0%, #102847 60%, #173556 100%);
+		--look-sky-text: #EEF4FA;
+		--look-sky-text-light: #9FBEDC;
+
+		--look-page: #0E1A2B;
+		--look-page-text: #DCE7F2;
+
+		--look-band: #12233A;
+		--look-band-text: #DCE7F2;
+
+		--hint-bg: rgba(143, 203, 255, .06);
+    --hint-line: rgba(159, 190, 220, .55);
+
+    --bank-tone: 0.5;
+	}
+
+	/*html {
+	  --background: #fff;
+	  --foreground: #000;
+	  --link-color: #0059ff;
+	  --logo-color-top: #7084e6;
+	  --logo-color-bottom: #00faff;
+	  --logo-shadow: #818181;
+	  --ui-code-background: #ddd;
+	  --ui-background: #f3f3f3;
+	  --ui-foreground: #000;
+	  --ui-border: #aaaaaa;
+	  --ui-background-hover: #c0c0c0;
+	  --ui-foreground-hover: #000;
+	  --ui-border-hover: #8c8c8c;
+	  --ui-background-disabled: #b8b8b8;
+	  --ui-foreground-disabled: #000;
+	  --ui-border-disabled: #9e9e9e;
+	  --ui-fs-overlay-background: #ffffff80;
+	  --font-heading: 'Montserrat', Verdana, sans-serif;
+	  --font-body: 'Ubuntu', 'Trebuchet MS', sans-serif;
+	  --font-code: 'Source Code Pro', 'Courier New', monospace;
+	}
+
+	html.dark-theme {
+	  --background: #212121;
+	  --foreground: #fff;
+	  --link-color: #00ccff;
+	  --logo-shadow: #000;
+	  --ui-code-background: #161616;
+	  --ui-background: #272727;
+	  --ui-foreground: #fff;
+	  --ui-border: #424242;
+	  --ui-background-hover: #3c3c3c;
+	  --ui-foreground-hover: #fff;
+	  --ui-border-hover: #616161;
+	  --ui-background-disabled: #161616;
+	  --ui-foreground-disabled: #949494;
+	  --ui-border-disabled: #353535;
+	  --ui-fs-overlay-background: #00000080;
+	}*/
+
+	body {
+	  margin: 0;
+	  /*transition:
+	    background 0.25s,
+	    color 0.25s;*/
+	  overflow-y: scroll;
+	  overflow-x: hidden;
+
+			/* notice: font is currently installed in html because fuck you */
+	  font-family: "Bricolage Grotesque", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+
+	  /*font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;*/
+	}
+
+  a { color: inherit; text-underline-offset: 3px; }
+
+	.content {
+		max-width: 77.5rem;
+		margin: 0 auto;
+
+		padding-inline: clamp(1.125rem, 4vw, 3.5rem);
+	}
+
+	/* hero */
+
+	.sky {
+		background: var(--look-sky);
+		color: var(--look-sky-text);
+		position: relative;
+		overflow-x: clip;
+		padding-bottom: calc(var(--bank) * var(--bank-shift-up) + 0.75rem);
+	}
+
+	.hero-content {
+		padding-block: clamp(2rem, 6vw, 5.5rem) 0;
+	}
+
+	.bar, .hero-content {
+		position: relative;
+		z-index: 2;
+	}
+
+	.bar {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1rem;
+		padding: 1rem clamp(1.125rem, 4vw, 3.5rem);
+	}
+
+	.brand {
+		display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 800; font-size: 1.35rem;
+	}
+
+	.brand img {
+		width: 2.625rem;
+		height: 2.625rem;
+		border-radius: 9rem;
+	}
+
+	.bar nav {
+		display: flex; align-items: center; gap: 1.5rem; font-weight: 600;
+	}
+
+	.bar nav a {
+				text-decoration: none;
+	}
+
+	.bar nav a:hover {
+				text-decoration: underline;
+	}
+
+	.hero-content h1 {
+		font-size: clamp(1.6rem, 3vw, 2.4rem);
+		font-weight: 700;
+		line-height: 1.15;
+		max-width: 22ch;
+	}
+
+	.url {
+		font-family: "JetBrains Mono", ui-monospace, monospace;
+
+		font-size: clamp(1.9rem, 8.2vw, 7rem);
+		line-height: 1.1;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		margin: clamp(20px, 3vw, 36px) 0 28px;
+	}
+
+	.url > span {
+		user-select: none;
+		display: block;
+		overflow: hidden;
+		height: 1.05em;
+	}
+
+	.url-part {
+		color: var(--look-sky-text-light);
+	}
+
+	.reel {
+		display: block;
+		animation: roll 15s cubic-bezier(.7, 0, .3, 1) infinite;
+	}
+
+	.reel span {
+		display: block;
+		height: 1.1em;
+	}
+
+	.drop-hint {
+		display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; max-width: 660px; margin-bottom: 24px; padding: 14px 14px 14px 18px; border: 2px dashed var(--hint-line); border-radius: 18px; background: var(--hint-bg);
+	}
+
+	.bank {
+		position: absolute;
+		left: calc((100% - var(--bank-width)) / 2);
+		bottom: -1px;
+		z-index: 1;
+		width: var(--bank-width);
+		height: auto;
+		object-fit: cover;
+		object-position: center top;
+		filter: brightness(var(--bank-tone));
+		mix-blend-mode: screen;
+	}
+
+	.bank-fade {
+	  position: absolute; left: 0; right: 0; bottom: -1px; z-index: 1;
+	  height: calc(var(--bank) * .35);
+	  background: linear-gradient(transparent, var(--look-page));
+	}
+
+
+	.features {
+		background: var(--look-page);
+		color: var(--look-page-text);
+	}
+
+	.features-content {
+		padding-block: clamp(2rem, 5vw, 4rem) clamp(3.5rem, 8vw, 6.5rem);
+
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+		gap: clamp(2.25rem, 6vw, 5.5rem);
+	}
+
+	.questions {
+		background: var(--look-band);
+		color: var(--look-band-text);
+	}
+
+	.questions-content {
+		padding-block: clamp(2.5rem, 6vw, 4.5rem);
+
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(1.5rem, 4vw, 3.5rem);
+	}
+
+  @keyframes roll {
+    0%, 14%    { transform: translateY(0); }
+    16.6%, 30% { transform: translateY(-1.1em); }
+    33.3%, 47% { transform: translateY(-2.2em); }
+    50%, 63%   { transform: translateY(-3.3em); }
+    66.6%, 80% { transform: translateY(-4.4em); }
+    83.3%, 97% { transform: translateY(-5.5em); }
+    100%       { transform: translateY(-6.6em); }
+  }
+
+	.sr-only {
+		position: absolute;
+		clip-path: rect(0 0 0 0);
+		left: 1000em;
+		width: 1px;
+		height: 1px;
+		white-space: nowrap;
+		overflow: hidden;
+	}
 </style>
