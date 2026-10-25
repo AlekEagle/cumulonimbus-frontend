@@ -1,4 +1,6 @@
 {
+  "tab_size": 2,
+  "hard_tabs": false,
   "prettier": {
     "allowed": true
   }
