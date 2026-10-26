@@ -174,9 +174,14 @@ export function createConfig(overrides: EnvOverrides = {}): UserConfig {
       {
         name: 'html-transform',
         transformIndexHtml(html) {
-          // replace the base URL placeholders with the actual values
+          // `define` values are JSON.stringify'd — required for Vite's JS `define`
+          // so a bare `__APP_BASE_URL__` in the TS compiles to a quoted string.
+          // But in index.html the placeholder already sits inside its own quotes
+          // (e.g. the Discord embed JSON's "__APP_BASE_URL__/dashboard"), so insert
+          // the raw, unquoted value — otherwise the quotes double up and corrupt it.
           Object.entries(define).forEach(([key, value]) => {
-            html = html.replace(new RegExp(key, 'g'), value as string);
+            const raw = JSON.parse(value as string);
+            html = html.replace(new RegExp(key, 'g'), () => String(raw));
           });
           return html;
         },

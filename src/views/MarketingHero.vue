@@ -33,7 +33,7 @@
       <button class="button" type="button" data-pick>Choose a file</button>
     </div>
 
-    <RouterLink class="button" to="/auth">Open the dashboard</RouterLink>
+    <RouterButton class="button" to="/auth">Open the dashboard</RouterButton>
     <p>
       Anyone can sign up, host any file, then share it from whichever of our
       domains you like.
@@ -42,6 +42,16 @@
 </template>
 
 <script setup lang="ts">
+  // Vue Components
+  import RouterButton from '@/components/RouterButton.vue';
+
+  // In-House Modules
+  // No In-House Modules to import here.
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
   import { debugRef } from '@/debug';
   import { watch } from 'vue';
 
@@ -71,7 +81,7 @@
   const featured = '-r7kKbtZbD.mp4'; // funny
 
   const sites = [
-    'cumulonimbus.link',
+    'cdn.cumulonimbus.link',
     'obama.solutions',
     'linus-tech.tips',
     'you.are-so.gay',
@@ -134,6 +144,7 @@
       black 96%,
       transparent 100%
     );
+    overflow: hidden;
   }
 
   .reel {

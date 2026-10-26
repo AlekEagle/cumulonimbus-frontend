@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://alekeagle.me/sitemap.xml
+Sitemap: https://cumulonimbus.link/sitemap.xml

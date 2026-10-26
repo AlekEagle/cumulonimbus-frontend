@@ -26,7 +26,7 @@
   import { useRouter } from 'vue-router';
 
   function isExternal(url: string) {
-    return ( ( url.indexOf(':') > -1 || url.indexOf('//') > -1 ));
+    return url.indexOf(':') > -1 || url.indexOf('//') > -1;
   }
 
   const props = defineProps({
@@ -49,16 +49,13 @@
 </script>
 
 <style>
-  .quick-action-buttons-container a.router-button-link {
-    margin-left: 5px;
-    margin-right: 5px;
-  }
-
   a.router-button-link {
     margin: 5px 0;
   }
 
   a.router-button-link button {
     margin: 0;
+    background: transparent;
+    border: none;
   }
 </style>

@@ -8,10 +8,9 @@
 
       <section aria-labelledby="upload-tools-title">
         <h2 id="upload-tools-title">Upload from the tools you already use</h2>
-        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam similique
-        voluptate corporis nesciunt velit, ipsa quod nemo molestiae maiores rem
-        asperiores ut obcaecati assumenda tempore qui eos modi reprehenderit
-        veniam.
+        We have support for programs like ShareX and other popular upload tools,
+        it can even be integrated into programs and platforms that allow you to
+        upload files to a remote host!
       </section>
     </main>
   </div>
@@ -20,7 +19,13 @@
     <div class="content questions-content">
       <section aria-labelledby="questions-ideas-title">
         <h3 id="questions-ideas-title">Questions or ideas?</h3>
-        questions sect
+        Talk to the developers and the rest of the community on
+        <a
+          href="https://alekeagle.com/d"
+          target="_blank"
+          rel="noopener noreferrer"
+          >our Discord Server</a
+        >.
       </section>
 
       <section aria-labelledby="abuse report title">

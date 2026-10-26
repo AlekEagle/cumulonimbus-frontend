@@ -122,13 +122,13 @@
   const sky = useTemplateRef('sky');
 
   let data: any = {};
-  function onLeave(element, done) {
+  function onLeave(element: Element, done: () => void) {
     data.height = sky.value!.getClientRects()[0].height;
     data.element = element;
     data.done = done;
   }
 
-  function onEnter(element: HTMLElement, done) {
+  function onEnter(element: Element, done: () => void) {
     if (data.element == undefined) return done();
 
     if (reducedMotion.matches) {
@@ -579,6 +579,17 @@
     height: 1px;
     white-space: nowrap;
     overflow: hidden;
+  }
+
+  button {
+    border: 2px solid var(--look-button);
+    background: var(--look-button);
+    color: var(--look-button-text);
+  }
+
+  .button:hover {
+    background: var(--look-button-hover);
+    border-color: var(--look-button-hover);
   }
 
   .button {
