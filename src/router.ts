@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import Home from '@/views/Home.vue';
+import MarketingHero from '@/views/MarketingHero.vue';
+import MarketingContent from '@/views/MarketingContent.vue';
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -9,19 +10,38 @@ export const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: Home,
+      components: {
+        default: MarketingContent,
+        hero: MarketingHero,
+      },
     },
     // Terms of Service page route
     {
       path: '/tos',
       name: 'tos',
-      component: () => import('@/views/TOS.vue'),
+      components: {
+        default: () => import('@/views/TOS.vue'),
+        hero: () => import('@/views/TermsHeader.vue'),
+      },
+      meta: {
+        documentName: 'Terms of Service',
+        updated: 'October 22nd, 2023',
+        pageSize: '60rem',
+      },
     },
     // Privacy Policy page route
     {
       path: '/privacy',
       name: 'privacy',
-      component: () => import('@/views/Privacy.vue'),
+      components: {
+        default: () => import('@/views/Privacy.vue'),
+        hero: () => import('@/views/TermsHeader.vue'),
+      },
+      meta: {
+        documentName: 'Privacy Policy',
+        updated: 'October 21st, 2023',
+        pageSize: '60rem',
+      },
     },
     // About page route
     {
