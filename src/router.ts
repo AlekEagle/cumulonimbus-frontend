@@ -1,4 +1,3 @@
-import { nextTick } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 import MarketingHero from '@/views/MarketingHero.vue';

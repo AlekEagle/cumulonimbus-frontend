@@ -93,6 +93,7 @@
 
   const route = useRoute();
   const noClouds = computed(() => (route.meta.noClouds ?? false) as boolean);
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   // const visible = ref(false);
   const theme = debugRef<'system' | 'light' | 'dark'>('system', {
@@ -128,11 +129,18 @@
   }
 
   function onEnter(element: HTMLElement, done) {
+    if (data.element == undefined) return done();
+
+    if (reducedMotion.matches) {
+      done();
+      data.done();
+      return;
+    }
+
     const placeholder = document.createComment('');
     data.element.replaceWith(placeholder);
     const targetHeight = sky.value!.getClientRects()[0].height;
     placeholder.replaceWith(data.element);
-
 
     const outh = data.element.getClientRects()[0].height;
     const inh = element.getBoundingClientRect().height;
@@ -333,6 +341,13 @@
     transform: translateY(400px);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .bank-enter-active,
+    .bank-leave-active {
+      transition: none;
+    }
+  }
+
   .bank-fade {
     position: absolute;
     left: 0;
@@ -356,6 +371,13 @@
   .bank-fade-enter-from,
   .bank-fade-leave-to {
     height: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bank-fade-enter-active,
+    .bank-fade-leave-active {
+      transition: none;
+    }
   }
 
   .footer {

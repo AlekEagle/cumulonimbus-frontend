@@ -33,9 +33,7 @@
       <button class="button" type="button" data-pick>Choose a file</button>
     </div>
 
-    <RouterLink class="button" to="/auth"
-      >Open the dashboard</RouterLink
-    >
+    <RouterLink class="button" to="/auth">Open the dashboard</RouterLink>
     <p>
       Anyone can sign up, host any file, then share it from whichever of our
       domains you like.
@@ -141,6 +139,12 @@
   .reel {
     display: block;
     animation: roll 15s cubic-bezier(0.7, 0, 0.3, 1) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reel {
+      animation: roll 15s step-start infinite;
+    }
   }
 
   .reel span {
