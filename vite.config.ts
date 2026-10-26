@@ -1,4 +1,9 @@
-import { defineConfig, type UserConfig } from 'vite';
+import {
+  defineConfig,
+  type BuildOptions,
+  type PluginOption,
+  type UserConfig,
+} from 'vite';
 import {
   VitePWA,
   type ManifestOptions,
@@ -13,8 +18,22 @@ import vue from '@vitejs/plugin-vue';
 // PWA options identical across every environment.
 const pwaOptions: Partial<VitePWAOptions> = {
   strategies: 'injectManifest',
+  // The ['**/*'] glob below already captures the manifest icons from publicDir,
+  // so skip the plugin's automatic icon injection — otherwise each icon is
+  // listed twice in the precache manifest (once via glob, once here).
+  includeManifestIcons: false,
   injectManifest: {
     globPatterns: ['**/*'],
+    // The glob also picks up manifest.webmanifest, which the plugin injects on
+    // its own (with an MD5 revision) — ignore it from the glob so it's listed
+    // only once.
+    globIgnores: ['manifest.webmanifest'],
+    // vite-plugin-pwa defaults dontCacheBustURLsMatching to /^<assetsDir>\//,
+    // which strips the content-hash revision from every Vite-hashed asset
+    // (assets/*) — and viteSingleFile sets build.assetsDir="", widening it to
+    // /^/ so it strips revisions from *everything*. Match nothing so every
+    // precache entry keeps its content-hash revision.
+    dontCacheBustURLsMatching: /$^/,
   },
   srcDir: 'src',
   filename: 'sw.ts',
@@ -108,15 +127,20 @@ const baseDefine: Record<string, string> = {
 export interface EnvOverrides {
   mode?: string;
   sourcemap?: boolean;
+  outDir?: string;
   define?: Record<string, string | number | boolean>;
   manifest?: Record<string, unknown>;
   pwa?: Partial<VitePWAOptions>;
+  extraPlugins?: PluginOption[];
 }
 
 // Builds a complete config on top of the production baseline. Plugin
 // instances are created here so they are never duplicated across envs.
 export function createConfig(overrides: EnvOverrides = {}): UserConfig {
   const define = { ...baseDefine, ...overrides.define };
+  const build: BuildOptions = {};
+  if (overrides.sourcemap !== undefined) build.sourcemap = overrides.sourcemap;
+  if (overrides.outDir !== undefined) build.outDir = overrides.outDir;
   return {
     ...(overrides.mode ? { mode: overrides.mode } : {}),
     resolve: {
@@ -124,14 +148,22 @@ export function createConfig(overrides: EnvOverrides = {}): UserConfig {
         '@': '/src',
       },
     },
-    ...(overrides.sourcemap !== undefined
-      ? { build: { sourcemap: overrides.sourcemap } }
-      : {}),
+    ...(Object.keys(build).length ? { build } : {}),
     define,
     plugins: [
       VitePWA({
         ...pwaOptions,
         ...overrides.pwa,
+        // Nested PWA options are deep-merged so an override can add a key
+        // without dropping the base's other keys.
+        injectManifest: {
+          ...pwaOptions.injectManifest,
+          ...overrides.pwa?.injectManifest,
+        },
+        devOptions: {
+          ...pwaOptions.devOptions,
+          ...overrides.pwa?.devOptions,
+        },
         // `tab_strip`/`display_override` aren't in the manifest type (see baseManifest).
         manifest: {
           ...baseManifest,
@@ -149,6 +181,8 @@ export function createConfig(overrides: EnvOverrides = {}): UserConfig {
           return html;
         },
       },
+      // Extra plugins for this env (e.g. viteSingleFile), appended after the shared ones.
+      ...(overrides.extraPlugins ?? []),
     ],
   };
 }
