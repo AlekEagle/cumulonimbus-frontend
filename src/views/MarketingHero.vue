@@ -14,7 +14,6 @@
       <span class="screen-reader-only">{{ sites[0] }}</span>
     </span>
     <span class="url-part">/{{ featured }}</span>
-    <!-- <span class="url-part">ÁÂgjpqy_,;</span> -->
   </p>
 
   <div class="drop-hint js-required">
@@ -41,9 +40,30 @@
 </template>
 
 <script setup lang="ts">
-  //   import { registerText } from '@/debug';
-  //
-  //   registerText('Override URL reel', null, true);
+  import { debugRef } from '@/debug';
+  import { watch } from 'vue';
+
+  const siteOverride = debugRef<null | string>(null, {
+    type: 'text',
+    description: 'Override URL',
+    default: 'ÁÂgjpqy_,;',
+  });
+
+  watch(siteOverride, (override) => {
+    const reel = document.querySelector('.reel');
+    if (!reel) return;
+
+    const attributes = reel.children[0].attributes;
+    reel.replaceChildren(
+      ...Array.from({ length: 7 }, () => {
+        const span = document.createElement('span');
+        for (const attribute of Array.from(attributes))
+          span.setAttribute(attribute.name, attribute.value);
+        span.textContent = override;
+        return span;
+      }),
+    );
+  });
 
   // const featured = "iu94IKgA1w.mp4"; // 404
   const featured = '-r7kKbtZbD.mp4'; // funny

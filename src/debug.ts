@@ -1,20 +1,22 @@
 import { Ref, ref, onMounted, onUnmounted } from 'vue';
 
-type DebugCheckbox<T extends boolean = boolean> = {
+type DebugCheckbox<T extends boolean | null = boolean | null> = {
   type: 'checkbox';
-  value: Ref<boolean>;
+  value: Ref<T>;
   description: string;
+  default?: Exclude<T, null>;
   toggle?: string;
 };
 
-type DebugSelect<T extends string = string> = {
+type DebugSelect<T extends string | null = string | null> = {
   type: 'select';
   value: Ref<T>;
   description: string;
-  states: T[];
+  default?: Exclude<T, null>;
+  states: Exclude<T, null>[];
 } & (
   | {
-      toggleStates: string[];
+      toggleStates: Exclude<T, null>[];
       toggle: string;
     }
   | {
@@ -23,19 +25,30 @@ type DebugSelect<T extends string = string> = {
     }
 );
 
-type DebugSetting = DebugCheckbox | DebugSelect;
+type DebugText<T extends string | null = string | null> = {
+  type: 'text';
+  value: Ref<T>;
+  description: string;
+  default?: Exclude<T, null>;
+};
+
+export type DebugSetting = DebugCheckbox | DebugSelect | DebugText;
 
 export const debugSettings: Ref<DebugSetting[]> = ref([]) as Ref<
   DebugSetting[]
 >;
 
-export function debugRef<T extends string>(
+export function debugRef<T extends boolean | null>(
+  initialValue: T,
+  configuration: Omit<DebugCheckbox<T>, 'value'>,
+): Ref<T>;
+export function debugRef<T extends string | null>(
   initialValue: T,
   configuration: Omit<DebugSelect<T>, 'value'>,
 ): Ref<T>;
-export function debugRef<T extends boolean>(
+export function debugRef<T extends string | null>(
   initialValue: T,
-  configuration: Omit<DebugCheckbox<T>, 'value'>,
+  configuration: Omit<DebugText<T>, 'value'>,
 ): Ref<T>;
 export function debugRef<T>(
   initialValue: any,
@@ -50,7 +63,10 @@ export function debugRef<T>(
   });
 
   onUnmounted(() => {
-    debugSettings.value = debugSettings.value.filter((value) => value == data);
+    const indexOf = debugSettings.value.indexOf(data);
+    debugSettings.value = debugSettings.value.filter(
+      (_, index) => index != indexOf,
+    );
   });
 
   return value;

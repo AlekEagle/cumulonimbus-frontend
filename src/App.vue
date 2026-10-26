@@ -55,14 +55,26 @@
   <fieldset v-if="debugVisible" class="debug-settings">
     <legend>Development Options</legend>
     <p>Toggle window with "Enter"</p>
-    <label v-for="option in debugSettings">
-      {{ option.description }}
-      <select v-if="option.type == 'select'" v-model="option.value">
-        <option v-for="value in option.states" :value="value">{{
-          value
-        }}</option>
-      </select>
-      <span v-if="option.toggle != null">
+    <label v-for="option in debugSettings" :style="{ display: 'block' }">
+      <button
+        v-if="option.value == null"
+        @click="assignSettingDefault(option)"
+        >{{ option.description }}</button
+      >
+      <template v-else>
+        {{ option.description }}
+        <select v-if="option.type == 'select'" v-model="option.value">
+          <option v-for="value in option.states" :value="value">{{
+            value
+          }}</option>
+        </select>
+        <input
+          v-if="option.type == 'text'"
+          type="text"
+          v-model="option.value"
+        />
+      </template>
+      <span v-if="'toggle' in option && option.toggle != null">
         (toggle with "{{ option.toggle }}")</span
       >
     </label>
@@ -70,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, Ref, watch, computed } from 'vue';
+  import { ref, onMounted, watch, computed } from 'vue';
   import { useRoute } from 'vue-router';
   import { debugSettings, debugRef } from '@/debug';
 
@@ -98,19 +110,31 @@
     }
   });
 
+  //// Development Options
+
   const debugVisible = ref(true);
 
-  console.log(debugSettings);
-  watch(debugSettings, (options) => {
-    console.log(options);
-  });
+  function assignSettingDefault(setting: any) {
+    if ('default' in setting) setting.value = setting.default;
+    else
+      switch (setting.type) {
+        case 'checkbox':
+          setting.value = false;
+          break;
+        case 'select':
+          setting.value = setting.states[0];
+          break;
+        case 'text':
+          setting.value = '';
+          break;
+      }
+  }
 
   onMounted(() => {
     visible.value = true;
 
     document.addEventListener('keydown', (event) => {
       if (event.repeat || event.isComposing) return;
-
       if (event.key == 'Enter') debugVisible.value = !debugVisible.value;
 
       // man vue's types sure are correct
