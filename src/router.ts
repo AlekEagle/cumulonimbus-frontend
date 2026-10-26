@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 import MarketingHero from '@/views/MarketingHero.vue';
@@ -11,8 +12,8 @@ export const router = createRouter({
       path: '/',
       name: 'home',
       components: {
+        header: MarketingHero,
         default: MarketingContent,
-        hero: MarketingHero,
       },
     },
     // Terms of Service page route
@@ -20,13 +21,12 @@ export const router = createRouter({
       path: '/tos',
       name: 'tos',
       components: {
+        header: () => import('@/views/TermsHeader.vue'),
         default: () => import('@/views/TOS.vue'),
-        hero: () => import('@/views/TermsHeader.vue'),
       },
       meta: {
         documentName: 'Terms of Service',
         updated: 'October 22nd, 2023',
-        pageSize: '60rem',
       },
     },
     // Privacy Policy page route
@@ -34,13 +34,12 @@ export const router = createRouter({
       path: '/privacy',
       name: 'privacy',
       components: {
+        header: () => import('@/views/TermsHeader.vue'),
         default: () => import('@/views/Privacy.vue'),
-        hero: () => import('@/views/TermsHeader.vue'),
       },
       meta: {
         documentName: 'Privacy Policy',
         updated: 'October 21st, 2023',
-        pageSize: '60rem',
       },
     },
     // About page route
@@ -53,13 +52,21 @@ export const router = createRouter({
     {
       path: '/auth',
       name: 'auth',
-      component: () => import('@/views/Auth.vue'),
+      components: {
+        header: () => import('@/views/Auth2.vue'),
+      },
+      meta: {
+        noClouds: true,
+      },
     },
     // Account Switcher page route
     {
       path: '/auth/switcher',
       name: 'account-switcher',
-      component: () => import('@/views/AccountSwitcher.vue'),
+      components: {
+        default: () => import('@/views/Demo.vue'),
+        header: () => import('@/views/Demo.vue'),
+      },
     },
     // Email Verification page route
     {
@@ -268,3 +275,39 @@ export const router = createRouter({
     },
   ],
 });
+
+// let finishViewTransition: (() => void) | undefined;
+//
+// import {ref} from 'vue';
+// export const visible = ref(false);
+//
+// router.beforeResolve((to, from) => {
+//   if (!document.startViewTransition || to.fullPath === from.fullPath) return;
+//
+//   return new Promise<void>((resolve) => {
+//     visible.value = false;
+//     setTimeout(() => {
+//
+//     document.startViewTransition(
+//       () =>
+//         new Promise<void>((done) => {
+//           function doThing() {
+//             visible.value = true;
+//             done();
+//             setTimeout(() => {
+//             }, 200);
+//           }
+//
+//           finishViewTransition = doThing;
+//           resolve();
+//         }),
+//     );
+//     }, 100);
+//   });
+// });
+//
+// router.afterEach(() => {
+//   const finish = finishViewTransition;
+//   finishViewTransition = undefined;
+//   if (finish) nextTick(finish);
+// });

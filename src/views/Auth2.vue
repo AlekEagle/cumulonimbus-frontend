@@ -1,0 +1,30 @@
+<template>
+  <section class="content hero-content">
+    i am auth! <RouterLink to="/auth/switcher">go</RouterLink>
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+    <br/>big
+  </section>
+</template>

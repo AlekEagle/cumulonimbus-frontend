@@ -1,42 +1,46 @@
 <template>
-  <h1>Upload a file. Get a link like this one.</h1>
+  <section class="content hero-content">
+    <h1>Upload a file. Get a link like this one.</h1>
 
-  <p class="url">
-    <span class="url-part">https://</span>
-    <span class="domain">
-      <span class="reel-container">
-        <span class="reel" aria-hidden="true">
-          <span v-for="site in sites">{{ site }}</span>
-          <span>{{ sites[0] }}</span>
+    <p class="url">
+      <span class="url-part">https://</span>
+      <span class="domain">
+        <span class="reel-container">
+          <span class="reel" aria-hidden="true">
+            <span v-for="site in sites">{{ site }}</span>
+            <span>{{ sites[0] }}</span>
+          </span>
         </span>
+
+        <span class="screen-reader-only">{{ sites[0] }}</span>
       </span>
+      <span class="url-part">/{{ featured }}</span>
+    </p>
 
-      <span class="screen-reader-only">{{ sites[0] }}</span>
-    </span>
-    <span class="url-part">/{{ featured }}</span>
-  </p>
-
-  <div class="drop-hint js-required">
-    <img
-      aria-hidden="true"
-      src="@/assets/images/upload.svg"
-      style="filter: brightness(0) invert(1)"
-    />
-    <div class="dh-text">
-      <p class="dh-title">Drop some media to upload</p>
-      <p class="dh-sub">
-        Or paste a screenshot. You'll get a link, like the ones above, as soon
-        as it's up.
-      </p>
+    <div class="drop-hint js-required">
+      <img
+        aria-hidden="true"
+        src="@/assets/images/upload.svg"
+        style="filter: brightness(0) invert(1)"
+      />
+      <div class="dh-text">
+        <p class="dh-title">Drop some media to upload</p>
+        <p class="dh-sub">
+          Or paste a screenshot. You'll get a link, like the ones above, as soon
+          as it's up.
+        </p>
+      </div>
+      <button class="button" type="button" data-pick>Choose a file</button>
     </div>
-    <button class="button" type="button" data-pick>Choose a file</button>
-  </div>
 
-  <a class="button" href="/auth">Open the dashboard</a>
-  <p>
-    Anyone can sign up, host any file, then share it from whichever of our
-    domains you like.
-  </p>
+    <RouterLink class="button" to="/auth"
+      >Open the dashboard</RouterLink
+    >
+    <p>
+      Anyone can sign up, host any file, then share it from whichever of our
+      domains you like.
+    </p>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -79,11 +83,18 @@
 </script>
 
 <style scoped>
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding-block: clamp(2rem, 6vw, 5.5rem) 0;
+  }
+
   h1 {
     font-size: clamp(1.6rem, 3vw, 1.9rem);
     font-weight: 700;
     line-height: 1.15;
     padding-block-end: 0.1875em;
+    max-width: 22ch;
   }
 
   .url {

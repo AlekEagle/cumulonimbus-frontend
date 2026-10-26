@@ -41,10 +41,6 @@
   </div>
 </template>
 
-<script setup lang="ts">
-  import { ref, onMounted, Ref, watch } from 'vue';
-</script>
-
 <style scoped>
   .features {
     background: var(--look-page);

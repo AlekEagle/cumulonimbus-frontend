@@ -1,5 +1,5 @@
 <template>
-  <div class="sky">
+  <div ref="sky" class="sky">
     <header class="bar">
       <RouterLink class="brand" to="/">
         <img aria-hidden="true" alt="" src="@/assets/images/Cumulonimbus.svg" />
@@ -12,24 +12,28 @@
       </nav>
     </header>
 
-    <Transition name="slide" appear>
-      <section
-        v-if="visible"
-        class="content hero-content"
-        :style="{ maxWidth: pageSize }"
-      >
-        <RouterView name="hero" />
-      </section>
-    </Transition>
+    <!-- v-if="visible" -->
+    <RouterView name="header" v-slot="{ Component, route }">
+      <Transition :css="false" @enter="onEnter" @leave="onLeave">
+        <div :key="route.path">
+          <component :is="Component" />
+        </div>
+      </Transition>
+    </RouterView>
 
-    <img
-      class="bank"
-      aria-hidden="true"
-      src="@/assets/images/bank.webp"
-      alt=""
-      decoding="async"
-    />
-    <div class="bank-fade" aria-hidden="true"></div>
+    <Transition name="bank">
+      <img
+        v-if="!noClouds"
+        class="bank"
+        aria-hidden="true"
+        src="@/assets/images/bank.webp"
+        alt=""
+        decoding="async"
+      />
+    </Transition>
+    <Transition name="bank-fade">
+      <div v-if="!noClouds" class="bank-fade" aria-hidden="true"></div>
+    </Transition>
   </div>
 
   <!-- DO NOT DELETE THIS CODE OR THE COMMENTS I DON'T KNOW WHAT IT DOES BUT REMOVING IT BREAKS LITERALLY EVRYTHING -->
@@ -82,13 +86,15 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, watch, computed } from 'vue';
+  import { ref, onMounted, watch, computed, useTemplateRef } from 'vue';
   import { useRoute } from 'vue-router';
   import { debugSettings, debugRef } from '@/debug';
+  // import { visible } from '@/router';
 
   const route = useRoute();
-  const pageSize = computed(() => route.meta.pageSize as string);
-  const visible = ref(false);
+  const noClouds = computed(() => (route.meta.noClouds ?? false) as boolean);
+
+  // const visible = ref(false);
   const theme = debugRef<'system' | 'light' | 'dark'>('system', {
     type: 'select',
     description: 'Theme',
@@ -109,6 +115,99 @@
         break;
     }
   });
+
+  //// Animation
+
+  const sky = useTemplateRef('sky');
+
+  let data: any = {};
+  function onLeave(element, done) {
+    data.height = sky.value!.getClientRects()[0].height;
+    data.element = element;
+    data.done = done;
+  }
+
+  function onEnter(element: HTMLElement, done) {
+    const placeholder = document.createComment('');
+    data.element.replaceWith(placeholder);
+    const targetHeight = sky.value!.getClientRects()[0].height;
+    placeholder.replaceWith(data.element);
+
+
+    const outh = data.element.getClientRects()[0].height;
+    const inh = element.getBoundingClientRect().height;
+
+    data.element.animate(
+      [
+        {
+          offset: 0,
+          easing: 'ease-in-out',
+
+          position: 'absolute',
+          width: '100%',
+          opacity: '1',
+        },
+        {
+          offset: 0.5,
+
+          position: 'absolute',
+          width: '100%',
+          opacity: '0',
+          transform: `translateY(${-outh / 8}px) scale(0.95)`,
+        },
+        {
+          offset: 1,
+
+          position: 'absolute',
+          width: '100%',
+          opacity: '0',
+        },
+      ],
+      300,
+    );
+
+    element.animate(
+      [
+        {
+          offset: 0,
+
+          opacity: '0',
+        },
+        {
+          offset: 0.5,
+          easing: 'ease-in-out',
+
+          opacity: '0',
+          transform: `translateY(${-inh / 8}px) scale(0.95)`,
+        },
+        {
+          offset: 1,
+
+          opacity: '1',
+        },
+      ],
+      300,
+    );
+
+    sky.value!.animate(
+      [
+        {
+          easing: 'ease-in-out',
+
+          height: `${data.height}px`,
+        },
+        {
+          height: `${targetHeight}px`,
+        },
+      ],
+      300,
+    );
+    // console.log("onEnter", arguments);
+    setTimeout(() => {
+      done();
+      data.done();
+    }, 290);
+  }
 
   //// Development Options
 
@@ -131,8 +230,6 @@
   }
 
   onMounted(() => {
-    visible.value = true;
-
     document.addEventListener('keydown', (event) => {
       if (event.repeat || event.isComposing) return;
       if (event.key == 'Enter') debugVisible.value = !debugVisible.value;
@@ -168,12 +265,7 @@
     padding-bottom: calc(var(--cloud-cover) + 0.75rem);
   }
 
-  .hero-content {
-    padding-block: clamp(2rem, 6vw, 5.5rem) 0;
-  }
-
-  .bar,
-  .hero-content {
+  .bar {
     position: relative;
     z-index: 2;
   }
@@ -216,17 +308,6 @@
     text-decoration: underline;
   }
 
-  .hero-content.slide-enter-active {
-    transition:
-      opacity 0.3s,
-      transform 0.3s;
-  }
-
-  .hero-content.slide-enter-from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-
   .bank {
     position: absolute;
     left: calc((100% - var(--bank-width)) / 2);
@@ -242,6 +323,16 @@
     transition: filter var(--theme-switch-time);
   }
 
+  .bank-enter-active,
+  .bank-leave-active {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .bank-enter-from,
+  .bank-leave-to {
+    transform: translateY(400px);
+  }
+
   .bank-fade {
     position: absolute;
     left: 0;
@@ -252,6 +343,19 @@
     background: linear-gradient(transparent, var(--look-page));
 
     transition: --look-page var(--theme-switch-time);
+  }
+
+  .bank-fade-enter-active {
+    transition: height 0.1s ease-in 0.2s;
+  }
+
+  .bank-fade-leave-active {
+    transition: height 0.1s ease-out;
+  }
+
+  .bank-fade-enter-from,
+  .bank-fade-leave-to {
+    height: 0;
   }
 
   .footer {
