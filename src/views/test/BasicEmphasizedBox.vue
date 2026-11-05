@@ -5,5 +5,5 @@
 </template>
 
 <script lang="ts" setup>
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
 </script>

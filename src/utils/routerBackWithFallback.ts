@@ -1,4 +1,4 @@
-import { Router } from 'vue-router';
+import { type Router } from 'vue-router';
 
 export default async function backWithFallback(
   router: Router,

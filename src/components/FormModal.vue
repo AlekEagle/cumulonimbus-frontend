@@ -22,8 +22,8 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import Form from '@/components/Form.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import Form from '&/Form.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

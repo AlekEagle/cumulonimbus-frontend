@@ -1,4 +1,4 @@
-import { ref, Ref, unref, watch } from 'vue';
+import { ref, type Ref, unref, watch } from 'vue';
 
 // Take milliseconds and return how many hours, minutes and seconds it is
 export function toTimeString(ms: number): string {
@@ -21,8 +21,8 @@ export function toTimeString(ms: number): string {
       (seconds && !minutes) || (!seconds && minutes)
         ? ' and '
         : seconds && minutes
-        ? ', '
-        : ''
+          ? ', '
+          : ''
     }`;
   }
   // Check if there are minutes

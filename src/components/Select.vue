@@ -61,7 +61,7 @@
     top: 25%;
     right: 10px;
     margin-right: -5px;
-    background: url('@/assets/images/caret-up.svg') no-repeat center center;
+    background: url('!/images/caret-up.svg') no-repeat center center;
     background-size: contain;
     width: 24px;
     height: 24px;

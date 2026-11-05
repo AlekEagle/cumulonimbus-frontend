@@ -1,6 +1,6 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
+import defaultErrorHandler from '#/defaultErrorHandler.js';
 
 // Other Store Modules
 import { toastStore } from '../toast.js';

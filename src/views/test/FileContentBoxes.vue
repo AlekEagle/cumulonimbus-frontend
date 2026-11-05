@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
   // Vue Components
-  import FileContentBox from '@/components/FileContentBox.vue';
+  import FileContentBox from '&/FileContentBox.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

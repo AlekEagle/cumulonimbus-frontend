@@ -90,7 +90,7 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
+  import BackButton from '&/BackButton.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

@@ -57,19 +57,19 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import FileContentBox from '@/components/FileContentBox.vue';
-  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
-  import Paginator from '@/components/Paginator.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import BackButton from '&/BackButton.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import FileContentBox from '&/FileContentBox.vue';
+  import FullscreenLoadingMessage from '&/FullscreenLoadingMessage.vue';
+  import Paginator from '&/Paginator.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
 
   // Store Modules
-  import { filesStore } from '@/stores/user-space/files.js';
-  import { toastStore } from '@/stores/toast.js';
+  import { filesStore } from '$/user-space/files.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

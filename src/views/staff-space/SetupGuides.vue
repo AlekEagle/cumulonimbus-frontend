@@ -113,21 +113,21 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Paginator from '@/components/Paginator.vue';
-  import SelectableContentBox from '@/components/SelectableContentBox.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import BackButton from '&/BackButton.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import FormModal from '&/FormModal.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
+  import Paginator from '&/Paginator.vue';
+  import SelectableContentBox from '&/SelectableContentBox.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import gearIcon from '@/assets/images/gear.svg';
+  import gearIcon from '!/images/gear.svg';
 
   // Store Modules
-  import { instructionsStore } from '@/stores/staff-space/instructions.js';
-  import { toastStore } from '@/stores/toast.js';
+  import { instructionsStore } from '$/staff-space/instructions.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

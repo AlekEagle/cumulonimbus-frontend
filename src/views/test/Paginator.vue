@@ -11,10 +11,10 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import Paginator from '@/components/Paginator.vue';
+  import Paginator from '&/Paginator.vue';
 
   // In-House Modules
-  import { toastStore } from '@/stores/toast.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref } from 'vue';

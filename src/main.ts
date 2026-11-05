@@ -7,7 +7,7 @@ import packageJson from '../package.json';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-import '@/assets/fonts/fonts.css';
+import '!/fonts/fonts.css';
 
 const app = createApp(App);
 

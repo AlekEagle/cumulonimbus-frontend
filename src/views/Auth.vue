@@ -101,16 +101,16 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import Form from '@/components/Form.vue';
-  import Switch from '@/components/Switch.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
+  import Form from '&/Form.vue';
+  import Switch from '&/Switch.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
 
   // Store Modules
-  import { toastStore } from '@/stores/toast.js';
-  import { userStore } from '@/stores/user.js';
+  import { toastStore } from '$/toast.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';
@@ -165,7 +165,6 @@
   }
 
   async function redirect() {
-    toast.hide();
     let redirectLoc = route.query.redirect
       ? (route.query.redirect as string)
       : '/dashboard';

@@ -21,62 +21,62 @@
       Manage Setup Guide
     </button>
   </div>
-    <div class="content-box-container grow">
-      <template v-if="!instruction.loading">
-        <template v-if="!instruction.errored">
-          <template v-if="instruction.data">
-            <ContentBox
-              v-for="(step, index) in instruction.data.steps"
-              :title="`Step ${index + 1}`"
-              @click="onInstructionStepClick(index)"
-              theme-safe
+  <div class="content-box-container grow">
+    <template v-if="!instruction.loading">
+      <template v-if="!instruction.errored">
+        <template v-if="instruction.data">
+          <ContentBox
+            v-for="(step, index) in instruction.data.steps"
+            :title="`Step ${index + 1}`"
+            @click="onInstructionStepClick(index)"
+            theme-safe
+          >
+            <template
+              v-if="
+                step.action ===
+                Cumulonimbus.InstructionStepActions.DOWNLOAD_CONFIG_FILE
+              "
             >
-              <template
-                v-if="
-                  step.action ===
-                  Cumulonimbus.InstructionStepActions.DOWNLOAD_CONFIG_FILE
-                "
-              >
-                <strong> This step downloads a setup file. </strong>
-                <br />
-              </template>
-              <template
-                v-if="
-                  step.action === Cumulonimbus.InstructionStepActions.OPEN_URL
-                "
-              >
-                <strong> This step opens a URL. </strong>
-                <br />
-              </template>
-              <template
-                v-if="
-                  step.action ===
-                  Cumulonimbus.InstructionStepActions.COPY_TOKEN_TO_CLIPBOARD
-                "
-              >
-                <strong> This step copies the token to the clipboard. </strong>
-                <br />
-              </template>
-              {{ step.content }}
-            </ContentBox>
-            <ContentBox
-              title="Add Step"
-              :src="plusIcon"
-              @click="onInstructionStepClick(instruction.data!.steps.length)"
-              theme-safe
+              <strong> This step downloads a setup file. </strong>
+              <br />
+            </template>
+            <template
+              v-if="
+                step.action === Cumulonimbus.InstructionStepActions.OPEN_URL
+              "
             >
-              Add a new step
-            </ContentBox>
-          </template>
-          <SkeletonContentBoxes v-else />
+              <strong> This step opens a URL. </strong>
+              <br />
+            </template>
+            <template
+              v-if="
+                step.action ===
+                Cumulonimbus.InstructionStepActions.COPY_TOKEN_TO_CLIPBOARD
+              "
+            >
+              <strong> This step copies the token to the clipboard. </strong>
+              <br />
+            </template>
+            {{ step.content }}
+          </ContentBox>
+          <ContentBox
+            title="Add Step"
+            :src="plusIcon"
+            @click="onInstructionStepClick(instruction.data!.steps.length)"
+            theme-safe
+          >
+            Add a new step
+          </ContentBox>
         </template>
-        <div v-else>
-          <h1>Something went wrong.</h1>
-          <button @click="fetchInstruction">Retry</button>
-        </div>
+        <SkeletonContentBoxes v-else />
       </template>
-      <LoadingMessage spinner v-else />
-    </div>
+      <div v-else>
+        <h1>Something went wrong.</h1>
+        <button @click="fetchInstruction">Retry</button>
+      </div>
+    </template>
+    <LoadingMessage spinner v-else />
+  </div>
   <Modal dismissible title="Info" ref="setupGuideInfoModal">
     <template v-if="instruction.data">
       <p>
@@ -254,26 +254,26 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import AnimatedEllipsis from '@/components/AnimatedEllipsis.vue';
-  import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Modal from '@/components/Modal.vue';
-  import Select from '@/components/Select.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import AnimatedEllipsis from '&/AnimatedEllipsis.vue';
+  import BackButton from '&/BackButton.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import FormModal from '&/FormModal.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
+  import Modal from '&/Modal.vue';
+  import Select from '&/Select.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
 
   // In-House Modules
-  import backWithFallback from '@/utils/routerBackWithFallback.js';
+  import backWithFallback from '#/routerBackWithFallback.js';
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import plusIcon from '@/assets/images/plus.svg';
-  import toDateString from '@/utils/toDateString.js';
+  import plusIcon from '!/images/plus.svg';
+  import toDateString from '#/toDateString.js';
 
   // Store Modules
-  import { instructionStore } from '@/stores/staff-space/instruction.js';
-  import { instructionsStore } from '@/stores/staff-space/instructions.js';
-  import { toastStore } from '@/stores/toast.js';
+  import { instructionStore } from '$/staff-space/instruction.js';
+  import { instructionsStore } from '$/staff-space/instructions.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

@@ -60,17 +60,17 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import LoadingSpinner from '@/components/LoadingSpinner.vue';
-  import Select from '@/components/Select.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import LoadingSpinner from '&/LoadingSpinner.vue';
+  import Select from '&/Select.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait.js';
+  import { wait } from '#/wait.js';
 
   // Store Modules
-  import { domainPickerStore } from '@/stores/domainPicker.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { userStore } from '@/stores/user.js';
+  import { domainPickerStore } from '$/domainPicker.js';
+  import { toastStore } from '$/toast.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref, onMounted, watchEffect } from 'vue';

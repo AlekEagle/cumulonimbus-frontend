@@ -14,14 +14,14 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait.js';
+  import { wait } from '#/wait.js';
 
   // Store Modules
-  import { userStore } from '@/stores/user.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { onMounted, ref } from 'vue';

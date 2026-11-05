@@ -18,7 +18,7 @@
       <img
         v-else
         class="theme-safe"
-        src="@/assets/images/checkmark.svg"
+        src="!/images/checkmark.svg"
         width="80"
         height="80"
       />
@@ -50,7 +50,7 @@
       <img
         v-else
         class="theme-safe"
-        src="@/assets/images/checkmark.svg"
+        src="!/images/checkmark.svg"
         width="80"
         height="80"
       />

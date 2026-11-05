@@ -1,4 +1,4 @@
-import { Ref, ref, onMounted, onUnmounted } from 'vue';
+import { type Ref, ref, onMounted, onUnmounted } from 'vue';
 
 type DebugCheckbox<T extends boolean | null = boolean | null> = {
   type: 'checkbox';

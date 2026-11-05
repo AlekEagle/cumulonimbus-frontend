@@ -52,10 +52,4 @@
   a.router-button-link {
     margin: 5px 0;
   }
-
-  a.router-button-link button {
-    margin: 0;
-    background: transparent;
-    border: none;
-  }
 </style>

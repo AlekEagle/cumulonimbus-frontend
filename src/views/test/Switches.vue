@@ -15,15 +15,15 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import Separator from '@/components/Separator.vue';
-  import Switch from '@/components/Switch.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
+  import Separator from '&/Separator.vue';
+  import Switch from '&/Switch.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait.js';
+  import { wait } from '#/wait.js';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

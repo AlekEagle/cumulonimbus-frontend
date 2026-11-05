@@ -1,12 +1,4 @@
 <template>
-  <h1>Testing</h1>
-  <h2>Uhh, meow?</h2>
-  <div class="quick-action-buttons-container">
-    <RouterLink to="/">
-      <button>Home</button>
-    </RouterLink>
-  </div>
-
   <div class="test-select">
     <Select v-model="currentItem" @change="updateHash">
       <option :value="BasicEmphasizedBox">Basic Emphasized Box</option>
@@ -24,6 +16,7 @@
       <option :value="ProgressBar">Progress Bar</option>
       <option :value="SkeletonContentBoxes">Skeleton Content Boxes</option>
       <option :value="Switches">Switches</option>
+      <option :value="Toasts">Toasts</option>
     </Select>
   </div>
 
@@ -45,9 +38,10 @@
   import Modals from '@/views/test/Modals.vue';
   import Paginator from '@/views/test/Paginator.vue';
   import ProgressBar from '@/views/test/ProgressBar.vue';
-  import Select from '@/components/Select.vue';
+  import Select from '&/Select.vue';
   import SkeletonContentBoxes from '@/views/test/SkeletonContentBoxes.vue';
   import Switches from '@/views/test/Switches.vue';
+  import Toasts from '@/views/test/Toasts.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
@@ -103,6 +97,9 @@
           break;
         case '#switches':
           currentItem.value = Switches;
+          break;
+        case '#toasts':
+          currentItem.value = Toasts;
           break;
         default:
           currentItem.value = ContentBoxes;

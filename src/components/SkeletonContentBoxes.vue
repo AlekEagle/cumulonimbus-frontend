@@ -38,14 +38,14 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import '@/components/ContentBox.vue'; // Importing this to get the CSS
+  import '&/ContentBox.vue'; // Importing this to get the CSS
   import LoadingSpinner from './LoadingSpinner.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
 
   // Store Modules
-  import { displayPrefStore } from '@/stores/displayPref.js';
+  import { displayPrefStore } from '$/displayPref.js';
 
   // External Modules
   // No External Modules to import here.

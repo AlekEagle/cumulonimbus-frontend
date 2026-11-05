@@ -178,21 +178,21 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import Checkmark from '@/components/Checkmark.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import DomainModal from '@/components/DomainModal.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
-  import Modal from '@/components/Modal.vue';
-  import Select from '@/components/Select.vue';
-  import Switch from '@/components/Switch.vue';
+  import Checkmark from '&/Checkmark.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import DomainModal from '&/DomainModal.vue';
+  import FormModal from '&/FormModal.vue';
+  import FullscreenLoadingMessage from '&/FullscreenLoadingMessage.vue';
+  import Modal from '&/Modal.vue';
+  import Select from '&/Select.vue';
+  import Switch from '&/Switch.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait.js';
+  import { wait } from '#/wait.js';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref } from 'vue';

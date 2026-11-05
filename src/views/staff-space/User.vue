@@ -547,26 +547,26 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import DomainModal from '@/components/DomainModal.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Separator from '@/components/Separator.vue';
+  import BackButton from '&/BackButton.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import DomainModal from '&/DomainModal.vue';
+  import FormModal from '&/FormModal.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
+  import Separator from '&/Separator.vue';
 
   // In-House Modules
-  import backWithFallback from '@/utils/routerBackWithFallback.js';
-  import profileIcon from '@/assets/images/profile.svg';
-  import fileIcon from '@/assets/images/file.svg';
-  import gearIcon from '@/assets/images/gear.svg';
-  import toDateString from '@/utils/toDateString.js';
+  import backWithFallback from '#/routerBackWithFallback.js';
+  import profileIcon from '!/images/profile.svg';
+  import fileIcon from '!/images/file.svg';
+  import gearIcon from '!/images/gear.svg';
+  import toDateString from '#/toDateString.js';
 
   // Store Modules
-  import { userStore } from '@/stores/user.js';
-  import { otherUserStore } from '@/stores/staff-space/user.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { usersStore } from '@/stores/staff-space/users.js';
+  import { userStore } from '$/user.js';
+  import { otherUserStore } from '$/staff-space/user.js';
+  import { toastStore } from '$/toast.js';
+  import { usersStore } from '$/staff-space/users.js';
 
   // External Modules
   import { ref, computed, onMounted } from 'vue';

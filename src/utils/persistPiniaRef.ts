@@ -1,4 +1,4 @@
-import { Ref, watch, WatchOptions } from 'vue';
+import { Ref, watch, type WatchOptions } from 'vue';
 
 export default function persistPiniaRef<T extends unknown>(
   ref: Ref<T>,

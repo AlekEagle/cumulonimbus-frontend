@@ -10,10 +10,10 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import LoadingMessage from './LoadingMessage.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait.js';
+  import { wait } from '#/wait.js';
 
   // Store Modules
   // No Store Modules to import here.
@@ -60,7 +60,10 @@
 
   .fullscreen-loading-message-enter-active,
   .fullscreen-loading-message-leave-active {
-    transition: opacity 0.4s, backdrop-filter 0.4s, -webkit-backdrop-filter 0.4s;
+    transition:
+      opacity 0.4s,
+      backdrop-filter 0.4s,
+      -webkit-backdrop-filter 0.4s;
   }
 
   .fullscreen-loading-message-enter-from,

@@ -2,7 +2,7 @@
   <h1>About Cumulonimbus</h1>
 
   <div class="quick-action-buttons-container">
-    <RouterLink to="/testing/hush/dont/touch">
+    <RouterLink to="/ui-sandbox/standard">
       <button>UI Component Testing</button>
     </RouterLink>
   </div>
@@ -156,16 +156,16 @@
 
 <script setup lang="ts">
   // Vue Components
-  import AnimatedEllipsis from '@/components/AnimatedEllipsis.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import Separator from '@/components/Separator.vue';
+  import AnimatedEllipsis from '&/AnimatedEllipsis.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import Separator from '&/Separator.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import { useFuzzyTimeString } from '@/utils/time.js';
+  import { useFuzzyTimeString } from '#/time.js';
 
   // Store Modules
-  import { userStore } from '@/stores/user.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref, onMounted, computed, getCurrentInstance } from 'vue';

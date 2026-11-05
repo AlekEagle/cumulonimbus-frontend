@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
-  import LoadingSpinner from '@/components/LoadingSpinner.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
+  import LoadingSpinner from '&/LoadingSpinner.vue';
 </script>

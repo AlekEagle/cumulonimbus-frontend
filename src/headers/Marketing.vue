@@ -20,7 +20,7 @@
     <div class="drop-hint js-required">
       <img
         aria-hidden="true"
-        src="@/assets/images/upload.svg"
+        src="!/images/upload.svg"
         style="filter: brightness(0) invert(1)"
       />
       <div class="dh-text">
@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
   // Vue Components
-  import RouterButton from '@/components/RouterButton.vue';
+  import RouterButton from '&/RouterButton.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
@@ -52,7 +52,7 @@
   // No Store Modules to import here.
 
   // External Modules
-  import { debugRef } from '@/debug';
+  import { debugRef } from '#/debug';
   import { watch } from 'vue';
 
   const siteOverride = debugRef<null | string>(null, {
@@ -81,7 +81,7 @@
   const featured = '-r7kKbtZbD.mp4'; // funny
 
   const sites = [
-    'cdn.cumulonimbus.link',
+    'thunder.zip',
     'obama.solutions',
     'linus-tech.tips',
     'you.are-so.gay',

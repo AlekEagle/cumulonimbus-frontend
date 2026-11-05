@@ -53,18 +53,18 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import ContentBox from '@/components/ContentBox.vue';
-  import RouterButton from '@/components/RouterButton.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import RouterButton from '&/RouterButton.vue';
 
   // In-House Modules
-  import fileIcon from '@/assets/images/file.svg';
-  import infoIcon from '@/assets/images/info.svg';
-  import profileIcon from '@/assets/images/profile.svg';
-  import uploadIcon from '@/assets/images/upload.svg';
+  import fileIcon from '!/images/file.svg';
+  import infoIcon from '!/images/info.svg';
+  import profileIcon from '!/images/profile.svg';
+  import uploadIcon from '!/images/upload.svg';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast.js';
-  import { userStore } from '@/stores/user.js';
+  import { toastStore } from '$/toast.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref } from 'vue';

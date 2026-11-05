@@ -21,11 +21,11 @@
   // No Vue Components to import here.
 
   // In-House Modules
-  import sun from '@/assets/images/sun.svg';
-  import moon from '@/assets/images/moon.svg';
+  import sun from '!/images/sun.svg';
+  import moon from '!/images/moon.svg';
 
   // Store Modules
-  import { displayPrefStore, Theme } from '@/stores/displayPref.js';
+  import { displayPrefStore, Theme } from '$/displayPref.js';
 
   // External Modules
   // No External Modules to import here.

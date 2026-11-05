@@ -22,7 +22,7 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import Modal from '@/components/Modal.vue';
+  import Modal from '&/Modal.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

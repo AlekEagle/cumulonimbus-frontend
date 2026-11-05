@@ -15,11 +15,11 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
-  import ContentBox from '@/components/ContentBox.vue';
+  import FullscreenLoadingMessage from '&/FullscreenLoadingMessage.vue';
+  import ContentBox from '&/ContentBox.vue';
 
   // In-House Modules
-  import { wait } from '@/utils/wait.js';
+  import { wait } from '#/wait.js';
 
   // Store Modules
   // No Store Modules to import here.

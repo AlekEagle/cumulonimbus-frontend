@@ -1,7 +1,7 @@
 // In-House Modules
-import { useFuzzyTimeString } from '@/utils/time.js';
+import { useFuzzyTimeString } from '#/time.js';
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
+import defaultErrorHandler from '#/defaultErrorHandler.js';
 
 // Other Store Modules
 import { displayPrefStore } from '../displayPref.js';

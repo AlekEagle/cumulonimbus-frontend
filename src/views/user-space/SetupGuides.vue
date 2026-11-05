@@ -44,17 +44,17 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import Paginator from '@/components/Paginator.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import BackButton from '&/BackButton.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import Paginator from '&/Paginator.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
 
   // In-House Modules
-  import infoIcon from '@/assets/images/info.svg';
+  import infoIcon from '!/images/info.svg';
 
   // Store Modules
-  import { instructionsStore } from '@/stores/user-space/instructions.js';
-  import { toastStore } from '@/stores/toast.js';
+  import { instructionsStore } from '$/user-space/instructions.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

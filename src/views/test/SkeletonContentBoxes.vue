@@ -12,8 +12,8 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import ContentBox from '@/components/ContentBox.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

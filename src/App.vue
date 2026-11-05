@@ -2,7 +2,7 @@
   <div ref="sky" class="sky">
     <header class="bar">
       <RouterLink class="brand" to="/">
-        <img aria-hidden="true" alt="" src="@/assets/images/Cumulonimbus.svg" />
+        <img aria-hidden="true" alt="" src="!/images/Cumulonimbus.svg" />
         Cumulonimbus
       </RouterLink>
 
@@ -26,7 +26,7 @@
         v-if="!noClouds"
         class="bank"
         aria-hidden="true"
-        src="@/assets/images/bank.webp"
+        src="!/images/bank.webp"
         alt=""
         decoding="async"
       />
@@ -40,6 +40,7 @@
   <!-- The real deal content -->
   <RouterView />
   <!-- The end of the real deal content -->
+  <!-- DO NOT DELETE THE CODE OR THE COMMENTS ABOVE ME APPARENTLY THEY'RE STRUCTURALLY INTEGRAL TO THIS WHOLE THING -->
 
   <div class="footer">
     <footer class="footer-content">
@@ -47,7 +48,7 @@
       <nav aria-label="Footer">
         <a href="https://alekeagle.com/d">Discord</a>
         <a
-          href="mailto:abuse@alekeagle.me?subject=Report%20Abuse&body=URL%2FLink%20to%20offending%20content%3A%20%5BReplace%20me%20with%20the%20link%20to%20the%20offending%20content%5D%0A%0AUse%20the%20space%20below%20to%20explain%20how%20the%20content%20above%20is%20potentially%20abusing%20the%20service%3A%0A%5BYour%20reasoning%20here%5D"
+          href="mailto:abuse@cumulonimbus.link?subject=Report%20Abuse&body=URL%2FLink%20to%20offending%20content%3A%20%5BReplace%20me%20with%20the%20link%20to%20the%20offending%20content%5D%0A%0AUse%20the%20space%20below%20to%20explain%20how%20the%20content%20above%20is%20potentially%20abusing%20the%20service%3A%0A%5BYour%20reasoning%20here%5D"
           >Report abuse</a
         >
         <RouterLink to="/privacy">Privacy</RouterLink>
@@ -83,12 +84,22 @@
       >
     </label>
   </fieldset>
+  <ToastRenderer />
 </template>
 
 <script setup lang="ts">
+  // Vue Components
+  import ToastRenderer from '&/ToastRenderer.vue';
+
+  // In-House Modules
+  import { debugSettings, debugRef } from '#/debug';
+
+  // Store Modules
+  // No Store Modules to import here.
+
+  // External Modules
   import { ref, onMounted, watch, computed, useTemplateRef } from 'vue';
   import { useRoute } from 'vue-router';
-  import { debugSettings, debugRef } from '@/debug';
   // import { visible } from '@/router';
 
   const route = useRoute();
@@ -409,7 +420,7 @@
 
   .debug-settings {
     position: fixed;
-    right: 1rem;
+    left: 1rem;
     bottom: 1rem;
     z-index: 1000;
     background: Canvas;
@@ -489,6 +500,7 @@
   }
 
   /* Dark Mode Media Query */
+  /* Only used before theme provider is initialized */
   @media (prefers-color-scheme: dark) {
     html:not(.light-mode) {
       --look-sky: linear-gradient(
@@ -518,6 +530,7 @@
 
   /* Body Styling */
   body {
+    background: var(--look-footer);
     display: flex;
     flex-direction: column;
 
@@ -528,7 +541,6 @@
     line-height: 1.55;
     min-height: 100vh;
 
-    /* notice: font is currently installed in html because fuck you */
     font-family: 'Bricolage Grotesque', sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
@@ -582,31 +594,18 @@
   }
 
   button {
-    border: 2px solid var(--look-button);
-    background: var(--look-button);
-    color: var(--look-button-text);
-  }
-
-  .button:hover {
-    background: var(--look-button-hover);
-    border-color: var(--look-button-hover);
-  }
-
-  .button {
     display: inline-block;
     text-decoration: none;
     font-weight: 700;
     border-radius: 9em;
     padding: 0.8125rem 1.5rem;
     border: 2px solid var(--look-button);
-    background: transparent;
-
-    /* solid */
     background: var(--look-button);
     color: var(--look-button-text);
+    width: fit-content;
   }
 
-  .button:hover {
+  button:hover {
     background: var(--look-button-hover);
     border-color: var(--look-button-hover);
   }

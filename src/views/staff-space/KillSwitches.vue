@@ -74,18 +74,18 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Switch from '@/components/Switch.vue';
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
+  import BackButton from '&/BackButton.vue';
+  import FormModal from '&/FormModal.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
+  import Switch from '&/Switch.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
 
   // Store Modules
-  import { killSwitchesStore } from '@/stores/staff-space/killswitches.js';
-  import { toastStore } from '@/stores/toast.js';
+  import { killSwitchesStore } from '$/staff-space/killswitches.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

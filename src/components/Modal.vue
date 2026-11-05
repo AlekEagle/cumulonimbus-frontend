@@ -9,7 +9,7 @@
         <h1 class="modal-title" v-text="title" />
         <img
           class="modal-close"
-          src="@/assets/images/close.svg"
+          src="!/images/close.svg"
           alt="Close Modal"
           v-if="dismissible"
           @click="__hide"
@@ -32,7 +32,7 @@
   // No Vue Components to import here.
 
   // In-House Modules
-  import { wait } from '@/utils/wait.js';
+  import { wait } from '#/wait.js';
 
   // Store Modules
   // No Store Modules to import here.
@@ -110,7 +110,9 @@
   .modal {
     background-color: var(--ui-background);
     border: 1px solid var(--ui-border);
-    transition: border 0.25s, background-color 0.25s;
+    transition:
+      border 0.25s,
+      background-color 0.25s;
     border-radius: 10px;
     display: grid;
     width: fit-content;
@@ -181,7 +183,10 @@
 
   .modal-enter-active,
   .modal-leave-active {
-    transition: opacity 0.4s, backdrop-filter 0.4s, -webkit-backdrop-filter 0.4s;
+    transition:
+      opacity 0.4s,
+      backdrop-filter 0.4s,
+      -webkit-backdrop-filter 0.4s;
   }
 
   .modal-enter-from,

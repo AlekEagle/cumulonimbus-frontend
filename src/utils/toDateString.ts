@@ -1,4 +1,4 @@
-import { displayPrefStore } from '@/stores/displayPref.js';
+import { displayPrefStore } from '$/displayPref.js';
 
 export default function toDateString(date: Date): string {
   const displayPref = displayPrefStore();

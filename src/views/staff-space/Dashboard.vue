@@ -45,17 +45,17 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import ContentBox from '@/components/ContentBox.vue';
-  import RouterButton from '@/components/RouterButton.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import RouterButton from '&/RouterButton.vue';
 
   // In-House Modules
-  import fileIcon from '@/assets/images/file.svg';
-  import gearIcon from '@/assets/images/gear.svg';
-  import infoIcon from '@/assets/images/info.svg';
-  import profileIcon from '@/assets/images/profile.svg';
+  import fileIcon from '!/images/file.svg';
+  import gearIcon from '!/images/gear.svg';
+  import infoIcon from '!/images/info.svg';
+  import profileIcon from '!/images/profile.svg';
 
   // Store Modules
-  import { userStore } from '@/stores/user.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   // No External Modules to import here.

@@ -1,7 +1,7 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
-import persistPiniaRef from '@/utils/persistPiniaRef.js';
+import defaultErrorHandler from '#/defaultErrorHandler.js';
+import persistPiniaRef from '#/persistPiniaRef.js';
 
 // Other Store Modules
 import { domainPickerStore } from './domainPicker.js';

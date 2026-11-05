@@ -69,21 +69,21 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
+  import BackButton from '&/BackButton.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import FormModal from '&/FormModal.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import backWithFallback from '@/utils/routerBackWithFallback.js';
-  import downloadBlob from '@/utils/downloadBlob.js';
+  import backWithFallback from '#/routerBackWithFallback.js';
+  import downloadBlob from '#/downloadBlob.js';
 
   // Store Modules
-  import { instructionStore } from '@/stores/user-space/instruction.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { sessionsStore } from '@/stores/user-space/sessions.js';
-  import { userStore } from '@/stores/user.js';
+  import { instructionStore } from '$/user-space/instruction.js';
+  import { toastStore } from '$/toast.js';
+  import { sessionsStore } from '$/user-space/sessions.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

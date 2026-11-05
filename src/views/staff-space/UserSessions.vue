@@ -137,25 +137,25 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Paginator from '@/components/Paginator.vue';
-  import SelectableContentBox from '@/components/SelectableContentBox.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import BackButton from '&/BackButton.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import FormModal from '&/FormModal.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
+  import Paginator from '&/Paginator.vue';
+  import SelectableContentBox from '&/SelectableContentBox.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import backWithFallback from '@/utils/routerBackWithFallback.js';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
-  import infoIcon from '@/assets/images/info.svg';
-  import toDateString from '@/utils/toDateString.js';
+  import backWithFallback from '#/routerBackWithFallback.js';
+  import defaultErrorHandler from '#/defaultErrorHandler.js';
+  import infoIcon from '!/images/info.svg';
+  import toDateString from '#/toDateString.js';
 
   // Store Modules
-  import { sessionsStore } from '@/stores/staff-space/sessions.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { userStore } from '@/stores/user.js';
+  import { sessionsStore } from '$/staff-space/sessions.js';
+  import { toastStore } from '$/toast.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

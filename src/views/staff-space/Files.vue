@@ -65,21 +65,21 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import FileContentBox from '@/components/FileContentBox.vue';
-  import Paginator from '@/components/Paginator.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import BackButton from '&/BackButton.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import FileContentBox from '&/FileContentBox.vue';
+  import Paginator from '&/Paginator.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import backWithFallback from '@/utils/routerBackWithFallback.js';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
+  import backWithFallback from '#/routerBackWithFallback.js';
+  import defaultErrorHandler from '#/defaultErrorHandler.js';
 
   // Store Modules
-  import { filesStore } from '@/stores/staff-space/files.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { userStore } from '@/stores/user.js';
+  import { filesStore } from '$/staff-space/files.js';
+  import { toastStore } from '$/toast.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

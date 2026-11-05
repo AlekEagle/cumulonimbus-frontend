@@ -1,5 +1,5 @@
 import { Router } from 'vue-router';
-import { userStore } from '@/stores/user.js';
+import { userStore } from '$/user.js';
 
 export default async function toLogin(
   router: Router,

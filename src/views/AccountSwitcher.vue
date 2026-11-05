@@ -86,22 +86,22 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
+  import BackButton from '&/BackButton.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
 
   // In-House Modules
-  import closeIcon from '@/assets/images/close.svg';
-  import plusIcon from '@/assets/images/plus.svg';
-  import profileIcon from '@/assets/images/profile.svg';
+  import closeIcon from '!/images/close.svg';
+  import plusIcon from '!/images/plus.svg';
+  import profileIcon from '!/images/profile.svg';
 
   // Store Modules
-  import { fileStore } from '@/stores/user-space/file.js';
-  import { filesStore } from '@/stores/user-space/files.js';
-  import { sessionsStore } from '@/stores/user-space/sessions.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { userStore } from '@/stores/user.js';
+  import { fileStore } from '$/user-space/file.js';
+  import { filesStore } from '$/user-space/files.js';
+  import { sessionsStore } from '$/user-space/sessions.js';
+  import { toastStore } from '$/toast.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref, onBeforeMount, computed } from 'vue';

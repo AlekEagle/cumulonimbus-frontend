@@ -11,10 +11,10 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
-  import ProgressBar from '@/components/ProgressBar.vue';
-  import { wait } from '@/utils/wait.js';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
+  import FullscreenLoadingMessage from '&/FullscreenLoadingMessage.vue';
+  import ProgressBar from '&/ProgressBar.vue';
+  import { wait } from '#/wait.js';
 
   // In-House Modules
   // No In-House Modules to import here.

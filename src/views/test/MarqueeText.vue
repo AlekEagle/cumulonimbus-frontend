@@ -88,8 +88,8 @@
 
 <script setup lang="ts">
   // Vue Components
-  import Marquee from '@/components/Marquee.vue';
-  import Separator from '@/components/Separator.vue';
+  import Marquee from '&/Marquee.vue';
+  import Separator from '&/Separator.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

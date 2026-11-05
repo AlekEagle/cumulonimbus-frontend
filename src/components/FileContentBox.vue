@@ -72,17 +72,17 @@
 
 <script setup lang="ts">
   // Vue Components
-  import LoadingSpinner from '@/components/LoadingSpinner.vue';
-  import Checkmark from '@/components/Checkmark.vue';
+  import LoadingSpinner from '&/LoadingSpinner.vue';
+  import Checkmark from '&/Checkmark.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import exclamationMarkIcon from '@/assets/images/exclamation-mark.svg';
-  import noPreviewIcon from '@/assets/images/no-preview.svg';
-  import { wait } from '@/utils/wait.js';
+  import exclamationMarkIcon from '!/images/exclamation-mark.svg';
+  import noPreviewIcon from '!/images/no-preview.svg';
+  import { wait } from '#/wait.js';
 
   // Store Modules
-  import { userStore } from '@/stores/user.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { computed, ref, onUnmounted } from 'vue';

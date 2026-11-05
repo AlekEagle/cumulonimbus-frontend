@@ -1,6 +1,6 @@
 // In-House Modules
 import type Cumulonimbus from 'cumulonimbus-wrapper';
-import { waitUntil } from '@/utils/wait.js';
+import { waitUntil } from '#/wait.js';
 
 // External Modules
 import { defineStore } from 'pinia';

@@ -60,20 +60,20 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
-  import Select from '@/components/Select.vue';
+  import BackButton from '&/BackButton.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import FormModal from '&/FormModal.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
+  import Select from '&/Select.vue';
 
   // In-House Modules
-  import gearIcon from '@/assets/images/gear.svg';
+  import gearIcon from '!/images/gear.svg';
   import Cumulonimbus from 'cumulonimbus-wrapper';
 
   // Store Modules
-  import { userStore } from '@/stores/user.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { utilitiesStore } from '@/stores/staff-space/utilities.js';
+  import { userStore } from '$/user.js';
+  import { toastStore } from '$/toast.js';
+  import { utilitiesStore } from '$/staff-space/utilities.js';
 
   // External Modules
   import { ref } from 'vue';

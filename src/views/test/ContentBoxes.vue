@@ -113,16 +113,16 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import ContentBox from '@/components/ContentBox.vue';
-  import Separator from '@/components/Separator.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
-  import Switch from '@/components/Switch.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import Separator from '&/Separator.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
+  import Switch from '&/Switch.vue';
 
   // In-House Modules
-  import cumulonimbusIcon from '@/assets/images/Cumulonimbus.svg';
+  import cumulonimbusIcon from '!/images/Cumulonimbus.svg';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   // No External Modules to import here.

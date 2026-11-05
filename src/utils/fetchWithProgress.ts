@@ -5,6 +5,10 @@ export default function fetchWithProgress(url: string) {
 
   async function download() {
     const response = await fetch(url);
+    // If the response does not have a Content-Length header, we cannot track progress accurately.
+    if (!response.headers.get('Content-Length')) {
+      throw new Error('Content-Length header is missing');
+    }
     const contentLength = parseInt(response.headers.get('Content-Length')!, 10);
     const reader = response.body!.getReader();
     let receivedLength = 0;

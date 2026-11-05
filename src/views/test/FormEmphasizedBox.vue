@@ -58,17 +58,17 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import Checkmark from '@/components/Checkmark.vue';
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import Form from '@/components/Form.vue';
-  import Select from '@/components/Select.vue';
-  import Switch from '@/components/Switch.vue';
+  import Checkmark from '&/Checkmark.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
+  import Form from '&/Form.vue';
+  import Select from '&/Select.vue';
+  import Switch from '&/Switch.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
 
   // Store Modules
-  import { toastStore } from '@/stores/toast.js';
+  import { toastStore } from '$/toast.js';
 
   // External Modules
   import { ref } from 'vue';

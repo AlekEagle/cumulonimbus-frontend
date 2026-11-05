@@ -13,7 +13,11 @@
     "lib": ["ES2023", "DOM"],
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "&/*": ["./src/components/*"],
+      "$/*": ["./src/stores/*"],
+      "!/*": ["./src/assets/*"],
+      "#/*": ["./src/utils/*"]
     },
     "types": ["vite-plugin-pwa/vue"]
   },

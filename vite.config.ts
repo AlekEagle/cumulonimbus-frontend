@@ -146,6 +146,10 @@ export function createConfig(overrides: EnvOverrides = {}): UserConfig {
     resolve: {
       alias: {
         '@': '/src',
+        '&': '/src/components',
+        '$': '/src/stores',
+        '!': '/src/assets',
+        '#': '/src/utils',
       },
     },
     ...(Object.keys(build).length ? { build } : {}),

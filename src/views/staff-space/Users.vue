@@ -82,19 +82,19 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import Paginator from '@/components/Paginator.vue';
-  import SelectableContentBox from '@/components/SelectableContentBox.vue';
-  import SkeletonContentBoxes from '@/components/SkeletonContentBoxes.vue';
+  import BackButton from '&/BackButton.vue';
+  import FormModal from '&/FormModal.vue';
+  import Paginator from '&/Paginator.vue';
+  import SelectableContentBox from '&/SelectableContentBox.vue';
+  import SkeletonContentBoxes from '&/SkeletonContentBoxes.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import profileIcon from '@/assets/images/profile.svg';
+  import profileIcon from '!/images/profile.svg';
 
   // Store Modules
-  import { toastStore } from '@/stores/toast.js';
-  import { usersStore } from '@/stores/staff-space/users.js';
+  import { toastStore } from '$/toast.js';
+  import { usersStore } from '$/staff-space/users.js';
 
   // External Modules
   import { ref, onMounted } from 'vue';

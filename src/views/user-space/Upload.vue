@@ -40,19 +40,19 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import EmphasizedBox from '@/components/EmphasizedBox.vue';
-  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
-  import ProgressBar from '@/components/ProgressBar.vue';
+  import BackButton from '&/BackButton.vue';
+  import EmphasizedBox from '&/EmphasizedBox.vue';
+  import FullscreenLoadingMessage from '&/FullscreenLoadingMessage.vue';
+  import ProgressBar from '&/ProgressBar.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper';
-  import defaultErrorHandler from '@/utils/defaultErrorHandler.js';
+  import defaultErrorHandler from '#/defaultErrorHandler.js';
 
   // Store Modules
-  import { filesStore } from '@/stores/user-space/files.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { cumulonimbusOptions, userStore } from '@/stores/user.js';
+  import { filesStore } from '$/user-space/files.js';
+  import { toastStore, ToastType } from '$/toast.js';
+  import { cumulonimbusOptions, userStore } from '$/user.js';
 
   // External Modules
   import { computed, ref, onMounted } from 'vue';
@@ -88,7 +88,11 @@
   function onDrop(files: File[] | null) {
     if (!files || files.length < 1) return;
     if (files.length > 1)
-      return toast.show('You can only upload one file at a time.', 5e3);
+      return toast.show(
+        'You can only upload one file at a time.',
+        ToastType.WARNING,
+        5e3,
+      );
     file.value = files[0];
   }
 
@@ -96,6 +100,7 @@
     if (!file.value) {
       toast.show(
         'In order to upload a file, you need a file to upload.',
+        ToastType.WARNING,
         7.5e3,
       );
       return;
@@ -104,6 +109,7 @@
       // 100MB
       return toast.show(
         'The file you are trying to upload is too large. The maximum file size is 100MB.',
+        ToastType.WARNING,
         7.5e3,
       );
     try {
@@ -214,6 +220,7 @@
         default:
           toast.show(
             'There was an error uploading your file. Please try again.',
+            ToastType.ERROR,
             7.5e3,
           );
           console.error(error);
@@ -228,16 +235,18 @@
     if (!clipboardIsSupported) {
       toast.show(
         "Your browser doesn't support putting the URL on your clipboard, but you can open it in a new tab!",
+        ToastType.INFO,
         7.5e3,
       );
       return;
     }
     try {
       await copy(uploadData.value!.url);
-      toast.show('Copied to clipboard!');
+      toast.show('Copied to clipboard!', ToastType.SUCCESS);
     } catch (error) {
       toast.show(
         "I wasn't able to put the URL on your clipboard, but you can try again!",
+        ToastType.INFO,
         7.5e3,
       );
     }

@@ -154,29 +154,29 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '@/components/BackButton.vue';
-  import ConfirmModal from '@/components/ConfirmModal.vue';
-  import ContentBox from '@/components/ContentBox.vue';
-  import FormModal from '@/components/FormModal.vue';
-  import FullscreenLoadingMessage from '@/components/FullscreenLoadingMessage.vue';
-  import LoadingMessage from '@/components/LoadingMessage.vue';
-  import ProgressBar from '@/components/ProgressBar.vue';
-  import Separator from '@/components/Separator.vue';
+  import BackButton from '&/BackButton.vue';
+  import ConfirmModal from '&/ConfirmModal.vue';
+  import ContentBox from '&/ContentBox.vue';
+  import FormModal from '&/FormModal.vue';
+  import FullscreenLoadingMessage from '&/FullscreenLoadingMessage.vue';
+  import LoadingMessage from '&/LoadingMessage.vue';
+  import ProgressBar from '&/ProgressBar.vue';
+  import Separator from '&/Separator.vue';
 
   // In-House Modules
-  import backWithFallback from '@/utils/routerBackWithFallback.js';
-  import downloadBlob from '@/utils/downloadBlob.js';
-  import fetchWithProgress from '@/utils/fetchWithProgress.js';
-  import fileIcon from '@/assets/images/file.svg';
-  import profileIcon from '@/assets/images/profile.svg';
-  import size from '@/utils/size.js';
-  import toDateString from '@/utils/toDateString.js';
+  import backWithFallback from '#/routerBackWithFallback.js';
+  import downloadBlob from '#/downloadBlob.js';
+  import fetchWithProgress from '#/fetchWithProgress.js';
+  import fileIcon from '!/images/file.svg';
+  import profileIcon from '!/images/profile.svg';
+  import size from '#/size.js';
+  import toDateString from '#/toDateString.js';
 
   // Store Modules
-  import { fileStore } from '@/stores/staff-space/file.js';
-  import { filesStore } from '@/stores/staff-space/files.js';
-  import { toastStore } from '@/stores/toast.js';
-  import { userStore, cumulonimbusOptions } from '@/stores/user.js';
+  import { fileStore } from '$/staff-space/file.js';
+  import { filesStore } from '$/staff-space/files.js';
+  import { toastStore } from '$/toast.js';
+  import { userStore, cumulonimbusOptions } from '$/user.js';
 
   // External Modules
   import { ref, onMounted, computed, watch } from 'vue';

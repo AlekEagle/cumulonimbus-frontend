@@ -1,16 +1,37 @@
 // In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
-import { addSeconds, useTimeString } from '@/utils/time.js';
-import { wait, waitFor } from '@/utils/wait.js';
 
 // Other Store Modules
 // No Other Store Modules to import here.
 
 // External Modules
-import { computed, Ref, ref, unref, watch, WatchStopHandle } from 'vue';
+import { ref } from 'vue';
 import { defineStore } from 'pinia';
 
-const toastTransitionDuration = 500;
+export enum ToastType {
+  SUCCESS = 'success',
+  INFO = 'info',
+  WARNING = 'warning',
+  ERROR = 'error',
+}
+
+export interface StandardToast {
+  id: string;
+  createdAt: number;
+  text: string;
+  type: ToastType;
+  duration: number;
+}
+
+export interface RatelimitToast {
+  id: string;
+  createdAt: number;
+  type: ToastType;
+  duration: number;
+  cRE: Cumulonimbus.ResponseError;
+}
+
+export type Toast = StandardToast | RatelimitToast;
 
 function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toLocaleUpperCase() + string.slice(1);
@@ -18,97 +39,52 @@ function capitalizeFirstLetter(string: string): string {
 
 // Store Definition
 export const toastStore = defineStore('toast', () => {
-  // The current text of the toast
-  const text = ref('');
-  // Watcher for reactive text
-  const watcher = ref<WatchStopHandle | null>(null);
-  // The current visibility of the toast
-  const visible = ref(false);
-  // The timeout to automatically hide the toast
-  const timeout = ref<number | null>(null);
-  // Whether the toast is currently animating
-  const animating = ref(false);
+  // Map of active toasts
+  const toasts = ref<Record<string, Toast>>({});
 
   // The function to show a toast
-  const show = async (msg: string | Ref<string>, duration: number = 3000) => {
-    // Check if the toast is currently animating
-    if (animating.value) {
-      // If it is, wait for it to finish
-      await waitFor(animating, false);
+  const show = (
+    msgOrToast:
+      | string
+      | Omit<RatelimitToast, 'id' | 'createdAt'>
+      | Omit<StandardToast, 'id' | 'createdAt'>,
+    type: ToastType = ToastType.INFO,
+    duration: number = 3000,
+  ) => {
+    let toast: Toast;
+    if (typeof msgOrToast === 'object') {
+      toast = {
+        id: crypto.randomUUID(),
+        createdAt: -1,
+        ...msgOrToast,
+      } as Toast;
+    } else {
+      toast = {
+        id: crypto.randomUUID(),
+        createdAt: -1,
+        text: msgOrToast,
+        type,
+        duration,
+      };
     }
-    // Check if the toast is currently visible
-    if (visible.value) {
-      // If it is, hide it
-      await hide();
-    }
-
-    // Set the text of the toast
-    text.value = unref(msg);
-    // If the text is reactive, watch it
-    if (typeof msg !== 'string') {
-      watcher.value = watch(msg, (newMsg) => {
-        text.value = newMsg;
-      });
-    }
-    // Set the visibility of the toast
-    visible.value = true;
-    // wait for the toast to transition in
-    animating.value = true;
-    await wait(toastTransitionDuration);
-    animating.value = false;
-    // Set the timeout to hide the toast
-    // @ts-expect-error Blame @types/qrcode for this error
-    timeout.value = setTimeout(hide, duration);
+    toasts.value[toast.id] = toast;
+    return toast.id;
   };
 
   // The function to hide the toast
-  const hide = async () => {
-    // Check if the toast is currently animating
-    if (animating.value) {
-      // If it is, wait for it to finish
-      await waitFor(animating, false);
-    }
-
-    // Check if we were watching a reactive text
-    if (watcher.value) {
-      // If we were, stop watching it
-      watcher.value();
-      watcher.value = null;
-    }
-
-    // Clear the timeout to hide the toast
-    if (timeout.value) {
-      clearTimeout(timeout.value);
-      timeout.value = null;
-    }
-
-    // Set the visibility of the toast
-    visible.value = false;
-    // wait for the toast to transition out
-    animating.value = true;
-    await wait(toastTransitionDuration);
-    animating.value = false;
+  const hide = (toastID: string) => {
+    const deletedToast = toasts.value[toastID];
+    delete toasts.value[toastID];
+    return deletedToast;
   };
 
   // A toast for a rate limit cooldown.
-  const rateLimit = async (error: Cumulonimbus.ResponseError) => {
-    // Take reset time (time until the rate limit resets in seconds) and convert it to a date
-    const reset = addSeconds(new Date(Date.now()), error.ratelimit!.reset);
-    // Calculate how many seconds until the rate limit resets
-    const seconds = Math.ceil((reset.getTime() - Date.now()) / 1e3);
-    // construct the message
-    const msg = computed(() => {
-      const toTimeString = useTimeString(
-        ref(reset),
-        1e3,
-        Math.min(seconds * 1e3, 10e3),
-      );
-      return toTimeString.value === 'Now'
-        ? 'Go ahead and try again now!'
-        : `You are being rate limited! Please wait ${toTimeString.value} before trying again.`;
+  const rateLimit = (error: Cumulonimbus.ResponseError) => {
+    return show({
+      type: ToastType.WARNING,
+      duration: 5000,
+      cRE: error,
     });
-    // show the toast
-    await show(msg, Math.min(seconds * 1e3, 10e3));
   };
 
   // A toast for when a user that is banned makes an API call.
@@ -168,7 +144,7 @@ export const toastStore = defineStore('toast', () => {
   };
 
   // A toast to inform the user that they are missing required fields.
-  const missingFields = async (fields: string[]) => {
+  const missingFields = (fields: string[]) => {
     // Capitalize the first letter of each field, and join them with commas, putting an "and" before the last one
     const fieldsNormalized =
       fields.length === 1
@@ -177,36 +153,36 @@ export const toastStore = defineStore('toast', () => {
             .map(capitalizeFirstLetter)
             .join(', ')
             .replace(/, ([^,]*)$/, ', and $1');
-    await show(
+    return show(
       `Whoops! Looks like you missed something! Please double-check: ${fieldsNormalized}`,
     );
   };
 
   // A toast to inform a user trying to log in that
-  const userNotFound = async () => {
-    await show("I can't find anyone with that username!");
+  const userNotFound = () => {
+    return show("I can't find anyone with that username!");
   };
 
   // A toast to inform a user that their email is not verified
-  const emailNotVerified = async () => {
-    await show(
+  const emailNotVerified = () => {
+    return show(
       'Your email is not verified. Please check your email and try again.',
     );
   };
 
   // The function to display a toast regarding an incorrect password
-  const invalidPassword = async () => {
-    await show('No, that is not the password.');
+  const invalidPassword = () => {
+    return show('No, that is not the password.');
   };
 
-  const serviceUnavailable = async () => {
-    await show(
+  const serviceUnavailable = () => {
+    return show(
       'It looks like Cumulonimbus is currently unavailable. Please try again later.',
     );
   };
 
-  const secondFactorRequired = async () => {
-    await show(
+  const secondFactorRequired = () => {
+    return show(
       'You must have a second factor enabled to access this resource.',
     );
   };
@@ -215,24 +191,8 @@ export const toastStore = defineStore('toast', () => {
     await show('Your second factor response was incorrect or has expired.');
   };
 
-  // The function to display a toast regarding client internet connectivity
-  const connectivityOffline = async () => {
-    await show('It seems like you are offline. Please try again later.');
-  };
-
-  // The function to display a toast regarding the client's internet connectivity changing to online
-  const connectivityChangeOnline = async () => {
-    await show("You're back online! Everything should be working as expected.");
-  };
-
-  // The function to display a toast regarding the client's internet connectivity changing to offline
-  const connectivityChangeOffline = async () => {
-    await show("Looks like you went offline. You won't be able to do much.");
-  };
-
   return {
-    text,
-    visible,
+    toasts,
     show,
     hide,
     rateLimit,
@@ -253,8 +213,5 @@ export const toastStore = defineStore('toast', () => {
     serviceUnavailable,
     secondFactorRequired,
     invalidSecondFactorResponse,
-    connectivityOffline,
-    connectivityChangeOnline,
-    connectivityChangeOffline,
   };
 });

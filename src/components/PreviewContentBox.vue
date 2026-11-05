@@ -21,7 +21,7 @@
       <img
         v-else
         class="theme-safe"
-        src="@/assets/images/checkmark.svg"
+        src="!/images/checkmark.svg"
         width="80"
         height="80"
       />
@@ -57,17 +57,17 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import './ContentBox.vue'; // Importing this to get the CSS
-  import LoadingSpinner from './LoadingSpinner.vue';
+  import '&/ContentBox.vue'; // Importing this to get the CSS
+  import LoadingSpinner from '&/LoadingSpinner.vue';
 
   // In-House Modules
   import Cumulonimbus from 'cumulonimbus-wrapper'; // We're considering this in-house because I also wrote it.
-  import exclamationMarkIcon from '@/assets/images/exclamation-mark.svg';
-  import noPreviewIcon from '@/assets/images/no-preview.svg';
-  import { wait } from '@/utils/wait.js';
+  import exclamationMarkIcon from '!/images/exclamation-mark.svg';
+  import noPreviewIcon from '!/images/no-preview.svg';
+  import { wait } from '#/wait.js';
 
   // Store Modules
-  import { userStore } from '@/stores/user.js';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { computed, ref, onUnmounted } from 'vue';
