@@ -6,7 +6,16 @@
         Cumulonimbus
       </RouterLink>
 
-      <nav aria-label="Main">
+      <nav aria-label="Navigation">
+        <div
+          class="theme-switch"
+          :title="`${themeTitleDescription}. Click to cycle through themes.`"
+          @click="doThemeToggle"
+        >
+          <span v-if="displayPref.theme === 'system'" id="system" />
+          <span v-else-if="displayPref.theme === 'light'" id="light" />
+          <span v-else-if="displayPref.theme === 'dark'" id="dark" />
+        </div>
         <RouterLink to="/about">About</RouterLink>
         <RouterLink to="/auth">Dashboard</RouterLink>
       </nav>
@@ -92,10 +101,10 @@
   import ToastRenderer from '&/ToastRenderer.vue';
 
   // In-House Modules
-  import { debugSettings, debugRef } from '#/debug';
+  import { debugSettings } from '#/debug';
 
   // Store Modules
-  // No Store Modules to import here.
+  import { displayPrefStore, Theme } from '$/displayPref';
 
   // External Modules
   import { ref, onMounted, watch, computed, useTemplateRef } from 'vue';
@@ -103,30 +112,53 @@
   // import { visible } from '@/router';
 
   const route = useRoute();
+  const displayPref = displayPrefStore();
   const noClouds = computed(() => (route.meta.noClouds ?? false) as boolean);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  // const visible = ref(false);
-  const theme = debugRef<'system' | 'light' | 'dark'>('system', {
-    type: 'select',
-    description: 'Theme',
-    states: ['system', 'light', 'dark'],
-    toggleStates: ['light', 'dark'],
-    toggle: '.',
-  });
+  //// Theme Stuff
 
-  watch(theme, (value) => {
-    document.documentElement.classList.remove('dark-mode');
-    document.documentElement.classList.remove('light-mode');
-    switch (value) {
-      case 'dark':
-        document.documentElement.classList.add('dark-mode');
-        break;
+  const themeTitleDescription = computed(() => {
+    switch (displayPref.theme) {
+      case 'system':
+        return 'System Default';
       case 'light':
-        document.documentElement.classList.add('light-mode');
-        break;
+        return 'Light Mode';
+      case 'dark':
+        return 'Dark Mode';
     }
   });
+
+  function doThemeToggle() {
+    switch (displayPref.theme) {
+      case 'system':
+        displayPref.theme = Theme.LIGHT;
+        break;
+      case 'light':
+        displayPref.theme = Theme.DARK;
+        break;
+      case 'dark':
+        displayPref.theme = Theme.SYSTEM;
+        break;
+    }
+  }
+
+  function performThemeToggle(theme: Theme) {
+    document.documentElement.classList.remove('dark-mode');
+    document.documentElement.classList.remove('light-mode');
+    switch (theme) {
+      case Theme.DARK:
+        document.documentElement.classList.add('dark-mode');
+        break;
+      case Theme.LIGHT:
+        document.documentElement.classList.add('light-mode');
+        break;
+      // No need to add a class for Theme.SYSTEM as it follows the system default
+    }
+  }
+
+  watch(() => displayPref.theme, performThemeToggle);
+  performThemeToggle(displayPref.theme);
 
   //// Animation
 
@@ -319,6 +351,33 @@
     font-weight: 600;
   }
 
+  .bar nav .theme-switch {
+    cursor: pointer;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+  }
+
+  .bar nav .theme-switch span {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-color: var(--look-sky-text);
+  }
+
+  .bar nav .theme-switch span#system {
+    mask: url('!/images/computer.svg') center / contain no-repeat;
+  }
+
+  .bar nav .theme-switch span#light {
+    mask: url('!/images/sun.svg') center / contain no-repeat;
+  }
+
+  .bar nav .theme-switch span#dark {
+    mask: url('!/images/moon.svg') center / contain no-repeat;
+  }
+
   .bar nav a {
     text-decoration: none;
   }
@@ -451,6 +510,10 @@
 
     --theme-switch-time: 0.12s;
     /*--theme-switch-time: 1s;*/
+
+    /* Logo gradient colors */
+    --logo-color-top: rgb(112, 132, 230);
+    --logo-color-bottom: rgb(0, 250, 255);
   }
 
   /* Light Mode */
@@ -551,6 +614,10 @@
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;*/
+
+    transition:
+      background var(--theme-switch-time) ease,
+      color var(--theme-switch-time) ease;
   }
 
   /* Universal Base Styles */
