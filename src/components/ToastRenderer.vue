@@ -30,6 +30,7 @@
     bottom: 1rem;
     right: 1rem;
     display: flex;
+    width: calc(100% - 2rem);
     flex-direction: column;
     align-items: flex-end;
     gap: 0.5rem;

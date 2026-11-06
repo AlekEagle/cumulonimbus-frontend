@@ -78,8 +78,8 @@
     border-radius: 10px;
     overflow: hidden;
     transition:
-      border 0.25s,
-      background-color 0.25s;
+      border var(--theme-switch-time) ease,
+      background-color var(--theme-switch-time) ease;
     cursor: pointer;
     user-select: none;
     -moz-user-select: none;

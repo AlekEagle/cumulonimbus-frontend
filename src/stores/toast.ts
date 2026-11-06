@@ -51,16 +51,20 @@ export const toastStore = defineStore('toast', () => {
     type: ToastType = ToastType.INFO,
     duration: number = 3000,
   ) => {
+    const id =
+      'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2);
     let toast: Toast;
     if (typeof msgOrToast === 'object') {
       toast = {
-        id: crypto.randomUUID(),
+        id: id,
         createdAt: -1,
         ...msgOrToast,
       } as Toast;
     } else {
       toast = {
-        id: crypto.randomUUID(),
+        id: id,
         createdAt: -1,
         text: msgOrToast,
         type,

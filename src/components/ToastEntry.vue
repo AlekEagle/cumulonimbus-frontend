@@ -90,7 +90,7 @@
     display: inline-flex;
     align-items: center;
     padding: 0.5rem 0.75rem 0.5rem 1rem;
-    border-radius: 9em;
+    border-radius: 1.5em;
     /* Background color is determined by the toast type */
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -117,7 +117,9 @@
   .toast .dismiss-toast {
     cursor: pointer;
     width: 1rem;
+    min-width: 1rem;
     height: 1rem;
+    min-height: 1rem;
     margin-left: 1rem;
   }
 
@@ -130,8 +132,5 @@
 
   .toast.warning .dismiss-toast img {
     filter: invert(0);
-  }
-
-  .toast p {
   }
 </style>

@@ -18,6 +18,16 @@
     @click="toast.show('Oh no! This is an error toast.', ToastType.ERROR, 5e3)"
     >Show Error Toast</button
   >
+  <button
+    @click="
+      toast.show(
+        'This is a really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really long toast message to test how it behaves.',
+        ToastType.INFO,
+        5e3,
+      )
+    "
+    >Show Really Long Toast</button
+  >
 </template>
 
 <script setup lang="ts">

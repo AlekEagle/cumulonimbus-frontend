@@ -535,7 +535,7 @@
     --look-footer-text: #c4d6e6;
 
     --look-button: #0d4f86;
-    --look-button-disabled: #d1d1d1;
+    --look-button-disabled: #0a3c65;
     --look-button-text: #ffffff;
     --look-button-hover: #1271be;
 
