@@ -137,7 +137,7 @@
         Frontend Version:
         <code v-text="`v${$version}`" />
         <br />
-        Wrapper Version: <code v-text="`v${Cumulonimbus.VERSION}`" />
+        Wrapper Version: <code v-text="cumVersion" />
         <br />
         Backend Version: <code v-text="`v${backendVersion}`" />
         <br />
@@ -176,6 +176,7 @@
     thumbnailVersion = ref('Loading...'),
     asOf = ref<Date | null | undefined>(),
     asOfTime = useFuzzyTimeString(asOf, 30e3),
+    cumVersion = ref(`v${Cumulonimbus.VERSION}`),
     dependencies = computed(() => {
       return Object.keys(global!.$dependencies)
         .map((key: string) => {

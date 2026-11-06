@@ -75,7 +75,7 @@
     </ContentBox>
     <ContentBox
       title="Content Box w/ title, content & click handler"
-      @click="toast.show('click')"
+      @click="showToast('click')"
     >
       Content Box w/ title, content & click handler
     </ContentBox>
@@ -92,7 +92,7 @@
     </ContentBox>
     <ContentBox
       title="Disabled Content Box w/ click handler"
-      @click="toast.show('you will never see this')"
+      @click="showToast('you will never see this')"
       disabled
     >
       Disabled Content Box w/ click handler
@@ -100,10 +100,7 @@
   </div>
   <Separator />
   <div class="content-box-container">
-    <ContentBox
-      title="Lonely Content Box"
-      @click="toast.show('I am lonely :(')"
-    >
+    <ContentBox title="Lonely Content Box" @click="showToast('I am lonely :(')">
       Lonely Content Box
     </ContentBox>
   </div>
@@ -128,4 +125,8 @@
   // No External Modules to import here.
 
   const toast = toastStore();
+
+  function showToast(message: string) {
+    toast.show(message);
+  }
 </script>
