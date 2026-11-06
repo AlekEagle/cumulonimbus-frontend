@@ -46,9 +46,11 @@
   </div>
 
   <!-- DO NOT DELETE THIS CODE OR THE COMMENTS I DON'T KNOW WHAT IT DOES BUT REMOVING IT BREAKS LITERALLY EVRYTHING -->
-  <!-- The real deal content -->
-  <RouterView />
-  <!-- The end of the real deal content -->
+  <main>
+    <!-- The real deal content -->
+    <RouterView />
+    <!-- The end of the real deal content -->
+  </main>
   <!-- DO NOT DELETE THE CODE OR THE COMMENTS ABOVE ME APPARENTLY THEY'RE STRUCTURALLY INTEGRAL TO THIS WHOLE THING -->
 
   <div class="footer">
@@ -101,13 +103,13 @@
   import ToastRenderer from '&/ToastRenderer.vue';
 
   // In-House Modules
-  import { debugSettings } from '#/debug';
+  import { debugSettings, debugRef } from '#/debug';
 
   // Store Modules
   import { displayPrefStore, Theme } from '$/displayPref';
 
   // External Modules
-  import { ref, onMounted, watch, computed, useTemplateRef } from 'vue';
+  import { ref, onMounted, computed, useTemplateRef, watch } from 'vue';
   import { useRoute } from 'vue-router';
   // import { visible } from '@/router';
 
@@ -117,6 +119,18 @@
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   //// Theme Stuff
+
+  const theme = debugRef<'system' | 'light' | 'dark'>('system', {
+    type: 'select',
+    description: 'Theme',
+    states: ['system', 'light', 'dark'],
+    toggleStates: ['system', 'light', 'dark'],
+    toggle: '.',
+  });
+
+  watch(theme, (value) => {
+    displayPref.theme = value as Theme;
+  });
 
   const themeTitleDescription = computed(() => {
     switch (displayPref.theme) {
@@ -142,23 +156,6 @@
         break;
     }
   }
-
-  function performThemeToggle(theme: Theme) {
-    document.documentElement.classList.remove('dark-mode');
-    document.documentElement.classList.remove('light-mode');
-    switch (theme) {
-      case Theme.DARK:
-        document.documentElement.classList.add('dark-mode');
-        break;
-      case Theme.LIGHT:
-        document.documentElement.classList.add('light-mode');
-        break;
-      // No need to add a class for Theme.SYSTEM as it follows the system default
-    }
-  }
-
-  watch(() => displayPref.theme, performThemeToggle);
-  performThemeToggle(displayPref.theme);
 
   //// Animation
 
@@ -364,6 +361,7 @@
     width: 24px;
     height: 24px;
     background-color: var(--look-sky-text);
+    transition: background-color var(--theme-switch-time) ease;
   }
 
   .bar nav .theme-switch span#system {
@@ -382,7 +380,8 @@
     text-decoration: none;
   }
 
-  .bar nav a:hover {
+  .bar nav a:hover,
+  .bar nav a.router-link-exact-active {
     text-decoration: underline;
   }
 
@@ -398,7 +397,7 @@
     filter: brightness(var(--bank-tone));
     mix-blend-mode: screen;
 
-    transition: filter var(--theme-switch-time);
+    transition: filter var(--theme-switch-time) ease;
   }
 
   .bank-enter-active,
@@ -511,13 +510,17 @@
     --theme-switch-time: 0.12s;
     /*--theme-switch-time: 1s;*/
 
+    --font-standard: 'Bricolage Grotesque', sans-serif;
+    --font-heading: 'Bricolage Grotesque', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
     /* Logo gradient colors */
     --logo-color-top: rgb(112, 132, 230);
     --logo-color-bottom: rgb(0, 250, 255);
   }
 
   /* Light Mode */
-  html {
+  html.light-mode {
     --look-sky: #1877bd;
     --look-sky-text: #ffffff;
     --look-sky-text-light: #c6e0f3;
@@ -531,9 +534,10 @@
     --look-footer: #0a2540;
     --look-footer-text: #c4d6e6;
 
-    --look-button: #ffffff;
-    --look-button-text: #0d4f86;
-    --look-button-hover: #e8f4fc;
+    --look-button: #0d4f86;
+    --look-button-disabled: #d1d1d1;
+    --look-button-text: #ffffff;
+    --look-button-hover: #1271be;
 
     --hint-bg: rgba(255, 255, 255, 0.1);
     --hint-line: rgba(255, 255, 255, 0.65);
@@ -554,41 +558,18 @@
     --look-band-text: #dce7f2;
 
     --look-footer: #09131f;
+    --look-footer-disabled: #09131f;
     --look-footer-text: #93a9bf;
+
+    --look-button: #ffffff;
+    --look-button-disabled: #d1d1d1;
+    --look-button-text: #0d4f86;
+    --look-button-hover: #e8f4fc;
 
     --hint-bg: rgba(143, 203, 255, 0.06);
     --hint-line: rgba(159, 190, 220, 0.55);
 
     --bank-tone: 0.5;
-  }
-
-  /* Dark Mode Media Query */
-  /* Only used before theme provider is initialized */
-  @media (prefers-color-scheme: dark) {
-    html:not(.light-mode) {
-      --look-sky: linear-gradient(
-        180deg,
-        #08162b 0%,
-        #102847 60%,
-        #173556 100%
-      );
-      --look-sky-text: #eef4fa;
-      --look-sky-text-light: #9fbedc;
-
-      --look-page: #0e1a2b;
-      --look-page-text: #dce7f2;
-
-      --look-band: #12233a;
-      --look-band-text: #dce7f2;
-
-      --look-footer: #09131f;
-      --look-footer-text: #93a9bf;
-
-      --hint-bg: rgba(143, 203, 255, 0.06);
-      --hint-line: rgba(159, 190, 220, 0.55);
-
-      --bank-tone: 0.5;
-    }
   }
 
   /* Body Styling */
@@ -604,26 +585,26 @@
     line-height: 1.55;
     min-height: 100vh;
 
-    font-family: 'Bricolage Grotesque', sans-serif;
+    font-family: var(--font-standard);
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
     font-variation-settings: 'wdth' 100;
-
-    /*font-family: "Montserrat", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;*/
-
     transition:
       background var(--theme-switch-time) ease,
       color var(--theme-switch-time) ease;
   }
 
   /* Universal Base Styles */
+
   * {
     box-sizing: border-box;
     margin: 0;
+  }
+
+  main {
+    background: var(--look-page);
+    transition: background var(--theme-switch-time) ease;
   }
 
   a {
@@ -631,10 +612,106 @@
     text-underline-offset: 3px;
   }
 
-  button {
-    font: inherit;
-    color: inherit;
+  button,
+  select,
+  input[type='color'] {
     cursor: pointer;
+  }
+
+  form input[type='submit'] {
+    display: none;
+  }
+
+  button,
+  input[type='text'],
+  input[type='number'],
+  input[type='password'],
+  input[type='email'],
+  input[type='url'],
+  input[type='tel'],
+  input[type='search'],
+  input[type='date'],
+  input[type='time'],
+  input[type='datetime-local'],
+  input[type='month'],
+  input[type='week'],
+  input[type='color'],
+  textarea,
+  select {
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.8125rem 1.5rem;
+    border: 2px solid var(--look-button);
+    border-radius: 1.5rem;
+    background: var(--look-button);
+    color: var(--look-button-text);
+    /* Hide default appearance for form elements */
+    -webkit-appearance: none;
+    appearance: none;
+    transition:
+      background var(--theme-switch-time) ease,
+      border-color var(--theme-switch-time) ease,
+      color var(--theme-switch-time) ease;
+  }
+
+  input[type='color'] {
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    box-sizing: border-box;
+    block-size: 24px;
+    padding: 0;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  input[type='color']::-webkit-color-swatch,
+  input[type='color']::-moz-color-swatch {
+    border: none;
+    border-radius: 0.25rem;
+  }
+
+  input[type='color']::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  button:hover:enabled,
+  input[type='text']:hover:enabled,
+  input[type='number']:hover:enabled,
+  input[type='password']:hover:enabled,
+  input[type='email']:hover:enabled,
+  input[type='url']:hover:enabled,
+  input[type='tel']:hover:enabled,
+  input[type='search']:hover:enabled,
+  input[type='date']:hover:enabled,
+  input[type='time']:hover:enabled,
+  input[type='datetime-local']:hover:enabled,
+  input[type='month']:hover:enabled,
+  input[type='week']:hover:enabled,
+  input[type='color']:hover:enabled,
+  textarea:hover:enabled,
+  select:hover:enabled {
+    background: var(--look-button-hover);
+    border-color: var(--look-button-hover);
+  }
+
+  button:disabled,
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    background: var(--look-button-disabled);
+    border-color: var(--look-button-disabled);
+    cursor: not-allowed;
   }
 
   /* Universal Opt-In Styles */
@@ -658,23 +735,6 @@
     height: 1px;
     white-space: nowrap;
     overflow: hidden;
-  }
-
-  button {
-    display: inline-block;
-    text-decoration: none;
-    font-weight: 700;
-    border-radius: 9em;
-    padding: 0.8125rem 1.5rem;
-    border: 2px solid var(--look-button);
-    background: var(--look-button);
-    color: var(--look-button-text);
-    width: fit-content;
-  }
-
-  button:hover {
-    background: var(--look-button-hover);
-    border-color: var(--look-button-hover);
   }
 
   .content {

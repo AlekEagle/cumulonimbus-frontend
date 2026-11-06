@@ -73,8 +73,8 @@
     height: 25px;
     width: 25px;
     align-items: center;
-    background-color: var(--ui-background);
-    border: 1px solid var(--ui-border);
+    background-color: var(--look-band);
+    border: 1px solid var(--look-page-text);
     border-radius: 10px;
     overflow: hidden;
     transition:
@@ -84,10 +84,6 @@
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
-  }
-
-  .checkmark-box:hover {
-    border: 1px solid var(--ui-border-hover);
   }
 
   .checkmark-box input {
@@ -120,7 +116,7 @@
     width: 20px;
     height: 20px;
     fill: none;
-    stroke: var(--ui-foreground);
+    stroke: var(--look-button);
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -140,7 +136,7 @@
     font-weight: 600;
     font-size: 20px;
     font-family: var(--font-heading);
-    color: var(--ui-foreground);
+    color: var(--look-page-text);
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;

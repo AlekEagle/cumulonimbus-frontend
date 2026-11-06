@@ -1,25 +1,20 @@
 <template>
-  <button
-    class="button"
-    @click="toast.show('This is an info toast.', ToastType.INFO, 5e3)"
+  <button @click="toast.show('This is an info toast.', ToastType.INFO, 5e3)"
     >Show Info Toast</button
   >
   <button
-    class="button"
     @click="
       toast.show('Wahoo! This is a success toast.', ToastType.SUCCESS, 5e3)
     "
     >Show Success Toast</button
   >
   <button
-    class="button"
     @click="
       toast.show('Heads up! This is a warning toast.', ToastType.WARNING, 5e3)
     "
     >Show Warning Toast</button
   >
   <button
-    class="button"
     @click="toast.show('Oh no! This is an error toast.', ToastType.ERROR, 5e3)"
     >Show Error Toast</button
   >

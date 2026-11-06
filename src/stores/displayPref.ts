@@ -46,14 +46,16 @@ export const displayPrefStore = defineStore('displayPref', () => {
       reactivePreferenceWatcher();
       reactivePreferenceWatcher = null;
     }
+    html.classList.remove('dark-mode');
+    html.classList.remove('light-mode');
     switch (newThemeVal) {
       case Theme.LIGHT:
-        html.classList.remove('dark-theme');
-        metaThemeColor.setAttribute('content', '#ffffff');
+        html.classList.add('light-mode');
+        metaThemeColor.setAttribute('content', '#0a2540');
         break;
       case Theme.DARK:
-        html.classList.add('dark-theme');
-        metaThemeColor.setAttribute('content', '#212121');
+        html.classList.add('dark-mode');
+        metaThemeColor.setAttribute('content', '#09131f');
         break;
       case Theme.SYSTEM:
         if (!reactivePreferenceWatcher) {
@@ -61,11 +63,11 @@ export const displayPrefStore = defineStore('displayPref', () => {
             preferredDark,
             (newVal: boolean) => {
               if (newVal) {
-                html.classList.add('dark-theme');
-                metaThemeColor.setAttribute('content', '#212121');
+                html.classList.add('dark-mode');
+                metaThemeColor.setAttribute('content', '#09131f');
               } else {
-                html.classList.remove('dark-theme');
-                metaThemeColor.setAttribute('content', '#ffffff');
+                html.classList.remove('dark-mode');
+                metaThemeColor.setAttribute('content', '#0a2540');
               }
             },
             { immediate: true },

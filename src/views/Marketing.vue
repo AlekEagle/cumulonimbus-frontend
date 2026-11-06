@@ -52,8 +52,8 @@
     color: var(--look-page-text);
 
     transition:
-      background var(--theme-switch-time),
-      color var(--theme-switch-time);
+      background var(--theme-switch-time) ease,
+      color var(--theme-switch-time) ease;
   }
 
   .features-content {
@@ -69,8 +69,8 @@
     color: var(--look-band-text);
 
     transition:
-      background var(--theme-switch-time),
-      color var(--theme-switch-time);
+      background var(--theme-switch-time) ease,
+      color var(--theme-switch-time) ease;
   }
 
   .questions-content {

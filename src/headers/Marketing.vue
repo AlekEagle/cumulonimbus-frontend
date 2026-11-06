@@ -106,7 +106,7 @@
   }
 
   .url {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: clamp(1.9rem, 7.2vw, 6.5rem);
     line-height: 1.05;
     font-weight: 700;
@@ -122,6 +122,7 @@
 
   .url-part {
     color: var(--look-sky-text-light);
+    transition: color var(--theme-switch-time) ease;
   }
 
   .domain {
@@ -178,6 +179,9 @@
     border: 2px dashed var(--hint-line);
     border-radius: 18px;
     background: var(--hint-bg);
+    transition:
+      background var(--theme-switch-time) ease,
+      border-color var(--theme-switch-time) ease;
   }
 
   .dh-text {
@@ -193,6 +197,7 @@
   .dh-sub {
     font-size: 0.98rem;
     color: var(--look-sky-text-light);
+    transition: color var(--theme-switch-time) ease;
   }
 
   @keyframes roll {
