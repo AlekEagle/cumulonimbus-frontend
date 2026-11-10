@@ -150,7 +150,7 @@
     user-select: none;
   }
 
-  html.dark-theme .modal img.modal-close {
+  html.dark-mode .modal img.modal-close {
     filter: invert(100%);
   }
 

@@ -100,11 +100,13 @@
       >
     </label>
   </fieldset>
+  <SecondFactorModal />
   <ToastRenderer />
 </template>
 
 <script setup lang="ts">
   // Vue Components
+  import SecondFactorModal from '&/SecondFactorModal.vue';
   import ToastRenderer from '&/ToastRenderer.vue';
 
   // In-House Modules
