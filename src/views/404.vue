@@ -1,7 +1,7 @@
 <template>
-  <h1>This doesn't look like the right place...</h1>
-  <h2>Um, I think we took a wrong turn somewhere.</h2>
-  <h2>404 not found! The page you're looking for probably doesn't exist!</h2>
+  <Marquee>
+    <p> Wheee! </p>
+  </Marquee>
   <div class="quick-action-buttons-container">
     <RouterLink to="/">
       <button title="Lets go home!">I wanna go home.</button>
@@ -91,6 +91,7 @@
 <script lang="ts" setup>
   // Vue Components
   import BackButton from '&/BackButton.vue';
+  import Marquee from '&/Marquee.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

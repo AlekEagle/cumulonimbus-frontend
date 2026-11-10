@@ -1,6 +1,4 @@
 <template>
-  <h1>Switch Accounts</h1>
-  <h2>Have multiple accounts you need to keep track of? You can do it here.</h2>
   <div class="quick-action-buttons-container">
     <BackButton fallback="/">Back</BackButton>
     <button
@@ -259,17 +257,17 @@
     align-items: center;
     padding: 25px 30px;
     gap: 0 5px;
-    border-bottom: 1px solid var(--ui-border);
+    border-bottom: 1px solid var(--look-text-field-border);
     cursor: pointer;
     transition:
-      background-color 0.25s,
-      border-color 0.25s,
-      color 0.25s;
+      background-color var(--theme-switch-time) ease,
+      border-color var(--theme-switch-time) ease,
+      color var(--theme-switch-time) ease;
   }
 
   .account-switcher-account:hover,
   .account-switcher-account:focus {
-    background-color: var(--ui-background-hover);
+    background-color: var(--look-text-field-hover);
   }
 
   .account-switcher-account:first-child {
@@ -290,8 +288,7 @@
 
   .account-switcher-account.disabled {
     cursor: not-allowed;
-    background-color: var(--ui-background-disabled);
-    color: var(--ui-foreground-disabled);
+    opacity: 0.5;
   }
 
   .account-switcher-account img {
@@ -306,22 +303,18 @@
     -webkit-user-select: none;
   }
 
-  html.dark-theme .account-switcher-account img {
+  html.dark-mode .account-switcher-account img {
     filter: invert(100%);
   }
 
-  html.dark-theme .account-switcher-account.disabled img {
+  html.dark-mode .account-switcher-account.disabled img {
     filter: invert(calc(148 / 255));
   }
 
   .account-switcher-account p {
     margin: 0;
     text-align: left;
-    transition: color 0.25s;
-  }
-
-  .account-switcher-account.disabled p {
-    color: var(--ui-foreground-disabled);
+    transition: color var(--theme-switch-time) ease;
   }
 
   .account-switcher-account p:first-of-type {

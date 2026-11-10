@@ -68,8 +68,7 @@ export const router = createRouter({
       path: '/auth/switcher',
       name: 'account-switcher',
       components: {
-        default: () => import('@/views/Demo.vue'),
-        header: () => import('@/views/Demo.vue'),
+        default: () => import('@/views/AccountSwitcher.vue'),
       },
       meta: {},
     },
