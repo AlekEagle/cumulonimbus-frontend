@@ -1,73 +1,42 @@
 <template>
-  <div class="quick-action-buttons-container">
-    <BackButton fallback="/">Back</BackButton>
-    <button
-      v-if="!managingAccounts"
-      @click="managingAccounts = true"
-      :disabled="user.loading"
-    >
-      Remove Accounts
-    </button>
-    <button v-else @click="managingAccounts = false" :disabled="user.loading">
-      Done
-    </button>
-    <button
-      v-if="managingAccounts"
-      @click="removeAllAccountsModal?.show()"
-      :disabled="user.loading"
-    >
-      Remove All Accounts
-    </button>
-  </div>
-  <EmphasizedBox :no-padding="!user.loading">
+  <EmphasizedBox :no-padding="!user.loading" :center-content="!user.loading">
     <div v-if="!user.loading" class="account-switcher-accounts">
       <div
         :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
         v-for="(token, account) in user.accounts"
         @click="handleAccountClick(account as string)"
       >
-        <img
-          v-if="!managingAccounts"
-          :src="profileIcon"
-          alt="Generic account icon"
-        />
-        <img v-else :src="closeIcon" alt="Delete account icon" />
+        <img src="!/images/profile.svg" alt="Generic account icon" />
         <p v-text="account" />
-        <p v-if="user.account?.user.username === account && !managingAccounts">
+        <p v-if="user.account?.user.username === account">
           Currently logged in.
         </p>
-        <p v-if="token === false && !managingAccounts">Not logged in.</p>
-        <p v-if="managingAccounts">Click to remove this account.</p>
+        <p v-if="token === false">Not logged in.</p>
+        <img
+          src="!/images/close.svg"
+          alt="Delete account icon"
+          @click.stop="handleDeleteAccountClick(account as string)"
+        />
       </div>
       <div
         v-if="Object.keys(user.accounts).length < 1"
         class="account-switcher-account"
       >
-        <img :src="profileIcon" alt="Generic account icon" />
+        <img src="!/images/profile.svg" alt="Generic account icon" />
         <p>Nobody here but us chickens!</p>
         <p>Click the "Add Account" button to add an account.</p>
       </div>
       <div
-        v-if="!managingAccounts"
         :class="`account-switcher-account${user.loading ? ' disabled' : ''}`"
         @click="addAccount"
       >
-        <img :src="plusIcon" alt="Plus icon" />
+        <img src="!/images/plus.svg" alt="Plus icon" />
         <p>Add Account</p>
         <p>Add another account.</p>
       </div>
     </div>
     <LoadingMessage spinner v-else />
   </EmphasizedBox>
-  <ConfirmModal
-    title="Remove All Accounts"
-    ref="removeAllAccountsModal"
-    @submit="removeAllAccountsConfirm"
-    :disabled="user.loading"
-  >
-    <p>Are you sure you want to remove all accounts?</p>
-    <p>You'll have to enter your username and password again.</p>
-  </ConfirmModal>
   <ConfirmModal
     title="Remove Account"
     ref="removeAccountModal"
@@ -84,15 +53,12 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import BackButton from '&/BackButton.vue';
   import ConfirmModal from '&/ConfirmModal.vue';
   import EmphasizedBox from '&/EmphasizedBox.vue';
   import LoadingMessage from '&/LoadingMessage.vue';
 
   // In-House Modules
-  import closeIcon from '!/images/close.svg';
-  import plusIcon from '!/images/plus.svg';
-  import profileIcon from '!/images/profile.svg';
+  // No In-House Modules to import here.
 
   // Store Modules
   import { fileStore } from '$/user-space/file.js';
@@ -102,7 +68,7 @@
   import { userStore } from '$/user.js';
 
   // External Modules
-  import { ref, onBeforeMount, computed } from 'vue';
+  import { ref, computed } from 'vue';
   import { useRouter } from 'vue-router';
 
   const user = userStore(),
@@ -111,9 +77,7 @@
     file = fileStore(),
     files = filesStore(),
     sessions = sessionsStore(),
-    managingAccounts = ref(false),
     selectedAccount = ref<string | null>(null),
-    removeAllAccountsModal = ref<InstanceType<typeof ConfirmModal>>(),
     removeAccountModal = ref<InstanceType<typeof ConfirmModal>>(),
     redirectLoc = computed(() =>
       router.currentRoute.value.query.redirect
@@ -125,34 +89,35 @@
     await router.replace(redirectLoc.value);
   }
 
+  async function handleDeleteAccountClick(account: string) {
+    if (user.loading) return;
+    selectedAccount.value = account;
+    removeAccountModal.value?.show();
+  }
+
   async function handleAccountClick(account: string) {
     if (user.loading) return;
-    if (managingAccounts.value) {
-      selectedAccount.value = account;
-      removeAccountModal.value?.show();
-    } else {
-      try {
-        const res = await user.switchAccount(account);
-        if (res) {
-          await file.clear();
-          await files.clear();
-          await sessions.clear();
-          toast.show(`Switched to ${user.account?.user.username}.`);
+    try {
+      const res = await user.switchAccount(account);
+      if (res) {
+        await file.clear();
+        await files.clear();
+        await sessions.clear();
+        toast.show(`Switched to ${user.account?.user.username}.`);
 
-          redirect();
-        } else
-          router.replace({
-            path: '/auth',
-            query: {
-              redirect: redirectLoc.value,
-              username: account,
-            },
-            hash: '#login',
-          });
-      } catch (e) {
-        console.error(e);
-        toast.clientError();
-      }
+        redirect();
+      } else
+        router.replace({
+          path: '/auth',
+          query: {
+            redirect: redirectLoc.value,
+            username: account,
+          },
+          hash: '#login',
+        });
+    } catch (e) {
+      console.error(e);
+      toast.clientError();
     }
   }
 
@@ -166,28 +131,6 @@
     });
   }
 
-  async function removeAllAccountsConfirm(choice: boolean) {
-    if (choice) {
-      for (const account in user.accounts) {
-        try {
-          const res = await user.removeAccount(account);
-          if (res !== true) {
-            console.error(res);
-            toast.clientError();
-            break;
-          }
-        } catch (error) {
-          console.error(error);
-          toast.clientError();
-          break;
-        }
-      }
-      toast.show('All accounts removed.');
-      managingAccounts.value = false;
-      removeAllAccountsModal.value?.hide();
-    }
-  }
-
   async function removeAccountConfirm(choice: boolean) {
     if (choice) {
       try {
@@ -196,9 +139,6 @@
           if (res === true) {
             toast.show('Account removed.');
             selectedAccount.value = null;
-            if (Object.keys(user.accounts).length < 1) {
-              managingAccounts.value = false;
-            }
             removeAccountModal.value?.hide();
           } else {
             console.error(res);
@@ -213,33 +153,6 @@
       removeAccountModal.value?.hide();
     }
   }
-
-  onBeforeMount(async () => {
-    if (Object.keys(user.accounts).length < 1) {
-      router.replace({
-        path: '/auth',
-        query: {
-          redirect: redirectLoc.value,
-        },
-        hash: '#login',
-      });
-    } else if (Object.keys(user.accounts).length < 2 && !user.loggedIn) {
-      const res = await user.switchAccount(Object.keys(user.accounts)[0]);
-      if (res)
-        router.replace({
-          path: redirectLoc.value,
-        });
-      else
-        router.replace({
-          path: '/auth',
-          query: {
-            redirect: redirectLoc.value,
-            username: Object.keys(user.accounts)[0],
-          },
-          hash: '#login',
-        });
-    }
-  });
 </script>
 
 <style>
@@ -253,7 +166,7 @@
 
   .account-switcher-account {
     display: grid;
-    grid: 1fr 1fr / 50px 4fr;
+    grid: 1fr 1fr / 50px 4fr 20px;
     align-items: center;
     padding: 25px 30px;
     gap: 0 5px;
@@ -291,7 +204,7 @@
     opacity: 0.5;
   }
 
-  .account-switcher-account img {
+  .account-switcher-account img:not(:last-child) {
     transition: filter 0.25s;
     width: 50px;
     justify-self: left;
@@ -337,5 +250,16 @@
 
   .account-switcher-account p:only-of-type {
     grid-row: 1 / span 2;
+  }
+
+  .account-switcher-account img:last-child:not(:only-child) {
+    height: 20px;
+    align-self: center;
+    justify-self: right;
+    grid-row: 1 / span 2;
+    grid-column: 3 / 4;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
   }
 </style>

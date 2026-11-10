@@ -1,5 +1,14 @@
 /// <reference lib="WebWorker" />
 
+// In-House Modules
+// No In-House Modules to import here.
+
+// Store Modules
+// No Store Modules to import here.
+
+// External Modules
+// No External Modules to import here.
+
 export interface RouteParams {
   request: Request;
   url: URL;

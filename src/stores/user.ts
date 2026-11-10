@@ -18,6 +18,11 @@ export const cumulonimbusOptions: Cumulonimbus.ClientOptions = {
   baseThumbnailURL: __THUMBNAIL_BASE_URL__,
 };
 
+interface User {
+  session: Cumulonimbus.Data.Session;
+  user: Cumulonimbus.Data.User;
+}
+
 // Store Definition
 export const userStore = defineStore('user', () => {
   // --- Persistent Refs ---
@@ -36,34 +41,40 @@ export const userStore = defineStore('user', () => {
     deep: true,
     immediate: true,
   });
-  // The current account information.
-  const account = ref<{
-    session: Cumulonimbus.Data.Session;
-    user: Cumulonimbus.Data.User;
-  } | null>(null);
-  // persistPiniaRef(account, 'account', { deep: true, immediate: true });
+
   // --- Non-Persistent Data ---
+
+  // The current account information.
+  const account = ref<User | null>(null);
+
   // The Cumulonimbus client.
   const client = ref<Cumulonimbus | null>(null);
-  // Is there actually a user logged in?
+
+  // Is there actually a user logged in? Settled after rehydration.
   const loggedIn = computed(
     () => account.value !== null && client.value !== null,
   );
-  // The selected user's token.
+
+  // The selected user's token. Immediately derived from the accounts store.
   const token = computed(() => {
     if (selectedUser.value === null) return null;
     const t = accounts.value[selectedUser.value];
     return typeof t === 'string' ? t : null;
   });
 
+  // A user's FQDN (Fully Qualified Domain Name) derived from the account information.
   const domain = computed(() => {
     if (account.value === null) return null;
     return `${
       account.value.user.subdomain ? account.value.user.subdomain + '.' : ''
     }${account.value.user.domain}`;
   });
+
   // Have we tried to rehydrate the client from a stored session?
   const hasRehydrated = ref(false);
+  // The promise that resolves when rehydration is complete.
+  let rehydrationPromise: Promise<boolean> | null = null;
+
   // Is the stored account information being modified?
   const loading = ref(false);
 
@@ -408,8 +419,8 @@ export const userStore = defineStore('user', () => {
     }
   }
 
-  // Restore the client from a stored session and rehydrate the user information.
-  async function rehydrate(): Promise<boolean> {
+  // Restore the client from a stored session and rehydrate the user information. (Internal use only, a similarly named public function exists for external use)
+  async function __rehydrate(): Promise<boolean> {
     try {
       if (loading.value || client.value) return false;
       // Set the loading state.
@@ -417,11 +428,12 @@ export const userStore = defineStore('user', () => {
       // If there's no account information stored, return.
       if (!token.value) {
         loading.value = false;
-        return false;
+        // Return true because while we didn't have a session to restore, the rehydration process itself didn't fail.
+        return true;
       }
       // Create a new client with the stored session information.
       client.value = new Cumulonimbus(token.value, cumulonimbusOptions);
-      await refetch();
+      await refetch(false);
       // If nothing went wrong:
       // Return true to signify success.
       return true;
@@ -437,6 +449,17 @@ export const userStore = defineStore('user', () => {
       loading.value = false;
       hasRehydrated.value = true;
     }
+  }
+
+  // Public function to rehydrate the user state. Ensures that only one rehydration attempt is made at a time.
+  function rehydrate(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (hasRehydrated.value) return resolve(true);
+      if (!rehydrationPromise) {
+        rehydrationPromise = __rehydrate();
+      }
+      rehydrationPromise.then(resolve);
+    });
   }
 
   // --- Account Switching ---
@@ -480,7 +503,9 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      switch (await defaultErrorHandler(error, router)) {
+      switch (
+        await defaultErrorHandler(error, router, ['INVALID_SESSION_ERROR'])
+      ) {
         case 'OK':
           // If the error was handled, return false.
           return false;
@@ -495,7 +520,7 @@ export const userStore = defineStore('user', () => {
               // Mark the account as logged out (but still present) in the account switcher.
               markAccountExpired(username);
               // Return true to signify success.
-              return true;
+              return false;
             default:
               // If it still wasn't handled, throw the error.
               throw error;
@@ -1086,7 +1111,9 @@ export const userStore = defineStore('user', () => {
   }
 
   // Manually refetch account and session data.
-  async function refetch(): Promise<boolean> {
+  async function refetch(
+    handleInvalidSession: boolean = true,
+  ): Promise<boolean> {
     // Set the loading state.
     loading.value = true;
     // Try to refetch.
@@ -1103,12 +1130,19 @@ export const userStore = defineStore('user', () => {
       return true;
     } catch (error) {
       // Pass our error to the default error handler and check if it was handled.
-      switch (await defaultErrorHandler(error, router)) {
+      switch (
+        await defaultErrorHandler(
+          error,
+          router,
+          handleInvalidSession ? [] : ['INVALID_SESSION_ERROR'],
+        )
+      ) {
         case 'OK':
           // If the error was handled, return false.
           return false;
         case 'NOT_HANDLED':
-        // No special cases to handle here.
+          // The only special case we expect here is an invalid session, which will be handled by the calling site.
+          return false;
         case 'NOT_RESPONSE_ERROR':
         default:
           // If the error wasn't handled, throw it.

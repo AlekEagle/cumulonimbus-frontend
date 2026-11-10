@@ -47,10 +47,15 @@ export const router = createRouter({
       path: '/about',
       name: 'about',
       components: {
-        header: () => import('@/headers/About.vue'),
+        header: () => import('@/headers/SuperQuickHeader.vue'),
         default: () => import('@/views/About.vue'),
       },
-      meta: {},
+      meta: {
+        header: {
+          title: 'About',
+          subtitle: 'The story behind Cumulonimbus.',
+        },
+      },
     },
     // Auth page route
     {
@@ -68,7 +73,7 @@ export const router = createRouter({
       path: '/auth/switcher',
       name: 'account-switcher',
       components: {
-        default: () => import('@/views/AccountSwitcher.vue'),
+        header: () => import('@/views/AccountSwitcher.vue'),
       },
       meta: {},
     },
@@ -90,6 +95,7 @@ export const router = createRouter({
       },
       meta: {
         requiresAuth: true,
+        noClouds: true,
       },
     },
     {

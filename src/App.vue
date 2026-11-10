@@ -1,5 +1,5 @@
 <template>
-  <div ref="sky" class="sky">
+  <div ref="sky" :class="{ 'sky': true, 'no-clouds': noClouds }">
     <header class="bar">
       <RouterLink class="brand" to="/">
         <img aria-hidden="true" alt="" src="!/images/Cumulonimbus.svg" />
@@ -17,7 +17,10 @@
           <span v-else-if="displayPref.theme === 'dark'" id="dark" />
         </div>
         <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/auth">Dashboard</RouterLink>
+        <RouterLink to="/auth/switcher" v-if="!user.loggedIn">
+          Log In
+        </RouterLink>
+        <RouterLink to="/dashboard" v-else>Dashboard</RouterLink>
       </nav>
     </header>
 
@@ -75,14 +78,16 @@
       <button
         v-if="option.value == null"
         @click="assignSettingDefault(option)"
-        >{{ option.description }}</button
-      >
+        v-text="option.description"
+      />
       <template v-else>
         {{ option.description }}
         <select v-if="option.type == 'select'" v-model="option.value">
-          <option v-for="value in option.states" :value="value">{{
-            value
-          }}</option>
+          <option
+            v-for="value in option.states"
+            :value="value"
+            v-text="value"
+          />
         </select>
         <input
           v-if="option.type == 'text'"
@@ -107,6 +112,7 @@
 
   // Store Modules
   import { displayPrefStore, Theme } from '$/displayPref';
+  import { userStore } from '$/user.js';
 
   // External Modules
   import { ref, onMounted, computed, useTemplateRef, watch } from 'vue';
@@ -115,6 +121,7 @@
 
   const route = useRoute();
   const displayPref = displayPrefStore();
+  const user = userStore();
   const noClouds = computed(() => (route.meta.noClouds ?? false) as boolean);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -162,8 +169,18 @@
   const sky = useTemplateRef('sky');
 
   let data: any = {};
+
+  watch(
+    () => route.path,
+    () => {
+      if (!sky.value) return;
+      data.height = sky.value.getClientRects()[0].height;
+      data.padding = getComputedStyle(sky.value).paddingBottom;
+    },
+    { flush: 'pre' },
+  );
+
   function onLeave(element: Element, done: () => void) {
-    data.height = sky.value!.getClientRects()[0].height;
     data.element = element;
     data.done = done;
   }
@@ -180,6 +197,7 @@
     const placeholder = document.createComment('');
     data.element.replaceWith(placeholder);
     const targetHeight = sky.value!.getClientRects()[0].height;
+    const targetPadding = getComputedStyle(sky.value!).paddingBottom;
     placeholder.replaceWith(data.element);
 
     const outh = data.element.getClientRects()[0].height;
@@ -243,9 +261,11 @@
           easing: 'ease-in-out',
 
           height: `${data.height}px`,
+          paddingBottom: data.padding,
         },
         {
           height: `${targetHeight}px`,
+          paddingBottom: targetPadding,
         },
       ],
       300,
@@ -313,6 +333,10 @@
     padding-bottom: calc(var(--cloud-cover) + 0.75rem);
   }
 
+  .sky.no-clouds {
+    padding-bottom: 0px;
+  }
+
   .bar {
     position: relative;
     z-index: 2;
@@ -348,6 +372,7 @@
     gap: 1.5rem;
     font-weight: 600;
     text-shadow: 0 0 2px rgba(0, 0, 0, 1);
+    white-space: nowrap;
   }
 
   .bar nav .theme-switch {

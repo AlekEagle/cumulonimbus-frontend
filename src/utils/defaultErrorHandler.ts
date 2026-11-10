@@ -1,7 +1,12 @@
+// In-House Modules
 import Cumulonimbus from 'cumulonimbus-wrapper';
+
+// Store Modules
 import toLogin from './toLogin.js';
 import { toastStore } from '$/toast.js';
 import { userStore } from '$/user.js';
+
+// External Modules
 import { type Router } from 'vue-router';
 
 export type ErrorHandledReason =

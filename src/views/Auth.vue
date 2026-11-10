@@ -203,8 +203,6 @@
     try {
       const res = await user.login(data.username, data.password, data.remember);
       if (res) await redirect();
-    } catch (e) {
-      toast.show((e as Error).message);
     } finally {
       processing.value = false;
     }
@@ -230,8 +228,6 @@
         data.remember,
       );
       if (res) await redirect();
-    } catch (e) {
-      toast.show((e as Error).message);
     } finally {
       processing.value = false;
     }

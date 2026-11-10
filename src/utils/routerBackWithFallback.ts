@@ -1,3 +1,10 @@
+// In-House Modules
+// No In-House Modules to import here.
+
+// Store Modules
+// No Store Modules to import here.
+
+// External Modules
 import { type Router } from 'vue-router';
 
 export default async function backWithFallback(

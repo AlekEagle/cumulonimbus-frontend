@@ -1,3 +1,10 @@
+// In-House Modules
+// No In-House Modules to import here.
+
+// Store Modules
+// No Store Modules to import here.
+
+// External Modules
 import { ref } from 'vue';
 
 export default function fetchWithProgress(url: string) {

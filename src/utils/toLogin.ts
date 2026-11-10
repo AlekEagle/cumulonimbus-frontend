@@ -1,5 +1,11 @@
-import { Router } from 'vue-router';
+// In-House Modules
+// No In-House Modules to import here.
+
+// Store Modules
 import { userStore } from '$/user.js';
+
+// External Modules
+import { Router } from 'vue-router';
 
 export default async function toLogin(
   router: Router,

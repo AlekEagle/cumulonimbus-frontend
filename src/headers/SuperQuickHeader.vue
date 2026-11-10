@@ -1,7 +1,7 @@
 <template>
   <QuickHeader>
-    <template #title>About</template>
-    <template #subtitle>The story behind Cumulonimbus.</template>
+    <template #title>{{ route.meta.header!.title }}</template>
+    <template #subtitle>{{ route.meta.header!.subtitle }}</template>
   </QuickHeader>
 </template>
 
@@ -16,5 +16,11 @@
   // No Store Modules to import here.
 
   // External Modules
-  // No External Modules to import here.
+  import { useRoute } from 'vue-router';
+
+  const route = useRoute();
+
+  if (!route.meta.header) {
+    throw new Error('Route meta header is not defined.');
+  }
 </script>

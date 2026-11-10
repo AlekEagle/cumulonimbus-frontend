@@ -95,33 +95,44 @@ export const toastStore = defineStore('toast', () => {
   const banned = async () => {
     await show(
       'You have been banned from Cumulonimbus. Sorry for the inconvenience.',
+      ToastType.ERROR,
     );
   };
 
   // A toast for when a user's session is invalid or has expired.
   const session = async () => {
-    await show('Your session has expired. Please log in again.');
+    await show(
+      'Your session has expired. Please log in again.',
+      ToastType.WARNING,
+    );
   };
 
   // A toast for when a user tries to do something that requires them to be logged in.
   const login = async () => {
-    await show('Whoops! Looks like you need to log in before we do that!');
+    await show(
+      'Whoops! Looks like you need to log in before we do that!',
+      ToastType.WARNING,
+    );
   };
 
   // A toast for when a user tries to access an endpoint they don't have permission to.
   const insufficientPermissions = async () => {
-    await show("Nuh uh uh! You didn't say the magic word!");
+    await show("Nuh uh uh! You didn't say the magic word!", ToastType.WARNING);
   };
 
   // A toast for a client-side error.
   const clientError = async () => {
-    await show('I did something wrong, give me a second and try again.');
+    await show(
+      'I did something wrong, give me a second and try again.',
+      ToastType.ERROR,
+    );
   };
 
   // A toast for a server-side error.
   const serverError = async () => {
     await show(
       'The server did something wrong, give it a second and try again.',
+      ToastType.ERROR,
     );
   };
 
@@ -129,22 +140,29 @@ export const toastStore = defineStore('toast', () => {
   const genericError = async () => {
     await show(
       "Someone did something wrong, I don't know who. Give it a second and try again.",
+      ToastType.ERROR,
     );
   };
 
   // A toast for when a new version of Cumulonimbus is being acquired.
   const updating = async () => {
-    await show('Updating Cumulonimbus, please wait...');
+    await show('Updating Cumulonimbus, please wait...', ToastType.INFO);
   };
 
   // A toast for when a new version of Cumulonimbus is available.
   const updateComplete = async () => {
-    await show('Cumulonimbus has been updated! Refresh to see the changes.');
+    await show(
+      'Cumulonimbus has been updated! Refresh to see the changes.',
+      ToastType.SUCCESS,
+    );
   };
 
   // A toast for when we failed updating Cumulonimbus.
   const updateFailed = async () => {
-    await show('Cumulonimbus failed to update. Please refresh to try again.');
+    await show(
+      'Cumulonimbus failed to update. Please refresh to try again.',
+      ToastType.ERROR,
+    );
   };
 
   // A toast to inform the user that they are missing required fields.
@@ -159,40 +177,47 @@ export const toastStore = defineStore('toast', () => {
             .replace(/, ([^,]*)$/, ', and $1');
     return show(
       `Whoops! Looks like you missed something! Please double-check: ${fieldsNormalized}`,
+      ToastType.WARNING,
     );
   };
 
   // A toast to inform a user trying to log in that
   const userNotFound = () => {
-    return show("I can't find anyone with that username!");
+    return show("I can't find anyone with that username!", ToastType.WARNING);
   };
 
   // A toast to inform a user that their email is not verified
   const emailNotVerified = () => {
     return show(
       'Your email is not verified. Please check your email and try again.',
+      ToastType.WARNING,
     );
   };
 
   // The function to display a toast regarding an incorrect password
   const invalidPassword = () => {
-    return show('No, that is not the password.');
+    return show('No, that is not the password.', ToastType.ERROR);
   };
 
   const serviceUnavailable = () => {
     return show(
       'It looks like Cumulonimbus is currently unavailable. Please try again later.',
+      ToastType.ERROR,
     );
   };
 
   const secondFactorRequired = () => {
     return show(
       'You must have a second factor enabled to access this resource.',
+      ToastType.WARNING,
     );
   };
 
   const invalidSecondFactorResponse = async () => {
-    await show('Your second factor response was incorrect or has expired.');
+    await show(
+      'Your second factor response was incorrect or has expired.',
+      ToastType.ERROR,
+    );
   };
 
   return {

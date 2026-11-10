@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+import 'vue-router';
+
 export {};
 
 declare module '*.vue' {
@@ -13,6 +15,18 @@ declare module 'vue' {
     $version: string;
     $dependencies: { [key: string]: string };
     $devDependencies: { [key: string]: string };
+  }
+}
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    requiresAuth?: boolean;
+    requiresStaff?: boolean;
+    noClouds?: boolean;
+    header?: {
+      title: string;
+      subtitle?: string;
+    };
   }
 }
 
