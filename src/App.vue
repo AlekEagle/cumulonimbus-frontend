@@ -333,6 +333,7 @@
     text-decoration: none;
     font-weight: 800;
     font-size: 1.35rem;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 1);
   }
 
   .brand img {
@@ -346,6 +347,7 @@
     align-items: center;
     gap: 1.5rem;
     font-weight: 600;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 1);
   }
 
   .bar nav .theme-switch {
