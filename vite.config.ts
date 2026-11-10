@@ -34,6 +34,7 @@ const pwaOptions: Partial<VitePWAOptions> = {
     // /^/ so it strips revisions from *everything*. Match nothing so every
     // precache entry keeps its content-hash revision.
     dontCacheBustURLsMatching: /$^/,
+    maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
   },
   srcDir: 'src',
   filename: 'sw.ts',
