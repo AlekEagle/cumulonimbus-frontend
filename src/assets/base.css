@@ -1,0 +1,293 @@
+/*** Global CSS ***/
+
+/* Properties */
+@property --look-page {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+
+/* Common Values */
+html {
+  /* Wider than the viewport (cropping the tall side peaks) until 1800px (112.5rem), then 100vw */
+  --bank-width: clamp(45rem, 180vw, max(2400px, 100vw));
+  /* Exact rendered height of bank-1.webp */
+  --bank: calc(var(--bank-width) * 426 / 2095);
+  /* Percent that the bank should be shifted up */
+  --bank-shift-up: 0.4;
+
+  --cloud-cover: min(calc(var(--bank) * var(--bank-shift-up)), 18rem);
+
+  --theme-switch-time: 0.12s;
+  /*--theme-switch-time: 1s;*/
+
+  --font-standard: 'Bricolage Grotesque', sans-serif;
+  --font-heading: 'Bricolage Grotesque', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Logo gradient colors */
+  --logo-color-top: rgb(112, 132, 230);
+  --logo-color-bottom: rgb(0, 250, 255);
+}
+
+/* Light Mode */
+html.light-mode {
+  --look-sky: #1877bd;
+  --look-sky-text: #ffffff;
+  --look-sky-text-light: #c6e0f3;
+
+  --look-page: #ffffff;
+  --look-page-text: #0a2540;
+
+  --look-band: #e8f4fc;
+  --look-band-text: #0a2540;
+
+  --look-footer: #0a2540;
+  --look-footer-text: #c4d6e6;
+
+  --look-text-field: #ffffff;
+  --look-text-field-border: #0a2540;
+  --look-text-field-disabled: #cfcfcf;
+  --look-text-field-text: #0a2540;
+  --look-text-field-hover: #f1f1f1;
+
+  --look-button: #0d4f86;
+  --look-button-border: #0d4f86;
+  --look-button-disabled: #0a3c65;
+  --look-button-text: #ffffff;
+  --look-button-hover: #1271be;
+
+  --hint-bg: rgba(255, 255, 255, 0.1);
+  --hint-line: rgba(255, 255, 255, 0.65);
+
+  --bank-tone: 1;
+}
+
+/* Dark Mode */
+html.dark-mode {
+  --look-sky: linear-gradient(180deg, #08162b 0%, #102847 60%, #173556 100%);
+  --look-sky-text: #eef4fa;
+  --look-sky-text-light: #9fbedc;
+
+  --look-page: #0e1a2b;
+  --look-page-text: #dce7f2;
+
+  --look-band: #12233a;
+  --look-band-text: #dce7f2;
+
+  --look-footer: #09131f;
+  --look-footer-disabled: #09131f;
+  --look-footer-text: #93a9bf;
+
+  --look-text-field: #12233a;
+  --look-text-field-border: #ffffff;
+  --look-text-field-disabled: #09131f;
+  --look-text-field-text: #ffffff;
+  --look-text-field-hover: #173556;
+
+  --look-button: #ffffff;
+  --look-button-border: #0d4f86;
+  --look-button-disabled: #d1d1d1;
+  --look-button-text: #0d4f86;
+  --look-button-hover: #e8f4fc;
+
+  --hint-bg: rgba(143, 203, 255, 0.06);
+  --hint-line: rgba(159, 190, 220, 0.55);
+
+  --bank-tone: 0.5;
+}
+
+/* Body Styling */
+body {
+  background: var(--look-footer);
+  display: flex;
+  flex-direction: column;
+
+  margin: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  line-height: 1.55;
+  min-height: 100vh;
+
+  font-family: var(--font-standard);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: 'wdth' 100;
+  transition:
+    background var(--theme-switch-time) ease,
+    color var(--theme-switch-time) ease;
+}
+
+p {
+  color: var(--look-page-text);
+  transition: color var(--theme-switch-time) ease;
+}
+
+/* Universal Base Styles */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+main {
+  background: var(--look-page);
+  transition: background var(--theme-switch-time) ease;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+button,
+select,
+input[type='color'] {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+form input[type='submit'] {
+  display: none;
+}
+
+button,
+input[type='text'],
+input[type='number'],
+input[type='password'],
+input[type='email'],
+input[type='url'],
+input[type='tel'],
+input[type='search'],
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='week'],
+input[type='color'],
+textarea,
+select {
+  outline: none;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.8125rem 1.5rem;
+  margin: 0.5rem 0;
+  border: 1px solid var(--look-text-field-border);
+  border-radius: 1.5rem;
+  background: var(--look-text-field);
+  color: var(--look-text-field-text);
+  /* Hide default appearance for form elements */
+  -webkit-appearance: none;
+  appearance: none;
+  transition:
+    background var(--theme-switch-time) ease,
+    border-color var(--theme-switch-time) ease,
+    color var(--theme-switch-time) ease;
+}
+
+button {
+  background: var(--look-button);
+  color: var(--look-button-text);
+  border-color: var(--look-button-border);
+}
+
+input[type='color'] {
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+  box-sizing: border-box;
+  block-size: 24px;
+  padding: 0;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='color']::-webkit-color-swatch,
+input[type='color']::-moz-color-swatch {
+  border: none;
+  border-radius: 0.25rem;
+}
+
+input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type='text']:hover:enabled,
+input[type='number']:hover:enabled,
+input[type='password']:hover:enabled,
+input[type='email']:hover:enabled,
+input[type='url']:hover:enabled,
+input[type='tel']:hover:enabled,
+input[type='search']:hover:enabled,
+input[type='date']:hover:enabled,
+input[type='time']:hover:enabled,
+input[type='datetime-local']:hover:enabled,
+input[type='month']:hover:enabled,
+input[type='week']:hover:enabled,
+input[type='color']:hover:enabled,
+textarea:hover:enabled,
+select:hover:enabled {
+  background: var(--look-text-field-hover);
+}
+
+button:hover:enabled {
+  background: var(--look-button-hover);
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background: var(--look-text-field-disabled);
+  border-color: var(--look-text-field-disabled);
+  cursor: not-allowed;
+}
+
+button:disabled {
+  background: var(--look-button-disabled);
+  border-color: var(--look-button-disabled);
+  cursor: not-allowed;
+}
+
+/* Universal Opt-In Styles */
+@media (hover: none) and (pointer: coarse) {
+  .fine-only {
+    display: none;
+  }
+}
+
+@media (hover: hover), (pointer: fine) {
+  .touch-only {
+    display: none;
+  }
+}
+
+.screen-reader-only {
+  position: absolute;
+  clip-path: rect(0 0 0 0);
+  left: 1000em;
+  width: 1px;
+  height: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.content {
+  max-width: 77.5rem;
+  margin: 0 auto;
+
+  padding-inline: clamp(1.125rem, 4vw, 3.5rem);
+}

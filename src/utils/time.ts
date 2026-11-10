@@ -1,4 +1,4 @@
-import { ref, type Ref, unref, watch } from 'vue';
+import { ref, type Ref, unref, watch, onUnmounted } from 'vue';
 
 // Take milliseconds and return how many hours, minutes and seconds it is
 export function toTimeString(ms: number): string {
@@ -97,24 +97,21 @@ export function toFuzzyTimeString(ms: number): string {
 
 // Reactive fuzzy time passed since a date
 export function useTimeString(
-  date: Ref<Date | null | undefined>,
+  refDate: Date | Ref<Date | null | undefined>,
   updateInterval = 1e3, // 1 second
-  updateDuration = 60e3, // 1 minute
 ) {
-  let unrefDate = unref(date);
+  let date = unref(refDate);
   // The time passed since the date
   const time = ref(
-    unrefDate
-      ? toTimeString(Date.now() - unrefDate.getTime())
-      : 'Time travel detected!',
+    date ? toTimeString(Date.now() - date.getTime()) : 'Time travel detected!',
   );
   // The interval to update the time
   let interval: number | null = null;
 
   // The function to update the time
   const update = () => {
-    time.value = unrefDate
-      ? toTimeString(Date.now() - unrefDate.getTime())
+    time.value = date
+      ? toTimeString(Date.now() - date.getTime())
       : 'Time travel detected!';
   };
 
@@ -125,21 +122,19 @@ export function useTimeString(
   // @ts-expect-error Blame @types/qrcode for this error
   interval = setInterval(update, updateInterval);
 
-  // Stop the interval when the update duration has passed, if updateInterval is -1, don't stop the interval
-  if (updateInterval !== -1)
-    // TODO: This is a hacky way to cleanup intervals, optimally we would clean it up when the component using this composable is unmounted.
-    setTimeout(() => {
-      if (interval) {
-        clearInterval(interval);
-        interval = null;
-      }
-    }, updateDuration);
+  // Stop the interval when the parent component is unmounted
+  onUnmounted(() => {
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
+    }
+  });
 
   // Watch for changes to the date
   watch(
-    date,
+    refDate,
     (newDate) => {
-      unrefDate = newDate;
+      date = unref(newDate);
       // when the date changes, stop the interval, update the time, and start the interval again
       if (interval) {
         clearInterval(interval);
@@ -158,15 +153,14 @@ export function useTimeString(
 
 // Reactive fuzzy time passed since a date (e.g. "less than a minute ago", "about 2 hours ago", "about 3 days ago", etc.)
 export function useFuzzyTimeString(
-  date: Ref<Date | null | undefined>,
+  refDate: Date | Ref<Date | null | undefined>,
   updateInterval = 1e3, // 1 second
-  updateDuration = 60e3, // 1 minute
 ) {
-  let unrefDate = unref(date);
+  let date = unref(refDate);
   // The time passed since the date
   const time = ref(
-    unrefDate
-      ? toFuzzyTimeString(unrefDate.getTime() - Date.now())
+    date
+      ? toFuzzyTimeString(date.getTime() - Date.now())
       : 'Time travel detected!',
   );
   // The interval to update the time
@@ -174,8 +168,8 @@ export function useFuzzyTimeString(
 
   // The function to update the time
   const update = () => {
-    time.value = unrefDate
-      ? toFuzzyTimeString(unrefDate.getTime() - Date.now())
+    time.value = date
+      ? toFuzzyTimeString(date.getTime() - Date.now())
       : 'Time travel detected!';
   };
 
@@ -186,21 +180,19 @@ export function useFuzzyTimeString(
   // @ts-expect-error Blame @types/qrcode for this error
   interval = setInterval(update, updateInterval);
 
-  // Stop the interval when the update duration has passed, if updateInterval is -1, don't stop the interval
-  if (updateInterval !== -1)
-    // TODO: This is a hacky way to cleanup intervals, optimally we would clean it up when the component using this composable is unmounted.
-    setTimeout(() => {
-      if (interval) {
-        clearInterval(interval);
-        interval = null;
-      }
-    }, updateDuration);
+  // Stop the interval when the parent component is unmounted
+  onUnmounted(() => {
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
+    }
+  });
 
   // Watch for changes to the date
   watch(
-    date,
+    refDate,
     (newDate) => {
-      unrefDate = newDate;
+      date = unref(newDate);
       // when the date changes, stop the interval, update the time, and start the interval again
       if (interval) {
         clearInterval(interval);

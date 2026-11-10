@@ -69,7 +69,7 @@
     </ContentBox>
     <ContentBox
       title="Content Box w/ title, content & link"
-      to="/testing/hush/dont/touch/sink"
+      to="/ui-sandbox/sink"
     >
       Content Box w/ title, content & link
     </ContentBox>
@@ -85,7 +85,7 @@
     </ContentBox>
     <ContentBox
       title="Disabled Content Box w/ link"
-      to="/testing/hush/dont/touch/sink"
+      to="/ui-sandbox/sink"
       disabled
     >
       Disabled Content Box w/ link

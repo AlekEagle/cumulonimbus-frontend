@@ -57,7 +57,7 @@ export const router = createRouter({
       path: '/auth',
       name: 'auth',
       components: {
-        header: () => import('@/views/Auth2.vue'),
+        header: () => import('@/views/Auth.vue'),
       },
       meta: {
         noClouds: false,

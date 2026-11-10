@@ -1,6 +1,4 @@
 <template>
-  <h1>About Cumulonimbus</h1>
-
   <div class="quick-action-buttons-container">
     <RouterLink to="/ui-sandbox/standard">
       <button>UI Component Testing</button>

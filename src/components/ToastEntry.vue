@@ -43,16 +43,8 @@
       if ('cRE' in t! && t.cRE?.ratelimit) {
         // 1. Calculate static reset target
         const resetDate = addSeconds(new Date(), t.cRE.ratelimit.reset);
-        const secondsRemaining = Math.ceil(
-          (resetDate.getTime() - Date.now()) / 1000,
-        );
 
-        // 2. Safely call your composable in an active component setup context
-        const toTimeString = useTimeString(
-          ref(resetDate),
-          1000,
-          Math.min(secondsRemaining * 1000, 10000),
-        );
+        const toTimeString = useTimeString(ref(resetDate), 1000);
 
         // 3. Evaluate the reactive string value
         return toTimeString.value === 'Now'
@@ -95,6 +87,7 @@
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     width: fit-content;
+    pointer-events: auto;
   }
 
   .toast.success {

@@ -17,4 +17,8 @@
     padding-block: clamp(2rem, 6vw, 5.5rem) 0;
     max-width: 60rem;
   }
+
+  .hero-content p {
+    color: var(--look-sky-text);
+  }
 </style>

@@ -1,17 +1,5 @@
 <template>
-  <template v-if="action === 'login'">
-    <h1>Login</h1>
-    <h2>Welcome back!</h2>
-  </template>
-  <template v-else-if="action === 'register'">
-    <h1>Register</h1>
-    <h2>Welcome to Cumulonimbus!</h2>
-  </template>
-  <template v-else>
-    <h1>How?!</h1>
-    <h2>I am broken</h2>
-  </template>
-  <EmphasizedBox>
+  <EmphasizedBox center-content>
     <button
       @click="toggleState"
       class="state-toggle"
@@ -41,7 +29,9 @@
           :disabled="processing"
           name="password"
         />
-        <Switch :disabled="processing" name="remember">Remember me</Switch>
+        <Checkmark :disabled="processing" name="remember">
+          Remember me
+        </Checkmark>
         <button
           :disabled="processing"
           v-text="processing ? 'Logging in...' : 'Login'"
@@ -81,7 +71,11 @@
           :disabled="processing"
           name="confirmPassword"
         />
-        <Switch :disabled="processing" name="remember">Remember me</Switch>
+        <br />
+        <Checkmark :disabled="processing" name="remember"
+          >Remember me</Checkmark
+        >
+        <br />
         <button
           :disabled="processing"
           v-text="processing ? 'Registering...' : 'Register'"
@@ -101,9 +95,9 @@
 
 <script lang="ts" setup>
   // Vue Components
+  import Checkmark from '&/Checkmark.vue';
   import EmphasizedBox from '&/EmphasizedBox.vue';
   import Form from '&/Form.vue';
-  import Switch from '&/Switch.vue';
 
   // In-House Modules
   // No In-House Modules to import here.

@@ -58,9 +58,8 @@
     content: '';
     position: absolute;
     display: inline;
-    top: 25%;
+    top: 30%;
     right: 10px;
-    margin-right: -5px;
     background: url('!/images/caret-up.svg') no-repeat center center;
     background-size: contain;
     width: 24px;
@@ -69,7 +68,7 @@
     rotate: 180deg;
   }
 
-  html.dark-theme .select-wrapper::after {
+  html.dark-mode .select-wrapper::after {
     filter: invert(1);
   }
 

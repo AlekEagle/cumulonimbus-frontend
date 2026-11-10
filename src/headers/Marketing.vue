@@ -105,6 +105,11 @@
     max-width: 22ch;
   }
 
+  .hero-content p {
+    color: var(--look-sky-text);
+    transition: color var(--theme-switch-time) ease;
+  }
+
   .url {
     font-family: var(--font-mono);
     font-size: clamp(1.9rem, 7.2vw, 6.5rem);

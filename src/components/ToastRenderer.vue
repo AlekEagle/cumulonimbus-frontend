@@ -35,6 +35,7 @@
     align-items: flex-end;
     gap: 0.5rem;
     z-index: 9999;
+    pointer-events: none;
   }
 
   .toast-transition-enter-active,

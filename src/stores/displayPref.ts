@@ -62,11 +62,13 @@ export const displayPrefStore = defineStore('displayPref', () => {
           reactivePreferenceWatcher = watch(
             preferredDark,
             (newVal: boolean) => {
+              html.classList.remove('dark-mode');
+              html.classList.remove('light-mode');
               if (newVal) {
                 html.classList.add('dark-mode');
                 metaThemeColor.setAttribute('content', '#09131f');
               } else {
-                html.classList.remove('dark-mode');
+                html.classList.add('light-mode');
                 metaThemeColor.setAttribute('content', '#0a2540');
               }
             },

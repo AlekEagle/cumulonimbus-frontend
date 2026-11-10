@@ -8,6 +8,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
 import '!/fonts/fonts.css';
+import '!/base.css';
 
 const app = createApp(App);
 

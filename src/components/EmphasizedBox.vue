@@ -1,5 +1,11 @@
 <template>
-  <div :class="{ 'box': true, 'no-padding': noPadding }">
+  <div
+    :class="{
+      'box': true,
+      'no-padding': noPadding,
+      'center-content': centerContent,
+    }"
+  >
     <slot></slot>
   </div>
 </template>
@@ -17,8 +23,9 @@
   // External Modules
   // No External Modules to import here.
 
-  const { noPadding } = defineProps<{
+  const { noPadding, centerContent } = defineProps<{
     noPadding?: boolean;
+    centerContent?: boolean;
   }>();
 </script>
 
@@ -30,14 +37,21 @@
     padding: 1rem 5vw;
     margin: 10vh auto 20px;
     border-radius: 1rem;
-    background-color: var(--background);
-    border: 1px solid var(--ui-border);
+    background-color: var(--look-page);
+    border: 1px solid var(--look-page-text);
     word-wrap: break-word;
-    box-shadow: 0px 0px 75px 20px var(--logo-shadow);
-    transition: background-color 0.25s, border 0.25s, box-shadow 0.25s;
+    box-shadow: 0px 0px 75px 20px var(--look-footer);
+    transition:
+      background-color var(--theme-switch-time) ease,
+      border var(--theme-switch-time) ease,
+      box-shadow var(--theme-switch-time) ease;
   }
 
   .box.no-padding {
     padding: 0;
+  }
+
+  .box.center-content {
+    text-align: center;
   }
 </style>

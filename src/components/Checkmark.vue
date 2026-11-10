@@ -6,6 +6,7 @@
         type="checkbox"
         :name="name"
         v-model="checked"
+        :disabled="props.disabled"
         @change="emit('change')"
       />
       <svg class="checkmark" viewBox="0 0 24 24" aria-hidden="true">
@@ -40,6 +41,7 @@
   const props = defineProps<{
     checked?: boolean;
     name?: string;
+    disabled?: boolean;
   }>();
 
   watch(
@@ -73,7 +75,7 @@
     height: 25px;
     width: 25px;
     align-items: center;
-    background-color: var(--look-band);
+    background-color: var(--look-page);
     border: 1px solid var(--look-page-text);
     border-radius: 10px;
     overflow: hidden;
@@ -116,7 +118,7 @@
     width: 20px;
     height: 20px;
     fill: none;
-    stroke: var(--look-button);
+    stroke: var(--look-button-text);
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;

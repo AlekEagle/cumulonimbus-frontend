@@ -125,20 +125,6 @@
 </script>
 
 <style>
-  html {
-    --switch-knob: #808080;
-    --switch-track: #bfbfbf;
-    --switch-knob-disabled: #404040;
-    --switch-track-disabled: #808080;
-  }
-
-  html.dark-theme {
-    --switch-knob: #343434;
-    --switch-track: #545454;
-    --switch-knob-disabled: #141414;
-    --switch-track-disabled: #343434;
-  }
-
   .switch-container {
     display: block;
     position: relative;
@@ -147,14 +133,13 @@
   .switch-container label {
     display: inline-flex;
     align-items: center;
-    border-radius: 20px;
     margin: 0.5rem 0;
   }
 
   .switch-container label .label {
     font-family: var(--font-heading);
     font-weight: 600;
-    color: var(--foreground);
+    color: var(--look-page-text);
     margin-left: 0.5rem;
     font-size: 20px;
     cursor: pointer;
@@ -163,12 +148,13 @@
   }
 
   .switch-container label .toggle {
-    --switch-track-var: var(--switch-track);
+    --switch-track-var: var(--look-button-hover);
     isolation: isolate;
     position: relative;
     height: 30px;
     min-width: 60px;
     width: 60px;
+    border: 2px solid var(--look-button-border);
     border-radius: 15px;
     overflow: hidden;
     cursor: pointer;
@@ -182,7 +168,9 @@
     background-size: 150% 100%;
     background-repeat: no-repeat;
     background-position: 100%;
-    transition: background-position 0.25s, --switch-track-var 0.25s;
+    transition:
+      background-position 0.25s,
+      --switch-track-var 0.25s;
     box-shadow: inset 0px 0px 1px 1px var(--switch-track-var);
   }
 
@@ -192,13 +180,15 @@
   }
 
   .switch-container label .toggle-state ~ .toggle .indicator {
-    --switch-knob-var: var(--switch-knob);
+    --switch-knob-var: var(--look-button-border);
     height: 100%;
     width: 50%;
     background-color: var(--switch-knob-var);
     border-radius: 15px;
     transform: translate(0, 0);
-    transition: transform 0.25s, --switch-knob-var 0.25s;
+    transition:
+      transform 0.25s,
+      --switch-knob-var 0.25s;
   }
 
   .switch-container label .toggle-state:checked ~ .toggle {
@@ -206,7 +196,7 @@
   }
 
   .switch-container label .toggle-state:disabled ~ .toggle {
-    --switch-track-var: var(--switch-track-disabled);
+    --switch-track-var: var(--look-button-disabled);
     background-image: linear-gradient(
       to right,
       var(--logo-color-top) 7%,
@@ -218,7 +208,7 @@
   }
 
   .switch-container label .toggle-state:disabled ~ .toggle .indicator {
-    --switch-knob-var: var(--switch-knob-disabled);
+    --switch-knob-var: var(--look-button-disabled);
     background-color: var(--switch-knob-var);
   }
 
