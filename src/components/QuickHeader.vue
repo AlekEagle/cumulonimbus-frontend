@@ -3,7 +3,7 @@
     <h1 class="hero-title">
       <slot name="title" />
     </h1>
-    <p>
+    <p class="hero-subtitle">
       <slot name="subtitle" />
     </p>
     <slot name="extra" />
@@ -18,7 +18,8 @@
     max-width: 60rem;
   }
 
-  .hero-content p {
+  .hero-title,
+  .hero-subtitle {
     color: var(--look-sky-text);
   }
 </style>

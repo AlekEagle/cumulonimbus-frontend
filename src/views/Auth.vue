@@ -29,9 +29,11 @@
           :disabled="processing"
           name="password"
         />
+        <br />
         <Checkmark :disabled="processing" name="remember">
           Remember me
         </Checkmark>
+        <br />
         <button
           :disabled="processing"
           v-text="processing ? 'Logging in...' : 'Login'"

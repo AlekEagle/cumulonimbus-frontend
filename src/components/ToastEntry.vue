@@ -90,6 +90,10 @@
     pointer-events: auto;
   }
 
+  .toast p {
+    color: inherit;
+  }
+
   .toast.success {
     background-color: rgb(26, 157, 26);
   }

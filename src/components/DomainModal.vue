@@ -49,9 +49,10 @@
       </template>
     </template>
     <template v-else>
-      <h1>Offline</h1>
+      <h1>Failed to Load Domains</h1>
       <h2>
-        You are currently offline. Please connect to the internet to continue.
+        We were unable to retrieve the list of available domains. Please try
+        again later.
       </h2>
     </template>
   </ConfirmModal>

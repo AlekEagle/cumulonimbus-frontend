@@ -45,6 +45,8 @@ html.light-mode {
   --look-footer: #0a2540;
   --look-footer-text: #c4d6e6;
 
+  --look-fullscreen-background: #00000080;
+
   --look-text-field: #ffffff;
   --look-text-field-border: #0a2540;
   --look-text-field-disabled: #cfcfcf;
@@ -78,6 +80,8 @@ html.dark-mode {
   --look-footer: #09131f;
   --look-footer-disabled: #09131f;
   --look-footer-text: #93a9bf;
+
+  --look-fullscreen-background: #00000080;
 
   --look-text-field: #12233a;
   --look-text-field-border: #ffffff;
@@ -120,7 +124,13 @@ body {
     color var(--theme-switch-time) ease;
 }
 
-p {
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--look-page-text);
   transition: color var(--theme-switch-time) ease;
 }

@@ -27,7 +27,7 @@
     position: absolute;
     width: 6px;
     height: 6px;
-    background: var(--foreground);
+    background: var(--look-page-text);
     border-radius: 50%;
     transition: background-color 0.25s !important;
     animation: lds-default 1.2s linear infinite;

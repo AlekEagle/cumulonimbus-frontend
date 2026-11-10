@@ -1,5 +1,5 @@
 <template>
-  <span class="checkmark-container">
+  <span :class="{ 'checkmark-container': true, 'disabled': props.disabled }">
     <label class="checkmark-box" :class="{ checked }">
       <input
         ref="checkbox"
@@ -16,7 +16,7 @@
     <p
       v-if="$slots.default"
       class="checkmark-label"
-      @click.self="checked = !checked"
+      @click.self="checked = props.disabled ? checked : !checked"
     >
       <slot />
     </p>
@@ -66,6 +66,12 @@
     margin: 0.5rem 0;
     cursor: pointer;
   }
+
+  .checkmark-container.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
   .checkmark-box {
     display: inline-flex;
     position: relative;
@@ -86,6 +92,10 @@
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
+  }
+
+  .disabled .checkmark-box {
+    cursor: not-allowed;
   }
 
   .checkmark-box input {
@@ -118,7 +128,7 @@
     width: 20px;
     height: 20px;
     fill: none;
-    stroke: var(--look-button-text);
+    stroke: var(--look-page);
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;

@@ -34,14 +34,15 @@
     text-align: center;
     font-weight: bold;
     font-family: var(--font-heading);
+    color: var(--look-page-text);
   }
 
   .progress-bar-container {
     width: 50vw;
     height: 1rem;
     min-width: 100px;
-    background-color: var(--ui-background);
-    border: 2px solid var(--ui-border);
+    background-color: var(--look-page);
+    border: 2px solid var(--look-page-text);
     border-radius: 0.5rem;
     overflow: hidden;
   }

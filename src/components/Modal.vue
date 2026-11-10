@@ -85,7 +85,7 @@
 
 <style>
   .modal-container {
-    background-color: var(--ui-fs-overlay-background);
+    background-color: var(--look-fullscreen-background);
     transition: background-color 0.25s;
     width: 100%;
     height: 100%;
@@ -108,8 +108,8 @@
   }
 
   .modal {
-    background-color: var(--ui-background);
-    border: 1px solid var(--ui-border);
+    background-color: var(--look-page);
+    border: 1px solid var(--look-page);
     transition:
       border 0.25s,
       background-color 0.25s;

@@ -10,8 +10,8 @@
 
 <script lang="ts" setup>
   // Vue Components
-  import AnimatedEllipsis from './AnimatedEllipsis.vue';
-  import LoadingSpinner from './LoadingSpinner.vue';
+  import AnimatedEllipsis from '&/AnimatedEllipsis.vue';
+  import LoadingSpinner from '&/LoadingSpinner.vue';
 
   // In-House Modules
   // No In-House Modules to import here.
@@ -108,9 +108,11 @@
     align-content: center;
     justify-items: center;
     cursor: progress;
+    color: var(--look-page-text);
   }
 
   .loading-message {
     cursor: progress;
+    color: var(--look-page-text);
   }
 </style>

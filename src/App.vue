@@ -259,7 +259,7 @@
 
   //// Development Options
 
-  const debugVisible = ref(true);
+  const debugVisible = ref(route.query.debug === 'true');
 
   function assignSettingDefault(setting: any) {
     if ('default' in setting) setting.value = setting.default;

@@ -103,6 +103,7 @@
     line-height: 1.15;
     padding-block-end: 0.1875em;
     max-width: 22ch;
+    color: var(--look-sky-text);
   }
 
   .hero-content p {

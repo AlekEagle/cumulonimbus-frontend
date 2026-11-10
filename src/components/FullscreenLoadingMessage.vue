@@ -46,7 +46,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    background-color: var(--ui-fs-overlay-background);
+    background-color: var(--look-fullscreen-background);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
     z-index: 20;

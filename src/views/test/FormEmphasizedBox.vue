@@ -51,6 +51,8 @@
 
       <Switch name="switch">Switch</Switch>
       <Checkmark name="checkmark"> Checkmark </Checkmark>
+      <br />
+      <Checkmark name="checkmark2" disabled> Disabled Checkmark </Checkmark>
     </Form>
     <button @click="emphasizedForm!.submit()">Submit outside of form</button>
   </EmphasizedBox>

@@ -43,7 +43,9 @@
     <div class="file-content-box-content">
       <!-- DEBUG TEXT -->
       <template v-if="debug">
-        <p class="file-content-box-primary-text"
+        <p
+          class="file-content-box-primary-text"
+          title="Friendly File Name That is Long Enough to Overflow Hopefully"
           >Friendly File Name That is Long Enough to Overflow Hopefully</p
         >
         <p class="file-content-box-secondary-text">
@@ -53,6 +55,7 @@
       <template v-else>
         <p
           class="file-content-box-primary-text"
+          :title="file?.name ?? file?.id ?? 'No File Loaded'"
           v-text="file?.name ?? file?.id ?? 'No File Loaded'"
         />
         <p class="file-content-box-secondary-text">
@@ -60,7 +63,6 @@
         </p>
       </template>
     </div>
-    <div class="file-content-box-content-overflow-shadow" />
     <div class="file-content-box-checkbox">
       <Checkmark
         :checked="model.includes(file?.id ?? debugId!)"
@@ -178,16 +180,6 @@
   onUnmounted(() => {
     if (imgBlob.value) URL.revokeObjectURL(imgBlob.value);
   });
-
-  // Register CSS Custom Property once and catch error if it already exists
-  try {
-    CSS.registerProperty({
-      name: '--file-content-box-content-overflow-shadow-gradient-color',
-      syntax: '<color>',
-      inherits: false,
-      initialValue: '#ffffff',
-    });
-  } catch (e) {}
 </script>
 
 <style>
@@ -205,20 +197,21 @@
     position: relative;
     max-width: 512px;
     border-radius: 10px;
-    background-color: var(--ui-background);
-    border: 1px solid var(--ui-border);
+    background-color: var(--look-page);
+    border: 1px solid var(--look-page-text);
     transition:
-      background-color 0.25s,
-      border 0.25s;
+      background-color var(--theme-switch-time) ease,
+      border var(--theme-switch-time) ease;
     overflow-y: hidden;
     display: grid;
     height: 200px;
-    grid-template-columns: 8fr 1fr;
+    grid-template-columns: minmax(0, 1fr) 64px;
     grid-template-rows: 1fr 64px;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     cursor: pointer;
+    text-decoration: none;
   }
 
   .file-content-box-preview-container {
@@ -237,7 +230,7 @@
     object-fit: cover;
   }
 
-  html.dark-theme .file-content-box-preview.theme-safe {
+  html.dark-mode .file-content-box-preview.theme-safe {
     filter: invert(100%);
   }
 
@@ -250,32 +243,33 @@
     flex-direction: column;
     justify-content: left;
     grid-row: 2 / span 1;
-    grid-column: 1 / span 2;
+    grid-column: 1 / span 1;
+    min-width: 0;
     text-align: left;
-    overflow: auto hidden;
   }
 
   .file-content-box-primary-text {
-    display: inline-table;
-    margin: 0 64px 0 0;
-    padding: 6px 10px 2px;
+    padding: 0px 10px;
     font-size: 1.5rem;
-    color: var(--ui-foreground);
+    color: var(--look-page-text);
     font-family: var(--font-heading);
     font-weight: 600;
     word-break: keep-all;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .file-content-box-secondary-text {
-    margin: 0 64px 0 0;
-    padding: 2px 10px 6px;
+    padding: 0px 10px;
     font-size: 1rem;
-    color: var(--ui-foreground);
+    color: var(--look-page-text);
     font-family: var(--font-body);
     font-weight: 400;
     word-break: keep-all;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .file-content-box-content::-webkit-scrollbar {
@@ -292,29 +286,12 @@
     visibility: visible;
   }
 
-  .file-content-box-content-overflow-shadow {
-    --file-content-box-content-overflow-shadow-gradient-color: var(
-      --ui-background
-    );
-    position: absolute;
-    grid-row: 2 / span 2;
-    grid-column: 2 / span 2;
-    width: 100%;
-    height: calc(100% - 3px);
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--file-content-box-content-overflow-shadow-gradient-color) 25%
-    );
-    transition: --file-content-box-content-overflow-shadow-gradient-color 0.25s;
-  }
-
   .file-content-box-checkbox {
     display: flex;
     justify-content: center;
     align-items: center;
-    grid-row: 2 / span 2;
-    grid-column: 2 / span 2;
+    grid-row: 2 / span 1;
+    grid-column: 2 / span 1;
     width: 64px;
     height: 64px;
   }

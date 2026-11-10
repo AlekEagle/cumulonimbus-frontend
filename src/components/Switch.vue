@@ -148,13 +148,13 @@
   }
 
   .switch-container label .toggle {
-    --switch-track-var: var(--look-button-hover);
+    --switch-track-var: var(--look-text-field-hover);
     isolation: isolate;
     position: relative;
     height: 30px;
     min-width: 60px;
     width: 60px;
-    border: 2px solid var(--look-button-border);
+    border: 2px solid var(--look-text-field-border);
     border-radius: 15px;
     overflow: hidden;
     cursor: pointer;
@@ -180,7 +180,7 @@
   }
 
   .switch-container label .toggle-state ~ .toggle .indicator {
-    --switch-knob-var: var(--look-button-border);
+    --switch-knob-var: var(--look-text-field-border);
     height: 100%;
     width: 50%;
     background-color: var(--switch-knob-var);
@@ -196,7 +196,7 @@
   }
 
   .switch-container label .toggle-state:disabled ~ .toggle {
-    --switch-track-var: var(--look-button-disabled);
+    --switch-track-var: var(--look-text-field-disabled);
     background-image: linear-gradient(
       to right,
       var(--logo-color-top) 7%,
@@ -208,7 +208,7 @@
   }
 
   .switch-container label .toggle-state:disabled ~ .toggle .indicator {
-    --switch-knob-var: var(--look-button-disabled);
+    --switch-knob-var: var(--look-text-field-disabled);
     background-color: var(--switch-knob-var);
   }
 
