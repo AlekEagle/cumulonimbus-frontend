@@ -109,7 +109,7 @@
 
   .modal {
     background-color: var(--look-page);
-    border: 1px solid var(--look-page);
+    border: 1px solid var(--look-page-text);
     transition:
       border 0.25s,
       background-color 0.25s;

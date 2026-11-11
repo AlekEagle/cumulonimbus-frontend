@@ -166,7 +166,7 @@
 
   .account-switcher-account {
     display: grid;
-    grid: 1fr 1fr / 50px 4fr 20px;
+    grid: 1fr 1fr / 50px 4fr 40px;
     align-items: center;
     padding: 25px 30px;
     gap: 0 5px;
