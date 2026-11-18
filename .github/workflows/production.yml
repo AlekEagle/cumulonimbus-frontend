@@ -3,8 +3,14 @@ name: Build and Deploy Cumulonimbus Production
 on:
   push:
     branches: [master]
-
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -14,19 +20,18 @@ jobs:
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
 
     steps:
-      - name: Remove Stale Build Artifacts
-        run: |
-          rm -rf /var/www-data/dist
-          rm -rf /var/www-data/domain-specific-pages
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Copy Static Build Artifacts
-        run: |
-          cp -R nginx/ /var/www-data
-          cp -R domain-specific-pages/ /var/www-data
+        with:
+          persist-credentials: false
       - name: Install Dependencies
         run: npm i
       - name: Build Production
         run: npm run build-prod
-      - name: Copy Build Artifacts
-        run: cp -R dist/ /var/www-data
+      - name: Deploy
+        run: |
+          cp -R nginx/. /var/www-data/nginx/
+          for d in domain-specific-pages dist; do
+            find "/var/www-data/$d" -mindepth 1 -delete
+            cp -R "$d/." "/var/www-data/$d/"
+          done
