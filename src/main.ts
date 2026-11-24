@@ -14,8 +14,6 @@ import '!/base.css';
 const app = createApp(App);
 
 app.config.globalProperties.$version = packageJson.version;
-app.config.globalProperties.$dependencies = packageJson.dependencies;
-app.config.globalProperties.$devDependencies = packageJson.devDependencies;
 
 app.use(router);
 app.use(createPinia());

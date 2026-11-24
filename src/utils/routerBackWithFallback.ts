@@ -13,7 +13,7 @@ export default async function backWithFallback(
   fallbackWithoutRouter: boolean = false,
 ) {
   let current = router.currentRoute.value;
-  let fallbackResolved = await router.resolve(fallback);
+  let fallbackResolved = router.resolve(fallback);
   if (window.history.state.back != null) {
     router.back();
   } else {

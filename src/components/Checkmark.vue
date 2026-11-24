@@ -69,7 +69,7 @@
 
   .checkmark-container.disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
   }
 
   .checkmark-box {
@@ -81,8 +81,8 @@
     height: 25px;
     width: 25px;
     align-items: center;
-    background-color: var(--look-page);
-    border: 1px solid var(--look-page-text);
+    background-color: var(--look-switch-track);
+    border: 1px solid var(--look-switch-border);
     border-radius: 10px;
     overflow: hidden;
     transition:
@@ -128,7 +128,7 @@
     width: 20px;
     height: 20px;
     fill: none;
-    stroke: var(--look-page);
+    stroke: black;
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -148,7 +148,7 @@
     font-weight: 600;
     font-size: 20px;
     font-family: var(--font-heading);
-    color: var(--look-page-text);
+    color: var(--look-switch-text);
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;

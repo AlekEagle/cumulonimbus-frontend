@@ -165,8 +165,9 @@
   }
 
   .paginator-controls input {
-    width: 6ch;
+    width: calc(3ch + 3rem);
     margin: 0 0.5ch;
+    text-align: center;
   }
 
   .paginator-controls.paginator-controls-top {

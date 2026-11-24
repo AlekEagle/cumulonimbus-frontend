@@ -94,37 +94,21 @@
   defineExpose({
     checked,
   });
-
-  // Register CSS Custom Properties for smooth color transitions.
-  try {
-    CSS.registerProperty({
-      name: '--switch-knob-var',
-      syntax: '<color>',
-      inherits: false,
-      initialValue: '#ffffff',
-    });
-    CSS.registerProperty({
-      name: '--switch-track-var',
-      syntax: '<color>',
-      inherits: false,
-      initialValue: '#ffffff',
-    });
-    CSS.registerProperty({
-      name: '--switch-knob-disabled-var',
-      syntax: '<color>',
-      inherits: false,
-      initialValue: '#ffffff',
-    });
-    CSS.registerProperty({
-      name: '--switch-track-disabled-var',
-      syntax: '<color>',
-      inherits: false,
-      initialValue: '#ffffff',
-    });
-  } catch (e) {}
 </script>
 
 <style>
+  @property --switch-knob {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #ffffff;
+  }
+
+  @property --switch-track {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #ffffff;
+  }
+
   .switch-container {
     display: block;
     position: relative;
@@ -134,6 +118,8 @@
     display: inline-flex;
     align-items: center;
     margin: 0.5rem 0;
+    cursor: pointer;
+    transition: opacity 0.25s;
   }
 
   .switch-container label .label {
@@ -142,36 +128,33 @@
     color: var(--look-page-text);
     margin-left: 0.5rem;
     font-size: 20px;
-    cursor: pointer;
     user-select: none;
-    transition: color 0.25s;
+    transition: color var(--theme-switch-time) ease;
   }
 
   .switch-container label .toggle {
-    --switch-track-var: var(--look-text-field-hover);
+    --switch-track: var(--look-switch-track);
     isolation: isolate;
     position: relative;
     height: 30px;
     min-width: 60px;
     width: 60px;
-    border: 2px solid var(--look-text-field-border);
+    border: 2px solid var(--look-switch-border);
     border-radius: 15px;
     overflow: hidden;
-    cursor: pointer;
     background: linear-gradient(
       to right,
       var(--logo-color-top) 7%,
       var(--logo-color-bottom) 50%,
-      var(--switch-track-var) 50%,
-      var(--switch-track-var) 100%
+      var(--switch-track) 50%
     );
     background-size: 150% 100%;
     background-repeat: no-repeat;
     background-position: 100%;
     transition:
-      background-position 0.25s,
-      --switch-track-var 0.25s;
-    box-shadow: inset 0px 0px 1px 1px var(--switch-track-var);
+      background-position var(--theme-switch-time) ease,
+      --switch-track var(--theme-switch-time) ease;
+    box-shadow: inset 0px 0px 1px 1px var(--switch-track);
   }
 
   .switch-container label .toggle-state {
@@ -180,36 +163,24 @@
   }
 
   .switch-container label .toggle-state ~ .toggle .indicator {
-    --switch-knob-var: var(--look-text-field-border);
+    --switch-knob: var(--look-switch-knob);
     height: 100%;
     width: 50%;
-    background-color: var(--switch-knob-var);
+    background-color: var(--switch-knob);
     border-radius: 15px;
     transform: translate(0, 0);
     transition:
       transform 0.25s,
-      --switch-knob-var 0.25s;
+      --switch-knob 0.25s;
   }
 
   .switch-container label .toggle-state:checked ~ .toggle {
     background-position: 0%;
   }
 
-  .switch-container label .toggle-state:disabled ~ .toggle {
-    --switch-track-var: var(--look-text-field-disabled);
-    background-image: linear-gradient(
-      to right,
-      var(--logo-color-top) 7%,
-      var(--logo-color-bottom) 50%,
-      var(--switch-track-var) 50%,
-      var(--switch-track-var) 100%
-    );
+  .switch-container label:has(.toggle-state:disabled) {
+    opacity: 0.5;
     cursor: not-allowed;
-  }
-
-  .switch-container label .toggle-state:disabled ~ .toggle .indicator {
-    --switch-knob-var: var(--look-text-field-disabled);
-    background-color: var(--switch-knob-var);
   }
 
   .switch-container label:active:hover .toggle-state ~ .toggle,

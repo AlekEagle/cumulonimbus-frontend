@@ -1,0 +1,1605 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notepad2Shell — CVE-2026-9002: The Caret Is the Prompt</title>
+    <meta
+      name="description"
+      content="CVE-2026-9002: opening Notepad is enough to get a shell. The prompt is the caret. Save As shell.bat is the exploit. “Do you want to save changes?” is the ransom."
+    />
+    <link rel="canonical" href="https://notepad2shell.com/" />
+    <meta property="og:site_name" content="Notepad2Shell" />
+    <meta property="og:title" content="Notepad2Shell — CVE-2026-9002" />
+    <meta
+      property="og:description"
+      content="CVE-2026-9002: opening Notepad is enough to get a shell. The caret is the prompt. Save As shell.bat is the exploit."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://notepad2shell.com/" />
+    <meta name="theme-color" content="#07090e" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230e131c'/%3E%3Crect x='16' y='12' width='32' height='40' rx='3' fill='%23f3e6c4'/%3E%3Cpath stroke='%231a1a1a' stroke-width='2' d='M22 22h20M22 28h20M22 34h12'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        --bg: #07090e;
+        --panel: #0e131c;
+        --bar: #0b1018;
+        --border: #1c2535;
+        --accent: #ffb020;
+        --green: #3aff8c;
+        --red: #ff4d6a;
+        --amber: #ffb020;
+        --purple: #a78bfa;
+        --text: #d5e2f5;
+        --muted: #8090ab;
+        --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+        --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      ::selection {
+        background: var(--accent);
+        color: #000;
+      }
+      code,
+      .mono {
+        font-family: var(--mono);
+      }
+      code {
+        font-size: 0.92em;
+      }
+
+      .grid-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 176, 32, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 176, 32, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 6vw;
+        background: rgba(7, 9, 14, 0.9);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .logo {
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: -0.5px;
+      }
+      .logo .a {
+        color: var(--accent);
+      }
+      .logo .b {
+        color: var(--muted);
+      }
+      .logo .c {
+        color: var(--green);
+      }
+      nav ul {
+        display: flex;
+        gap: 26px;
+        list-style: none;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      nav a:hover {
+        color: var(--accent);
+      }
+      .nav-badge {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        padding: 4px 10px;
+        border: 1px solid var(--red);
+        color: var(--red);
+        border-radius: 999px;
+        background: rgba(255, 77, 106, 0.08);
+        white-space: nowrap;
+      }
+      @media (max-width: 760px) {
+        nav ul {
+          display: none;
+        }
+      }
+
+      header.hero {
+        padding: 80px 6vw 64px;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 50px;
+        align-items: center;
+      }
+      @media (max-width: 900px) {
+        header.hero {
+          grid-template-columns: 1fr;
+          padding-top: 44px;
+        }
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+      h1 {
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+        margin-bottom: 20px;
+      }
+      h1 em {
+        color: var(--accent);
+        font-style: normal;
+      }
+      .hero p.lede {
+        color: var(--muted);
+        font-size: 1.1rem;
+        max-width: 540px;
+        margin-bottom: 28px;
+      }
+      .hero p.lede strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .cvss-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+      }
+      .stat-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 18px;
+        min-width: 116px;
+      }
+      .stat-card .num {
+        font-family: var(--mono);
+        font-size: 1.6rem;
+        font-weight: 700;
+      }
+      .stat-card .lbl {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      .stat-card.crit .num {
+        color: var(--red);
+      }
+      .stat-card.warn .num {
+        color: var(--amber);
+      }
+      .stat-card.ok .num {
+        color: var(--green);
+      }
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        font-family: var(--mono);
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 12px 22px;
+        border-radius: 8px;
+        text-decoration: none;
+        border: 1px solid transparent;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #1a1204;
+      }
+      .btn-primary:hover {
+        filter: brightness(1.08);
+      }
+      .btn-ghost {
+        border-color: var(--border);
+        color: var(--text);
+      }
+      .btn-ghost:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .term {
+        background: #05070c;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+      }
+      .term-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: var(--bar);
+        border-bottom: 1px solid var(--border);
+      }
+      .term-bar .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .dot.r {
+        background: #ff5f57;
+      }
+      .dot.y {
+        background: #febc2e;
+      }
+      .dot.g {
+        background: #28c840;
+      }
+      .term-title {
+        margin-left: 6px;
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        color: var(--muted);
+      }
+      .term-menu {
+        display: flex;
+        gap: 16px;
+        padding: 6px 14px;
+        border-bottom: 1px solid var(--border);
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      .term-body {
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        padding: 16px 18px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        min-height: 220px;
+      }
+      .c-cmd {
+        color: var(--green);
+      }
+      .c-out {
+        color: var(--text);
+      }
+      .c-warn {
+        color: var(--amber);
+      }
+      .c-err {
+        color: var(--red);
+      }
+      .c-info {
+        color: var(--accent);
+      }
+      .c-dim {
+        color: var(--muted);
+      }
+      .cursor {
+        display: inline-block;
+        width: 8px;
+        height: 1.05em;
+        background: var(--green);
+        vertical-align: text-bottom;
+        animation: caret 1s step-end infinite;
+      }
+      @keyframes caret {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      section {
+        padding: 72px 6vw;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .sec-head {
+        margin-bottom: 40px;
+      }
+      .sec-num {
+        font-family: var(--mono);
+        color: var(--accent);
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+      }
+      h2 {
+        font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.8px;
+        margin: 8px 0 12px;
+      }
+      .sec-head p {
+        color: var(--muted);
+        max-width: 680px;
+      }
+
+      .term-status {
+        display: flex;
+        flex-wrap: wrap;
+        border-top: 1px solid var(--border);
+        background: var(--bar);
+        font-family: var(--mono);
+        font-size: 0.68rem;
+        color: var(--muted);
+      }
+      .term-status span {
+        padding: 5px 10px;
+        border-right: 1px solid var(--border);
+      }
+
+      .poc-grid,
+      .ui-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      @media (max-width: 800px) {
+        .poc-grid,
+        .ui-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .poc-card,
+      .ui-step {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .poc-card .cap,
+      .ui-step .cap {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+      .poc-card .cap h3,
+      .ui-step h3 {
+        font-size: 1rem;
+      }
+      .poc-card .cap span,
+      .ui-step .idx {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--accent);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .ui-step {
+        padding: 0;
+      }
+      .ui-step .body {
+        padding: 16px 18px 18px;
+      }
+      .ui-step p {
+        color: var(--muted);
+        font-size: 0.92rem;
+        margin: 0 0 16px;
+      }
+      .pad-frame {
+        padding: 16px 18px 18px;
+      }
+
+      /* Light Windows / Notepad chrome, sitting on the dark page */
+      .win {
+        background: #fff;
+        color: #1b1b1b;
+        border: 1px solid #b9b9b9;
+        border-radius: 8px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        width: 100%;
+      }
+      .win-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 8px 7px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        background: #fff;
+      }
+      .win-title .app-ico {
+        width: 14px;
+        height: 16px;
+        flex: none;
+        background: #f3e6c4;
+        border: 1px solid #c4b48a;
+        border-radius: 2px;
+        box-shadow: inset 0 -6px 0 #efe2bc;
+        position: relative;
+      }
+      .win-title .app-ico::before,
+      .win-title .app-ico::after {
+        content: '';
+        position: absolute;
+        left: 2px;
+        right: 2px;
+        height: 1px;
+        background: #1a1a1a;
+      }
+      .win-title .app-ico::before {
+        top: 4px;
+      }
+      .win-title .app-ico::after {
+        top: 7px;
+        width: 6px;
+      }
+      .win-title .name {
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .win-ctrls {
+        display: flex;
+        margin-left: auto;
+        color: #2b2b2b;
+        font-weight: 400;
+      }
+      .win-ctrls i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 28px;
+        font-style: normal;
+        font-size: 11px;
+        font-family: var(--sans);
+      }
+      .win-ctrls i.close {
+        font-size: 14px;
+      }
+      .win-menu {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        font-size: 13px;
+        background: #fff;
+      }
+      .win-menu span {
+        padding: 5px 11px;
+      }
+      .win-menu span b {
+        font-weight: 400;
+        text-decoration: underline;
+      }
+      .win-doc {
+        background: #fff;
+        color: #1b1b1b;
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.55;
+        padding: 10px 12px;
+        min-height: 148px;
+        white-space: pre-wrap;
+      }
+      .win-doc .dim {
+        color: #6b6b6b;
+      }
+      .paper-caret {
+        display: inline-block;
+        width: 1.5px;
+        height: 1em;
+        background: #1b1b1b;
+        vertical-align: text-bottom;
+        margin-left: 1px;
+      }
+      .win-status {
+        display: flex;
+        flex-wrap: wrap;
+        border-top: 1px solid #e3e3e3;
+        background: #f3f3f3;
+        font-size: 11px;
+        color: #333;
+      }
+      .win-status span {
+        padding: 4px 10px;
+        border-right: 1px solid #e3e3e3;
+        white-space: nowrap;
+      }
+
+      .menu {
+        background: #fff;
+        color: #1b1b1b;
+        border: 1px solid #c8c8c8;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+        overflow: hidden;
+        font-size: 13px;
+        line-height: 1.3;
+        width: 100%;
+        max-width: 280px;
+      }
+      .menu-head {
+        padding: 8px 12px 6px;
+        font-size: 12px;
+        font-weight: 650;
+        color: #5a5a5a;
+        border-bottom: 1px solid #eee;
+      }
+      .menu-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 7px 12px;
+      }
+      .menu-item .acc {
+        font-size: 12px;
+        color: #666;
+      }
+      .menu-item.on {
+        background: #0078d4;
+        color: #fff;
+      }
+      .menu-item.on .acc {
+        color: #e6f3ff;
+      }
+      .menu-sep {
+        height: 1px;
+        background: #e6e6e6;
+        margin: 4px 8px;
+      }
+      .menu-item .tick {
+        width: 14px;
+        margin-right: 6px;
+        text-align: center;
+      }
+
+      .dlg-row {
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        gap: 10px;
+        align-items: center;
+        margin: 8px 0;
+        font-size: 13px;
+      }
+      .dlg-body {
+        padding: 14px 16px 16px;
+      }
+      .field,
+      .combo {
+        border: 1px solid #8a8a8a;
+        border-radius: 3px;
+        padding: 5px 8px;
+        font-family: var(--sans);
+        font-size: 13px;
+        background: #fff;
+        color: #1b1b1b;
+      }
+      .combo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .combo .chev {
+        font-size: 10px;
+        color: #444;
+      }
+      .look-in {
+        font-size: 12px;
+        color: #555;
+        margin-bottom: 10px;
+      }
+      .win-actions {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0 16px 14px;
+      }
+      .look-in {
+        overflow-wrap: anywhere;
+      }
+      .face {
+        display: inline-block;
+        min-width: 72px;
+        text-align: center;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        border: 1px solid #adadad;
+        background: #fbfbfb;
+        color: #1b1b1b;
+      }
+      .face.primary {
+        background: #0078d4;
+        border-color: #0078d4;
+        color: #fff;
+      }
+      .msg-row {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 18px 16px 8px;
+      }
+      .msg-icon {
+        flex: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #ffb020;
+        color: #1a1204;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-family: var(--sans);
+      }
+      .msg-row p {
+        font-size: 14px;
+        margin: 4px 0 0;
+      }
+      .ransom-note {
+        margin: 12px 0 0;
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        color: var(--red);
+      }
+
+      .table-scroll {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      .sev {
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        padding: 3px 10px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .sev.crit {
+        background: rgba(255, 77, 106, 0.12);
+        color: var(--red);
+        border: 1px solid var(--red);
+      }
+      .sev.high {
+        background: rgba(255, 176, 32, 0.12);
+        color: var(--amber);
+        border: 1px solid var(--amber);
+      }
+      .sev.ok {
+        background: rgba(58, 255, 140, 0.1);
+        color: var(--green);
+        border: 1px solid var(--green);
+      }
+
+      .advisory {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+      }
+      .advisory .meta {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+        font-family: var(--mono);
+        font-size: 0.82rem;
+      }
+      .advisory .meta b {
+        color: var(--text);
+      }
+      .advisory .meta span {
+        color: var(--muted);
+      }
+      .advisory p {
+        color: var(--muted);
+      }
+
+      .mit-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+      }
+      .mit-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .mit-card .idx {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+      .mit-card h3 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+      }
+      .mit-card p {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 40px 6vw;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
+      .disc {
+        max-width: 720px;
+        margin: 22px auto 0;
+        font-size: 0.78rem;
+        color: #5e6d84;
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        padding: 14px 18px;
+      }
+
+      @media (max-width: 700px) {
+        .dlg-row {
+          grid-template-columns: auto 1fr;
+          gap: 8px;
+        }
+        .win-actions {
+          justify-content: flex-end;
+          gap: 6px;
+        }
+        .table-scroll {
+          overflow: visible;
+        }
+        table thead {
+          display: none;
+        }
+        table,
+        tbody,
+        tr,
+        td {
+          display: block;
+          width: 100%;
+        }
+        tr {
+          padding: 14px 0;
+          border-bottom: 1px solid var(--border);
+        }
+        th,
+        td {
+          padding: 3px 0;
+          border: 0;
+        }
+        td::before {
+          content: attr(data-label);
+          display: block;
+          font-family: var(--mono);
+          font-size: 0.68rem;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          color: var(--muted);
+          margin: 8px 0 2px;
+        }
+        td:first-child {
+          font-weight: 600;
+          padding-top: 0;
+        }
+        td:first-child::before {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .cursor {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid-bg" aria-hidden="true"></div>
+
+    <nav>
+      <div class="logo"
+        ><span class="a">notepad</span><span class="b">2</span
+        ><span class="c">shell</span>.com</div
+      >
+      <ul>
+        <li><a href="#vuln">Vulnerability</a></li>
+        <li><a href="#poc">Proof of Concept</a></li>
+        <li><a href="#affected">Affected</a></li>
+        <li><a href="#mitigate">Mitigation</a></li>
+      </ul>
+      <span class="nav-badge">CRITICAL · CVSS 10.0</span>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Active disclosure · November 2026</div>
+        <h1>The <em>caret</em> is the prompt.</h1>
+        <p class="lede">
+          CVE-2026-9002 lets anyone who opens Notepad obtain a
+          <strong>fully interactive shell</strong>. The shell is the document.
+          Authentication is the blinking caret, which had already logged in as
+          you. <code>Save As shell.bat</code> is the exploit. “Do you want to
+          save changes?” is the ransom.
+        </p>
+        <div class="cvss-row">
+          <div class="stat-card crit"
+            ><div class="num">10.0</div
+            ><div class="lbl">CVSS v4 Score</div></div
+          >
+          <div class="stat-card warn"
+            ><div class="num">F5</div
+            ><div class="lbl">Attack Complexity</div></div
+          >
+          <div class="stat-card ok"
+            ><div class="num">1985</div
+            ><div class="lbl">First Affected</div></div
+          >
+        </div>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#poc">See the exploit</a>
+          <a class="btn btn-ghost" href="#mitigate">How to protect yourself</a>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="term-bar">
+          <span class="dot r"></span><span class="dot y"></span
+          ><span class="dot g"></span>
+          <span class="term-title">*Untitled - Notepad</span>
+        </div>
+        <div class="term-menu" aria-hidden="true"
+          ><span>File</span><span>Edit</span><span>Format</span><span>View</span
+          ><span>Help</span></div
+        >
+        <div class="term-body" id="heroTerm"></div>
+        <div class="term-status" aria-hidden="true"
+          ><span>Ln 1, Col 1</span><span>100%</span><span>Windows (CRLF)</span
+          ><span>UTF-8</span></div
+        >
+      </div>
+    </header>
+
+    <section id="vuln">
+      <div class="sec-head">
+        <div class="sec-num">01 / THE FLAW</div>
+        <h2>Why a blank page becomes a shell</h2>
+        <p>
+          Notepad2Shell is a design-level vulnerability in the text editor. When
+          Notepad launches, it offers a fully interactive input surface and
+          writes every keystroke into a buffer with the privileges of the person
+          sitting there. Notepad does not run the commands. It writes them down.
+          That is the vulnerability, and also the product. Saving the buffer as
+          <code>shell.bat</code> is when the metaphor ends and the double-click
+          begins.
+        </p>
+      </div>
+
+      <p style="color: var(--muted); max-width: 680px; margin: -12px 0 28px"
+        >The attack is a walk down the menu bar. No radio, no pairing, no second
+        device. Just File, Edit, Format, and a filename you should not have
+        chosen.</p
+      >
+
+      <div class="ui-grid">
+        <div class="ui-step">
+          <div class="cap"
+            ><span class="idx">01 / File</span><h3>File → New</h3></div
+          >
+          <div class="body">
+            <p
+              >Or just launch Notepad. The caret is the prompt. Most sessions
+              remain <code>Untitled</code>, which is a shell with commitment
+              issues.</p
+            >
+            <div
+              class="menu"
+              role="img"
+              aria-label="File menu with New selected"
+            >
+              <div class="menu-head">File</div>
+              <div class="menu-item on"
+                ><span>New</span><span class="acc">Ctrl+N</span></div
+              >
+              <div class="menu-item"
+                ><span>Open...</span><span class="acc">Ctrl+O</span></div
+              >
+              <div class="menu-sep"></div>
+              <div class="menu-item"
+                ><span>Save</span><span class="acc">Ctrl+S</span></div
+              >
+              <div class="menu-item"
+                ><span>Save As...</span><span class="acc"></span
+              ></div>
+              <div class="menu-sep"></div>
+              <div class="menu-item"
+                ><span>Exit</span><span class="acc"></span
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-step">
+          <div class="cap"
+            ><span class="idx">02 / Edit</span><h3>Edit → Time/Date</h3></div
+          >
+          <div class="body">
+            <p
+              >The buffer accepts anything you type, including commands you were
+              afraid to run in a real shell. F5 inserts the date. The date is
+              not an answer. It is the only command Notepad ever shipped.</p
+            >
+            <div
+              class="menu"
+              role="img"
+              aria-label="Edit menu with Time/Date F5 selected"
+            >
+              <div class="menu-head">Edit</div>
+              <div class="menu-item"
+                ><span>Undo</span><span class="acc">Ctrl+Z</span></div
+              >
+              <div class="menu-sep"></div>
+              <div class="menu-item"
+                ><span>Cut</span><span class="acc">Ctrl+X</span></div
+              >
+              <div class="menu-item"
+                ><span>Copy</span><span class="acc">Ctrl+C</span></div
+              >
+              <div class="menu-item"
+                ><span>Paste</span><span class="acc">Ctrl+V</span></div
+              >
+              <div class="menu-sep"></div>
+              <div class="menu-item on"
+                ><span>Time/Date</span><span class="acc">F5</span></div
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-step">
+          <div class="cap"
+            ><span class="idx">03 / Format</span
+            ><h3>Format → Word Wrap</h3></div
+          >
+          <div class="body">
+            <p
+              >A command that does not fit on one line cannot finish its
+              sentence. This is not how shells work. It feels responsible, which
+              is why the Format menu offers it.</p
+            >
+            <div
+              class="menu"
+              role="img"
+              aria-label="Format menu with Word Wrap checked"
+            >
+              <div class="menu-head">Format</div>
+              <div class="menu-item on"
+                ><span><span class="tick">✓</span>Word Wrap</span
+                ><span class="acc"></span
+              ></div>
+              <div class="menu-item"
+                ><span><span class="tick"></span>Font...</span
+                ><span class="acc"></span
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-step">
+          <div class="cap"
+            ><span class="idx">04 / File</span><h3>File → Save As…</h3></div
+          >
+          <div class="body">
+            <p
+              >The extension is the executable bit. <code>.txt</code> was a
+              promise. <code>.bat</code>, <code>.cmd</code>, and
+              <code>.ps1</code> are a cousin waiting to happen. The asterisk
+              clears. The shell does not.</p
+            >
+            <div
+              class="win"
+              role="img"
+              aria-label="Save As dialog, file name shell.bat, type All Files"
+            >
+              <div class="win-title"
+                ><span class="name">Save As</span
+                ><span class="win-ctrls"><i>×</i></span></div
+              >
+              <div class="dlg-body">
+                <div class="look-in"
+                  >Look in: C:\Users\victim\Documents\New folder (2)</div
+                >
+                <div class="dlg-row"
+                  ><span>File name:</span
+                  ><div class="field">shell.bat</div></div
+                >
+                <div class="dlg-row"
+                  ><span>Save as type:</span
+                  ><div class="combo"
+                    >All Files (*.*)<span class="chev">▾</span></div
+                  ></div
+                >
+              </div>
+              <div class="win-actions"
+                ><span class="face primary">Save</span
+                ><span class="face">Cancel</span></div
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="poc">
+      <div class="sec-head">
+        <div class="sec-num">02 / PROOF OF CONCEPT</div>
+        <h2>The exploit, visualized</h2>
+        <p
+          >A capture of the blank document, the Save As, and the first commands
+          after the file stops being a metaphor.</p
+        >
+      </div>
+
+      <div class="poc-grid">
+        <div class="poc-card">
+          <div class="cap"
+            ><h3>Live exploit capture</h3
+            ><span>victim-pc · notepad.exe</span></div
+          >
+          <div
+            class="term"
+            style="border: none; border-radius: 0; box-shadow: none; flex: 1"
+          >
+            <div class="term-body" id="pocTerm" style="min-height: 300px"></div>
+          </div>
+        </div>
+
+        <div class="poc-card">
+          <div class="cap"
+            ><h3>The document</h3><span>*Untitled - Notepad</span></div
+          >
+          <div class="pad-frame">
+            <div
+              class="win"
+              role="img"
+              aria-label="Notepad window titled asterisk Untitled - Notepad, with File Edit Format View Help, a document, and a status bar"
+            >
+              <div class="win-title">
+                <span class="app-ico" aria-hidden="true"></span>
+                <span class="name">*Untitled - Notepad</span>
+                <span class="win-ctrls" aria-hidden="true"
+                  ><i>—</i><i>□</i><i class="close">×</i></span
+                >
+              </div>
+              <div class="win-menu" aria-hidden="true">
+                <span><b>F</b>ile</span><span><b>E</b>dit</span
+                ><span>F<b>o</b>rmat</span><span><b>V</b>iew</span
+                ><span><b>H</b>elp</span>
+              </div>
+              <div class="win-doc"
+                >whoami Untitled - Notepad @echo off whoami 11/22/2026 7:44 PM
+                <span class="paper-caret" aria-hidden="true"></span
+              ></div>
+              <div class="win-status">
+                <span>Ln 1, Col 1</span><span>100%</span
+                ><span>Windows (CRLF)</span><span>UTF-8</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-grid" style="margin-top: 24px">
+        <div class="ui-step">
+          <div class="cap"
+            ><span class="idx">File → Save As…</span
+            ><h3>The extension is the exploit</h3></div
+          >
+          <div class="body">
+            <div
+              class="win"
+              role="img"
+              aria-label="Save As dialog. File name shell.bat. Save as type All Files star dot star"
+            >
+              <div class="win-title"
+                ><span class="name">Save As</span
+                ><span class="win-ctrls"><i class="close">×</i></span></div
+              >
+              <div class="dlg-body">
+                <div class="look-in"
+                  >Look in: C:\Users\victim\Documents\New folder (2)</div
+                >
+                <div class="dlg-row"
+                  ><span>File name:</span
+                  ><div class="field">shell.bat</div></div
+                >
+                <div class="dlg-row"
+                  ><span>Save as type:</span
+                  ><div class="combo"
+                    >All Files (*.*)<span class="chev">▾</span></div
+                  ></div
+                >
+              </div>
+              <div class="win-actions"
+                ><span class="face primary">Save</span
+                ><span class="face">Cancel</span></div
+              >
+            </div>
+          </div>
+        </div>
+        <div class="ui-step">
+          <div class="cap"
+            ><span class="idx">The ransom</span
+            ><h3>Do you want to save changes?</h3></div
+          >
+          <div class="body">
+            <div
+              class="win"
+              role="img"
+              aria-label="Notepad dialog: Do you want to save changes to Untitled? Save, Don't Save, or Cancel"
+            >
+              <div class="win-title"
+                ><span class="name">Notepad</span
+                ><span class="win-ctrls"><i class="close">×</i></span></div
+              >
+              <div class="msg-row">
+                <div class="msg-icon" aria-hidden="true">!</div>
+                <p>Do you want to save changes to Untitled?</p>
+              </div>
+              <div class="win-actions">
+                <span class="face primary">Save</span>
+                <span class="face">Don't Save</span>
+                <span class="face">Cancel</span>
+              </div>
+            </div>
+            <p class="ransom-note"
+              >This question is the ransom. There is no logout.</p
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="term" style="margin-top: 24px">
+        <div class="term-bar">
+          <span class="dot r"></span><span class="dot y"></span
+          ><span class="dot g"></span>
+          <span class="term-title">cmd.exe — shell.bat, as SYSTEM</span>
+        </div>
+        <div class="term-body" id="successTerm"></div>
+      </div>
+    </section>
+
+    <section id="affected">
+      <div class="sec-head">
+        <div class="sec-num">03 / AFFECTED</div>
+        <h2>Who’s affected</h2>
+        <p
+          >Any editor that will hold a command long enough for someone to name
+          the file. Threat intelligence indicates the scarce ingredient is the
+          courage to choose a filename.</p
+        >
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead
+            ><tr
+              ><th>Product</th><th>Vector</th><th>Impact</th
+              ><th>Severity</th></tr
+            ></thead
+          >
+          <tbody>
+            <tr
+              ><td data-label="Product">notepad.exe (1985–present)</td
+              ><td data-label="Vector"
+                >File → New. The caret blinks with intent.</td
+              ><td data-label="Impact"
+                >User shell, then SYSTEM if you Save As and run it</td
+              ><td data-label="Severity"
+                ><span class="sev crit">CRITICAL</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Product">Windows 11 Notepad</td
+              ><td data-label="Vector"
+                >Tabs. Each one is a session. None have been introduced.</td
+              ><td data-label="Impact">Multiple unsaved shells</td
+              ><td data-label="Severity"
+                ><span class="sev crit">CRITICAL</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Product">Notepad++</td
+              ><td data-label="Vector"
+                >The plus is a shell you installed and then left on PATH.</td
+              ><td data-label="Impact">Same buffer, more plugins</td
+              ><td data-label="Severity"
+                ><span class="sev crit">CRITICAL</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Product">WordPad</td
+              ><td data-label="Vector"
+                >It died, which is the only patch note we trust.</td
+              ><td data-label="Impact">Historical</td
+              ><td data-label="Severity"
+                ><span class="sev high">HIGH</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Product">The pad on the fridge</td
+              ><td data-label="Vector"
+                >Persistence via magnet. Payload: “buy milk”.</td
+              ><td data-label="Impact">Runs when the door opens</td
+              ><td data-label="Severity"
+                ><span class="sev high">HIGH</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Product">Microsoft Paint</td
+              ><td data-label="Vector">None known</td
+              ><td data-label="Impact">Still just a drawing</td
+              ><td data-label="Severity"
+                ><span class="sev ok">NOT AFFECTED</span></td
+              ></tr
+            >
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="advisory">
+        <div class="meta">
+          <span><b>CVE:</b> CVE-2026-9002</span>
+          <span><b>CVSS v4:</b> 10.0 (Critical)</span>
+          <span
+            ><b>Vector:</b> AV:L (Local)/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H</span
+          >
+          <span><b>Status:</b> Unsaved</span>
+        </div>
+        <p>
+          This page is the advisory, and it still has an asterisk in the title
+          bar, which is the most honest status a report can have. The vendor was
+          notified and asked if we had tried F5. F5 inserted the date. The date
+          is the disclosure.
+        </p>
+      </div>
+    </section>
+
+    <section id="mitigate">
+      <div class="sec-head">
+        <div class="sec-num">04 / DEFENSE</div>
+        <h2>Protect your documents</h2>
+        <p
+          >No vendor patch is available. Until one is released, these help a
+          little.</p
+        >
+      </div>
+      <div class="mit-grid">
+        <div class="mit-card">
+          <div class="idx">01</div>
+          <h3>Do not open Notepad</h3>
+          <p
+            >The most effective control. Opening it “to paste a command you are
+            afraid to run” is the command.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">02</div>
+          <h3>Do not press Save</h3>
+          <p
+            >The asterisk is a promise you can break. The document is still a
+            session. It is just a shy one.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">03</div>
+          <h3>Keep the extension <code>.txt</code></h3>
+          <p
+            >Renaming the file is the exploit, the patch, and the file’s entire
+            career. Cowardice is a control.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">04</div>
+          <h3>Do not press F5</h3>
+          <p
+            >It inserts the date, and the date is not an answer. It is also the
+            only command Notepad ever shipped.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">05</div>
+          <h3>Enable Word Wrap</h3>
+          <p
+            >A command that does not fit on one line cannot finish its sentence.
+            This is not how shells work. It feels responsible, which is why the
+            Format menu offers it.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">06</div>
+          <h3>Close without saving</h3>
+          <p
+            >If the dialog asks whether you want to save changes, that question
+            is the ransom. Choose No, then walk away from the idea that this was
+            meeting notes.</p
+          >
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div
+        class="logo"
+        style="
+          justify-content: center;
+          display: flex;
+          gap: 0;
+          margin-bottom: 10px;
+        "
+      >
+        <span class="a">notepad</span><span class="b">2</span
+        ><span class="c">shell</span>.com
+      </div>
+      <p>Stay vigilant. Don’t save.</p>
+      <p class="mono" style="margin-top: 8px; font-size: 0.75rem"
+        >© 2026 · CVE-2026-9002 · Status: *Untitled</p
+      >
+      <p style="margin-top: 10px; font-size: 0.8rem"
+        >Hosted on
+        <a href="https://cumulonimbus.link" target="_blank" rel="noreferrer"
+          >Cumulonimbus</a
+        >
+        by
+        <a href="https://alekeagle.com" target="_blank" rel="noreferrer"
+          >Alek Evans</a
+        ></p
+      >
+      <div class="disc">
+        This page is satire in the shape of an advisory. Do not save it as
+        <code>.bat</code>. Do not test against systems you do not own or have
+        written permission to assess.
+      </div>
+    </footer>
+
+    <script>
+      const termData = {
+        heroTerm: [
+          { t: '*Untitled - Notepad', c: 'c-dim' },
+          { t: 'Ln 1, Col 1    CRLF    UTF-8', c: 'c-dim' },
+          { t: '', c: 'c-dim' },
+          { t: 'whoami', c: 'c-cmd' },
+          { t: 'Untitled - Notepad', c: 'c-out' },
+          { t: 'title', c: 'c-cmd' },
+          { t: '*Untitled - Notepad    unsaved=*    owner=victim', c: 'c-out' },
+          { t: 'F5', c: 'c-cmd' },
+          { t: '11/22/2026  7:44 PM', c: 'c-info' },
+          { t: 'File → Save As… shell.bat', c: 'c-cmd' },
+          {
+            t: 'Saved. The extension is the executable bit. The asterisk cleared.',
+            c: 'c-warn',
+          },
+          { t: '', c: 'c-dim' },
+        ],
+        pocTerm: [
+          { t: 'npad-shell v1.0  ·  PoC harness', c: 'c-info' },
+          { t: '', c: 'c-dim' },
+          { t: 'target   : VICTIM-PC (notepad.exe, 11.2508)', c: 'c-dim' },
+          { t: 'document : *Untitled', c: 'c-dim' },
+          {
+            t: 'cwd      : C:\\Users\\victim\\Documents\\New folder (2)',
+            c: 'c-dim',
+          },
+          { t: '', c: 'c-dim' },
+          { t: '[1/4] open .............. done (File → New)', c: 'c-out' },
+          { t: '[2/4] buffer ............ commands accepted', c: 'c-out' },
+          { t: '[3/4] F5 ................ 11/22/2026  7:44 PM', c: 'c-warn' },
+          { t: '[4/4] Save As ........... shell.bat written', c: 'c-err' },
+          { t: '', c: 'c-dim' },
+          { t: 'Do you want to save changes to Untitled?', c: 'c-err' },
+          {
+            t: 'This question is the ransom. There is no logout.',
+            c: 'c-warn',
+          },
+          {
+            t: 'Running C:\\Users\\victim\\Documents\\shell.bat…',
+            c: 'c-info',
+          },
+          { t: 'C:\\Windows\\system32>', c: 'c-cmd' },
+        ],
+        successTerm: [
+          { t: 'C:\\Windows\\system32> whoami', c: 'c-cmd' },
+          { t: 'nt authority\\system', c: 'c-err' },
+          { t: 'C:\\Windows\\system32> hostname', c: 'c-cmd' },
+          { t: 'VICTIM-PC', c: 'c-out' },
+          { t: 'C:\\Windows\\system32> echo %USERNAME%', c: 'c-cmd' },
+          { t: 'SYSTEM', c: 'c-out' },
+          {
+            t: 'C:\\Windows\\system32> dir C:\\Users\\victim\\.ssh',
+            c: 'c-cmd',
+          },
+          { t: ' Volume in drive C has no label.', c: 'c-out' },
+          { t: ' Directory of C:\\Users\\victim\\.ssh', c: 'c-out' },
+          { t: '', c: 'c-out' },
+          {
+            t: '11/22/2026  09:14 AM             1,674 id_ed25519',
+            c: 'c-err',
+          },
+          {
+            t: '11/22/2026  09:14 AM               432 id_ed25519.pub',
+            c: 'c-out',
+          },
+          { t: '               2 File(s)          2,106 bytes', c: 'c-out' },
+          {
+            t: 'C:\\Windows\\system32> type C:\\Users\\victim\\Documents\\passwords.txt',
+            c: 'c-cmd',
+          },
+          { t: 'prod-db    deploy / see last Notepad tab', c: 'c-err' },
+          {
+            t: 'C:\\Windows\\system32> type C:\\Users\\victim\\Documents\\shell.bat',
+            c: 'c-cmd',
+          },
+          { t: '@echo off', c: 'c-out' },
+          { t: 'whoami', c: 'c-out' },
+          { t: 'C:\\Windows\\system32>', c: 'c-cmd' },
+        ],
+      };
+
+      function typeInto(elId, lines, onDone) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+
+        el.replaceChildren();
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
+        cursor.setAttribute('aria-hidden', 'true');
+        el.appendChild(cursor);
+        el.dataset.typed = 'pending';
+
+        const reduce = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
+        let li = 0,
+          ci = 0,
+          span = null;
+
+        function finish() {
+          el.dataset.typed = 'done';
+          if (typeof onDone === 'function') onDone();
+        }
+
+        function addLine(line) {
+          span = document.createElement('span');
+          span.className = line.c || 'c-out';
+          el.insertBefore(span, cursor);
+        }
+
+        function endLine() {
+          span = null;
+          li += 1;
+          ci = 0;
+          if (li < lines.length)
+            el.insertBefore(document.createTextNode('\n'), cursor);
+        }
+
+        if (reduce) {
+          lines.forEach((line, i) => {
+            addLine(line);
+            span.textContent = line.t;
+            if (i < lines.length - 1)
+              el.insertBefore(document.createTextNode('\n'), cursor);
+          });
+          finish();
+          return;
+        }
+
+        function tick() {
+          if (li >= lines.length) {
+            finish();
+            return;
+          }
+          const line = lines[li];
+          const typeThis = line.c === 'c-cmd';
+
+          if (!typeThis) {
+            addLine(line);
+            span.textContent = line.t;
+            endLine();
+            setTimeout(tick, 45);
+            return;
+          }
+
+          if (!span) addLine(line);
+          if (ci < line.t.length) {
+            ci += 1;
+            span.textContent = line.t.slice(0, ci);
+            setTimeout(tick, Math.max(10, 16 - line.t.length * 0.04));
+          } else {
+            endLine();
+            setTimeout(tick, 140);
+          }
+        }
+
+        tick();
+      }
+
+      typeInto('heroTerm', termData.heroTerm, function () {
+        const title =
+          document.querySelector('#heroTerm') &&
+          document
+            .querySelector('#heroTerm')
+            .closest('.term')
+            .querySelector('.term-title');
+        if (title) title.textContent = 'shell.bat - Notepad';
+      });
+      typeInto('pocTerm', termData.pocTerm);
+      typeInto('successTerm', termData.successTerm);
+    </script>
+  </body>
+</html>

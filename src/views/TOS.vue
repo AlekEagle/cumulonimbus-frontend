@@ -69,22 +69,23 @@
         be deleted one month after being disabled. Terminated accounts will be
         deleted immediately. If Your account is disabled, You may appeal the
         decision by emailing Us at
-        <a href="mailto:appeals@alekeagle.me">appeals@alekeagle.me</a>. If Your
-        account is terminated, You may not appeal the decision.
+        <a href="mailto:appeals@cumulonimbus.link">appeals@cumulonimbus.link</a
+        >. If Your account is terminated, You may not appeal the decision.
       </p>
       <h2 id="dmca">Digital Millennium Copyright Act (DMCA) Claims</h2>
       <p>
         If You believe that Your work has been copied in a way that constitutes
         a DMCA violation, please contact Us at
-        <a href="mailto:dmca@alekeagle.me">dmca@alekeagle.me</a> with the URL of
-        the content in question and proof that You are the owner of the content.
-        Abuse of DMCA claims are not tolerated and will be ignored.
+        <a href="mailto:dmca@cumulonimbus.link">dmca@cumulonimbus.link</a> with
+        the URL of the content in question and proof that You are the owner of
+        the content. Abuse of DMCA claims are not tolerated and will be ignored.
       </p>
       <h2 id="contact">Contact Us</h2>
       <p>
         If You have any questions or concerns regarding these terms, please
         contact Us at
-        <a href="mailto:contact@alekeagle.me">contact@alekeagle.me</a>.
+        <a href="mailto:contact@cumulonimbus.link">contact@cumulonimbus.link</a
+        >.
       </p></section
     >
   </div>

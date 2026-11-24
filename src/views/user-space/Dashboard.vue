@@ -1,18 +1,4 @@
 <template>
-  <div class="quick-action-buttons-container">
-    <button
-      @click="logout"
-      v-text="processing ? 'Logging out...' : 'Logout'"
-      :disabled="processing"
-    />
-    <RouterButton
-      to="/staff"
-      title="Go to Staff Dashboard"
-      v-if="user.account?.user.staff"
-    >
-      Staff Dashboard
-    </RouterButton>
-  </div>
   <div class="content-box-container grow">
     <ContentBox
       title="Account"
@@ -49,7 +35,6 @@
 <script lang="ts" setup>
   // Vue Components
   import ContentBox from '&/ContentBox.vue';
-  import RouterButton from '&/RouterButton.vue';
 
   // In-House Modules
   import fileIcon from '!/images/file.svg';
@@ -58,30 +43,10 @@
   import uploadIcon from '!/images/upload.svg';
 
   // Store Modules
-  import { toastStore } from '$/toast.js';
   import { userStore } from '$/user.js';
 
   // External Modules
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  // No External Modules to import here.
 
-  const user = userStore(),
-    toast = toastStore(),
-    processing = ref<boolean>(false),
-    router = useRouter();
-
-  async function logout() {
-    processing.value = true;
-    try {
-      let res = await user.logout();
-      if (res) {
-        router.push('/');
-      } else toast.genericError();
-    } catch (e) {
-      toast.clientError();
-      console.error(e);
-    } finally {
-      processing.value = false;
-    }
-  }
+  const user = userStore();
 </script>

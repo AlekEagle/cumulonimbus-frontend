@@ -137,17 +137,11 @@
         <br />
         Wrapper Version: <code v-text="cumVersion" />
         <br />
-        Backend Version: <code v-text="`v${backendVersion}`" />
+        Backend Version: <code v-text="`${backendVersion}`" />
         <br />
-        Thumbnailer Version: <code v-text="`v${thumbnailVersion}`" />
+        Thumbnailer Version: <code v-text="`${thumbnailVersion}`" />
       </template>
       <p v-else>Loading<AnimatedEllipsis /></p>
-    </ContentBox>
-    <ContentBox title="Dependencies" grow>
-      <code v-html="dependencies" />
-    </ContentBox>
-    <ContentBox title="Development Dependencies" grow>
-      <code v-html="devDependencies" />
     </ContentBox>
   </div>
 </template>
@@ -166,41 +160,34 @@
   import { userStore } from '$/user.js';
 
   // External Modules
-  import { ref, onMounted, computed, getCurrentInstance } from 'vue';
+  import { ref, onMounted } from 'vue';
 
-  const global = getCurrentInstance()?.appContext.config.globalProperties,
-    backendVersion = ref('Loading...'),
+  const backendVersion = ref('Loading...'),
     user = userStore(),
     thumbnailVersion = ref('Loading...'),
     asOf = ref<Date | null | undefined>(),
     asOfTime = useFuzzyTimeString(asOf, 30e3),
-    cumVersion = ref(`v${Cumulonimbus.VERSION}`),
-    dependencies = computed(() => {
-      return Object.keys(global!.$dependencies)
-        .map((key: string) => {
-          return `${key}: ${global?.$dependencies[key]}`;
-        })
-        .join('<br />');
-    }),
-    devDependencies = computed(() => {
-      return Object.keys(global!.$devDependencies)
-        .map((key: string) => {
-          return `${key}: ${global?.$devDependencies[key]}`;
-        })
-        .join('<br />');
-    });
+    cumVersion = ref(`v${Cumulonimbus.VERSION}`);
 
   async function update() {
     asOf.value = null;
 
     await Promise.all([
       (async () => {
-        backendVersion.value = (await user.client!.getAPIStatus()).version;
+        try {
+          backendVersion.value = `v${(await user.client!.getAPIStatus()).version}`;
+        } catch (error) {
+          backendVersion.value = 'Failed to fetch.';
+        }
       })(),
       (async () => {
-        thumbnailVersion.value = (
-          await user.client!.getThumbnailAPIStatus()
-        ).version;
+        try {
+          thumbnailVersion.value = `v${
+            (await user.client!.getThumbnailAPIStatus()).version
+          }`;
+        } catch (error) {
+          thumbnailVersion.value = 'Failed to fetch.';
+        }
       })(),
     ]);
 

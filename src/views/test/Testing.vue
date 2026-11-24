@@ -2,6 +2,7 @@
   <div class="test-select">
     <Select v-model="currentItem" @change="updateHash">
       <option :value="BasicEmphasizedBox">Basic Emphasized Box</option>
+      <option :value="Codeblock">Codeblock</option>
       <option :value="ContentBoxes">Content Boxes</option>
       <option :value="FormEmphasizedBox">Form Emphasized Box</option>
       <option :value="FileContentBoxes">File Content Box</option>
@@ -9,6 +10,7 @@
         Fullscreen Loading Message
       </option>
       <option :value="FullscreenProgressBar">Fullscreen Progress Bar</option>
+      <option :value="List">List</option>
       <option :value="LoadingMessage">Loading Message</option>
       <option :value="MarqueeText">Marquee Text</option>
       <option :value="Modals">Modals</option>
@@ -28,11 +30,13 @@
 <script lang="ts" setup>
   // Vue Components
   import BasicEmphasizedBox from '@/views/test/BasicEmphasizedBox.vue';
+  import Codeblock from '@/views/test/Codeblock.vue';
   import ContentBoxes from '@/views/test/ContentBoxes.vue';
   import FormEmphasizedBox from '@/views/test/FormEmphasizedBox.vue';
   import FileContentBoxes from '@/views/test/FileContentBoxes.vue';
   import FullscreenLoadingMessage from '@/views/test/FullscreenLoadingMessage.vue';
   import FullscreenProgressBar from '@/views/test/FullscreenProgressBar.vue';
+  import List from '@/views/test/List.vue';
   import LoadingMessage from '@/views/test/LoadingMessage.vue';
   import MarqueeText from '@/views/test/MarqueeText.vue';
   import Modals from '@/views/test/Modals.vue';
@@ -62,6 +66,9 @@
         case '#basic-emphasized-box':
           currentItem.value = BasicEmphasizedBox;
           break;
+        case '#codeblock':
+          currentItem.value = Codeblock;
+          break;
         case '#content-boxes':
           currentItem.value = ContentBoxes;
           break;
@@ -76,6 +83,9 @@
           break;
         case '#fullscreen-progress-bar':
           currentItem.value = FullscreenProgressBar;
+          break;
+        case '#list':
+          currentItem.value = List;
           break;
         case '#loading-message':
           currentItem.value = LoadingMessage;

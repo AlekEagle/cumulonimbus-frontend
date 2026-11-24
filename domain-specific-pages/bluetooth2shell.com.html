@@ -1,0 +1,1305 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title
+      >Bluetooth2Shell — CVE-2026-9001: From Pairing to Root in One Tap</title
+    >
+    <meta
+      name="description"
+      content="CVE-2026-9001: a pairing prompt is enough to get a root shell on the host. Proof of concept, affected devices, and what to do about it."
+    />
+    <link rel="canonical" href="https://bluetooth2shell.com/" />
+    <meta property="og:site_name" content="Bluetooth2Shell" />
+    <meta property="og:title" content="Bluetooth2Shell — CVE-2026-9001" />
+    <meta
+      property="og:description"
+      content="CVE-2026-9001: a pairing prompt is enough to get a root shell on the host."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bluetooth2shell.com/" />
+    <meta name="theme-color" content="#07090e" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230e131c'/%3E%3Cpath fill='%233ee0f0' d='M35.4 14.2 28 8h-2v11.2L18.6 12.8 16.4 15l8.4 8.4-8.4 8.4 2.2 2.2L26 26.6V38h2l7.4-6.2-5.6-5.6 5.6-6zm-6 4.6 2.6 2.6-2.6 2.6V18.8zm2.6 14.2L29.4 35.6v-5.2l2.6 2.6z' transform='translate(8 9) scale(1.15)'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        --bg: #07090e;
+        --panel: #0e131c;
+        --bar: #0b1018;
+        --border: #1c2535;
+        --cyan: #3ee0f0;
+        --green: #3aff8c;
+        --red: #ff4d6a;
+        --amber: #ffb020;
+        --purple: #a78bfa;
+        --text: #d5e2f5;
+        --muted: #8090ab;
+        --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+        --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      ::selection {
+        background: var(--cyan);
+        color: #000;
+      }
+      code,
+      .mono {
+        font-family: var(--mono);
+      }
+      code {
+        font-size: 0.92em;
+      }
+
+      .grid-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(62, 224, 240, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(62, 224, 240, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 6vw;
+        background: rgba(7, 9, 14, 0.9);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .logo {
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: -0.5px;
+      }
+      .logo .a {
+        color: var(--cyan);
+      }
+      .logo .b {
+        color: var(--muted);
+      }
+      .logo .c {
+        color: var(--green);
+      }
+      nav ul {
+        display: flex;
+        gap: 26px;
+        list-style: none;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      nav a:hover {
+        color: var(--cyan);
+      }
+      .nav-badge {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        padding: 4px 10px;
+        border: 1px solid var(--red);
+        color: var(--red);
+        border-radius: 999px;
+        background: rgba(255, 77, 106, 0.08);
+        white-space: nowrap;
+      }
+      @media (max-width: 760px) {
+        nav ul {
+          display: none;
+        }
+      }
+
+      header.hero {
+        padding: 80px 6vw 64px;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 50px;
+        align-items: center;
+      }
+      @media (max-width: 900px) {
+        header.hero {
+          grid-template-columns: 1fr;
+          padding-top: 44px;
+        }
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        color: var(--cyan);
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+      h1 {
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+        margin-bottom: 20px;
+      }
+      h1 em {
+        color: var(--cyan);
+        font-style: normal;
+      }
+      .hero p.lede {
+        color: var(--muted);
+        font-size: 1.1rem;
+        max-width: 540px;
+        margin-bottom: 28px;
+      }
+      .hero p.lede strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .cvss-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+      }
+      .stat-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 18px;
+        min-width: 116px;
+      }
+      .stat-card .num {
+        font-family: var(--mono);
+        font-size: 1.6rem;
+        font-weight: 700;
+      }
+      .stat-card .lbl {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      .stat-card.crit .num {
+        color: var(--red);
+      }
+      .stat-card.warn .num {
+        color: var(--amber);
+      }
+      .stat-card.ok .num {
+        color: var(--green);
+      }
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        font-family: var(--mono);
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 12px 22px;
+        border-radius: 8px;
+        text-decoration: none;
+        border: 1px solid transparent;
+      }
+      .btn-primary {
+        background: var(--cyan);
+        color: #041016;
+      }
+      .btn-primary:hover {
+        filter: brightness(1.08);
+      }
+      .btn-ghost {
+        border-color: var(--border);
+        color: var(--text);
+      }
+      .btn-ghost:hover {
+        border-color: var(--cyan);
+        color: var(--cyan);
+      }
+
+      .term {
+        background: #05070c;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+      }
+      .term-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: var(--bar);
+        border-bottom: 1px solid var(--border);
+      }
+      .term-bar .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .dot.r {
+        background: #ff5f57;
+      }
+      .dot.y {
+        background: #febc2e;
+      }
+      .dot.g {
+        background: #28c840;
+      }
+      .term-title {
+        margin-left: 6px;
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        color: var(--muted);
+      }
+      .term-body {
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        padding: 16px 18px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        min-height: 220px;
+      }
+      .c-cmd {
+        color: var(--green);
+      }
+      .c-out {
+        color: var(--text);
+      }
+      .c-warn {
+        color: var(--amber);
+      }
+      .c-err {
+        color: var(--red);
+      }
+      .c-info {
+        color: var(--cyan);
+      }
+      .c-dim {
+        color: var(--muted);
+      }
+      .cursor {
+        display: inline-block;
+        width: 8px;
+        height: 1.05em;
+        background: var(--green);
+        vertical-align: text-bottom;
+        animation: caret 1s step-end infinite;
+      }
+      @keyframes caret {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      section {
+        padding: 72px 6vw;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .sec-head {
+        margin-bottom: 40px;
+      }
+      .sec-num {
+        font-family: var(--mono);
+        color: var(--cyan);
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+      }
+      h2 {
+        font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.8px;
+        margin: 8px 0 12px;
+      }
+      .sec-head p {
+        color: var(--muted);
+        max-width: 680px;
+      }
+
+      .killchain {
+        display: flex;
+        flex-direction: column;
+      }
+      .kc-step {
+        display: grid;
+        grid-template-columns: 64px 1fr;
+        gap: 20px;
+        position: relative;
+        padding-bottom: 28px;
+      }
+      .kc-node {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 1.05rem;
+        background: var(--panel);
+        border: 2px solid var(--border);
+        position: relative;
+        z-index: 2;
+      }
+      .kc-step:not(:last-child)::before {
+        content: '';
+        position: absolute;
+        left: 23px;
+        top: 48px;
+        bottom: 0;
+        width: 2px;
+        background: var(--border);
+      }
+      .kc-body {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px 20px;
+      }
+      .kc-body h3 {
+        font-size: 1.05rem;
+        margin-bottom: 4px;
+      }
+      .kc-body .stage {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--cyan);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .kc-body p {
+        color: var(--muted);
+        font-size: 0.92rem;
+        margin-top: 6px;
+      }
+      .kc-step.s1 .kc-node {
+        color: var(--cyan);
+        border-color: var(--cyan);
+      }
+      .kc-step.s2 .kc-node {
+        color: var(--amber);
+        border-color: var(--amber);
+      }
+      .kc-step.s3 .kc-node {
+        color: var(--purple);
+        border-color: var(--purple);
+      }
+      .kc-step.s4 .kc-node {
+        color: var(--red);
+        border-color: var(--red);
+      }
+
+      .poc-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      @media (max-width: 800px) {
+        .poc-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .poc-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .poc-card .cap {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+      .poc-card .cap h3 {
+        font-size: 1rem;
+      }
+      .poc-card .cap span {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+
+      .flowwrap {
+        padding: 24px;
+      }
+      .flowwrap svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .legend {
+        display: flex;
+        gap: 18px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .legend i {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+
+      .table-scroll {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      .sev {
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        padding: 3px 10px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .sev.crit {
+        background: rgba(255, 77, 106, 0.12);
+        color: var(--red);
+        border: 1px solid var(--red);
+      }
+      .sev.high {
+        background: rgba(255, 176, 32, 0.12);
+        color: var(--amber);
+        border: 1px solid var(--amber);
+      }
+
+      .advisory {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+      }
+      .advisory .meta {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+        font-family: var(--mono);
+        font-size: 0.82rem;
+      }
+      .advisory .meta b {
+        color: var(--text);
+      }
+      .advisory .meta span {
+        color: var(--muted);
+      }
+      .advisory p {
+        color: var(--muted);
+      }
+
+      .mit-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+      }
+      .mit-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .mit-card .idx {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--cyan);
+        margin-bottom: 8px;
+      }
+      .mit-card h3 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+      }
+      .mit-card p {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 40px 6vw;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      footer a {
+        color: var(--cyan);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
+      .disc {
+        max-width: 720px;
+        margin: 22px auto 0;
+        font-size: 0.78rem;
+        color: #5e6d84;
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        padding: 14px 18px;
+      }
+
+      @media (max-width: 700px) {
+        .table-scroll {
+          overflow: visible;
+        }
+        table thead {
+          display: none;
+        }
+        table,
+        tbody,
+        tr,
+        td {
+          display: block;
+          width: 100%;
+        }
+        tr {
+          padding: 14px 0;
+          border-bottom: 1px solid var(--border);
+        }
+        th,
+        td {
+          padding: 3px 0;
+          border: 0;
+        }
+        td::before {
+          content: attr(data-label);
+          display: block;
+          font-family: var(--mono);
+          font-size: 0.68rem;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          color: var(--muted);
+          margin: 8px 0 2px;
+        }
+        td:first-child {
+          font-weight: 600;
+          padding-top: 0;
+        }
+        td:first-child::before {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .cursor {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid-bg" aria-hidden="true"></div>
+
+    <nav>
+      <div class="logo"
+        ><span class="a">bluetooth</span><span class="b">2</span
+        ><span class="c">shell</span>.com</div
+      >
+      <ul>
+        <li><a href="#vuln">Vulnerability</a></li>
+        <li><a href="#poc">Proof of Concept</a></li>
+        <li><a href="#affected">Affected</a></li>
+        <li><a href="#mitigate">Mitigation</a></li>
+      </ul>
+      <span class="nav-badge">CRITICAL · CVSS 10.0</span>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Active disclosure · November 2026</div>
+        <h1>One tap of <em>pairing</em> is all it takes.</h1>
+        <p class="lede">
+          CVE-2026-9001 lets an attacker get a <strong>root shell</strong> on
+          any host that says yes to a Bluetooth pairing prompt. No password, no
+          cable, no prior access.
+        </p>
+        <div class="cvss-row">
+          <div class="stat-card crit"
+            ><div class="num">10.0</div
+            ><div class="lbl">CVSS v4 Score</div></div
+          >
+          <div class="stat-card warn"
+            ><div class="num">&lt;3 s</div
+            ><div class="lbl">Time to Shell</div></div
+          >
+          <div class="stat-card ok"
+            ><div class="num">All</div
+            ><div class="lbl">Platforms Affected</div></div
+          >
+        </div>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#poc">See the exploit</a>
+          <a class="btn btn-ghost" href="#mitigate">How to protect yourself</a>
+        </div>
+      </div>
+
+      <div class="term">
+        <div class="term-bar">
+          <span class="dot r"></span><span class="dot y"></span
+          ><span class="dot g"></span>
+          <span class="term-title">attacker — bt-shell</span>
+        </div>
+        <div class="term-body" id="heroTerm"></div>
+      </div>
+    </header>
+
+    <section id="vuln">
+      <div class="sec-head">
+        <div class="sec-num">01 / THE FLAW</div>
+        <h2>Why a headset becomes a backdoor</h2>
+        <p>
+          The bug is in service discovery. After a normal pairing, the host
+          exposes a serial port profile over RFCOMM and trusts the link key
+          without checking that the other device is what it claims to be. An
+          attacker who finishes that handshake can open the channel and type
+          into a PTY. Several stacks hand the stream to a shell and treat it as
+          a feature.
+        </p>
+      </div>
+
+      <div class="killchain">
+        <div class="kc-step s1">
+          <div class="kc-node">1</div>
+          <div class="kc-body">
+            <span class="stage">Stage 1 · Proximity</span>
+            <h3>Walk into range</h3>
+            <p
+              >Classic Bluetooth, about ten meters. No Wi-Fi, no account, no
+              prior access.</p
+            >
+          </div>
+        </div>
+        <div class="kc-step s2">
+          <div class="kc-node">2</div>
+          <div class="kc-body">
+            <span class="stage">Stage 2 · Trust</span>
+            <h3>Pair like any other gadget</h3>
+            <p
+              >The host shows a normal “Device wants to pair?” prompt. Saying
+              yes writes a valid link key, the same way it would for a keyboard
+              or a watch. If both sides show PIN 0000, they match. They always
+              match.</p
+            >
+          </div>
+        </div>
+        <div class="kc-step s3">
+          <div class="kc-node">3</div>
+          <div class="kc-body">
+            <span class="stage">Stage 3 · Channel</span>
+            <h3>Open the RFCOMM serial channel</h3>
+            <p
+              >A well-formed service declaration is enough. The host binds the
+              channel to a pseudo-terminal instead of ignoring it.</p
+            >
+          </div>
+        </div>
+        <div class="kc-step s4">
+          <div class="kc-node">4</div>
+          <div class="kc-body">
+            <span class="stage">Stage 4 · Shell</span>
+            <h3>Root, no further auth</h3>
+            <p
+              >Commands typed into the RFCOMM stream come back as output from
+              <code>root@victim-laptop</code>. A second bug in the same daemon
+              skips the user session and lands in a root PTY.</p
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="poc">
+      <div class="sec-head">
+        <div class="sec-num">02 / PROOF OF CONCEPT</div>
+        <h2>The exploit, visualized</h2>
+        <p
+          >A capture of the pairing, the channel bind, and the first commands on
+          the resulting root shell.</p
+        >
+      </div>
+
+      <div class="poc-grid">
+        <div class="poc-card">
+          <div class="cap"
+            ><h3>Live exploit capture</h3
+            ><span>attacker laptop · bt-shell</span></div
+          >
+          <div
+            class="term"
+            style="border: none; border-radius: 0; box-shadow: none; flex: 1"
+          >
+            <div class="term-body" id="pocTerm" style="min-height: 300px"></div>
+          </div>
+        </div>
+
+        <div class="poc-card">
+          <div class="cap"
+            ><h3>Protocol exchange</h3
+            ><span>RFCOMM channel lifecycle</span></div
+          >
+          <div class="flowwrap">
+            <svg
+              viewBox="0 0 400 340"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Bluetooth packet flow showing pairing, then a root shell"
+            >
+              <defs>
+                <marker
+                  id="ah"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="6"
+                  refY="3"
+                  orient="auto"
+                >
+                  <path d="M0,0 L6,3 L0,6 Z" fill="#3ee0f0" />
+                </marker>
+                <marker
+                  id="ahR"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="6"
+                  refY="3"
+                  orient="auto"
+                >
+                  <path d="M0,0 L6,3 L0,6 Z" fill="#ff4d6a" />
+                </marker>
+              </defs>
+              <rect
+                x="20"
+                y="10"
+                width="130"
+                height="40"
+                rx="8"
+                fill="#0e131c"
+                stroke="#3ee0f0"
+              />
+              <text
+                x="85"
+                y="35"
+                fill="#3ee0f0"
+                font-family="ui-monospace, monospace"
+                font-size="13"
+                text-anchor="middle"
+              >
+                ATTACKER
+              </text>
+              <rect
+                x="250"
+                y="10"
+                width="130"
+                height="40"
+                rx="8"
+                fill="#0e131c"
+                stroke="#3aff8c"
+              />
+              <text
+                x="315"
+                y="35"
+                fill="#3aff8c"
+                font-family="ui-monospace, monospace"
+                font-size="13"
+                text-anchor="middle"
+              >
+                VICTIM HOST
+              </text>
+              <line
+                x1="85"
+                y1="50"
+                x2="85"
+                y2="320"
+                stroke="#1c2535"
+                stroke-width="2"
+              />
+              <line
+                x1="315"
+                y1="50"
+                x2="315"
+                y2="320"
+                stroke="#1c2535"
+                stroke-width="2"
+              />
+              <g font-family="ui-monospace, monospace" font-size="11">
+                <line
+                  x1="85"
+                  y1="90"
+                  x2="309"
+                  y2="90"
+                  stroke="#3ee0f0"
+                  marker-end="url(#ah)"
+                />
+                <text x="197" y="84" fill="#d5e2f5" text-anchor="middle">
+                  SDP: SPP service claim
+                </text>
+
+                <line
+                  x1="315"
+                  y1="130"
+                  x2="91"
+                  y2="130"
+                  stroke="#3aff8c"
+                  marker-end="url(#ah)"
+                />
+                <text x="200" y="124" fill="#d5e2f5" text-anchor="middle">
+                  Pairing accepted (PIN 0000)
+                </text>
+
+                <line
+                  x1="85"
+                  y1="170"
+                  x2="309"
+                  y2="170"
+                  stroke="#3ee0f0"
+                  marker-end="url(#ah)"
+                />
+                <text x="197" y="164" fill="#d5e2f5" text-anchor="middle">
+                  RFCOMM CONNECT ch=0x0A
+                </text>
+
+                <line
+                  x1="85"
+                  y1="210"
+                  x2="309"
+                  y2="210"
+                  stroke="#a78bfa"
+                  marker-end="url(#ah)"
+                />
+                <text x="197" y="204" fill="#a78bfa" text-anchor="middle">
+                  PTY bind triggered (bug)
+                </text>
+
+                <line
+                  x1="85"
+                  y1="250"
+                  x2="309"
+                  y2="250"
+                  stroke="#ff4d6a"
+                  marker-end="url(#ahR)"
+                />
+                <text x="197" y="244" fill="#ff4d6a" text-anchor="middle">
+                  printf("id\n")
+                </text>
+
+                <line
+                  x1="315"
+                  y1="290"
+                  x2="91"
+                  y2="290"
+                  stroke="#ff4d6a"
+                  marker-end="url(#ahR)"
+                />
+                <text x="200" y="284" fill="#ff4d6a" text-anchor="middle">
+                  uid=0(root) gid=0(root)
+                </text>
+              </g>
+            </svg>
+            <div class="legend">
+              <span
+                ><i style="background: #3ee0f0"></i>Legitimate BT traffic</span
+              >
+              <span
+                ><i style="background: #a78bfa"></i>Vulnerability trigger</span
+              >
+              <span><i style="background: #ff4d6a"></i>Shell I/O</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="term" style="margin-top: 24px">
+        <div class="term-bar">
+          <span class="dot r"></span><span class="dot y"></span
+          ><span class="dot g"></span>
+          <span class="term-title">root@victim-laptop — session open</span>
+        </div>
+        <div class="term-body" id="successTerm"></div>
+      </div>
+    </section>
+
+    <section id="affected">
+      <div class="sec-head">
+        <div class="sec-num">03 / AFFECTED</div>
+        <h2>Who’s affected</h2>
+        <p
+          >Any device that can pair and also has a shell. That is most of
+          them.</p
+        >
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead
+            ><tr
+              ><th>Platform</th><th>Components</th><th>Impact</th
+              ><th>Severity</th></tr
+            ></thead
+          >
+          <tbody>
+            <tr
+              ><td data-label="Platform">Linux</td
+              ><td data-label="Components">BlueZ ≥ 5.49, obexd / rfcomm pty</td
+              ><td data-label="Impact">Remote root shell</td
+              ><td data-label="Severity"
+                ><span class="sev crit">CRITICAL</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Platform">macOS</td
+              ><td data-label="Components"
+                >CoreBluetooth + IOBluetooth serial</td
+              ><td data-label="Impact"
+                >User shell, then root via the same daemon</td
+              ><td data-label="Severity"
+                ><span class="sev crit">CRITICAL</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Platform">Windows</td
+              ><td data-label="Components">Rfcomm.sys, bthserv</td
+              ><td data-label="Impact">LOCAL SYSTEM</td
+              ><td data-label="Severity"
+                ><span class="sev crit">CRITICAL</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Platform">iOS / iPadOS</td
+              ><td data-label="Components">BTHCI + Personal Hotspot agent</td
+              ><td data-label="Impact">Privileged app context</td
+              ><td data-label="Severity"
+                ><span class="sev high">HIGH</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Platform">Android</td
+              ><td data-label="Components">Bluetooth stack, SerialPort HAL</td
+              ><td data-label="Impact">App-level RCE</td
+              ><td data-label="Severity"
+                ><span class="sev high">HIGH</span></td
+              ></tr
+            >
+            <tr
+              ><td data-label="Platform">Car stereos</td
+              ><td data-label="Components">The head unit paired in 2019</td
+              ><td data-label="Impact"
+                >Still connected; now playing <code>.bash_history</code></td
+              ><td data-label="Severity"
+                ><span class="sev crit">CRITICAL</span></td
+              ></tr
+            >
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="advisory">
+        <div class="meta">
+          <span><b>CVE:</b> CVE-2026-9001</span>
+          <span><b>CVSS v4:</b> 10.0 (Critical)</span>
+          <span><b>Vector:</b> AV:A/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H</span>
+          <span><b>Status:</b> Disclosed</span>
+        </div>
+        <p>
+          This page is the advisory. Vendors were notified. Several asked
+          whether the device was in range on purpose. Patch notes, when they
+          exist, will appear here.
+        </p>
+      </div>
+    </section>
+
+    <section id="mitigate">
+      <div class="sec-head">
+        <div class="sec-num">04 / DEFENSE</div>
+        <h2>Protect your devices</h2>
+        <p>Until vendor patches land, these help a little.</p>
+      </div>
+      <div class="mit-grid">
+        <div class="mit-card">
+          <div class="idx">01</div>
+          <h3>Turn Bluetooth off when you are not using it</h3>
+          <p
+            >The attack needs radio range. A disabled adapter is a closed
+            port.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">02</div>
+          <h3>Decline pairing prompts you did not start</h3>
+          <p
+            >If both sides show 0000, they match. That is not a reason to
+            accept. Say no to names you do not recognize, even familiar ones.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">03</div>
+          <h3>Turn off unused serial profiles</h3>
+          <p
+            >On Linux, stop unneeded RFCOMM/SPP agents. On Windows, remove the
+            Serial Port device for adapters you do not trust.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">04</div>
+          <h3>Patch the stack</h3>
+          <p
+            >Apply vendor fixes as they ship. Check your kernel or BlueZ version
+            against the fixed-version list, once there is one.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">05</div>
+          <h3>Watch for new links</h3>
+          <p
+            >Log new adapter addresses. Alert on any RFCOMM channel from a
+            device that is not on your allow list, including the car.</p
+          >
+        </div>
+        <div class="mit-card">
+          <div class="idx">06</div>
+          <h3>Keep critical hosts out of range</h3>
+          <p
+            >If a root shell would be a bad day (controllers, medical, CI),
+            leave Bluetooth off, or in another room.</p
+          >
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div
+        class="logo"
+        style="
+          justify-content: center;
+          display: flex;
+          gap: 0;
+          margin-bottom: 10px;
+        "
+      >
+        <span class="a">bluetooth</span><span class="b">2</span
+        ><span class="c">shell</span>.com
+      </div>
+      <p>Independent security research · This is the disclosure</p>
+      <p class="mono" style="margin-top: 8px; font-size: 0.75rem"
+        >© 2026 · CVE-2026-9001</p
+      >
+      <p style="margin-top: 10px; font-size: 0.8rem"
+        >Hosted on
+        <a href="https://cumulonimbus.link" target="_blank" rel="noreferrer"
+          >Cumulonimbus</a
+        >
+        by
+        <a href="https://alekeagle.com" target="_blank" rel="noreferrer"
+          >Alek Evans</a
+        ></p
+      >
+      <div class="disc">
+        This page is satire in the shape of an advisory, written so you will
+        think twice about a pairing prompt. Do not test against devices you do
+        not own or have written permission to assess.
+      </div>
+    </footer>
+
+    <script>
+      const termData = {
+        heroTerm: [
+          { t: '$ bt-scan --nearby', c: 'c-cmd' },
+          { t: '[+] Found: Victim-Laptop  (AA:BB:CC:DD:EE:FF)', c: 'c-info' },
+          { t: '$ bt-pair AA:BB:CC:DD:EE:FF', c: 'c-cmd' },
+          { t: '[*] Sending pairing request…', c: 'c-dim' },
+          {
+            t: '[+] Pairing accepted. Link key established. PIN was 0000 on both sides.',
+            c: 'c-out',
+          },
+          { t: '[*] Querying SDP services…', c: 'c-dim' },
+          {
+            t: '[!] SPP (Serial Port Profile) advertised — attempting RFCOMM bind',
+            c: 'c-warn',
+          },
+          {
+            t: '[+] Channel 0x0A bound to a root PTY on victim-laptop',
+            c: 'c-info',
+          },
+          { t: '$ echo id > /dev/rfcomm0 && cat /dev/rfcomm0', c: 'c-cmd' },
+          { t: 'uid=0(root) gid=0(root) groups=0(root)', c: 'c-err' },
+          { t: '# root@victim-laptop — session open', c: 'c-err' },
+        ],
+        pocTerm: [
+          { t: 'bt-shell v1.3.0  ·  PoC harness', c: 'c-info' },
+          { t: '', c: 'c-dim' },
+          { t: 'target   : Victim-Laptop (BlueZ 5.66)', c: 'c-dim' },
+          { t: 'distance : 4.2 m', c: 'c-dim' },
+          { t: 'channel  : rfcomm0 → ttyBT0', c: 'c-dim' },
+          { t: '', c: 'c-dim' },
+          { t: '[1/4] discover ......... done (0.31s)', c: 'c-out' },
+          { t: '[2/4] pair ............. done (accept by user)', c: 'c-out' },
+          { t: '[3/4] sdprobe .......... SPP present', c: 'c-warn' },
+          { t: '[4/4] shellbind ........ root PTY attached', c: 'c-err' },
+          { t: '', c: 'c-dim' },
+          { t: '>>> interactive mode — type exit to detach', c: 'c-info' },
+          { t: 'root@victim-laptop:~# ', c: 'c-cmd' },
+        ],
+        successTerm: [
+          { t: 'root@victim-laptop:~# id', c: 'c-cmd' },
+          { t: 'uid=0(root) gid=0(root) groups=0(root)', c: 'c-out' },
+          { t: 'root@victim-laptop:~# hostname', c: 'c-cmd' },
+          { t: 'victim-laptop.corp.local', c: 'c-out' },
+          { t: 'root@victim-laptop:~# whoami', c: 'c-cmd' },
+          { t: 'root', c: 'c-out' },
+          { t: 'root@victim-laptop:~# ls -la /home/victim/.ssh/', c: 'c-cmd' },
+          { t: 'total 16', c: 'c-out' },
+          { t: 'drwx------  2 victim victim 4096 Nov 22 09:14 .', c: 'c-out' },
+          { t: 'drwxr-xr-x  8 victim victim 4096 Nov 22 09:14 ..', c: 'c-out' },
+          {
+            t: '-rw-------  1 victim victim 1674 Nov 22 09:14 id_ed25519',
+            c: 'c-err',
+          },
+          {
+            t: '-rw-r--r--  1 victim victim  432 Nov 22 09:14 id_ed25519.pub',
+            c: 'c-out',
+          },
+          { t: 'root@victim-laptop:~# cat /etc/shadow | head -3', c: 'c-cmd' },
+          { t: 'root:$y$j9T$Kx9m…redacted…:19900:0:99999:7:::', c: 'c-err' },
+          { t: 'daemon:*:19880:0:99999:7:::', c: 'c-out' },
+          { t: 'victim:$y$j9T$ab12…redacted…:19900:0:99999:7:::', c: 'c-err' },
+          {
+            t: 'root@victim-laptop:~# cat /home/victim/.bash_history | tail',
+            c: 'c-cmd',
+          },
+          { t: 'ssh deploy@prod-db', c: 'c-out' },
+          { t: 'kubectl get secrets -n kube-system', c: 'c-out' },
+          { t: 'root@victim-laptop:~# ', c: 'c-cmd' },
+        ],
+      };
+
+      function typeInto(elId, lines) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+
+        el.replaceChildren();
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
+        cursor.setAttribute('aria-hidden', 'true');
+        el.appendChild(cursor);
+        el.dataset.typed = 'pending';
+
+        const reduce = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
+        let li = 0,
+          ci = 0,
+          span = null;
+
+        function finish() {
+          el.dataset.typed = 'done';
+        }
+
+        function addLine(line) {
+          span = document.createElement('span');
+          span.className = line.c || 'c-out';
+          el.insertBefore(span, cursor);
+        }
+
+        function endLine() {
+          span = null;
+          li += 1;
+          ci = 0;
+          if (li < lines.length)
+            el.insertBefore(document.createTextNode('\n'), cursor);
+        }
+
+        if (reduce) {
+          lines.forEach((line, i) => {
+            addLine(line);
+            span.textContent = line.t;
+            if (i < lines.length - 1)
+              el.insertBefore(document.createTextNode('\n'), cursor);
+          });
+          finish();
+          return;
+        }
+
+        function tick() {
+          if (li >= lines.length) {
+            finish();
+            return;
+          }
+          const line = lines[li];
+          const typeThis = line.c === 'c-cmd';
+
+          if (!typeThis) {
+            addLine(line);
+            span.textContent = line.t;
+            endLine();
+            setTimeout(tick, 45);
+            return;
+          }
+
+          if (!span) addLine(line);
+          if (ci < line.t.length) {
+            ci += 1;
+            span.textContent = line.t.slice(0, ci);
+            setTimeout(tick, Math.max(10, 16 - line.t.length * 0.04));
+          } else {
+            endLine();
+            setTimeout(tick, 140);
+          }
+        }
+
+        tick();
+      }
+
+      Object.keys(termData).forEach((id) => typeInto(id, termData[id]));
+    </script>
+  </body>
+</html>

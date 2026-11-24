@@ -34,17 +34,35 @@ const AuthStateManager: Plugin<[AuthStateManagerOptions] | []> = {
     const user = userStore(pinia),
       toast = toastStore(pinia);
 
-    // Immediately register the navigation guard to handle authentication state changes.
-    router.beforeEach(async (to) => {
-      // Start and wait for rehydration.
-      const sessionValid = await user.rehydrate();
+    (async () => {
+      const rehydrateSuccess = await user.rehydrate();
+      if (!rehydrateSuccess) {
+        if (router.currentRoute.value.meta.requiresAuth) {
+          toast.session();
+          router.push({
+            name: 'account-switcher',
+            query: {
+              redirect: router.currentRoute.value.fullPath,
+            },
+          });
+        }
+      } else if (
+        router.currentRoute.value.meta.requiresStaff &&
+        !user.account!.user.staff
+      ) {
+        toast.insufficientPermissions();
+        router.push({
+          path: '/',
+        });
+      }
+    })();
 
+    // Immediately register the navigation guard to handle authentication state changes.
+    router.beforeEach((to) => {
       // Are we on the 404 page?
       if (to.name === '404') return;
       // Not logged in?
       if (to.meta.requiresAuth && !user.loggedIn) {
-        if (sessionValid) toast.login();
-        else toast.session();
         return {
           name: 'account-switcher',
           query: {

@@ -28,6 +28,9 @@ export const displayPrefStore = defineStore('displayPref', () => {
   // -- Items Per Page --
   const itemsPerPage = ref(50);
   persistPiniaRef(itemsPerPage, 'itemsPerPage', { immediate: true });
+  // -- Prefers List Views --
+  const prefersListViews = ref(false);
+  persistPiniaRef(prefersListViews, 'prefersListViews', { immediate: true });
   // More persistent refs can be added here
   // --- End Persistent Refs ---
   // --- Internal Values ---
@@ -99,5 +102,6 @@ export const displayPrefStore = defineStore('displayPref', () => {
     hour12,
     itemsPerPage,
     preferredDark,
+    prefersListViews,
   };
 });

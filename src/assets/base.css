@@ -7,6 +7,22 @@
   initial-value: #ffffff;
 }
 
+@property --look-sky-top {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1877bd;
+}
+@property --look-sky-middle {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1877bd;
+}
+@property --look-sky-bottom {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1877bd;
+}
+
 /* Common Values */
 html {
   /* Wider than the viewport (cropping the tall side peaks) until 1800px (112.5rem), then 100vw */
@@ -28,15 +44,24 @@ html {
   /* Logo gradient colors */
   --logo-color-top: rgb(112, 132, 230);
   --logo-color-bottom: rgb(0, 250, 255);
+
+  /* Sky color transition */
+  transition:
+    --look-sky-top var(--theme-switch-time) ease,
+    --look-sky-middle var(--theme-switch-time) ease,
+    --look-sky-bottom var(--theme-switch-time) ease;
 }
 
 /* Light Mode */
 html.light-mode {
-  --look-sky: #1877bd;
+  --look-sky-top: #1877bd;
+  --look-sky-middle: #1877bd;
+  --look-sky-bottom: #1877bd;
   --look-sky-text: #ffffff;
   --look-sky-text-light: #c6e0f3;
 
   --look-page: #ffffff;
+  --look-page-card: #e7e7e7;
   --look-page-text: #0a2540;
 
   --look-band: #e8f4fc;
@@ -49,15 +74,20 @@ html.light-mode {
 
   --look-text-field: #ffffff;
   --look-text-field-border: #0a2540;
-  --look-text-field-disabled: #cfcfcf;
   --look-text-field-text: #0a2540;
   --look-text-field-hover: #f1f1f1;
 
   --look-button: #0d4f86;
   --look-button-border: #0d4f86;
-  --look-button-disabled: #0a3c65;
   --look-button-text: #ffffff;
   --look-button-hover: #1271be;
+
+  --look-switch-text: #0a2540;
+  --look-switch-track: #f1f1f1;
+  --look-switch-knob: #0d4f86;
+  --look-switch-border: #0a2540;
+
+  --look-dangerous-text: #ff4545;
 
   --hint-bg: rgba(255, 255, 255, 0.1);
   --hint-line: rgba(255, 255, 255, 0.65);
@@ -67,11 +97,14 @@ html.light-mode {
 
 /* Dark Mode */
 html.dark-mode {
-  --look-sky: linear-gradient(180deg, #08162b 0%, #102847 60%, #173556 100%);
+  --look-sky-top: #08162b;
+  --look-sky-middle: #102847;
+  --look-sky-bottom: #173556;
   --look-sky-text: #eef4fa;
   --look-sky-text-light: #9fbedc;
 
   --look-page: #0e1a2b;
+  --look-page-card: #172d4b;
   --look-page-text: #dce7f2;
 
   --look-band: #12233a;
@@ -85,15 +118,20 @@ html.dark-mode {
 
   --look-text-field: #12233a;
   --look-text-field-border: #ffffff;
-  --look-text-field-disabled: #09131f;
   --look-text-field-text: #ffffff;
   --look-text-field-hover: #173556;
 
   --look-button: #ffffff;
   --look-button-border: #0d4f86;
-  --look-button-disabled: #d1d1d1;
   --look-button-text: #0d4f86;
   --look-button-hover: #e8f4fc;
+
+  --look-switch-text: #dce7f2;
+  --look-switch-track: #0d4f86;
+  --look-switch-knob: #f1f1f1;
+  --look-switch-border: #0d4f86;
+
+  --look-dangerous-text: #ff4545;
 
   --hint-bg: rgba(143, 203, 255, 0.06);
   --hint-line: rgba(159, 190, 220, 0.55);
@@ -197,7 +235,8 @@ select {
   transition:
     background var(--theme-switch-time) ease,
     border-color var(--theme-switch-time) ease,
-    color var(--theme-switch-time) ease;
+    color var(--theme-switch-time) ease,
+    opacity 0.25s;
 }
 
 button {
@@ -261,14 +300,12 @@ button:hover:enabled {
 input:disabled,
 textarea:disabled,
 select:disabled {
-  background: var(--look-text-field-disabled);
-  border-color: var(--look-text-field-disabled);
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 button:disabled {
-  background: var(--look-button-disabled);
-  border-color: var(--look-button-disabled);
+  opacity: 0.5;
   cursor: not-allowed;
 }
 

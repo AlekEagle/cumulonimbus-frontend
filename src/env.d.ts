@@ -13,8 +13,6 @@ declare module '*.vue' {
 declare module 'vue' {
   interface ComponentCustomProperties {
     $version: string;
-    $dependencies: { [key: string]: string };
-    $devDependencies: { [key: string]: string };
   }
 }
 

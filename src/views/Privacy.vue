@@ -125,7 +125,9 @@
         Outside of logs, all data We store related to Your account can be
         accessed via Your dashboard. If you would like a copy of your data, You
         can contact Us at
-        <a href="mailto:data-request@alekeagle.me">data-request@alekeagle.me</a>
+        <a href="mailto:data-request@cumulonimbus.link"
+          >data-request@cumulonimbus.link</a
+        >
         using the email associated to Your account, after which You will receive
         a copy of Your account information within 30 business days.
       </p>
@@ -143,7 +145,8 @@
       <h2 id="contact">Contact</h2>
       <p>
         If You have any questions or concerns, please contact Us at
-        <a href="mailto:contact@alekeagle.me">contact@alekeagle.me</a>.
+        <a href="mailto:contact@cumulonimbus.link">contact@cumulonimbus.link</a
+        >.
       </p></section
     >
   </div>

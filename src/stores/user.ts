@@ -5,7 +5,7 @@ import persistPiniaRef from '#/persistPiniaRef.js';
 
 // Other Store Modules
 import { domainPickerStore } from './domainPicker.js';
-import { toastStore } from './toast.js';
+import { toastStore, ToastType } from './toast.js';
 import { secondFactorChallengerStore } from './secondFactorChallenger.js';
 
 // External Modules
@@ -42,10 +42,11 @@ export const userStore = defineStore('user', () => {
     immediate: true,
   });
 
-  // --- Non-Persistent Data ---
-
   // The current account information.
   const account = ref<User | null>(null);
+  persistPiniaRef(account, 'account', { deep: true, immediate: true });
+
+  // --- Non-Persistent Data ---
 
   // The Cumulonimbus client.
   const client = ref<Cumulonimbus | null>(null);
@@ -71,7 +72,8 @@ export const userStore = defineStore('user', () => {
   });
 
   // Have we tried to rehydrate the client from a stored session?
-  const hasRehydrated = ref(false);
+  const hasRehydrated = ref(false),
+    rehydrationResult = ref<boolean | null>(null);
   // The promise that resolves when rehydration is complete.
   let rehydrationPromise: Promise<boolean> | null = null;
 
@@ -263,7 +265,10 @@ export const userStore = defineStore('user', () => {
               case 'NOT_HANDLED':
                 switch ((error as Cumulonimbus.ResponseError).code) {
                   case 'INVALID_USER_ERROR':
-                    toast.show("I can't find anyone with that username!");
+                    toast.show(
+                      "I can't find anyone with that username!",
+                      ToastType.WARNING,
+                    );
                     return false;
                   default:
                     // If it still wasn't handled, throw the error.
@@ -278,7 +283,10 @@ export const userStore = defineStore('user', () => {
         case 'NOT_HANDLED':
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USER_ERROR':
-              toast.show("I can't find anyone with that username!");
+              toast.show(
+                "I can't find anyone with that username!",
+                ToastType.WARNING,
+              );
               return false;
             default:
               // If it still wasn't handled, throw the error.
@@ -339,13 +347,16 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'USER_EXISTS_ERROR':
-              toast.show('Someone already has that username or email!');
+              toast.show(
+                'Someone already has that username or email!',
+                ToastType.WARNING,
+              );
               return false;
             case 'INVALID_USERNAME_ERROR':
-              toast.show('Invalid username!');
+              toast.show('Invalid username!', ToastType.ERROR);
               return false;
             case 'INVALID_EMAIL_ERROR':
-              toast.show('Invalid email!');
+              toast.show('Invalid email!', ToastType.ERROR);
               return false;
             default:
               // If it still wasn't handled, throw the error.
@@ -452,14 +463,15 @@ export const userStore = defineStore('user', () => {
   }
 
   // Public function to rehydrate the user state. Ensures that only one rehydration attempt is made at a time.
-  function rehydrate(): Promise<boolean> {
-    return new Promise((resolve) => {
-      if (hasRehydrated.value) return resolve(true);
-      if (!rehydrationPromise) {
-        rehydrationPromise = __rehydrate();
-      }
-      rehydrationPromise.then(resolve);
-    });
+  async function rehydrate(): Promise<boolean> {
+    if (hasRehydrated.value) return rehydrationResult.value ?? false;
+    if (!rehydrationPromise) {
+      rehydrationPromise = __rehydrate();
+      rehydrationPromise.then((result) => {
+        rehydrationResult.value = result;
+      });
+    }
+    return await rehydrationPromise;
   }
 
   // --- Account Switching ---
@@ -513,7 +525,6 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_SESSION_ERROR':
-              // If it was, the session has already expired and we can pretend it was deleted successfully.
               // Reset the client and account information.
               client.value = null;
               account.value = null;
@@ -594,10 +605,13 @@ export const userStore = defineStore('user', () => {
                 // Handle special cases.
                 switch ((error as Cumulonimbus.ResponseError).code) {
                   case 'USER_EXISTS_ERROR':
-                    toast.show('Someone already has that username!');
+                    toast.show(
+                      'Someone already has that username!',
+                      ToastType.ERROR,
+                    );
                     return false;
                   case 'INVALID_USERNAME_ERROR':
-                    toast.show('Invalid username!');
+                    toast.show('Invalid username!', ToastType.ERROR);
                     return false;
                   default:
                     // If it still wasn't handled, throw the error.
@@ -613,10 +627,10 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'USER_EXISTS_ERROR':
-              toast.show('Someone already has that username!');
+              toast.show('Someone already has that username!', ToastType.ERROR);
               return false;
             case 'INVALID_USERNAME_ERROR':
-              toast.show('Invalid username!');
+              toast.show('Invalid username!', ToastType.ERROR);
               return false;
             default:
               // If it still wasn't handled, throw the error.
@@ -682,10 +696,13 @@ export const userStore = defineStore('user', () => {
                 // Handle special cases.
                 switch ((error as Cumulonimbus.ResponseError).code) {
                   case 'USER_EXISTS_ERROR':
-                    toast.show('Someone already has that email!');
+                    toast.show(
+                      'Someone already has that email!',
+                      ToastType.ERROR,
+                    );
                     return false;
                   case `INVALID_EMAIL_ERROR`:
-                    toast.show('Invalid email!');
+                    toast.show('Invalid email!', ToastType.ERROR);
                     return false;
                   default:
                     // If it still wasn't handled, throw the error.
@@ -701,10 +718,10 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'USER_EXISTS_ERROR':
-              toast.show('Someone already has that email!');
+              toast.show('Someone already has that email!', ToastType.ERROR);
               return false;
             case `INVALID_EMAIL_ERROR`:
-              toast.show('Invalid email!');
+              toast.show('Invalid email!', ToastType.ERROR);
               return false;
             default:
               // If it still wasn't handled, throw the error.
@@ -745,10 +762,16 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'EMAIL_ALREADY_VERIFIED_ERROR':
-              toast.show('Your email is already verified!');
+              toast.show('Your email is already verified!', ToastType.ERROR);
               return false;
             case `INVALID_VERIFICATION_TOKEN_ERROR`:
-              toast.show('Invalid verification token!');
+              toast.show('Invalid verification token!', ToastType.ERROR);
+              return false;
+            case 'INVALID_USER_ERROR':
+              toast.show(
+                'This verification email belongs to a different account!',
+                ToastType.ERROR,
+              );
               return false;
             default:
               // If it still wasn't handled, throw the error.
@@ -786,7 +809,7 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'EMAIL_ALREADY_VERIFIED_ERROR':
-              toast.show('Your email is already verified!');
+              toast.show('Your email is already verified!', ToastType.ERROR);
               // Since the email is already verified, let's go ahead and update the account information.
               await refetch();
               return false;
@@ -903,14 +926,17 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_DOMAIN_ERROR':
-              toast.show('You just missed that domain.');
+              toast.show('You just missed that domain.', ToastType.ERROR);
               await domainPicker.sync();
               return false;
             case 'SUBDOMAIN_NOT_ALLOWED_ERROR':
-              toast.show('Subdomains are not supported.');
+              toast.show('Subdomains are not supported.', ToastType.ERROR);
               return false;
             case 'SUBDOMAIN_TOO_LONG_ERROR':
-              toast.show('Subdomain cannot be longer than 63 characters.');
+              toast.show(
+                'Subdomain cannot be longer than 63 characters.',
+                ToastType.ERROR,
+              );
               return false;
             default:
               // If it still wasn't handled, throw the error.
@@ -1006,7 +1032,7 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_FILE_ERROR':
-              toast.show("You don't have any files to delete.");
+              toast.show("You don't have any files to delete.", ToastType.INFO);
               return -1;
             default:
               // If it still wasn't handled, throw the error.
@@ -1093,7 +1119,7 @@ export const userStore = defineStore('user', () => {
           // Handle special cases.
           switch ((error as Cumulonimbus.ResponseError).code) {
             case 'INVALID_USERNAME_ERROR':
-              toast.show('That is not your username.');
+              toast.show('That is not your username.', ToastType.ERROR);
               return false;
             default:
               // If it still wasn't handled, throw the error

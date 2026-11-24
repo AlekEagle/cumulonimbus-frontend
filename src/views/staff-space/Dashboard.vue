@@ -1,11 +1,4 @@
 <template>
-  <h1>Staff Dashboard</h1>
-  <h2>Welcome, {{ user.account?.user.username ?? 'loading' }}!</h2>
-  <div class="quick-action-buttons-container">
-    <RouterButton to="/dashboard" title="Go to User Dashboard">
-      User Dashboard
-    </RouterButton>
-  </div>
   <div class="content-box-container grow">
     <ContentBox title="Users" :src="profileIcon" theme-safe to="/staff/users">
       See and manage all users.
@@ -46,7 +39,6 @@
 <script lang="ts" setup>
   // Vue Components
   import ContentBox from '&/ContentBox.vue';
-  import RouterButton from '&/RouterButton.vue';
 
   // In-House Modules
   import fileIcon from '!/images/file.svg';
@@ -55,10 +47,8 @@
   import profileIcon from '!/images/profile.svg';
 
   // Store Modules
-  import { userStore } from '$/user.js';
+  // No Store Modules to import here.
 
   // External Modules
   // No External Modules to import here.
-
-  const user = userStore();
 </script>

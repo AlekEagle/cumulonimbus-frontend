@@ -1,7 +1,4 @@
 <template>
-  <h1>Verifying Your Email</h1>
-  <h2>This will only take a second.</h2>
-
   <EmphasizedBox>
     <template v-if="statusText">
       <h1 v-text="statusText" />
@@ -34,15 +31,14 @@
   onMounted(verifyEmail);
 
   async function verifyEmail() {
-    if (!window.location.search.includes('token')) {
+    const token = router.currentRoute.value.query.token;
+    if (Array.isArray(token) || !token) {
       statusText.value = 'Your verification link is invalid!';
       return await returnToDashboard();
     }
 
     try {
-      const res = await user.verifyEmail(
-        window.location.search.split('token=')[1],
-      );
+      const res = await user.verifyEmail(token);
       if (res) {
         statusText.value = 'Thank you for verifying your email!';
         return await returnToDashboard();

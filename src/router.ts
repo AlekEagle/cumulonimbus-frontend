@@ -26,7 +26,7 @@ export const router = createRouter({
       },
       meta: {
         documentName: 'Terms of Service',
-        updated: 'October 22nd, 2023',
+        updated: 'November 23nd, 2026',
       },
     },
     // Privacy Policy page route
@@ -39,7 +39,7 @@ export const router = createRouter({
       },
       meta: {
         documentName: 'Privacy Policy',
-        updated: 'October 21st, 2023',
+        updated: 'November 23nd, 2026',
       },
     },
     // About page route
@@ -47,14 +47,10 @@ export const router = createRouter({
       path: '/about',
       name: 'about',
       components: {
-        header: () => import('@/headers/SuperQuickHeader.vue'),
         default: () => import('@/views/About.vue'),
       },
       meta: {
-        header: {
-          title: 'About',
-          subtitle: 'The story behind Cumulonimbus.',
-        },
+        noClouds: true,
       },
     },
     // Auth page route
@@ -82,9 +78,11 @@ export const router = createRouter({
       path: '/verify',
       name: 'verify',
       components: {
-        default: () => import('@/views/user-space/Verify.vue'),
+        header: () => import('@/views/user-space/Verify.vue'),
       },
-      meta: {},
+      meta: {
+        requiresAuth: true,
+      },
     },
     // User space routes
     {
@@ -188,6 +186,7 @@ export const router = createRouter({
       meta: {
         requiresAuth: true,
         requiresStaff: true,
+        noClouds: true,
       },
     },
     {
@@ -361,7 +360,7 @@ export const router = createRouter({
       path: '/ui-sandbox/sink',
       name: 'testing-link-sink',
       components: {
-        header: () => import('@/headers/TestingLinkSink.vue'),
+        header: () => import('@/headers/Testing.vue'),
       },
       meta: {},
     },

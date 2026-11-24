@@ -12,15 +12,21 @@
           :title="`${themeTitleDescription}. Click to cycle through themes.`"
           @click="doThemeToggle"
         >
-          <span v-if="displayPref.theme === 'system'" id="system" />
-          <span v-else-if="displayPref.theme === 'light'" id="light" />
-          <span v-else-if="displayPref.theme === 'dark'" id="dark" />
+          <div class="theme-switch-container">
+            <span :id="displayPref.theme" />
+          </div>
         </div>
-        <RouterLink to="/about">About</RouterLink>
         <RouterLink to="/auth/switcher" v-if="!user.loggedIn">
           Log In
         </RouterLink>
-        <RouterLink to="/dashboard" v-else>Dashboard</RouterLink>
+        <div
+          v-else
+          class="profile-button"
+          title="Your Profile"
+          @click="showProfile = !showProfile"
+        >
+          <span />
+        </div>
       </nav>
     </header>
 
@@ -48,6 +54,32 @@
     </Transition>
   </div>
 
+  <template v-if="showProfile">
+    <div
+      class="profile-clickoff-target"
+      @click.prevent="showProfile = !showProfile"
+    />
+    <div class="profile">
+      <ul>
+        <li>Hello, {{ user.account?.user.username }}</li>
+        <RouterLink @click="showProfile = !showProfile" to="/dashboard">
+          <li>Your Dashboard</li>
+        </RouterLink>
+        <RouterLink
+          to="/staff"
+          v-if="user.account?.user.staff"
+          @click="showProfile = !showProfile"
+        >
+          <li>Staff Dashboard</li>
+        </RouterLink>
+        <RouterLink to="/auth/switcher" @click="showProfile = !showProfile">
+          <li>Switch Accounts</li>
+        </RouterLink>
+        <li @click="doLogout">Log Out</li>
+      </ul>
+    </div>
+  </template>
+
   <!-- DO NOT DELETE THIS CODE OR THE COMMENTS I DON'T KNOW WHAT IT DOES BUT REMOVING IT BREAKS LITERALLY EVRYTHING -->
   <main>
     <!-- The real deal content -->
@@ -60,6 +92,7 @@
     <footer class="footer-content">
       <span>Cumulonimbus, the funny cloud platform.</span>
       <nav aria-label="Footer">
+        <RouterLink to="/about">About</RouterLink>
         <a href="https://alekeagle.com/d">Discord</a>
         <a
           href="mailto:abuse@cumulonimbus.link?subject=Report%20Abuse&body=URL%2FLink%20to%20offending%20content%3A%20%5BReplace%20me%20with%20the%20link%20to%20the%20offending%20content%5D%0A%0AUse%20the%20space%20below%20to%20explain%20how%20the%20content%20above%20is%20potentially%20abusing%20the%20service%3A%0A%5BYour%20reasoning%20here%5D"
@@ -73,7 +106,7 @@
 
   <fieldset v-if="debugVisible" class="debug-settings">
     <legend>Development Options</legend>
-    <p>Toggle window with "Enter"</p>
+    <p>Toggle window with "F3"</p>
     <label v-for="option in debugSettings" :style="{ display: 'block' }">
       <button
         v-if="option.value == null"
@@ -115,17 +148,37 @@
   // Store Modules
   import { displayPrefStore, Theme } from '$/displayPref';
   import { userStore } from '$/user.js';
+  import { toastStore, ToastType } from '$/toast.js';
 
   // External Modules
   import { ref, onMounted, computed, useTemplateRef, watch } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   // import { visible } from '@/router';
 
   const route = useRoute();
+  const router = useRouter();
+  const toast = toastStore();
   const displayPref = displayPrefStore();
   const user = userStore();
   const noClouds = computed(() => (route.meta.noClouds ?? false) as boolean);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const showProfile = ref(false);
+
+  //// Logout
+
+  async function doLogout() {
+    if (await user.logout()) {
+      router.replace({
+        path: '/',
+      });
+    } else {
+      toast.show(
+        "I couldn't log out for some reason. Try again later.",
+        ToastType.ERROR,
+      );
+    }
+    showProfile.value = false;
+  }
 
   //// Theme Stuff
 
@@ -302,7 +355,7 @@
   onMounted(() => {
     document.addEventListener('keydown', (event) => {
       if (event.repeat || event.isComposing) return;
-      if (event.key == 'Enter') debugVisible.value = !debugVisible.value;
+      if (event.key == 'F3') debugVisible.value = !debugVisible.value;
 
       // man vue's types sure are correct
       debugSettings.value.forEach((setting: any) => {
@@ -328,7 +381,12 @@
   /* hero */
 
   .sky {
-    background: var(--look-sky);
+    background: linear-gradient(
+      180deg,
+      var(--look-sky-top) 0%,
+      var(--look-sky-middle) 60%,
+      var(--look-sky-bottom) 100%
+    );
     color: var(--look-sky-text);
     position: relative;
     overflow: clip;
@@ -385,7 +443,11 @@
     align-items: center;
   }
 
-  .bar nav .theme-switch span {
+  .bar nav .theme-switch .theme-switch-container {
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 1));
+  }
+
+  .bar nav .theme-switch .theme-switch-container span {
     display: inline-block;
     width: 24px;
     height: 24px;
@@ -393,15 +455,15 @@
     transition: background-color var(--theme-switch-time) ease;
   }
 
-  .bar nav .theme-switch span#system {
+  .bar nav .theme-switch .theme-switch-container span#system {
     mask: url('!/images/computer.svg') center / contain no-repeat;
   }
 
-  .bar nav .theme-switch span#light {
+  .bar nav .theme-switch .theme-switch-container span#light {
     mask: url('!/images/sun.svg') center / contain no-repeat;
   }
 
-  .bar nav .theme-switch span#dark {
+  .bar nav .theme-switch .theme-switch-container span#dark {
     mask: url('!/images/moon.svg') center / contain no-repeat;
   }
 
@@ -412,6 +474,89 @@
   .bar nav a:hover,
   .bar nav a.router-link-exact-active {
     text-decoration: underline;
+  }
+
+  .bar nav div.profile-button {
+    display: flex;
+    width: 36px;
+    height: 36px;
+
+    border: 2px solid var(--look-sky-text);
+    border-radius: 36px;
+    cursor: pointer;
+
+    overflow: hidden;
+
+    align-items: end;
+    justify-content: center;
+
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 1));
+  }
+
+  .bar nav div.profile-button span {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    background-color: var(--look-sky-text);
+    mask: url('!/images/profile.svg') center / contain no-repeat;
+    transition: background-color var(--theme-switch-time) ease;
+  }
+
+  div.profile {
+    position: absolute;
+    top: 60px;
+    right: 54px;
+    background: var(--look-footer);
+    border: 1px solid var(--look-sky-text);
+    border-radius: 10px;
+    color: var(--look-sky-text);
+    z-index: 3;
+  }
+
+  div.profile ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  div.profile ul a {
+    text-decoration: none;
+  }
+
+  div.profile ul li,
+  div.profile ul a li {
+    padding: 0.5em 1em;
+    transition: background 0.25s;
+    user-select: none;
+    border-top: 0.5px solid var(--look-sky-text);
+    border-bottom: 0.5px solid var(--look-sky-text);
+  }
+
+  div.profile ul > li:first-child {
+    border-top: none;
+  }
+
+  div.profile ul > li:last-child {
+    border-bottom: none;
+  }
+
+  div.profile ul li:hover:not(:first-child),
+  div.profile ul a:hover:not(:first-child) li {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  div.profile ul > li:last-child {
+    color: var(--look-dangerous-text);
+    cursor: pointer;
+  }
+
+  div.profile-clickoff-target {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
   }
 
   .bank {

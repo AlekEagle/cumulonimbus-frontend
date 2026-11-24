@@ -10,7 +10,7 @@
       <img
         v-if="debug"
         class="file-content-box-preview"
-        src="https://cdn.alekeagle.me/eyK3KLBZyc.jpg"
+        src="https://cdn.cumulonimbus.link/eyK3KLBZyc.jpg"
         alt="Preview"
       />
       <!-- CAME INTO VIEW -->

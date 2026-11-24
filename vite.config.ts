@@ -75,12 +75,12 @@ const baseManifest = {
   background_color: '#808080',
   screenshots: [
     {
-      src: 'https://cdn.alekeagle.me/DVAQGiggrG.png',
+      src: 'https://cdn.cumulonimbus.link/DVAQGiggrG.png',
       form_factor: 'wide',
       sizes: '1920x1080',
     },
     {
-      src: 'https://cdn.alekeagle.me/jUf_rGepqK.png',
+      src: 'https://cdn.cumulonimbus.link/jUf_rGepqK.png',
       form_factor: 'narrow',
       sizes: '1080x2260',
     },
@@ -119,10 +119,10 @@ const baseManifest = {
 
 // Production compile-time definitions; every env inherits these and overrides what differs.
 const baseDefine: Record<string, string> = {
-  __THUMBNAIL_BASE_URL__: JSON.stringify('https://previews.alekeagle.me'),
-  __CDN_BASE_URL__: JSON.stringify('https://cdn.alekeagle.me'),
-  __API_BASE_URL__: JSON.stringify('https://alekeagle.me/api'),
-  __APP_BASE_URL__: JSON.stringify('https://alekeagle.me'),
+  __THUMBNAIL_BASE_URL__: JSON.stringify('https://previews.cumulonimbus.link'),
+  __CDN_BASE_URL__: JSON.stringify('https://cdn.cumulonimbus.link'),
+  __API_BASE_URL__: JSON.stringify('https://cumulonimbus.link/api'),
+  __APP_BASE_URL__: JSON.stringify('https://cumulonimbus.link'),
 };
 
 export interface EnvOverrides {

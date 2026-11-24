@@ -2,7 +2,7 @@
   <div class="separator" />
 </template>
 
-<style>
+<style scoped>
   .separator {
     width: 80%;
     height: 2px;

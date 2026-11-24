@@ -13,4 +13,4 @@ The frontend of the Cumulonimbus ecosystem.
 
 ## What is in this repository?
 
-This repository contains the UI that an end-user will interact with when visiting the [website](https://alekeagle.me), all special landing pages for domains connected to Cumulonimbus, and the NGINX configuration for the NGINX webserver.
+This repository contains the UI that an end-user will interact with when visiting the [website](https://cumulonimbus.link), all special landing pages for domains connected to Cumulonimbus, and the NGINX configuration for the NGINX webserver.
